@@ -1,0 +1,118 @@
+﻿
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+    <h1>The System.MulticastDelegate and System.Delegate Base Classes</h1>
+ <p>So, when you build a type using the C# delegate keyword, you indirectly declare a class type that derives
+from System.MulticastDelegate. This class provides descendents with access to a list that contains the
+addresses of the methods maintained by the delegate object, as well as several additional methods (and
+a few overloaded operators) to interact with the invocation list. Here are some select members of
+System.MulticastDelegate:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">abstract</span> <span class="kwrd">class</span> MulticastDelegate : Delegate
+{
+    <span class="rem">// Returns the list of methods "pointed to."</span>
+    <span class="kwrd">public</span> <span class="kwrd">sealed</span> <span class="kwrd">override</span> Delegate[] GetInvocationList();
+
+    <span class="rem">// Overloaded operators.</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> <span class="kwrd">operator</span> ==(MulticastDelegate d1, MulticastDelegate d2);
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> <span class="kwrd">operator</span> !=(MulticastDelegate d1, MulticastDelegate d2);
+
+    <span class="rem">// Used internally to manage the list of methods maintained by the delegate.</span>
+    <span class="kwrd">private</span> IntPtr _invocationCount;
+    <span class="kwrd">private</span> <span class="kwrd">object</span> _invocationList;
+}</pre>
+<p>System.MulticastDelegate obtains additional functionality from its parent class, System.Delegate.
+Here is a partial snapshot of the class definition:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">abstract</span> <span class="kwrd">class</span> Delegate : ICloneable, ISerializable
+{
+    <span class="rem">// Methods to interact with the list of functions.</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Delegate Combine(<span class="kwrd">params</span> Delegate[] delegates);
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Delegate Combine(Delegate a, Delegate b);
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Delegate Remove(Delegate source, Delegate value);
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Delegate RemoveAll(Delegate source, Delegate value);
+
+    <span class="rem">// Overloaded operators.</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> <span class="kwrd">operator</span> ==(Delegate d1, Delegate d2);
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> <span class="kwrd">operator</span> !=(Delegate d1, Delegate d2);
+
+    <span class="rem">// Properties that expose the delegate target.</span>
+    <span class="kwrd">public</span> MethodInfo Method { <span class="kwrd">get</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">object</span> Target { <span class="kwrd">get</span>; }
+}</pre>
+<p>Now, understand that you can never directly derive from these base classes in your code (it is a compiler
+error to do so). Nevertheless, when you use the delegate keyword, you have indirectly created a class
+that “is-a” MulticastDelegate. Table 11-1 documents the core members common to all delegate types.</p>
+<p><b>Table 11-1.</b> Select Members of System.MultcastDelegate/System.Delegate</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Member
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Method
+   </td>
+   <td>
+    This property returns a System.Reflection.MethodInfo object that
+     represents details of a static method maintained by the delegate.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Target
+   </td>
+   <td>
+    If the method to be called is defined at the object level (rather than a
+     static method), Target returns an object that represents the method
+     maintained by the delegate. If the value returned from Target equals
+     null, the method to be called is a static member.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Combine()
+   </td>
+   <td>
+    This static method adds a method to the list maintained by the
+delegate. In C#, you trigger this method using the overloaded +=
+operator as a shorthand notation.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    GetInvocationList()
+   </td>
+   <td>
+    This method returns an array of System.Delegate objects, each
+representing a particular method that may be invoked.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Remove() 
+RemoveAll()
+   </td>
+   <td>
+    These static methods remove a method (or all methods) from the
+delegate’s invocation list. In C#, the Remove() method can be called
+indirectly using the overloaded -= operator.
+   </td>
+  </tr>
+</table>
+ 
+   </body></html>
+

@@ -1,0 +1,80 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Method Group Conversion Syntax</h1>
+  <p>In the previous CarDelegate example, we explicitly created instances of the Car.CarEngineHandler
+delegate object in order to register and unregister with the engine notifications:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Delegates as event enablers *****\n"</span>);
+
+    Car c1 = <span class="kwrd">new</span> Car(<span class="str">"SlugBug"</span>, 100, 10);
+    c1.RegisterWithCarEngine(<span class="kwrd">new</span> Car.CarEngineHandler(OnCarEngineEvent));
+
+    Car.CarEngineHandler handler2 =
+    <span class="kwrd">new</span> Car.CarEngineHandler(OnCarEngineEvent2);
+
+    c1.RegisterWithCarEngine(handler2);
+...
+}</pre>
+<p>To be sure, if you need to call any of the inherited members of MulticastDelegate or Delegate,
+manually creating a delegate variable is the most straightforward way of doing so. However, in most
+cases, you don’t really need to hang onto the delegate object. Rather, you typically only need to use the
+delegate object in order to pass in the method name as a constructor parameter.</p>
+<p>As a simplification, C# provides a shortcut termed method group conversion. This feature allows you
+to supply a direct method name, rather than a delegate object, when calling methods that take delegates
+as arguments.</p>
+<p><b>Note </b>As you will see later in this chapter, you can also use method group conversion syntax to simplify how you
+register with a C# event.</p>
+<p>To illustrate, create a new Console Application named CarDelegateMethodGroupConversion and
+insert the file containing the Car class you defined in the CarDelegate project. Now, consider the
+following Program class, which uses method group conversion to register and unregister from the engine
+notifications:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Method Group Conversion *****\n"</span>);
+        Car c1 = <span class="kwrd">new</span> Car();
+
+        <span class="rem">// Register the simple method name.</span>
+        c1.RegisterWithCarEngine(CallMeHere);
+
+        Console.WriteLine(<span class="str">"***** Speeding up *****"</span>);
+        <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; 6; i++)
+            c1.Accelerate(20);
+
+        <span class="rem">// Unregister the simple method name.</span>
+        c1.UnRegisterWithCarEngine(CallMeHere);
+
+        <span class="rem">// No more notifications!</span>
+        <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; 6; i++)
+            c1.Accelerate(20);
+
+        Console.ReadLine();
+    }
+
+    <span class="kwrd">static</span> <span class="kwrd">void</span> CallMeHere(<span class="kwrd">string</span> msg)
+    {
+        Console.WriteLine(<span class="str">"=&gt; Message from Car: {0}"</span>, msg);
+    }
+}</pre>
+<p>Notice that we are not directly allocating the associated delegate object, but rather simply specifying
+a method that matches the delegate’s expected signature (a method returning void and taking a single
+string in this case). Understand that the C# compiler is still ensuring type safety. Thus, if the
+CallMeHere() method did not take a string and return void, we would be issued a compiler error.</p>
+<p><b>Source Code</b> The CarDelegateMethodGroupConversion project is located under the Chapter 11 subdirectory.</p>
+</body>
+    </html> 
+   
+

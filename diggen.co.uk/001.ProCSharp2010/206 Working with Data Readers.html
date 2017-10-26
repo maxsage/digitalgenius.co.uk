@@ -1,0 +1,127 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Working with Data Readers</h1>
+<p>Once you establish the active connection and SQL command, the next step is to submit the query to the
+data source. As you might guess, you have a number of ways to do this. The DbDataReader type (which
+implements IDataReader) is the simplest and fastest way to obtain information from a data store. Recall
+that data readers represent a read-only, forward-only stream of data returned one record at a time.
+Given this, data readers are useful only when submitting SQL selection statements to the underlying
+data store.</p>
+<p>Data readers are useful when you need to iterate over large amounts of data quickly and you do not
+need to maintain an in-memory representation. For example, if you request 20,000 records from a table
+to store in a text file, it would be rather memory-intensive to hold this information in a DataSet (because
+a DataSet holds the entire result of the query in memory at the same time).</p>
+<p>A better approach is to create a data reader that spins over each record as rapidly as possible. Be
+aware, however, that data reader objects (unlike data adapter objects, which you’ll examine later)
+maintain an open connection to their data source until you explicitly close the connection.</p>
+<p>You obtain data reader objects from the command object using a call to ExecuteReader().The data
+reader represents the current record it has read from the database. The data reader has an indexer
+method (e.g, [] syntax in C#) that allows you to access a column in the current record. You can access the
+column either by name or by zero-based integer.</p>
+<p>The following use of the data reader leverages the Read() method to determine when you have
+reached the end of your records (using a false return value). For each incoming record that you read
+from the database, you use the type indexer to print out the make, pet name, and color of each
+automobile. Also note that you call Close() as soon as you finish processing the records; this frees up the
+connection object:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+...
+    <span class="rem">// Obtain a data reader via ExecuteReader().</span>
+    <span class="kwrd">using</span>(SqlDataReader myDataReader = myCommand.ExecuteReader())
+    {
+        <span class="rem">// Loop over the results.</span>
+        while (myDataReader.Read())
+        {
+            Console.WriteLine(<span class="str">"-&gt; Make: {0}, PetName: {1}, Color: {2}."</span>,
+                myDataReader[<span class="str">"Make"</span>].ToString(),
+                myDataReader[<span class="str">"PetName"</span>].ToString(),
+                myDataReader[<span class="str">"Color"</span>].ToString());
+        }
+    }
+    Console.ReadLine();
+}</pre>
+<p>In the preceding snippet, you overload the indexer of a data reader object to take either a string
+(representing the name of the column) or an int (representing the column’s ordinal position). Thus, you
+can clean up the current reader logic (and avoid hard-coded string names) with the following update
+(note the use of the FieldCount property):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+while (myDataReader.Read())
+{
+    Console.WriteLine(<span class="str">"***** Record *****"</span>);
+    <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; myDataReader.FieldCount; i++)
+    {
+        Console.WriteLine(<span class="str">"{0} = {1} "</span>,
+        myDataReader.GetName(i),
+        myDataReader.GetValue(i).ToString());
+    }
+    Console.WriteLine();
+}</pre>
+<p>If you compile and run your project at this point, you should see a list of all automobiles in the
+Inventory table of the AutoLot database. The following output shows the initial few records from my own
+version of AutoLot:</p>
+<pre class="csharpcode">
+***** Fun with Data Readers *****
+
+***** Info about your connection *****
+Database location: (local)\SQLEXPRESS
+Database name: AutoLot
+Timeout: 30
+Connection state: Open
+
+***** Record *****
+CarID = 83
+Make = Ford
+Color = Rust
+PetName = Rusty
+
+***** Record *****
+CarID = 107
+Make = Ford
+Color = Red
+PetName = Snake</pre>
+<h2>Obtaining Multiple Result Sets Using a Data Reader</h2>
+<p>Data reader objects can obtain multiple result sets using a single command object. For example, if you
+want to obtain all rows from the Inventory table, as well as all rows from the Customers table, you can
+specify both SQL select statements using a semicolon delimiter:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">string</span> strSQL = <span class="str">"Select * From Inventory;Select * from Customers"</span>;</pre>
+<p>Once you obtain the data reader, you can iterate over each result set using the NextResult()
+method. Note that you are always returned the first result set automatically. Thus, if you wish to read
+over the rows of each table, you can build the following iteration construct:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">do</span>
+{
+    while (myDataReader.Read())
+    {
+        Console.WriteLine(<span class="str">"***** Record *****"</span>);
+        <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; myDataReader.FieldCount; i++)
+        {
+            Console.WriteLine(<span class="str">"{0} = {1}"</span>,
+                myDataReader.GetName(i),
+                myDataReader.GetValue(i).ToString());
+        }
+        Console.WriteLine();
+    }
+} while (myDataReader.NextResult());</pre>
+<p>At this point, you should be more aware of the functionality data reader objects bring to the table.
+Always remember that a data reader can only process SQL Select statements; you cannot use them to
+modify an existing database table using Insert, Update, or Delete requests. Modifying an existing
+database requires additional investigation of command objects.</p>
+    <p><b>Source Code</b> You can find the AutoLotDataReader project under the Chapter 21 subdirectory.</p>
+    </body>
+    </html>
+      
+      
+   

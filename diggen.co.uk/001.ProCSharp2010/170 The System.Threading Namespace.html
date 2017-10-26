@@ -1,0 +1,142 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>The System.Threading Namespace</h1>
+<p>Under the .NET platform, the System.Threading namespace provides a number of types that enable the
+direct construction of multithreaded applications. In addition to providing types that allow you to
+interact with a particular CLR thread, this namespace defines types that allow access to the CLR
+maintained thread pool, a simple (non–GUI-based) Timer class, and numerous types used to provide
+synchronized access to shared resources. Table 19-1 lists some of the core members of this namespace.
+(Be sure to consult the .NET Framework 4.0 SDK documentation for full details.)</p>
+<p><b>Table 19-1.</b> Select Types of the System.Threading Namespace</p>
+<table class="gridtable">
+   <tr>
+   <th>
+    Type
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Interlocked
+   </td>
+   <td>
+    This type provides atomic operations for variables that are
+shared by multiple threads.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Monitor
+   </td>
+   <td>
+    This type provides the synchronization of threading
+objects using locks and wait/signals. The C# lock keyword
+makes use of a Monitor object under the hood.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Mutex
+   </td>
+   <td>
+    This synchronization primitive can be used for
+synchronization between application domain boundaries.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ParameterizedThreadStart
+   </td>
+   <td>
+    This delegate allows a thread to call methods that take any
+number of arguments.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Semaphore
+   </td>
+   <td>
+    This type allows you to limit the number of threads that
+can access a resource, or a particular type of resource,
+concurrently.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Thread
+   </td>
+   <td>
+    This type represents a thread that executes within the CLR.
+Using this type, you are able to spawn additional threads
+in the originating AppDomain.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ThreadPool
+   </td>
+   <td>
+    This type allows you to interact with the CLR-maintained
+thread pool within a given process.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ThreadPriority
+   </td>
+   <td>
+    This enum represents a thread’s priority level (Highest,
+Normal, etc.).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ThreadStart
+   </td>
+   <td>
+    This delegate is used to specify the method to call for a
+given thread. Unlike the ParameterizedThreadStart
+delegate, targets of ThreadStart must always have the
+same prototype.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ThreadState
+   </td>
+   <td>
+    This enum specifies the valid states a thread may take
+(Running, Aborted, etc.).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Timer
+   </td>
+   <td>
+    This type provides a mechanism for executing a method at
+specified intervals.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    TimerCallback
+   </td>
+   <td>
+    This delegate type is used in conjunction with Timer types.
+   </td>
+  </tr>
+ </table>
+     </body></html>
+      
+   

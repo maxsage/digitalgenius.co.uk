@@ -1,0 +1,44 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Serializing Objects Using the SoapFormatter</h1>
+<p>Your next choice of formatter is the SoapFormatter type, which serializes data in a proper SOAP
+envelope. In a nutshell, the Simple Object Access Protocol (SOAP) defines a standard process in which
+you can invoke methods in a platform- and OS-neutral manner.</p>
+<p>Assuming you have set a reference to the System.Runtime.Serialization.Formatters.Soap.dll
+assembly (and imported the System.Runtime.Serialization.Formatters.Soap namespace), you can
+persist and retrieve a JamesBondCar as a SOAP message simply by replacing each occurrence of
+BinaryFormatter with SoapFormatter. Consider the following new method of the Program class, which
+serializes an object to a local file:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Be sure to import System.Runtime.Serialization.Formatters.Soap</span>
+<span class="rem">// and reference System.Runtime.Serialization.Formatters.Soap.dll.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> SaveAsSoapFormat (<span class="kwrd">object</span> objGraph, <span class="kwrd">string</span> fileName)
+{
+    <span class="rem">// Save object to a file named CarData.soap in SOAP format.</span>
+    SoapFormatter soapFormat = <span class="kwrd">new</span> SoapFormatter();
+
+    <span class="kwrd">using</span>(Stream fStream = <span class="kwrd">new</span> FileStream(fileName,
+        FileMode.Create, FileAccess.Write, FileShare.None))
+    {
+        soapFormat.Serialize(fStream, objGraph);
+    }
+    Console.WriteLine(<span class="str">"=&gt; Saved car in SOAP format!"</span>);
+}</pre>
+<p>As before, you use Serialize() and Deserialize() to move the object graph into and out of the
+stream. If you call this method from Main() and run the application, you can open the resulting *.soap
+file. Here you can locate the XML elements that mark the stateful values of the current JamesBondCar, as
+well as the relationship between the objects in the graph by using the #ref tokens (see Figure 20-6).</p>
+<img src="http://www.diggen.co.uk/Images/Figure20_06.png" alt="Figure 20-6" />
+<p><b>Figure 20-6</b> JamesBondCar serialized using a SoapFormatter</p>
+      </body>
+    </html>
+      
+   

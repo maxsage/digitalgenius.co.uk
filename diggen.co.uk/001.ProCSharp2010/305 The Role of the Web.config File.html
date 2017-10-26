@@ -1,0 +1,136 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>The Role of the Web.config File</h1>
+    <p>By default, all C# ASP.NET web applications created with Visual Studio 2010 are automatically provided
+with a Web.config file. However, if you ever need to manually insert a Web.config file into your site (e.g.,
+when you are working with the single-page model and have not created a web solution), you may do so
+using the using the Website &gt; Add New Item menu option. In either case, within this scope of a
+Web.config file you are able to add settings that control how your web application will function at
+runtime.</p>
+<p>Recall during your examination of .NET assemblies (in Chapter 15) that you learned client
+applications can leverage an XML-based configuration file to instruct the CLR how it should handle
+binding requests, assembly probing, and other runtime details. The same holds true for ASP.NET web
+applications, with the notable exception that web-centric configuration files are always
+named Web.config (unlike *.exe configuration files, which are named based on the related client
+executable).</p>
+<p>The full structure of a Web.config file is rather verbose. However, Table 32-9 outlines some of the
+more interesting subelements that can be found within a Web.config file.</p>
+<p><b>Table 32-9.</b> Select Elements of a Web.config File</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Element
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    &lt;appSettings&gt;
+   </td>
+   <td>
+    This element is used to establish custom name/value pairs that can be
+programmatically read in memory for use by your pages using the
+ConfigurationManager type.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    &lt;authentication&gt;
+   </td>
+   <td>
+    This security-related element is used to define the authentication mode for this
+web application.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    &lt;authorization&gt;
+   </td>
+   <td>
+    This is another security-centric element used to define which users can access
+which resources on the web server.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    &lt;connectionStrings&gt;
+   </td>
+   <td>
+    This element is used to hold external connection strings used within this website.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    &lt;customErrors&gt;
+   </td>
+   <td>
+    This element is used to tell the runtime exactly how to display errors that occur
+during the functioning of the web application.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    &lt;globalization&gt;
+   </td>
+   <td>
+    This element is used to configure the globalization settings for this web application.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    &lt;namespaces&gt;
+   </td>
+   <td>
+    This element documents all of the namespaces to include if your web
+application has been precompiled using the new aspnet_compiler.exe
+command-line tool.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    &lt;sessionState&gt;
+   </td>
+   <td>
+    This element is used to control how and where session state data will be stored
+by the .NET runtime.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    &lt;trace&gt;
+   </td>
+   <td>
+    This element is used to enable (or disable) tracing support for this web application.
+   </td>
+  </tr>
+</table>
+<p>A Web.config file may contain additional subelements above and beyond the set presented in Table
+32-9. The vast majority of these items are security related, while the remaining items are useful only
+during advanced ASP.NET scenarios such as creating with custom HTTP headers or custom HTTP
+modules (topics that are not covered here).</p>
+<h2>The ASP.NET Website Administration Utility</h2>
+<p>Although you are always free to modify the content of a Web.config file directly using Visual Studio 2010,
+ASP.NET web projects can make use of a handy web-based editor that will allow you to graphically edit
+numerous elements and attributes of your project’s Web.config file. To launch this tool, activate the
+Website &gt; ASP.NET Configuration menu option.</p>
+<p>If you were to click the tabs located on the top of the page, you would quickly notice that most of
+this tool’s functionality is used to establish security settings for your website. However, this tool also
+makes it possible to add settings to your &lt;appSettings&gt; element, define debugging and tracing settings,
+and establish a default error page.</p>
+<p>You’ll see more of this tool in action where necessary; however, do be aware that this utility will not
+allow you to add all possible settings to a Web.config file. There will most certainly be times when you
+will need to manually update this file using your text editor of choice.</p>
+</body>
+    </html>   
+
+      
+   

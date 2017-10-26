@@ -1,0 +1,149 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+    <h1>
+        Understanding the Structure Type</h1>
+        <p>
+            Now that you understand the role of enumeration types, let's examine the use of
+            .NET structures (or simply structs). Structure types are well suited for modeling
+            mathematical, geometrical, and other "atomic" entities in your application. A structure
+            (like an enumeration) is a user-defined type; however, structures are not simply
+            a collection of name/value pairs. Rather, structures are types that can contain
+            any number of data fields and members that operate on these fields.</p>
+        <p>
+            <b>Note</b> If you have a background in OOP, you can think of a structure as a "lightweight
+            class type," given that structures provide a way to define a type that supports
+            encapsulation, but cannot be used to build a family of related types. When you need
+            to build a family of related types through inheritance, you will need to make use
+            of class types.</p>
+        <p>
+            On the surface, the process of defining and using structures is very simple, but
+            as they say, the devil is in the details. To begin understanding the basics of structure
+            types, create a new project named FunWithStructures. In C#, structures are created
+            using the struct keyword. Define a new structure named Point, which defines two
+            member variables of type int and a set of methods to interact with said data:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">struct</span> Point
+{
+    <span class="rem">// Fields of the structure.</span>
+    <span class="kwrd">public</span> <span class="kwrd">int</span> X;
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Y;
+
+    <span class="rem">// Add 1 to the (X, Y) position.</span>
+    <span class="kwrd">public</span> <span class="kwrd">void</span> Increment()
+    {
+        X++; Y++;
+    }
+
+    <span class="rem">// Subtract 1 from the (X, Y) position.</span>
+    <span class="kwrd">public</span> <span class="kwrd">void</span> Decrement()
+    {
+        X--; Y--;
+    }
+
+    <span class="rem">// Display the current position.</span>
+    <span class="kwrd">public</span> <span class="kwrd">void</span> Display()
+    {
+        Console.WriteLine(<span class="str">"X = {0}, Y = {1}"</span>, X, Y);
+    }
+}</pre>
+    <p>Here, you have defined your two integer fields (X and Y) using the public keyword, which is an
+    access control modifier. Declaring data with the public keyword
+    ensures the caller has direct access to the data from a given Point variable (via the dot operator).</p>
+    <p><b>Note</b> It is typically considered bad style to define public data within a class or structure. Rather, you will want to
+    define private data, which can be accessed and changed using public properties.</p>
+    <p>Here is a Main() method that takes our Point type out for a test drive:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** A First Look at Structures *****\n"</span>);
+    <span class="rem">// Create an initial Point.</span>
+    Point myPoint;
+    myPoint.X = 349;
+    myPoint.Y = 76;
+    myPoint.Display();
+
+    <span class="rem">// Adjust the X and Y values.</span>
+    myPoint.Increment();
+    myPoint.Display();
+    Console.ReadLine();
+}</pre>
+    <p>The output is as you would expect:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+***** A First Look at Structures *****
+
+X = 349, Y = 76
+X = 350, Y = 77</pre>
+    <h2>Creating Structure Variables</h2>
+     <p>When you wish to create a structure variable, you have a variety of options. Here, you simply create a
+    Point variable and assign each piece of public field data before invoking its members. If you do not
+    assign each piece of public field data (X and Y in our case) before making use of the structure, you will
+    receive a compiler error:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Error! Did not assign Y value.</span>
+Point p1;
+p1.X = 10;
+p1.Display();
+
+<span class="rem">// OK! Both fields assigned before use.</span>
+Point p2;
+p2.X = 10;
+p2.Y = 10;
+p2.Display();</pre>
+    <p>As an alternative, we can create structure variables using the C# new keyword, which will invoke the
+    structure's default constructor. By definition, a default constructor does not take any arguments. The
+    benefit of invoking the default constructor of a structure is that each piece of field data is automatically
+    set to its default value:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Set all fields to default values</span>
+<span class="rem">// using the default constructor.</span>
+Point p1 = <span class="kwrd">new</span> Point();
+
+<span class="rem">// Prints X=0,Y=0</span>
+p1.Display();</pre>
+    <p>It is also possible to design a structure with a custom constructor. This allows you to specify the
+    values of field data upon variable creation, rather than having to set each data member field by field.
+    To illustrate, update the Point structure with the following code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">struct</span> Point
+{
+    <span class="rem">// Fields of the structure.</span>
+    <span class="kwrd">public</span> <span class="kwrd">int</span> X;
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Y;
+
+    <span class="rem">// A custom constructor.</span>
+    <span class="kwrd">public</span> Point(<span class="kwrd">int</span> XPos, <span class="kwrd">int</span> YPos)
+    {
+        X = XPos;
+        Y = YPos;
+    }
+...
+}
+</pre>
+    <p>With this, we could now create Point variables as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Call custom constructor.</span>
+Point p2 = <span class="kwrd">new</span> Point(50, 60);
+
+<span class="rem">// Prints X=50,Y=60</span>
+p2.Display();
+
+</pre>
+    <p>As mentioned, working with structures on the surface is quite simple. However, to deepen your
+    understanding of this type, you need to explore the distinction between a .NET value type and a .NET
+    reference type.</p>
+</body>
+</html>

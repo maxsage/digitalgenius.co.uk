@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>DG</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />	
+</head>
+<body>
+<h1>Defining Custom Interfaces</h1>
+  <p>Now that you better understand the overall role of interface types, let’s see an example of defining and
+implementing custom interfaces. To begin, create a brand-new Console Application named
+CustomInterface. Using the Project ? Add Existing Item menu option, insert the file(s) containing your
+shape type definitions (Shapes.cs in the book’s solution code) created back in Chapter 6 during the
+Shapes example. Once you have done so, rename the namespace that defines your shape-centric types to
+CustomInterface (simply to avoid having to import namespace definitions in your new project):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">namespace</span> CustomInterface
+{
+    <span class="rem">// Your shape types defined here...</span>
+}</pre>
+<p>Now, insert a new interface into your project named IPointy using the Project ? Add New Item
+menu option, as shown in Figure 9-1.</p>
+  <img src="http://www.diggen.co.uk/Images/Figure09_01.png" alt="Figure 9-1" />
+<p><b>Figure 9-1. </b>Interfaces, like classes, can be defined in any *.cs file</p>
+<p>At a syntactic level, an interface is defined using the C# interface keyword. Unlike a class, interfaces
+never specify a base class (not even System.Object; however, as you will see later in this chapter, an
+interface can specify base interfaces). Moreover, the members of an interface never specify an access
+modifier (as all interface members are implicitly public and abstract). To get the ball rolling, here is a
+custom interface defined in C#:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This interface defines the behavior of "having points."</span>
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IPointy
+{
+    <span class="rem">// Implicitly public and abstract.</span>
+    <span class="kwrd">byte</span> GetNumberOfPoints();
+}</pre>
+    <p>Remember that when you define interface members, you do not define an implementation scope
+for the member in question. Interfaces are pure protocol, and therefore never define an implementation
+(that is up to the supporting class or structure). Therefore, the following version of IPointy would result
+in various compiler errors:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+// Ack! Errors abound!
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IPointy
+{
+    // <span class="kwrd">Error</span>! Interfaces cannot have fields!
+    <span class="kwrd">public</span> int numbOfPoints;
+
+    // <span class="kwrd">Error</span>! Interfaces <span class="kwrd">do</span> <span class="kwrd">not</span> have constructors!
+    <span class="kwrd">public</span> IPointy() { numbOfPoints = 0;};
+
+    // <span class="kwrd">Error</span>! Interfaces don<span class="rem">'t provide an implementation of members!</span>
+    <span class="kwrd">byte</span> GetNumberOfPoints() { <span class="kwrd">return</span> numbOfPoints; }
+}</pre>
+<p>In any case, this initial IPointy interface defines a single method. However, .NET interface types are
+also able to define any number of property prototypes. For example, you could create the IPointy
+interface to use a read-only property rather than a traditional accessor method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+// The pointy behavior <span class="kwrd">as</span> a read-only <span class="kwrd">property</span>.
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IPointy
+{
+    // A read-write <span class="kwrd">property</span> <span class="kwrd">in</span> an <span class="kwrd">interface</span> would look <span class="kwrd">like</span>:
+    // retType PropName { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    // <span class="kwrd">while</span> a write-only <span class="kwrd">property</span> <span class="kwrd">in</span> an <span class="kwrd">interface</span> would be:
+    // retType PropName { <span class="kwrd">set</span>; }
+
+    <span class="kwrd">byte</span> Points { <span class="kwrd">get</span>; }
+}</pre>
+<p><b>Note</b> Interface types can also contain event (see Chapter 11) and indexer (see Chapter 12) definitions</p>
+<p>Interface types are quite useless on their own, as they are nothing more than a named collection of
+abstract members. For example, you can’t allocate interface types as you would a class or structure:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+// Ack! Illegal <span class="kwrd">to</span> allocate <span class="kwrd">interface</span> types.
+<span class="kwrd">static</span> void Main(<span class="kwrd">string</span>[] args)
+{
+    IPointy p = <span class="kwrd">new</span> IPointy(); // Compiler <span class="kwrd">error</span>!
+}</pre>
+<p>Interfaces do not bring much to the table until they are implemented by a class or structure. Here,
+IPointy is an interface that expresses the behavior of “having points.” The idea is simple: some classes in
+the shapes hierarchy have points (such as the Hexagon), while others (such as the Circle) do not.</p>
+</body>
+    </html>
+   
+

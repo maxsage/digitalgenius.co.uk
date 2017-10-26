@@ -1,0 +1,483 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Understanding the Common Type System</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />	
+</head>
+<body>
+    <h1>Understanding the Common Type System</h1>
+    <p>A given assembly may contain any number of distinct types. In the world of .NET, type is simply a
+    general term used to refer to a member from the set {class, interface, structure, enumeration, delegate}.
+    When you build solutions using a .NET-aware language, you will most likely interact with many of these
+    types. For example, your assembly may define a single class that implements some number of interfaces.
+    Perhaps one of the interface methods takes an enumeration type as an input parameter and returns a
+    structure to the caller.</p>
+    <p>Recall that the CTS is a formal specification that documents how types must be defined in order to
+    be hosted by the CLR. Typically, the only individuals who are deeply concerned with the inner workings
+    of the CTS are those building tools and/or compilers that target the .NET platform. It is important,
+    however, for all .NET programmers to learn about how to work with the five types defined by the CTS in
+    their language of choice. Here is a brief overview.</p>
+    <h2>CTS Class Types</h2>
+    <p>Every .NET-aware language supports, at the very least, the notion of a class type, which is the
+    cornerstone of OOP. A class may be composed of any number of members (such as constructors,
+    properties, methods, and events) and data points (fields). In C#, classes are declared using the class
+    keyword.</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <pre class="csharpcode">
+    <span class="rem">// A C# class type with 1 method.</span>
+    <span class="kwrd">class</span> Calc
+    {
+        <span class="kwrd">public</span> <span class="kwrd">int</span> Add(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y)
+        { <span class="kwrd">return</span> x + y; }
+    }</pre>
+     <p>Chapter 5 will begin your examination of building CTS class types with C#; however, Table 1-1
+    documents a number of characteristics pertaining to class types.</p>
+    <p><b>Table 1-1.</b> CTS Class Characteristics</p>
+    <table class="gridtable">
+        <tr>
+            <th>
+                Class Characteristic
+            </th>
+            <th>
+                Meaning in Life
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Is the class sealed or not?
+            </td>
+            <td>
+                Sealed classes cannot function as a base class to other classes.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Does the class implement any interfaces?
+            </td>
+            <td>
+                An interface is a collection of abstract members that provide a contract between
+                the object and object user. The CTS allows a class to implement any number of interfaces.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Is the class abstract or concrete?
+            </td>
+            <td>
+                Abstract classes cannot be directly instantiated, but are intended to define common
+                behaviors for derived types. Concrete classes can be instantiated directly.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                What is the visibility of this class?
+            </td>
+            <td>
+                Each class must be configured with a visibility keyword such as public or internal.
+                Basically, this controls if the class may be used by external assemblies or only
+                from within the defining assembly.
+            </td>
+        </tr>
+    </table>
+    <h2>CTS Interface Types</h2>  
+    <p>Interfaces are nothing more than a named collection of abstract member definitions, which may be
+    supported (i.e., implemented) by a given class or structure. In C#, interface types are defined using the
+    interface keyword. By convention, all .NET interfaces begin with a capital letter I, as in the following
+    example:</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <pre class="csharpcode">
+    <span class="rem">// A C# interface type is usually</span>
+    <span class="rem">// declared as public, to allow types in other</span>
+    <span class="rem">// assemblies to implement their behavior.</span>
+    <span class="kwrd">public</span> <span class="kwrd">interface</span> IDraw
+    {
+        <span class="kwrd">void</span> Draw();
+    }</pre>
+    <p>On their own, interfaces are of little use. However, when a class or structure implements a given
+    interface in its unique way, you are able to request access to the supplied functionality using an interface
+    reference in a polymorphic manner. Interface-based programming will be fully explored in Chapter 9.</p>
+    <h2>CTS Structure Types</h2>
+    <p>The concept of a structure is also formalized under the CTS. If you have a C background, you should be
+    pleased to know that these user-defined types (UDTs) have survived in the world of .NET (although they
+    behave a bit differently under the hood). Simply put, a structure can be thought of as a lightweight class
+    type having value-based semantics. For more details on the subtleties of structures, see Chapter 4.
+    Typically, structures are best suited for modeling geometric and mathematical data and are created in
+    C# using the struct keyword.</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <pre class="csharpcode">
+    <span class="rem">// A C# structure type.</span>
+    <span class="kwrd">struct</span> Point
+    {
+        <span class="rem">// Structures can contain fields.</span>
+        <span class="kwrd">public</span> <span class="kwrd">int</span> xPos, yPos;
+
+        <span class="rem">// Structures can contain parameterized constructors.</span>
+        <span class="kwrd">public</span> Point(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y)
+        { xPos = x; yPos = y;}
+
+        <span class="rem">// Structures may define methods.</span>
+        <span class="kwrd">public</span> <span class="kwrd">void</span> PrintPosition()
+        {
+            Console.WriteLine(<span class="str">"({0}, {1})"</span>, xPos, yPos);
+        }
+    }</pre>
+    <h2>CTS Enumeration Types</h2>  
+    <p>Enumerations are a handy programming construct that allow you to group name/value pairs. For
+    example, assume you are creating a video game application that allows the player to select one of three
+    character categories (Wizard, Fighter, or Thief). Rather than keeping track of simple numerical values to
+    represent each possibility, you could build a custom enumeration using the enum keyword.</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <pre class="csharpcode">
+    <span class="rem">// A C# enumeration type.</span>
+    <span class="kwrd">enum</span> CharacterType
+    {
+        Wizard = 100,
+        Fighter = 200,
+        Thief = 300
+    }</pre>
+    <p>By default, the storage used to hold each item is a 32-bit integer; however, it is possible to alter this
+    storage slot if need be (e.g., when programming for a low-memory device such as a Windows mobile
+    device). Also, the CTS demands that enumerated types derive from a common base class, System.Enum.
+    As you will see in Chapter 4, this base class defines a number of interesting members that allow you to
+    extract, manipulate, and transform the underlying name/value pairs programmatically.</p>
+    <h2>CTS Delegate Types</h2>
+    <p>Delegates are the .NET equivalent of a type-safe, C-style function pointer. The key difference is that a
+    .NET delegate is a class that derives from System.MulticastDelegate, rather than a simple pointer to a
+    raw memory address. In C#, delegates are declared using the delegate keyword.</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <pre class="csharpcode">
+    <span class="rem">// This C# delegate type can "point to" any method</span>
+    <span class="rem">// returning an int and taking two ints as input.</span>
+    <span class="kwrd">delegate</span> <span class="kwrd">int</span> BinaryOp(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y);</pre>
+    <p>Delegates are useful when you wish to provide a way for one entity to forward a call to another
+    entity and provide the foundation for the .NET event architecture. As you will see in Chapters 11 and 19,
+    delegates have intrinsic support for multicasting (i.e., forwarding a request to multiple recipients) and
+    asynchronous method invocations (i.e., invoking the method on a secondary thread).</p>
+    <h2>CTS Type Members</h2>
+    <p>Now that you have previewed each of the types formalized by the CTS, realize that most types take any
+    number of members. Formally speaking, a type member is constrained by the set {constructor, finalizer,
+    static constructor, nested type, operator, method, property, indexer, field, read-only field, constant,
+    event}.</p>
+    <p>The CTS defines various adornments that may be associated with a given member. For example,
+    each member has a given visibility trait (e.g., public, private, protected). Some members may be
+    declared as abstract (to enforce a polymorphic behavior on derived types) as well as virtual (to define a
+    canned, but overridable, implementation). Also, most members may be configured as static (bound at
+    the class level) or instance (bound at the object level). The creation of type members is examined over
+    the course of the next several chapters.</p>
+    <p><b>Note</b> As described in Chapter 10, the C# language also supports the creation of generic types and generic
+    members.</p>
+    <h2>Intrinsic CTS Data Types</h2>
+    <p>The final aspect of the CTS to be aware of for the time being is that it establishes a well-defined set of
+    fundamental data types. Although a given language typically has a unique keyword used to declare an
+    intrinsic CTS data type, all language keywords ultimately resolve to the same type defined in an
+    assembly named mscorlib.dll. Consider Table 1-2, which documents how key CTS data types are
+    expressed in various .NET languages.</p>
+    <p><b>Table 1-2.</b> The Intrinsic CTS Data Types</p>
+    <table class="gridtable">
+        <tr>
+            <th>
+                
+                    CTS Data Type
+            </th>
+            <th>
+                
+                    VB .NET Keyword
+            </th>
+            <th>
+                
+                    C# Keyword
+            </th>
+            <th>
+                
+                    C++/CLI Keyword
+            </th>
+        </tr>
+        <tr>
+            <td>
+                
+                    System.Byte
+            </td>
+            <td>
+                
+                    Byte
+            </td>
+            <td>
+                
+                    byte
+            </td>
+            <td>
+                
+                    unsigned char
+            </td>
+        </tr>
+        <tr>
+            <td>
+                
+                    System.SByte
+            </td>
+            <td>
+                
+                    SByte
+            </td>
+            <td>
+                
+                    sbyte
+            </td>
+            <td>
+                
+                    signed char
+            </td>
+        </tr>
+        <tr>
+            <td>
+                
+                    System.Int16
+            </td>
+            <td>
+                
+                    Short
+            </td>
+            <td>
+                
+                    short
+            </td>
+            <td>
+                
+                    short
+            </td>
+        </tr>
+        <tr>
+            <td>
+                
+                    System.Int32
+            </td>
+            <td>
+                
+                    Integer
+            </td>
+            <td>
+                
+                    int
+            </td>
+            <td>
+                
+                    int or long
+            </td>
+        </tr>
+        <tr>
+            <td>
+                
+                    System.Int64
+            </td>
+            <td>
+                
+                    Long
+            </td>
+            <td>
+                
+                    long
+            </td>
+            <td>
+                
+                    __int64
+            </td>
+        </tr>
+        <tr>
+            <td>
+                
+                    System.UInt16
+            </td>
+            <td>
+                
+                    UShort
+            </td>
+            <td>
+                
+                    ushort
+            </td>
+            <td>
+                
+                    unsigned short
+            </td>
+        </tr>
+        <tr>
+            <td>
+                
+                    System.UInt32
+            </td>
+            <td>
+                
+                    UInteger
+            </td>
+            <td>
+                
+                    uint
+            </td>
+            <td>
+                
+                    unsigned int or unsigned long
+            </td>
+        </tr>
+        <tr>
+            <td>
+                
+                    System.UInt64
+            </td>
+            <td>
+                
+                    ULong
+            </td>
+            <td>
+                
+                    ulong
+            </td>
+            <td>
+                
+                    unsigned __int64
+            </td>
+        </tr>
+        <tr>
+            <td>
+                
+                    System.Single
+            </td>
+            <td>
+                
+                    Single
+            </td>
+            <td>
+                
+                    float
+            </td>
+            <td>
+                
+                    float
+            </td>
+        </tr>
+        <tr>
+            <td>
+                
+                    System.Double
+            </td>
+            <td>
+                
+                    Double
+            </td>
+            <td>
+                
+                    double
+            </td>
+            <td>
+                
+                    double
+            </td>
+        </tr>
+        <tr>
+            <td>
+                
+                    System.Object
+            </td>
+            <td>
+                
+                    Object
+            </td>
+            <td>
+                
+                    object
+            </td>
+            <td>
+                
+                    object^
+            </td>
+        </tr>
+        <tr>
+            <td>
+                
+                    System.Char
+            </td>
+            <td>
+                
+                    Char
+            </td>
+            <td>
+                
+                    char
+            </td>
+            <td>
+                
+                    wchar_t
+            </td>
+        </tr>
+        <tr>
+            <td>
+                
+                    System.String
+            </td>
+            <td>
+                
+                    String
+            </td>
+            <td>
+                
+                    string
+            </td>
+            <td>
+                
+                    String^
+            </td>
+        </tr>
+        <tr>
+            <td>
+                
+                    System.Decimal
+            </td>
+            <td>
+                
+                    Decimal
+            </td>
+            <td>
+                
+                    decimal
+            </td>
+            <td>
+                
+                    Decimal
+            </td>
+        </tr>
+        <tr>
+            <td>
+                
+                    System.Boolean
+            </td>
+            <td>
+                
+                    Boolean
+            </td>
+            <td>
+                
+                    bool
+            </td>
+            <td>
+                
+                    bool
+            </td>
+        </tr>
+    </table>
+    <p>Given the fact that the unique keywords of a managed language are simply shorthand notations for
+    a real type in the System namespace, we no longer have to worry about overflow/underflow conditions
+    for numerical data, or how strings and Booleans are internally represented across different languages.
+    Consider the following code snippets, which define 32-bit numerical variables in C# and Visual Basic,
+    using language keywords as well as the formal CTS data type:</p>
+    <pre>
+    // Define some "ints" in C#.
+    int i = 0;
+    System.Int32 j = 0;
+
+    ' Define some "ints" in VB.
+    Dim i As Integer = 0
+    Dim j As System.Int32 = 0
+    </pre>
+</body>
+</html>

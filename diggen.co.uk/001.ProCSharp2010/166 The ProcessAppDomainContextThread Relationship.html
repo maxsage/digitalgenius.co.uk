@@ -1,0 +1,107 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>The Process/AppDomain/Context/Thread Relationship</h1>
+<p>In Chapter 16, a thread was defined as a path of execution within an executable application. While many
+.NET applications can live happy and productive single-threaded lives, an assembly’s primary thread
+(spawned by the CLR when Main() executes) may create secondary threads of execution to perform
+additional units of work. By implementing additional threads, you can build more responsive (but not
+necessarily faster executing on single-core machines) applications.</p>
+<p><b>Note</b> These days it is quite common for new computers to make use of multicore processors (or at very least a
+hyperthreaded single-core processor). Without making use of multiple threads, developers are unable to exploit
+the full power of multicore machines.</p>
+<p>The System.Threading namespace contains various types that allow you to create multithreaded
+applications. The Thread class is perhaps the core type, as it represents a given thread. If you wish to
+programmatically obtain a reference to the thread currently executing a given member, simply call the
+static Thread.CurrentThread property:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ExtractExecutingThread()
+{
+    <span class="rem">// Get the thread currently</span>
+    <span class="rem">// executing this method.</span>
+    Thread currThread = Thread.CurrentThread;
+}</pre>
+<p>Under the .NET platform, there is not a direct one-to-one correspondence between application
+domains and threads. In fact, a given AppDomain can have numerous threads executing within it at any
+given time. Furthermore, a particular thread is not confined to a single application domain during its
+lifetime. Threads are free to cross application domain boundaries as the Windows thread scheduler and
+CLR see fit.</p>
+<p>Although active threads can be moved between AppDomain boundaries, a given thread can execute
+within only a single application domain at any point in time (in other words, it is impossible for a single
+thread to be doing work in more than one AppDomain at once). When you wish to programmatically
+gain access to the AppDomain that is hosting the current thread, call the static Thread.GetDomain()
+method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ExtractAppDomainHostingThread()
+{
+    <span class="rem">// Obtain the AppDomain hosting the current thread.</span>
+    AppDomain ad = Thread.GetDomain();
+}</pre>
+<p>A single thread may also be moved into a particular context at any given time, and it may be
+relocated within a new context at the whim of the CLR. When you wish to obtain the current context a
+thread happens to be executing in, make use of the static Thread.CurrentContext property (which
+returns a System.Runtime.Remoting.Contexts.Context object):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ExtractCurrentThreadContext()
+{
+    <span class="rem">// Obtain the context under which the</span>
+    <span class="rem">// current thread is operating.</span>
+    Context ctx = Thread.CurrentContext;
+}</pre>
+<p>Again, the CLR is the entity that is in charge of moving threads into (and out of) application domains
+and contexts. As a .NET developer, you can usually remain blissfully unaware where a given thread ends
+up (or exactly when it is placed into its new boundary). Nevertheless, you should be aware of the various
+ways of obtaining the underlying primitives.</p>
+<h2>The Problem of Concurrency</h2>
+<p>One of the many “joys” (read: painful aspects) of multithreaded programming is that you have little
+control over how the underlying operating system or the CLR makes use of its threads. For example, if
+you craft a block of code that creates a new thread of execution, you cannot guarantee that the thread
+executes immediately. Rather, such code only instructs the OS to execute the thread as soon as possible
+(which is typically when the thread scheduler gets around to it).</p>
+<p>Furthermore, given that threads can be moved between application and contextual boundaries as
+required by the CLR, you must be mindful of which aspects of your application are thread-volatile (e.g.,
+subject to multithreaded access) and which operations are atomic (thread-volatile operations are the
+dangerous ones!).</p>
+<p>To illustrate the problem, assume a thread is invoking a method of a specific object. Now assume
+that this thread is instructed by the thread scheduler to suspend its activity, in order to allow another
+thread to access the same method of the same object.</p>
+<p>If the original thread was not completely finished with its operation, the second incoming thread
+may be viewing an object in a partially modified state. At this point, the second thread is basically
+reading bogus data, which is sure to give way to extremely odd (and very hard to find) bugs, which are
+even harder to replicate and debug.</p>
+<p>Atomic operations, on the other hand, are always safe in a multithreaded environment. Sadly, there
+are very few operations in the .NET base class libraries that are guaranteed to be atomic. Even the act of
+assigning a value to a member variable is not atomic! Unless the .NET Framework 4.0 SDK documentation
+specifically says an operation is atomic, you must assume it is thread-volatile and take precautions.</p>
+<h2>The Role of Thread Synchronization</h2>
+<p>At this point, it should be clear that multithreaded application domains are in themselves quite volatile,
+as numerous threads can operate on the shared resources at (more or less) the same time. To protect an
+application’s resources from possible corruption, .NET developers must make use of any number of
+threading primitives (such as locks, monitors, and the [Synchronization] attribute) to control access
+among the executing threads.</p>
+<p>Although the .NET platform cannot make the difficulties of building robust multithreaded
+applications completely disappear, the process has been simplified considerably. Using types defined
+within the System.Threading namespace, and the .NET 4.0 Task Parallel Library (TPL), you are able to
+spawn additional threads with minimal fuss and bother. Likewise, when it is time to lock down shared
+points of data, you will find additional types that provide the same functionality as the Windows API
+threading primitives (using a much cleaner object model).</p>
+<p>Before diving into the System.Threading namespace and the TPL, it is important to note that there is
+one other useful way to incorporate threads into an application. During the examination of the .NET
+delegate (see Chapter 11), it was mentioned that all delegates have the ability to invoke members
+asynchronously. This is a major benefit of the .NET platform, given that one of the most common
+reasons a developer creates threads is for the purpose of invoking methods in a nonblocking (a.k.a.
+asynchronous) manner.</p>
+    </body>
+    </html>
+     
+      
+   

@@ -1,0 +1,132 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Choosing a Serialization Formatter</h1>
+    <p>Once you configure your types to participate in the .NET serialization scheme by applying the necessary
+attributes, your next step is to choose which format (binary, SOAP, or XML) you should use when
+persisting your object’s state. Each possibility is represented by the following classes:</p>
+<ul>
+ <li>BinaryFormatter</li>
+ <li>SoapFormatter</li>
+ <li>XmlSerializer</li>
+</ul>
+<p>The BinaryFormatter type serializes your object’s state to a stream using a compact binary format.
+This type is defined within the System.Runtime.Serialization.Formatters.Binary namespace that is
+part of mscorlib.dll. If you wish to gain access to this type, you can specify the following C# using
+directive:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Gain access to the BinaryFormatter in mscorlib.dll.</span>
+<span class="kwrd">using</span> System.Runtime.Serialization.Formatters.Binary;</pre>
+<p>The SoapFormatter type persists an object’s state as a SOAP message (the standard XML format for
+passing messages to/from a web service). This type is defined within the
+System.Runtime.Serialization.Formatters.Soap namespace, which is defined in a separate assembly.
+Thus, to format your object graph into a SOAP message, you must first set a reference to
+System.Runtime.Serialization.Formatters.Soap.dll using the Visual Studio 2010 Add Reference dialog
+box and then specify the following C# using directive:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Must reference System.Runtime.Serialization.Formatters.Soap.dll.</span>
+<span class="kwrd">using</span> System.Runtime.Serialization.Formatters.Soap;</pre>
+<p>Finally, if you wish to persist a tree of objects as an XML document, you can use the XmlSerializer
+type. To use this type, you need to specify that you are using the System.Xml.Serialization namespace
+and set a reference to the assembly System.Xml.dll. As luck would have it, all Visual Studio 2010 project
+templates automatically reference System.Xml.dll; therefore, all you need to do is use the following
+namespace:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Defined within System.Xml.dll.</span>
+<span class="kwrd">using</span> System.Xml.Serialization;</pre>
+<h2>The IFormatter and IRemotingFormatter Interfaces</h2>
+<p>Regardless of which formatter you choose to use, be aware that all of them derive directly from
+System.Object, so they do not share a common set of members from a serialization-centric base class.
+However, the BinaryFormatter and SoapFormatter types do support common members through the
+implementation of the IFormatter and IRemotingFormatter interfaces (strange as it might seem, the
+XmlSerializer implements neither).</p>
+<p>System.Runtime.Serialization.IFormatter defines the core Serialize() and Deserialize()
+methods, which do the grunt work to move your object graphs into and out of a specific stream. Beyond
+these members, IFormatter defines a few properties that the implementing type uses behind the scenes:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IFormatter
+{
+    SerializationBinder Binder { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    StreamingContext Context { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    ISurrogateSelector SurrogateSelector { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">object</span> Deserialize(Stream serializationStream);
+    <span class="kwrd">void</span> Serialize(Stream serializationStream, <span class="kwrd">object</span> graph);
+}</pre>
+<p>The System.Runtime.Remoting.Messaging.IRemotingFormatter interface (which is leveraged
+internally by the .NET remoting layer) overloads the Serialize() and Deserialize() members into a
+manner more appropriate for distributed persistence. Note that IRemotingFormatter derives from the
+more general IFormatter interface:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IRemotingFormatter : IFormatter
+{
+    <span class="kwrd">object</span> Deserialize(Stream serializationStream, HeaderHandler handler);
+    <span class="kwrd">void</span> Serialize(Stream serializationStream, <span class="kwrd">object</span> graph, Header[] headers);
+}</pre>
+<p>Although you might not need to interact directly with these interfaces for most of your serialization
+endeavors, recall that interface-based polymorphism allows you to hold an instance of BinaryFormatter
+or SoapFormatter using an IFormatter reference. Therefore, if you wish to build a method that can
+serialize an object graph using either of these classes, you could write the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> SerializeObjectGraph(IFormatter itfFormat,
+    Stream destStream, <span class="kwrd">object</span> graph)
+{
+    itfFormat.Serialize(destStream, graph);
+}</pre>
+<h2>Type Fidelity Among the Formatters</h2>
+<p>The most obvious difference among the three formatters is how the object graph is persisted to the
+stream (binary, SOAP, or XML). You should also be aware of a few more subtle points of distinction;
+specifically, how the formatters contend with type fidelity. When you use the BinaryFormatter type, it
+will persist not only the field data of the objects in the object graph, but also each type’s fully qualified
+name and the full name of the defining assembly (name, version, public key token, and culture). These
+extra points of data make the BinaryFormatter an ideal choice when you wish to transport objects by
+value (e.g., as a full copy) across machine boundaries for .NET-centric applications.</p>
+<p>The SoapFormatter persists traces of the assembly of origin through the use of an XML namespace.
+For example, recall the Person type earlier in this chapter. If this type were persisted as a SOAP message,
+you would find that the opening element of Person is qualified by the generated xmlns. Consider this
+partial definition, paying special attention to the a1 XML namespace:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">a1:Person</span> <span class="attr">id</span><span class="kwrd">="ref-1"</span> <span class="attr">xmlns:a1</span>=
+    <span class="kwrd">"http://schemas.microsoft.com/clr/nsassem/SimpleSerialize/MyApp%2C%20
+    Version%3D1.0.0.0%2C%20Culture%3Dneutral%2C%20PublicKeyToken%3Dnull"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">isAlive</span><span class="kwrd">&gt;</span>true<span class="kwrd">&lt;/</span><span class="html">isAlive</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">personAge</span><span class="kwrd">&gt;</span>21<span class="kwrd">&lt;/</span><span class="html">personAge</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">fName</span> <span class="attr">id</span><span class="kwrd">="ref-3"</span><span class="kwrd">&gt;&lt;/</span><span class="html">fName</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">a1:Person</span><span class="kwrd">&gt;</span></pre>
+<p>However, the XmlSerializer does not attempt to preserve full type fidelity; therefore, it does not
+record the type’s fully qualified name or assembly of origin. This might seem like a limitation at first
+glance, but XML serialization is used by classic .NET web services, which can be called from clients on
+any platform (not just .NET). This means that there is no point serializing full .NET type metadata. Here
+is a possible XML representation of the Person type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;?</span><span class="html">xml</span> <span class="attr">version</span><span class="kwrd">="1.0"</span>?<span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Person</span> <span class="attr">xmlns:xsi</span><span class="kwrd">="http://www.w3.org/2001/XMLSchema-instance"</span>
+        <span class="attr">xmlns:xsd</span><span class="kwrd">="http://www.w3.org/2001/XMLSchema"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">isAlive</span><span class="kwrd">&gt;</span>true<span class="kwrd">&lt;/</span><span class="html">isAlive</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">PersonAge</span><span class="kwrd">&gt;</span>21<span class="kwrd">&lt;/</span><span class="html">PersonAge</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">FirstName</span> <span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Person</span><span class="kwrd">&gt;</span></pre>
+    <p>If you wish to persist an object’s state in a manner that can be used by any operating system (e.g.,
+Windows XP, Mac OS X, and various Linux distributions), application framework (e.g., .NET, Java
+Enterprise Edition, and COM), or programming language, you do not want to maintain full type fidelity
+because you cannot assume all possible recipients can understand .NET-specific data types. Given this,
+SoapFormatter and XmlSerializer are ideal choices when you wish to ensure as broad a reach as possible
+for the persisted tree of objects.</p>
+    </body>
+    </html>
+      
+      
+   

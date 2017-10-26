@@ -1,0 +1,239 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>The Second Pillar of OOP: The Details of Inheritance</h1>
+<p>Now that you have seen the basic syntax of inheritance, let’s create a more complex example and get to
+know the numerous details of building class hierarchies. To do so, you will be reusing the Employee class
+you designed in Chapter 5. To begin, create a brand new C# Console Application named Employees</p>
+<p>Next, activate the Project &lt; Add Existing Item menu option and navigate to the location of your
+Employee.cs and Employee.Internals.cs files you created in the EmployeeApp example of previous
+chapter. Select each of them (via a Ctrl-click) and click the Add button. Visual Studio 2010 responds by
+copying each file into the current project.</p>
+<p>Before you start to build some derived classes, you have one detail to attend to. Because the original
+Employee class was created in a project named EmployeeApp, the class has been wrapped within an
+identically named .NET namespace. Chapter 14 will examine namespaces in detail; however, for
+simplicity, rename the current namespace (in both file locations) to Employees in order to match your
+new project name:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Be sure to change the namespace name in both C# files!</span>
+<span class="kwrd">namespace</span> Employees
+{
+    <span class="kwrd">partial</span> <span class="kwrd">class</span> Employee
+    {...}
+}</pre>
+<p><b>Note</b> As a sanity check, compile and run your new project by pressing Ctrl+F5. The program will not do
+anything at this point; however, this will ensure you do not have any compiler errors.</p>
+<p>Your goal is to create a family of classes that model various types of employees in a company.
+Assume that you wish to leverage the functionality of the Employee class to create two new classes
+(SalesPerson and Manager). The class hierarchy you will be building initially over the next several pages
+looks something like what you see in Figure 6-4 (be aware that you will not see individual fields in your
+diagram if you make use of C# automatic property syntax).</p>
+<img src="http://www.diggen.co.uk/Images/Figure06_04.png" alt="Figure 6-4" />
+<p><b>Figure 6-4</b> The initial Employees hierarchy</p>
+<p>As illustrated in Figure 6-4, you can see that a SalesPerson “is-a” Employee (as is a Manager).
+Remember that under the classical inheritance model, base classes (such as Employee) are used to define
+general characteristics that are common to all descendents. Subclasses (such as SalesPerson and
+Manager) extend this general functionality while adding more specific functionality.</p>
+<p>For your example, you will assume that the Manager class extends Employee by recording the number
+of stock options, while the SalesPerson class maintains the number of sales made. Insert a new class file
+(Manager.cs) that defines the Manager class with the following automatic property:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Managers need to know their number of stock options.</span>
+<span class="kwrd">class</span> Manager : Employee
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> StockOptions { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+}</pre>
+    <p>Next, add another new class file (SalesPerson.cs) that defines the SalesPerson class with a fitting
+automatic property:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Salespeople need to know their number of sales.</span>
+<span class="kwrd">class</span> SalesPerson : Employee
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> SalesNumber { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+}</pre>
+<p>Now that you have established an “is-a” relationship, SalesPerson and Manager have automatically
+inherited all public members of the Employee base class. To illustrate, update your Main() method as
+follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Create a subclass object and access base class functionality.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** The Employee Class Hierarchy *****\n"</span>);
+    SalesPerson danny = <span class="kwrd">new</span> SalesPerson();
+    danny.Age = 31;
+    danny.Name = <span class="str">"Danny"</span>;
+    danny.SalesNumber = 50;
+    Console.ReadLine();
+}</pre>
+<h2>Controlling Base Class Creation with the base Keyword</h2>
+  <p>Currently, SalesPerson and Manager can only be created using the freebee default constructor (see
+Chapter 5). With this in mind, assume you have added a new six-argument constructor to the Manager
+type, which is invoked as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+...
+    <span class="rem">// Assume Manager has a constructor matching this signature:</span>
+    <span class="rem">// (string fullName, int age, int empID,</span>
+    <span class="rem">// float currPay, string ssn, int numbOfOpts)</span>
+    Manager chucky = <span class="kwrd">new</span> Manager(<span class="str">"Chucky"</span>, 50, 92, 100000,             <span class="str">"333-23-2322"</span>, 9000);
+    Console.ReadLine();
+}</pre>
+<p>If you look at the parameter list, you can clearly see that most of these arguments should be stored
+in the member variables defined by the Employee base class. To do so, you might implement this custom
+constructor on the Manager class as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> Manager(<span class="kwrd">string</span> fullName, <span class="kwrd">int</span> age, <span class="kwrd">int</span> empID,
+    <span class="kwrd">float</span> currPay, <span class="kwrd">string</span> ssn, <span class="kwrd">int</span> numbOfOpts)
+{
+    <span class="rem">// This property is defined by the Manager class.</span>
+    StockOptions = numbOfOpts;
+
+    <span class="rem">// Assign incoming parameters using the</span>
+    <span class="rem">// inherited properties of the parent class.</span>
+    ID = empID;
+    Age = age;
+    Name = fullName;
+    Pay = currPay;
+    <span class="rem">// OOPS! This would be a compiler error,</span>
+    <span class="rem">// if the SSN property were read-only!</span>
+    SocialSecurityNumber = ssn;
+}</pre>
+<p>The first issue with this approach is that if you defined any property as read-only (for example, the
+SocialSecurityNumber property), you are unable to assign the incoming string parameter to this field, as
+seen in the final code statement of this custom constructor.</p>
+<p>The second issue is that you have indirectly created a rather inefficient constructor, given the fact
+that under C#, unless you say otherwise, the default constructor of a base class is called automatically
+before the logic of the derived constructor is executed. After this point, the current implementation
+accesses numerous public properties of the Employee base class to establish its state. Thus, you have
+really made seven hits (five inherited properties and two constructor calls) during the creation of a
+Manager object!</p>
+<p>To help optimize the creation of a derived class, you will do well to implement your subclass
+constructors to explicitly call an appropriate custom base class constructor, rather than the default. In
+this way, you are able to reduce the number of calls to inherited initialization members (which saves
+processing time). Let’s retrofit the custom constructor of the Manager type to do this very thing using the
+base keyword:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> Manager(<span class="kwrd">string</span> fullName, <span class="kwrd">int</span> age, <span class="kwrd">int</span> empID,
+    <span class="kwrd">float</span> currPay, <span class="kwrd">string</span> ssn, <span class="kwrd">int</span> numbOfOpts)
+    : <span class="kwrd">base</span>(fullName, age, empID, currPay, ssn)
+{
+    <span class="rem">// This property is defined by the Manager class.</span>
+    StockOptions = numbOfOpts;
+}</pre>
+    <p>Here, the base keyword is hanging off the constructor signature (much like the syntax used to chain
+constructors on a single class using the this keyword as was discussed in see Chapter 5), which always
+indicates a derived constructor is passing data to the immediate parent constructor. In this situation,
+you are explicitly calling the five-parameter constructor defined by Employee and saving yourself
+unnecessary calls during the creation of the child class. The custom SalesPerson constructor looks
+almost identical:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// As a general rule, all subclasses should explicitly call an appropriate</span>
+<span class="rem">// base class constructor.</span>
+<span class="kwrd">public</span> SalesPerson(<span class="kwrd">string</span> fullName, <span class="kwrd">int</span> age, <span class="kwrd">int</span> empID,
+    <span class="kwrd">float</span> currPay, <span class="kwrd">string</span> ssn, <span class="kwrd">int</span> numbOfSales)
+    : <span class="kwrd">base</span>(fullName, age, empID, currPay, ssn)
+{
+    <span class="rem">// This belongs with us!</span>
+    SalesNumber = numbOfSales;
+}</pre>
+<p><b>Note </b>You may use the base keyword anytime a subclass wishes to access a public or protected member
+defined by a parent class. Use of this keyword is not limited to constructor logic. You will see examples using base
+in this manner during the examination of polymorphism later in this chapter.</p>
+<p>Finally, recall that once you add a custom constructor to a class definition, the default constructor is
+silently removed. Therefore, be sure to redefine the default constructor for the SalesPerson and Manager
+types, for example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Add back the default ctor</span>
+<span class="rem">// in the Manager class as well.</span>
+<span class="kwrd">public</span> SalesPerson() {}</pre>
+<h2>Keeping Family Secrets: The protected Keyword</h2>
+  <p>As you already know, public items are directly accessible from anywhere, while private items can only be
+accessed by the class that has defined it. C# takes the lead of many other
+modern object languages and provides an additional keyword to define member accessibility: protected.</p>
+<p>When a base class defines protected data or protected members, it establishes a set of items that can
+be accessed directly by any descendent. If you wish to allow the SalesPerson and Manager child classes to
+directly access the data sector defined by Employee, you can update the original Employee class definition
+as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// protected state data.</span>
+<span class="kwrd">partial</span> <span class="kwrd">class</span> Employee
+{
+    <span class="rem">// Derived classes can now directly access this information.</span>
+    <span class="kwrd">protected</span> <span class="kwrd">string</span> empName;
+    <span class="kwrd">protected</span> <span class="kwrd">int</span> empID;
+    <span class="kwrd">protected</span> <span class="kwrd">float</span> currPay;
+    <span class="kwrd">protected</span> <span class="kwrd">int</span> empAge;
+    <span class="kwrd">protected</span> <span class="kwrd">string</span> empSSN;
+    <span class="kwrd">protected</span> <span class="kwrd">static</span> <span class="kwrd">string</span> companyName;
+...
+}</pre>
+<p>The benefit of defining protected members in a base class is that derived types no longer have to
+access the data indirectly using public methods or properties. The possible downfall, of course, is that
+when a derived type has direct access to its parent’s internal data, it is very possible to accidentally
+bypass existing business rules found within public properties. When you define protected members, you
+are creating a level of trust between the parent and child class, as the compiler will not catch any
+violation of your type’s business rules.</p>
+<p>Finally, understand that as far as the object user is concerned, protected data is regarded as private
+(as the user is “outside” of the family). Therefore, the following is illegal:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    <span class="rem">// Error! Can't access protected data from object instance.</span>
+    Employee emp = <span class="kwrd">new</span> Employee();
+    emp.empName = <span class="str">"Fred"</span>;
+}</pre>
+<p>Although protected field data can break encapsulation, it is quite safe (and useful) to define protected
+methods. When building class hierarchies, it is very common to define a set of methods that are only for use by
+derived types.</p>
+<h2>Adding a Sealed Class</h2>
+<p>Recall that a sealed class cannot be extended by other classes. As mentioned, this technique is most often
+used when you are designing a utility class. However, when building class hierarchies, you might find
+that a certain branch in the inheritance chain should be “capped off,” as it makes no sense to further
+extend the linage. For example, assume you have added yet another class to your program
+(PTSalesPerson) that extends the existing SalesPerson type. Figure 6-5 shows the current update.</p>
+<img src="http://www.diggen.co.uk/Images/Figure06_05.png" alt="Figure 6-5" />
+<p><b>Figure 6-5. </b>The PTSalesPerson class</p>
+<p>PTSalesPerson is a class representing, of course, a part-time salesperson. For the sake of argument,
+let’s say that you wish to ensure that no other developer is able to subclass from PTSalesPerson. (After all,
+how much more part-time can you get than “part-time”?) Again, to prevent others from extending a
+class, make use of the sealed keyword:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">sealed</span> <span class="kwrd">class</span> PTSalesPerson : SalesPerson
+{
+    <span class="kwrd">public</span> PTSalesPerson(<span class="kwrd">string</span> fullName, <span class="kwrd">int</span> age, <span class="kwrd">int</span> empID,
+            <span class="kwrd">float</span> currPay, <span class="kwrd">string</span> ssn, <span class="kwrd">int</span> numbOfSales)
+        :<span class="kwrd">base</span> (fullName, age, empID, currPay, ssn, numbOfSales)
+    {
+    }
+
+        <span class="rem">// Assume other members here...</span>
+}</pre>
+<p>Given that sealed classes cannot be extended, you may wonder if it is possible to reuse the
+functionality found within a class marked sealed? Glad you asked! If you wish to build a new class that
+leverages the functionality of a sealed class, your one option is to make use of the
+containment/delegation model (aka the “has-a” relationship).</p>
+</body>
+</html>
+
+ 
+   
+

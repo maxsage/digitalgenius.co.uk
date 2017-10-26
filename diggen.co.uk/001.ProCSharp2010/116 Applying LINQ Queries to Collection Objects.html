@@ -1,0 +1,151 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Applying LINQ Queries to Collection Objects</h1>
+  <p>Beyond pulling results from a simple array of data, LINQ query expressions can also manipulate data
+within members of the System.Collections.Generic namespace, such as the List&lt;T&gt; type. Create a new
+Console Application project named LinqOverCollections, and define a basic Car class that maintains a
+current speed, color, make, and pet name as shown in the following code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Car
+{
+    <span class="kwrd">public</span> <span class="kwrd">string</span> PetName {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+    <span class="kwrd">public</span> <span class="kwrd">string</span> Color {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Speed {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+    <span class="kwrd">public</span> <span class="kwrd">string</span> Make {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+}</pre>
+<p>Now, within your Main() method define a local List&lt;T&gt; variable of type Car, and make use of object
+initialization syntax to fill the list with a handful of new Car objects:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** LINQ over Generic Collections *****\n"</span>);
+
+    <span class="rem">// Make a List&lt;&gt; of Car objects.</span>
+    List&lt;Car&gt; myCars = <span class="kwrd">new</span> List&lt;Car&gt;() {
+        <span class="kwrd">new</span> Car{ PetName = <span class="str">"Henry"</span>, Color = <span class="str">"Silver"</span>, Speed = 100, Make = <span class="str">"BMW"</span>},
+        <span class="kwrd">new</span> Car{ PetName = <span class="str">"Daisy"</span>, Color = <span class="str">"Tan"</span>, Speed = 90, Make = <span class="str">"BMW"</span>},
+        <span class="kwrd">new</span> Car{ PetName = <span class="str">"Mary"</span>, Color = <span class="str">"Black"</span>, Speed = 55, Make = <span class="str">"VW"</span>},
+        <span class="kwrd">new</span> Car{ PetName = <span class="str">"Clunker"</span>, Color = <span class="str">"Rust"</span>, Speed = 5, Make = <span class="str">"Yugo"</span>},
+        <span class="kwrd">new</span> Car{ PetName = <span class="str">"Melvin"</span>, Color = <span class="str">"White"</span>, Speed = 43, Make = <span class="str">"Ford"</span>}
+    };
+
+    Console.ReadLine();
+}</pre>
+<h2>Accessing Contained Subobjects</h2>
+  <p>Applying a LINQ query to a generic container is no different than doing so with a simple array, as LINQ
+to Objects can be used on any type implementing IEnumerable&lt;T&gt;. This time, your goal is to build a
+query expression to select only the Car objects within the myCars list, where the speed is greater than 55.</p>
+  <p>Once you get the subset, you will print out the name of each Car object by calling the PetName
+property. Assume you have the following helper method (taking a List&lt;Car&gt; parameter), which is called
+from within Main():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> GetFastCars(List&lt;Car&gt; myCars)
+{
+    <span class="rem">// Find all Car objects in the List&lt;&gt;, where the Speed is</span>
+    <span class="rem">// greater than 55.</span>
+    <span class="kwrd">var</span> fastCars = <span class="kwrd">from</span> c <span class="kwrd">in</span> myCars where c.Speed &gt; 55 select c;
+
+    <span class="kwrd">foreach</span> (<span class="kwrd">var</span> car <span class="kwrd">in</span> fastCars)
+    {
+        Console.WriteLine(<span class="str">"{0} is going too fast!"</span>, car.PetName);
+    }
+}</pre>
+<p>Notice that your query expression is only grabbing items from the List&lt;T&gt; where the Speed property
+is greater than 55. If you run the application, you will find that “Henry” and “Daisy” are the only two
+items that match the search criteria.</p>
+<p>If you want to build a more complex query, you might wish to only find the BMWs that have a Speed
+value above 90. To do so, simply build a compound Boolean statement using the C# &amp;&amp; operator</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> GetFastBMWs(List&lt;Car&gt; myCars)
+{
+    <span class="rem">// Find the fast BMWs!</span>
+    <span class="kwrd">var</span> fastCars = <span class="kwrd">from</span> c <span class="kwrd">in</span> myCars where c.Speed &gt; 90 &amp;&amp; c.Make == <span class="str">"BMW"</span> select c;
+    <span class="kwrd">foreach</span> (<span class="kwrd">var</span> car <span class="kwrd">in</span> fastCars)
+    {
+        Console.WriteLine(<span class="str">"{0} is going too fast!"</span>, car.PetName);
+    }
+}</pre>
+<p>In this case, the only pet name printed out is “Henry”.</p>
+<h2>Applying LINQ Queries to Nongeneric Collections</h2>
+  <p>Recall that the query operators of LINQ are designed to work with any type implementing
+IEnumerable&lt;T&gt; (either directly or via extension methods). Given that System.Array has been provided
+with such necessary infrastructure, it may surprise you that the legacy (nongeneric) containers within
+System.Collections have not. Thankfully, it is still possible to iterate over data contained within
+nongeneric collections using the generic Enumerable.OfType&lt;T&gt;() extension method.</p>
+<p>The OfType&lt;T&gt;() method is one of the few members of Enumerable that does not extend generic
+types. When calling this member off a nongeneric container implementing the IEnumerable interface
+(such as the ArrayList), simply specify the type of item within the container to extract a compatible
+IEnumerable&lt;T&gt; object. In code, you can store this data point using an implicitly typed variable.</p>
+<p>Consider the following new method which fills an ArrayList with a set of Car objects (be sure to
+import the System.Collections namespace into your Program.cs file).</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> LINQOverArrayList()
+{
+    Console.WriteLine(<span class="str">"***** LINQ over ArrayList *****"</span>);
+
+    <span class="rem">// Here is a nongeneric collection of cars.</span>
+    ArrayList myCars = <span class="kwrd">new</span> ArrayList() {
+        <span class="kwrd">new</span> Car{ PetName = <span class="str">"Henry"</span>, Color = <span class="str">"Silver"</span>, Speed = 100, Make = <span class="str">"BMW"</span>},
+        <span class="kwrd">new</span> Car{ PetName = <span class="str">"Daisy"</span>, Color = <span class="str">"Tan"</span>, Speed = 90, Make = <span class="str">"BMW"</span>},
+        <span class="kwrd">new</span> Car{ PetName = <span class="str">"Mary"</span>, Color = <span class="str">"Black"</span>, Speed = 55, Make = <span class="str">"VW"</span>},
+        <span class="kwrd">new</span> Car{ PetName = <span class="str">"Clunker"</span>, Color = <span class="str">"Rust"</span>, Speed = 5, Make = <span class="str">"Yugo"</span>},
+        <span class="kwrd">new</span> Car{ PetName = <span class="str">"Melvin"</span>, Color = <span class="str">"White"</span>, Speed = 43, Make = <span class="str">"Ford"</span>}
+    };
+
+    <span class="rem">// Transform ArrayList into an IEnumerable&lt;T&gt;-compatible type.</span>
+    <span class="kwrd">var</span> myCarsEnum = myCars.OfType&lt;Car&gt;();
+
+    <span class="rem">// Create a query expression targeting the compatible type.</span>
+    <span class="kwrd">var</span> fastCars = <span class="kwrd">from</span> c <span class="kwrd">in</span> myCarsEnum where c.Speed &gt; 55 select c;
+
+    <span class="kwrd">foreach</span> (<span class="kwrd">var</span> car <span class="kwrd">in</span> fastCars)
+    {
+        Console.WriteLine(<span class="str">"{0} is going too fast!"</span>, car.PetName);
+    }
+}</pre>
+<p>Similar to the previous examples, this method, when called from Main() will only display the names
+"Henry" and "Daisy", based on the format of our LINQ query.</p>
+<h2>Filtering Data Using OfType&lt;T&gt;()</h2>
+  <p>As you know, nongeneric types are capable of containing any combination of items, as the members of
+these containers (again, such as the ArrayList) are prototyped to receive System.Objects. For example,
+assume an ArrayList contains a variety of items, only a subset of which are numerical. If you want to
+obtain a subset that contains only numerical data, you can do so using OfType&lt;T&gt;(), since it filters out
+each element whose type is different from the given type during the iterations:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> OfTypeAsFilter()
+{
+    <span class="rem">// Extract the ints from the ArrayList.</span>
+    ArrayList myStuff = <span class="kwrd">new</span> ArrayList();
+    myStuff.AddRange(<span class="kwrd">new</span> <span class="kwrd">object</span>[] { 10, 400, 8, <span class="kwrd">false</span>, <span class="kwrd">new</span> Car(), <span class="str">"string data"</span> });
+    <span class="kwrd">var</span> myInts = myStuff.OfType&lt;<span class="kwrd">int</span>&gt;();
+
+    <span class="rem">// Prints out 10, 400, and 8.</span>
+    <span class="kwrd">foreach</span> (<span class="kwrd">int</span> i <span class="kwrd">in</span> myInts)
+    {
+        Console.WriteLine(<span class="str">"Int value: {0}"</span>, i);
+    }
+}</pre>
+<p>Great! At this point, you have had a chance to apply LINQ queries to arrays, generic collections, and
+nongeneric collections. These containers held both C# primitive types (integers, string data) as well as
+custom classes. The next task is to learn about many additional LINQ operators which can be used to
+build more complex, and useful queries.</p>
+    <p><b>Source Code </b> The LinqOverCollections project can be found under the Chapter 13 subdirectory.</p>
+    </body>
+    </html>
+
+   
+   
+

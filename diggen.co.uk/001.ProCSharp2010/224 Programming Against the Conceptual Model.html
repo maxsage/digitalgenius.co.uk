@@ -1,0 +1,291 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Programming Against the Conceptual Model</h1>
+    <p>Now you can author some code that interacts with your EDM. Begin by updating your Program class to
+call a helper method from Main(), which will print out each item in the Inventory database using your
+conceptual model, and another which will insert a new record to the Inventory table:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Fun with ADO.NET EF *****"</span>);
+        AddNewRecord();
+        PrintAllInventory();
+        Console.ReadLine();
+    }
+
+    <span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> AddNewRecord()
+    {
+        <span class="rem">// Add record to the Inventory table of the AutoLot</span>
+        <span class="rem">// database.</span>
+        <span class="kwrd">using</span> (AutoLotEntities context = <span class="kwrd">new</span> AutoLotEntities())
+        {
+            <span class="kwrd">try</span>
+            {
+                <span class="rem">// Hard code data for a new record, for testing.</span>
+                context.Cars.AddObject(<span class="kwrd">new</span> Car() { CarID = 2222,
+                    Make = <span class="str">"Yugo"</span>, Color = <span class="str">"Brown"</span> });
+                context.SaveChanges();
+            }
+            <span class="kwrd">catch</span>(Exception ex)
+            {
+                Console.WriteLine(ex.InnerException.Message);
+            }
+        }
+    }
+    
+    <span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> PrintAllInventory()
+    {
+        <span class="rem">// Select all items from the Inventory table of AutoLot,</span>
+        <span class="rem">// and print out the data using our custom ToString()</span>
+        <span class="rem">// of the Car entity class.</span>
+        <span class="kwrd">using</span> (AutoLotEntities context = <span class="kwrd">new</span> AutoLotEntities())
+        {
+            <span class="kwrd">foreach</span> (Car c <span class="kwrd">in</span> context.Cars)
+            Console.WriteLine(c);
+        }
+    }
+}</pre>
+<p>You have seen code similar to this earlier in the chapter, but now you should have a much better
+idea about how it works. Each helper method creates an instance of the ObjectContext derived class
+(AutoLotEntities), and uses the strongly typed Cars property to interact with the ObjectSet&lt;Car&gt; field.
+Enumerating each item exposed by the Cars property enables you to submit a SQL SELECT statement
+indirectly to the underlying ADO.NET data provider. By inserting a new Car object with the AddObject()
+method of ObjectSet&lt;Car&gt;, and then calling SaveChanges() on the context, you have preformed a SQL
+INSERT.</p>
+<h2>Deleting a Record</h2>
+<p>When you wish to remove a record from the database, you will first need to locate the correct item in the
+ObjectSet&lt;T&gt;, which you can find by passing an EntityKey object (which is a member of the System.Data
+namespace) to the GetObjectByKey() method. Assuming you have imported this namespace into your C#
+code file, you can now author the following helper method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> RemoveRecord()
+{
+    <span class="rem">// Find a car to delete by primary key.</span>
+    <span class="kwrd">using</span> (AutoLotEntities context = <span class="kwrd">new</span> AutoLotEntities())
+    {
+        <span class="rem">// Define a key for the entity we are looking for.</span>
+        EntityKey key = <span class="kwrd">new</span> EntityKey(<span class="str">"AutoLotEntities.Cars"</span>, <span class="str">"CarID"</span>, 2222);
+
+        <span class="rem">// See if we have it, and delete it if we do.</span>
+        Car carToDelete = (Car)context.GetObjectByKey(key);
+        <span class="kwrd">if</span> (carToDelete != <span class="kwrd">null</span>)
+        {
+            context.DeleteObject(carToDelete);
+            context.SaveChanges();
+        }
+    }
+}</pre>
+<p><b>Note</b> For better or for worse, calling GetObjectByKey() requires a roundtrip to the database before you can
+delete the object.</p>
+<p>Notice that when you are creating an EntityKey object, you need use a string object to inform it
+which ObjectSet&lt;T&gt; to evaluate in a given ObjectContext derived class. The second argument is another
+string; this one represents the property name on the entity class that is marked as the key, and the final
+constructor argument is the value of the primary key. Once you find the object in question, you can call
+DeleteObject() off your context and save the changes.</p>
+<h2>Updating a Record</h2>
+<p>Updating a record is also straightforward; locate the object you wish to change, set new property values
+on the returned entity, and save the changes:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> UpdateRecord()
+{
+    <span class="rem">// Find a car to delete by primary key.</span>
+    <span class="kwrd">using</span> (AutoLotEntities context = <span class="kwrd">new</span> AutoLotEntities())
+    {
+        <span class="rem">// Define a key for the entity we are looking for.</span>
+        EntityKey key = <span class="kwrd">new</span> EntityKey(<span class="str">"AutoLotEntities.Cars"</span>, <span class="str">"CarID"</span>, 2222);
+
+        <span class="rem">// Grab the car, change it, save!</span>
+        Car carToUpdate = (Car)context.GetObjectByKey(key);
+        <span class="kwrd">if</span> (carToUpdate != <span class="kwrd">null</span>)
+        {
+            carToUpdate.Color = <span class="str">"Blue"</span>;
+            context.SaveChanges();
+        }
+    }
+}</pre>
+<p>The preceding method might seem a bit off, at least until you remember that the entity object
+returned from GetObjectByKey() is a reference to an existing object in the ObjectSet&lt;T&gt; field. Thus,
+when you set properties to change the state, you are changing the same object in memory.</p>
+<p><b>Note</b> Much like an ADO.NET DataRow object (see Chapter 22), any descendent of EntityObject (meaning, all
+of your entity classes) has a property named EntityState, which is used by the object context to determine
+whether the item has been modified, deleted, is detached, and so forth. This is set on your behalf as you work with
+the programming model; however, you can change this manually as required.</p>
+<h2>Querying with LINQ to Entities</h2>
+<p>So far, you have been working with a few simple methods on the object context and entity objects to
+perform selections, inserts, updates, and deletes. This is useful all by itself; however, EF becomes much
+more powerful when you incorporate LINQ queries. If you wish to use LINQ to update or delete records,
+you don’t need to make an EntityKey object manually. Consider the following update to the
+RemoveRecord() method, which will not work as expected at this point:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> RemoveRecord()
+{
+    <span class="rem">// Find a car to delete by primary key.</span>
+    <span class="kwrd">using</span> (AutoLotEntities context = <span class="kwrd">new</span> AutoLotEntities())
+    {
+        <span class="rem">// See if we have it?</span>
+        <span class="kwrd">var</span> carToDelete = <span class="kwrd">from</span> c <span class="kwrd">in</span> context.Cars where c.CarID == 2222 select c;
+
+        <span class="kwrd">if</span> (carToDelete != <span class="kwrd">null</span>)
+        {
+            context.DeleteObject(carToDelete);
+            context.SaveChanges();
+        }
+    }
+}</pre>
+<p>This code compiles, but you will receive a runtime exception when you attempt to call the
+DeleteObject() method. The reason: This particular LINQ query returns an ObjectQuery&lt;T&gt; object, not a
+Car object. Always remember that when you build a LINQ query that attempts to locate a single entity,
+you will get back an ObjectQuery&lt;T&gt; representing a query that is capable of bringing back the data you
+are looking for. To execute the query (and bring back the Car entity), you must execute a method such as
+FirstOrDefault() on the query object, as in the following example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">var</span> carToDelete =
+(<span class="kwrd">from</span> c <span class="kwrd">in</span> context.Cars where c.CarID == 2222 select c).FirstOrDefault();</pre>
+<p>By calling FirstOrDefault() on the ObjectQuery&lt;T&gt;, you find the item you want; or, if there is no Car
+with the ID of 2222, a default value of null.</p> 
+<p>Given that you have already worked with many LINQ expressions in Chapter 13, a few more
+examples will suffice for the time being:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> FunWithLINQQueries()
+{
+    <span class="kwrd">using</span> (AutoLotEntities context = <span class="kwrd">new</span> AutoLotEntities())
+    {
+        <span class="rem">// Get a projection of new data.</span>
+        <span class="kwrd">var</span> colorsMakes = <span class="kwrd">from</span> item <span class="kwrd">in</span> context.Cars select
+            <span class="kwrd">new</span> { item.Color, item.Make };
+        <span class="kwrd">foreach</span> (<span class="kwrd">var</span> item <span class="kwrd">in</span> colorsMakes)
+        {
+            Console.WriteLine(item);
+        }
+
+        <span class="rem">// Get only items where CarID &lt; 1000</span>
+        <span class="kwrd">var</span> idsLessThan1000 = <span class="kwrd">from</span> item <span class="kwrd">in</span> context.Cars
+            where item.CarID &lt; 1000 select item;
+        <span class="kwrd">foreach</span> (<span class="kwrd">var</span> item <span class="kwrd">in</span> idsLessThan1000)
+        {
+            Console.WriteLine(item);
+        }
+    }
+}</pre>
+<p>While the syntax of these queries is simple enough, remember that you are hitting a database each
+time you apply a LINQ query to the object context! Recall that when you wish to obtain an independent
+copy of data, which can be the target of new LINQ queries, you want to use immediate execution with
+the ToList&lt;T&gt;(), ToArray&lt;T&gt;() or ToDictionary&lt;K,V&gt;() extension methods (among others). Here is an
+update of the previous method, which performs the equivalent of a SELECT *, caches the entities as an
+array, and manipulates the array data using LINQ to Objects:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> (AutoLotEntities context = <span class="kwrd">new</span> AutoLotEntities())
+{
+    <span class="rem">// Get all data from the Inventory table.</span>
+    <span class="rem">// could also write:</span>
+    <span class="rem">// var allData = (from item in context.Cars select item).ToArray();</span>
+    <span class="kwrd">var</span> allData = context.Cars.ToArray();
+
+    <span class="rem">// Get a projection of new data.</span>
+    <span class="kwrd">var</span> colorsMakes = <span class="kwrd">from</span> item <span class="kwrd">in</span> allData select <span class="kwrd">new</span> { item.Color, item.Make };
+
+    <span class="rem">// Get only items where CarID &lt; 1000</span>
+    <span class="kwrd">var</span> idsLessThan1000 = <span class="kwrd">from</span> item <span class="kwrd">in</span> allData where
+        item.CarID &lt; 1000 select item;
+}</pre>
+<p>Working with LINQ to Entities is much more enticing when your EDM contains multiple related
+tables. You’ll see some example that illustrate this in a moment; however, let’s wrap up this current
+example by looking at two other ways you can interact with your object context.</p>
+<h2>Querying with Entity SQL</h2>
+<p>To be sure, you will be querying and ObjectSet&lt;T&gt; with LINQ a majority of the time. The entity client will
+break down your LINQ query into a fitting SQL statement, passing it onto the database for processing.
+However, you can use Entity SQL if you wish to have more control over how the query is formatted.</p>
+<p>Entity SQL is a SQL-like query language that can be applied to entities. While the format of an Entity
+SQL statement is similar to a traditional SQL statement, it is not identical. Entity SQL has a unique syntax
+because the entities receive the query, not the physical database. Like a LINQ to Entities query, an Entity
+SQL query is used to pass a “real” SQL query to the database.</p>
+<p>This chapter will not dive into the details of building Entity SQL commands, so please consult the
+.NET Framework 4.0 SDK documentation if you want more information. However, one example might
+be helpful. Consider the following method, which builds an Entity SQL statement that finds all black cars
+in the ObjectSet&lt;Car&gt; collection:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> FunWithEntitySQL()
+{
+    <span class="kwrd">using</span> (AutoLotEntities context = <span class="kwrd">new</span> AutoLotEntities())
+    {
+        <span class="rem">// Build a string containing Entity SQL syntax.</span>
+        <span class="kwrd">string</span> query = <span class="str">"SELECT VALUE car FROM AutoLotEntities.Cars "</span> +
+            <span class="str">"AS car WHERE car.Color='black'"</span>;
+
+        <span class="rem">// Now build a ObjectQuery&lt;T&gt; based on the string.</span>
+        <span class="kwrd">var</span> blackCars = context.CreateQuery&lt;Car&gt;(query);
+        <span class="kwrd">foreach</span> (<span class="kwrd">var</span> item <span class="kwrd">in</span> blackCars)
+        {
+            Console.WriteLine(item);
+        }
+    }
+}</pre>
+<p>Notice that you pass in the formatted Entity SQL statement as an argument to the CreateQuery&lt;T&gt;
+method of your object context.</p>
+<h2>Working with the Entity Client Data Reader Object</h2>
+<p>When you use LINQ to Entities or Entity SQL, the fetched data is mapped back to your entity classes
+automatically, thanks to the entity client service. Typically this is exactly what you require; however, you
+can intercept the result set before it makes its way to your entity objects and process it manually using
+the EntityDataReader.</p>
+<p>Here is a final helper method for this example, which uses several members of the
+System.Data.EntityClient namespace to build a connection manually through a command object and
+data reader. This code should look familiar due to your previous work in Chapter 21; the major
+difference is that you use Entity SQL, rather than “normal” SQL:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> FunWithEntityDataReader()
+{
+    <span class="rem">// Make a connection object, based on our *.config file.</span>
+    <span class="kwrd">using</span> (EntityConnection cn = <span class="kwrd">new</span> EntityConnection(<span class="str">"name=AutoLotEntities"</span>))
+    {
+        cn.Open();
+
+        <span class="rem">// Now build an Entity SQL query.</span>
+        <span class="kwrd">string</span> query = <span class="str">"SELECT VALUE car FROM AutoLotEntities.Cars AS car"</span>;
+
+        <span class="rem">// Create a command object.</span>
+        <span class="kwrd">using</span> (EntityCommand cmd = cn.CreateCommand())
+        {
+            cmd.CommandText = query;
+
+            <span class="rem">// Finally, get the data reader and process records.</span>
+            <span class="kwrd">using</span> (EntityDataReader dr =
+                cmd.ExecuteReader(CommandBehavior.SequentialAccess))
+            {
+                while (dr.Read())
+                {
+                    Console.WriteLine(<span class="str">"***** RECORD *****"</span>);
+                    Console.WriteLine(<span class="str">"ID: {0}"</span>, dr[<span class="str">"CarID"</span>]);
+                    Console.WriteLine(<span class="str">"Make: {0}"</span>, dr[<span class="str">"Make"</span>]);
+                    Console.WriteLine(<span class="str">"Color: {0}"</span>, dr[<span class="str">"Color"</span>]);
+                    Console.WriteLine(<span class="str">"Pet Name: {0}"</span>, dr[<span class="str">"CarNickname"</span>]);
+                    Console.WriteLine();
+                }
+            }
+        }
+    }
+}</pre>
+<p>Great! This initial example should go a long way toward helping you understand the nuts and bolts
+of working with the Entity Framework. As mentioned previously, things become much more interesting
+when your EDM contains interrelated tables, which you will learn about next.</p>
+    <p><b>Source Code</b> You can find the InventoryEDMConsoleApp example under the Chapter 23 subdirectory.</p>
+    </body></html>
+   
+

@@ -1,0 +1,142 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Exploring the System.IO Namespace</h1>
+    <p>In the framework of .NET, the System.IO namespace is the region of the base class libraries devoted to
+file-based (and memory-based) input and output (I/O) services. Like any namespace, System.IO defines
+a set of classes, interfaces, enumerations, structures, and delegates, most of which you can find in
+mscorlib.dll. In addition to the types contained within mscorlib.dll, the System.dll assembly defines
+additional members of the System.IO namespace. Note that all Visual Studio 2010 projects automatically
+set a reference to both assemblies.</p>
+<p>Many of the types within the System.IO namespace focus on the programmatic manipulation of
+physical directories and files. However, additional types provide support to read data from and write
+data to string buffers, as well as raw memory locations. Table 20-1 outlines the core (non-abstract)
+classes, providing a road map of the functionality in System.IO.</p>
+<p><b>Table 20-1.</b> Key Members of the System.IO Namespace</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Non-abstract I/O Class Type
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    BinaryReader BinaryWriter
+   </td>
+   <td>
+    These classes allow you to store and retrieve primitive data types
+(integers, Booleans, strings, and whatnot) as a binary value.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    BufferedStream
+   </td>
+   <td>
+    This class provides temporary storage for a stream of bytes that you can
+commit to storage at a later time.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Directory DirectoryInfo
+   </td>
+   <td>
+    You use these classes to manipulate a machine’s directory structure.
+The Directory type exposes functionality using static members, while
+the DirectoryInfo type exposes similar functionality from a valid object
+reference.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DriveInfo
+   </td>
+   <td>
+    This class provides detailed information regarding the drives that a
+given machine uses.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    File 
+FileInfo
+   </td>
+   <td>
+    You use these classes to manipulate a machine’s set of files. The File
+type exposes functionality using static members, while the FileInfo
+type exposes similar functionality from a valid object reference.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    FileStream
+   </td>
+   <td>
+    This class gives you random file access (e.g., seeking capabilities) with
+data represented as a stream of bytes.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    FileSystemWatcher
+   </td>
+   <td>
+    This class allows you to monitor the modification of external files in a
+specified directory.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    MemoryStream
+   </td>
+   <td>
+    This class provides random access to streamed data stored in memory
+rather than a physical file.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Path
+   </td>
+   <td>
+    This class performs operations on System.String types that contain file
+or directory path information in a platform-neutral manner.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    StreamWriter StreamReader
+   </td>
+   <td>
+    You use these classes to store (and retrieve) textual information to (or
+from) a file. These types do not support random file access.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    StringWriter StringReader
+   </td>
+   <td>
+    Like the StreamReader/StreamWriter classes, these classes also work
+with textual information. However, the underlying storage is a string
+buffer rather than a physical file.
+   </td>
+  </tr>
+</table>
+<p>In addition to these concrete class types, System.IO defines a number of enumerations, as well as a
+set of abstract classes (e.g., Stream, TextReader, and TextWriter), that define a shared polymorphic
+interface to all descendents. You will read about many of these types in this chapter.</p>
+</body>
+    </html>     
+      
+   

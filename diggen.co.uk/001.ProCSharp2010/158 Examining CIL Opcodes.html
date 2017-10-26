@@ -1,0 +1,405 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Examining CIL Opcodes</h1>
+<p>The final aspect of CIL code you’ll examine in this chapter has to do with the role of various -operational
+codes (opcodes). Recall that an opcode is simply a CIL token used to build the implementation logic for
+a given member. The complete set of CIL opcodes (which is fairly large) can be grouped into the
+following broad categories:</p>
+<ul>
+ <li>Opcodes that control program flow</li>
+  <li>Opcodes that evaluate expressions</li>
+  <li>Opcodes that access values in memory (via parameters, local variables, etc.)</li>
+</ul>
+<p>To provide some insight to the world of member implementation via CIL, Table 17-5 defines some of the
+more useful opcodes that are directly related to member implementation logic, grouped by related functionality</p>
+<p><b>Table 17-5.</b> Various Implementation-Specific CIL Opcodes</p>
+<table class="gridtable">
+   <tr>
+   <th>
+    Opcodes
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    add, sub, mul, div, rem
+   </td>
+   <td>
+    These CIL opcodes allow you to add, subtract, multiply, and divide two
+values (rem returns the remainder of a division operation).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    and, or, not, xor
+   </td>
+   <td>
+    These CIL opcodes allow you to perform bit-wise operations on two values.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ceq, cgt, clt
+   </td>
+   <td>
+    These CIL opcodes allow you to compare two values on the stack in
+various manners, for example:
+ceq: Compare for equality
+cgt: Compare for greater than
+clt: Compare for less than
+   </td>
+  </tr>
+  <tr>
+   <td>
+    box, unbox
+   </td>
+   <td>
+    These CIL opcodes are used to convert between reference types and value
+types.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ret
+   </td>
+   <td>
+    This CIL opcode is used to exit a method and return a value to the caller (if
+necessary).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    beq, bgt, ble, blt, switch
+   </td>
+   <td>
+    These CIL opcodes (in addition to many other related opcodes) are used to
+control branching logic within a method, for example:
+beq: Break to code label if equal
+bgt: Break to code label if greater than
+ble: Break to code label if less than or equal to
+blt: Break to code label if less than
+All of the branch-centric opcodes require that you specify a CIL code label
+to jump to if the result of the test is true.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    call
+   </td>
+   <td>
+    This CIL opcode is used to call a member on a given type.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    newarr, newobj
+   </td>
+   <td>
+    These CIL opcodes allow you to allocate a new array or new object type
+into memory (respectively).
+   </td>
+  </tr>
+</table>
+<p>The next broad category of CIL opcodes (a subset of which is shown in Table 17-6) are used to load
+(push) arguments onto the virtual execution stack. Note how these load-specific opcodes take an ld
+(load) prefix.</p>
+<p><b>Table 17-6.</b> The Primary Stack-Centric Opcodes of CIL</p>
+<table class="gridtable">
+    <tr>
+        <th>Opcode</th>
+        <th>Meaning in Life</th>
+    </tr>
+   <tr>
+   <td>
+    ldarg (with numerous variations)
+   </td>
+   <td>
+    Loads a method’s argument onto the stack. In addition to the
+general ldarg (which works in conjunction with a given index
+that identifies the argument), there are numerous other variations.
+For example, ldarg opcodes that have a numerical suffix
+(ldarg_0) hard-code which argument to load. As well, variations
+of the ldarg opcode allow you to hard-code the data type using
+the CIL constant notation shown in Table 17-4 (ldarg_I4, for an
+int32) as well as the data type and value (ldarg_I4_5, to load an
+int32 with the value of 5).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ldc (with numerous variations)
+   </td>
+   <td>
+    Loads a constant value onto the stack.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ldfld (with numerous variations)
+   </td>
+   <td>
+    Loads the value of an instance-level field onto the stack.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ldloc (with numerous variations)
+   </td>
+   <td>
+    Loads the value of a local variable onto the stack.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ldobj
+   </td>
+   <td>
+    Obtains all the values gathered by a heap-based object and
+places them on the stack.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ldstr
+   </td>
+   <td>
+    Loads a string value onto the stack.
+   </td>
+  </tr>
+</table>
+<p>In addition to the set of load-specific opcodes, CIL provides numerous opcodes that explicitly pop
+the topmost value off the stack. As shown over the first few examples in this chapter, popping a value off
+the stack typically involves storing the value into temporary local storage for further use (such as a
+parameter for an upcoming method invocation). Given this, note how many opcodes that pop the
+current value off the virtual execution stack take an st (store) prefix. Table 17-7 hits the highlights.</p>
+<p><b>Table 17-7.</b> Various Pop-Centric Opcodes</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Opcode
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    pop
+   </td>
+   <td>
+    Removes the value currently on top of the evaluation stack, but
+does not bother to store the value
+   </td>
+  </tr>
+  <tr>
+   <td>
+    starg
+   </td>
+   <td>
+    Stores the value on top of the stack into the method argument at
+a specified index
+   </td>
+  </tr>
+  <tr>
+   <td>
+    stloc (with numerous variations)
+   </td>
+   <td>
+    Pops the current value from the top of the evaluation stack and
+stores it in a local variable list at a specified index
+   </td>
+  </tr>
+  <tr>
+   <td>
+    stobj
+   </td>
+   <td>
+    Copies a value of a specified type from the evaluation stack into
+a supplied memory address
+   </td>
+  </tr>
+  <tr>
+   <td>
+    stsfld
+   </td>
+   <td>
+    Replaces the value of a static field with a value from the
+evaluation stack
+   </td>
+  </tr>
+</table>
+<h2>The .maxstack Directive</h2>
+<p>When you write method implementations using raw CIL, you need to be mindful of a special directive
+named .maxstack. As its name suggests, .maxstack establishes the maximum number of variables that
+may be pushed onto the stack at any given time during the execution of the method. The good news is
+that the .maxstack directive has a default value (8), which should be safe for a vast majority of methods
+you may be authoring. However, if you wish to be very explicit, you are able to manually calculate the
+number of local variables on the stack and define this value explicitly:</p>
+<pre class="csharpcode">
+.method public hidebysig instance void
+    Speak() cil managed
+{
+    // During the scope of this method, exactly
+    // 1 value (the string literal) is on the stack.
+    .maxstack 1
+    ldstr "Hello there..."
+    call void [mscorlib]System.Console::WriteLine(string)
+    ret
+}
+</pre>
+<h2>Declaring Local Variables in CIL</h2>
+<p>Let’s first check out how to declare a local variable. Assume you wish to build a method in CIL named
+MyLocalVariables() that takes no arguments and returns void. Within the method, you wish to define
+three local variables of type System.String, System.Int32, and System.Object. In C#, this member would
+appear as follows (recall that locally scoped variables do not receive a default value and should be set to
+an initial state before further use):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> MyLocalVariables()
+{
+    <span class="kwrd">string</span> myStr = <span class="str">"CIL code is fun!"</span>;
+    <span class="kwrd">int</span> myInt = 33;
+    <span class="kwrd">object</span> myObj = <span class="kwrd">new</span> <span class="kwrd">object</span>();
+}</pre>
+<p>If you were to construct MyLocalVariables() directly in CIL, you could author the following:</p>
+<pre class="csharpcode">
+.method public hidebysig static void
+    MyLocalVariables() cil managed
+{
+    .maxstack 8
+    // Define three local variables.
+    .locals init ([0] string myStr, [1] int32 myInt, [2] object myObj)
+
+    // Load a string onto the virtual execution stack.
+    ldstr "CIL code is fun!"
+    // Pop off current value and store in local variable [0].
+    stloc.0
+
+    // Load a constant of type "i4"
+    // (shorthand for int32) set to the value 33.
+    ldc.i4 33
+    // Pop off current value and store in local variable [1].
+    stloc.1
+
+    // Create a new object and place on stack.
+    newobj instance void [mscorlib]System.Object::.ctor()
+    // Pop off current value and store in local variable [2].
+    stloc.2
+    ret
+}</pre>
+<p>As you can see, the first step taken to allocate local variables in raw CIL is to make use of the .locals
+directive, which is paired with the init attribute. Within the scope of the related parentheses, your goal
+is to associate a given numerical index to each variable (seen here as [0], [1], and [2]). As you can see,
+each index is identified by its data type and an optional variable name. Once the local variables have
+been defined, you load a value onto the stack (using the various load-centric opcodes) and store the
+value within the local variable (using the various storage-centric opcodes).</p>
+<h2>Mapping Parameters to Local Variables in CIL</h2>
+<p>You have already seen how to declare local variables in raw CIL using the .locals init directive; however,
+you have yet to see exactly how to map incoming parameters to local methods. Consider the following
+static C# method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">int</span> Add(<span class="kwrd">int</span> a, <span class="kwrd">int</span> b)
+{
+    <span class="kwrd">return</span> a + b;
+}</pre>
+<p>This innocent-looking method has a lot to say in terms of CIL. First, the incoming arguments (a and
+b) must be pushed onto the virtual execution stack using the ldarg (load argument) opcode. Next, the
+add opcode will be used to pop the next two values off the stack and find the summation, and store the
+value on the stack yet again. Finally, this sum is popped off the stack and returned to the caller via the
+ret opcode. If you were to disassemble this C# method using ildasm.exe, you would find numerous
+additional tokens injected by csc.exe, but the crux of the CIL code is quite simple:</p>
+<pre class="csharpcode">
+.method public hidebysig static int32 Add(int32 a,
+    int32 b) cil managed
+{
+    .maxstack 2
+    ldarg.0 // Load "a" onto the stack.
+    ldarg.1 // Load "b" onto the stack.
+    add // Add both values.
+    ret
+}
+</pre>
+<h2>The Hidden this Reference</h2>
+<p>Notice that the two incoming arguments (a and b) are referenced within the CIL code using their indexed
+position (index 0 and index 1), given that the virtual execution stack begins indexing at position 0.</p>
+<p>One thing to be very mindful of when you are examining or authoring CIL code is that every
+nonstatic method that takes incoming arguments automatically receives an implicit additional
+parameter, which is a reference to the current object (think the C# this keyword). Given this, if the Add()
+method were defined as nonstatic:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// No longer static!</span>
+<span class="kwrd">public</span> <span class="kwrd">int</span> Add(<span class="kwrd">int</span> a, <span class="kwrd">int</span> b)
+{
+    <span class="kwrd">return</span> a + b;
+}</pre>
+<p>the incoming a and b arguments are loaded using ldarg.1 and ldarg.2 (rather than the expected ldarg.0
+and ldarg.1 opcodes). Again, the reason is that slot 0 actually contains the implicit this reference.
+Consider the following pseudo-code:</p>
+<pre class="csharpcode">
+// This is JUST pseudo-code!
+.method public hidebysig static int32 AddTwoIntParams(
+    MyClass_HiddenThisPointer this, int32 a, int32 b) cil managed
+{
+    ldarg.0 // Load MyClass_HiddenThisPointer onto the stack.
+    ldarg.1 // Load "a" onto the stack.
+    ldarg.2 // Load "b" onto the stack.
+...
+}
+</pre>
+<h2>Representing Iteration Constructs in CIL</h2>
+<p>Iteration constructs in the C# programming language are represented using the for, foreach, while, and
+do keywords, each of which has a specific representation in CIL. Consider the classic for loop:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">static</span> void CountToTen()
+{
+    <span class="kwrd">for</span>(int i = 0; i &lt; 10; i++)
+        ;
+}</pre>
+<p>Now, as you may recall, the br opcodes (br, blt, and so on) are used to control a break in flow when
+some condition has been met. In this example, you have set up a condition in which the for loop should
+break out of its cycle when the local variable i is equal to or greater than the value of 10. With each pass,
+the value of 1 is added to i, at which point the test condition is yet again evaluated.</p>
+<p>Also recall that when you make use of any of the CIL branching opcodes, you will need to define a
+specific code label (or two) that marks the location to jump to when the condition is indeed true. Given
+This book was purchased by max.sage@webitec.co.uk
+these points, ponder the following (augmented) CIL code generated via ildasm.exe (including the
+autogenerated code labels):</p>
+<pre class="csharpcode">
+.method public hidebysig static void CountToTen() cil managed
+{
+    .maxstack 2
+    .locals init ([0] int32 i) // Init the local integer "i".
+    IL_0000: ldc.i4.0 // Load this value onto the stack.
+    IL_0001: stloc.0 // Store this value at index "0".
+    IL_0002: br.s IL_0008 // Jump to IL_0008.
+    IL_0004: ldloc.0 // Load value of variable at index 0.
+    IL_0005: ldc.i4.1 // Load the value "1" on the stack.
+    IL_0006: add // Add current value on the stack at index 0.
+    IL_0007: stloc.0
+    IL_0008: ldloc.0 // Load value at index "0".
+    IL_0009: ldc.i4.s 10 // Load value of "10" onto the stack.
+    IL_000b: blt.s IL_0004 // Less than? If so, jump back to IL_0004
+    IL_000d: ret
+}</pre>
+<p>In a nutshell, this CIL code begins by defining the local int32 and loading it onto the stack. At this
+point, you jump back and forth between code label IL_0008 and IL_0004, each time bumping the value of
+i by 1 and testing to see whether i is still less than the value 10. If so, you exit the method.</p>
+    <p><b>Source Code</b> The CilTypes example is included under the Chapter 17 subdirectory.</p>
+    </body>
+    </html>
+
+     
+      
+   

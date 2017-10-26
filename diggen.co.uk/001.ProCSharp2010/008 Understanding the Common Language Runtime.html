@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Understanding the Common Language Runtime</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />	
+</head>
+<body>
+    <h1>Understanding the Common Language Runtime</h1>
+    <p>In addition to the CTS and CLS specifications, the final TLA (three-letter abbreviation) to contend with at
+    the moment is the CLR. Programmatically speaking, the term runtime can be understood as a collection
+    of services that are required to execute a given compiled unit of code. For example, when developers
+    make use of the MFC to create a new application, they are aware that their program requires the MFC
+    runtime library (i.e., mfc42.dll). Other popular languages also have a corresponding runtime: VB6
+    programmers are tied to a runtime module or two (e.g., msvbvm60.dll), and Java developers are tied to
+    the Java Virtual Machine (JVM), for example.</p>
+    <p>The .NET platform offers yet another runtime system. The key difference between the .NET runtime
+    and the various other runtimes I just mentioned is the fact that the .NET runtime provides a single welldefined
+    runtime layer that is shared by all languages and platforms that are .NET-aware.</p>
+    <p>The crux of the CLR is physically represented by a library named mscoree.dll (aka the Common
+    Object Runtime Execution Engine). When an assembly is referenced for use, mscoree.dll is loaded
+    automatically, which in turn loads the required assembly into memory. The runtime engine is
+    responsible for a number of tasks. First and foremost, it is the entity in charge of resolving the location of
+    an assembly and finding the requested type within the binary by reading the contained metadata. The
+    CLR then lays out the type in memory, compiles the associated CIL into platform-specific instructions,
+    performs any necessary security checks, and then executes the code in question.</p>
+    <p>In addition to loading your custom assemblies and creating your custom types, the CLR will also
+    interact with the types contained within the .NET base class libraries when required. Although the entire
+    base class library has been broken into a number of discrete assemblies, the key assembly is
+    mscorlib.dll, which contains a large number of core types that encapsulate a wide variety of common
+    programming tasks as well as the core data types used by all .NET languages. When you build .NET
+    solutions, you automatically have access to this particular assembly.</p>
+    <p>Figure 1-4 illustrates the workflow that takes place between your source code (which is making use
+    of base class library types), a given .NET compiler, and the .NET execution engine.</p>
+    <img src="http://www.diggen.co.uk/Images/Figure01_04.png" alt="Figure 1-4" />
+    <p><b>Figure 1-4</b> mscoree.dll in action</p>
+</body>
+</html>

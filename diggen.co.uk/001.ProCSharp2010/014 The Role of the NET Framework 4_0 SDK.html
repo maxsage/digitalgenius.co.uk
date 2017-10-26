@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>  
+<html>
+<head>
+    <title></title>
+     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />   
+     <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />       
+     <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" /> 
+</head>
+<body>
+    <h1>The Role of the .NET Framework 4.0 SDK</h1>
+    <p>One common misconception regarding .NET development is the belief that programmers must
+    purchase a copy of Visual Studio in order to build their C# applications. The truth of the matter is that
+    you are able to build any sort of .NET program using the freely downloadable .NET Framework 4.0
+    Software Development Kit (SDK). This SDK provides you with numerous managed compilers,
+    command-line utilities, sample code, the .NET class libraries, and a complete documentation system.</p>
+    <p><b>Note</b> The .NET Framework 4.0 SDK setup program (dotnetfx40_full_setup.exe) can be obtained from
+    the .NET download web site (http://msdn.microsoft.com/netframework).</p>
+    <p>Now, be aware that if you are going to be using Visual Studio 2010 or Visual C# 2010 Express, you
+    have no need to manually install the .NET Framework 4.0 SDK. When you install either of these
+    products, the SDK is installed automatically, thereby giving you everything you need out of the box.</p>
+    <p>However, if you are not going to be using a Microsoft IDE as you work through this text, be sure to
+    install the SDK before proceeding.</p>
+    <h2>The Visual Studio 2010 Command Prompt</h2>
+    <p>When you install the .NET Framework 4.0 SDK, Visual Studio 2010, or Visual C# 2010 Express, you will
+    end up with a number of new directories on your local hard drive, each of which contains various .NET
+    development tools. Many of these tools are driven from the command prompt, so if you wish to use
+    these utilities from any Windows command window, you will need to register these paths with the
+    operating system.</p>
+    <p>While you could update your PATH variable manually to do so, you can save yourself some time by
+    simply making use of the Visual Studio 2010 Command Prompt that is accessible from the Start &gt; All
+    Programs &gt; Microsoft Visual Studio 2010 &gt; Visual Studio Tools folder (see Figure 2-1).</p>
+    <img src="http://www.diggen.co.uk/Images/Figure02_01.png" alt="Figure 2-1" />
+    <p>Figure 2-1. The Visual Studio 2010 command prompt</p>
+    <p>The benefit of using this particular command prompt is that it has been preconfigured to provide
+    access to each of the .NET development tools. Assuming you have a .NET development environment
+    installed, type the following command and press the Enter key:</p>
+    <p>csc -?</p>
+    <p>If all is well, you should see a list of command-line arguments of the C# command-line compiler
+    (where csc stands for the C-sharp compiler).</p>
+</body>
+</html>
+
+

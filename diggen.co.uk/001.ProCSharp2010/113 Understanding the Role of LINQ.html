@@ -1,0 +1,169 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Understanding the Role of LINQ</h1>
+  <p>That wraps up our quick review of the C# language features that allow LINQ to work its magic. However,
+why have LINQ in the first place? Well, as software developers, it is hard to deny that the vast majority of
+our programming time is spent obtaining and manipulating data. When speaking of “data,” it is very
+easy to immediately envision information contained within relational databases. However, another
+popular location in which data exists is within XML documents (*.config files, locally persisted
+DataSets, or in-memory data returned from WCF services).</p>
+<p>Data can be found in numerous places beyond these two common homes for information. For
+instance, say you have an array or generic List&lt;T&gt; type containing 300 integers, and you want to obtain a
+subset that meets a given criterion (e.g., only the odd or even members in the container, only prime
+numbers, only nonrepeating numbers greater than 50). Or perhaps you are making use of the reflection
+APIs and need to obtain only metadata descriptions for each class deriving from a particular parent class
+within an array of Types. Indeed, data is everywhere.</p>
+<p>Prior to .NET 3.5, interacting with a particular flavor of data required programmers to make use of
+very diverse APIs. Consider, for example, Table 13-1, which illustrates several common APIs used to
+access various types of data (I’m sure you can think of many other examples).</p>
+<p><b>Table 13-1. </b>Ways to Manipulate Various Types of Data</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    The Data You Want
+   </th>
+   <th>
+    How to Obtain it
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Relational data
+   </td>
+   <td>
+    System.Data.dll, System.Data.SqlClient.dll, etc.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    XML document data
+   </td>
+   <td>
+    System.Xml.dll
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Metadata tables
+   </td>
+   <td>
+    The System.Reflection namespace
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Collections of objects
+   </td>
+   <td>
+    System.Array and the
+System.Collections/System.Collections.Generic namespaces
+   </td>
+  </tr>
+</table>
+<p>Of course, nothing is wrong with these approaches to data manipulation. In fact, when
+programming with .NET 4.0/C# 2010, you can (and will) certainly make direct use of ADO.NET, the XML
+namespaces, reflection services, and the various collection types. However, the basic problem is that
+each of these APIs is an island unto itself, which offers very little in the way of integration. True, it is
+possible (for example) to save an ADO.NET DataSet as XML, and then manipulate it via the System.Xml
+namespaces, but nonetheless, data manipulation remains rather asymmetrical.</p>
+<p>The LINQ API is an attempt to provide a consistent, symmetrical manner in which programmers
+can obtain and manipulate “data” in the broad sense of the term. Using LINQ, you are able to create
+directly within the C# programming language constructs called query expressions. These query
+expressions are based on numerous query operators that have been intentionally designed to look and
+feel very similar (but not quite identical) to a SQL expression.</p>
+<p>The twist, however, is that a query expression can be used to interact with numerous types of data—
+even data that has nothing to do with a relational database. Strictly speaking, “LINQ” is the term used to
+describe this overall approach to data access. However, based on where you are applying your LINQ
+queries, you will encounter various terms, such as the following:</p>
+<ul>
+ <li><b>LINQ to Objects:</b> This term refers to the act of applying LINQ queries to arrays and
+collections.</li>
+ <li><b>LINQ to XML: </b>This term refers to the act of using LINQ to manipulate and query
+XML documents.</li>
+ <li><b>LINQ to DataSet: </b>This term refers to the act of applying LINQ queries to ADO.NET
+DataSet objects.</li>
+ <li><b>LINQ to Entities: </b>This aspect of LINQ allows you to make use of LINQ queries
+within the ADO.NET Entity Framework (EF) API.</li>
+ <li><b>Parallel LINQ (aka, PLINQ):</b> Allows for parallel processing of data returned from a
+LINQ query.</li>
+</ul>
+<p>To be sure, Microsoft seems quite dedicated to integrating LINQ support deeply within the .NET
+programming environment. As time goes on, it would be very safe to bet that LINQ will become an
+integral part of the .NET base class libraries, languages, and Visual Studio itself.</p>
+<h2>LINQ Expressions Are Strongly Typed</h2>
+ <p>It is also very important to point out that a LINQ query expression (unlike a traditional SQL statement) is
+strongly typed. Therefore, the C# compiler will keep us honest and make sure that these expressions are
+syntactically well formed. On a related note, query expressions have metadata representation within the
+assembly that makes use of them, as the C# LINQ query operators always make a rich underlying object
+model. Tools such as Visual Studio 2010 can use this metadata for useful features such as IntelliSense,
+autocompletion, and so forth.</p>
+<h2>The Core LINQ Assemblies</h2>
+  <p>As mentioned in Chapter 2, the New Project dialog of Visual Studio 2010 has the option of selecting
+which version of the .NET platform you wish to compile against. When you opt to compile against .NET
+3.5 or higher, each of the project templates will automatically reference the key LINQ assemblies, which
+can be viewed using the Solution Explorer. Table 13-2 documents the role of the key LINQ assemblies.
+However, you will encounter additional LINQ libraries over the remainder of this book.</p>
+<p><b>Table 13-2. </b>Core LINQ-centric Assemblies</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Assembly
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    System.Core.dll
+   </td>
+   <td>
+    Defines the types that represent the core LINQ API. This is
+the one assembly you must have access to if you wish to use
+any LINQ API, including LINQ to Objects.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ystem.Data.DataSetExtensions.dll
+   </td>
+   <td>
+    Defines a handful of types to integrate ADO.NET types into
+the LINQ programming paradigm (LINQ to DataSet).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.Xml.Linq.dll
+   </td>
+   <td>
+    Provides functionality for using LINQ with XML document data (LINQ to XML).
+   </td>
+  </tr>
+</table>
+<p>In order to work with LINQ to Objects, you must make sure that every C# code file that contains
+LINQ queries imports the System.Linq namespace (defined within System.Core.dll). If you do not do so,
+you will run into a number of problems. As a very good rule of thumb, if you see a compiler error looking
+similar to this:</p>
+<pre class="csharpcode">
+Error 1 Could not find an implementation of the query pattern for source type 'int[]'.
+'Where' not found. Are you missing a reference to 'System.Core.dll' or a using directive
+for 'System.Linq'?</pre>
+<p>The chances are extremely good that your C# file does not have the following using directive (and
+believe me, I speak from experience!):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System.Linq;</pre>
+    </body>
+    </html>
+
+   
+   
+

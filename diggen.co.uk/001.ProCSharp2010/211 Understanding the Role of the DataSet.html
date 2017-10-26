@@ -1,0 +1,226 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Understanding the Role of the DataSet</h1>
+    <p>As noted previously, a DataSet is an in-memory representation of relational data. More specifically, a
+DataSet is a class type that internally maintains three strongly typed collections (see Figure 22-2).</p>
+<img src="http://www.diggen.co.uk/Images/Figure22_02.png" alt="Figure 22-2" />
+<p><b>Figure 22-2</b> The anatomy of a DataSet</p>
+<p>The Tables property of the DataSet allows you to access the DataTableCollection that contains the
+individual DataTables. Another important collection used by the DataSet: DataRelationCollection.
+Given that a DataSet is a disconnected version of a database schema, you can use it to represent the
+parent/child relationships programmatically between its tables. For example, you can create a relation
+between two tables to model a foreign key constraint using the DataRelation type. You can add this
+object to the DataRelationCollection with the Relations property. At this point, you can navigate
+between the related tables as you search for data. You will see how to do this later in the chapter.</p>
+<p>The ExtendedProperties property provides access to the PropertyCollection object, which allows
+you to associate any extra information to the DataSet as name/value pairs. This information can be
+literally anything, even if it has no bearing on the database data itself. For example, you can associate
+your company’s name to a DataSet, which can then function as in-memory metadata. Other examples of
+extended properties might include time stamps, an encrypted password that must be supplied to access
+the contents of the DataSet, a number representing a data refresh rate, and so forth.</p>
+<p><b>Note</b> The DataTable and DataColumn classes also support the ExtendedProperties property</p>
+<h2>Key Properties of the DataSet</h2>
+<p>Before exploring too many other programmatic details, let’s take a look at some core members of the
+DataSet. Table 22-1 describes some additional properties of interest beyond the Tables, Relations, and
+ExtendedProperties properties.</p>
+<p><b>Table 22-1.</b> Properties of the DataSet</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Property
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    CaseSensitive
+   </td>
+   <td>
+    Indicates whether string comparisons in DataTable objects are case sensitive (or
+not). The default is false (string comparisons are not case sensitive by default).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DataSetName
+   </td>
+   <td>
+    Represents the friendly name of this DataSet. Typically, you establish this value as
+a constructor parameter.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    EnforceConstraints
+   </td>
+   <td>
+    Gets or sets a value indicating whether constraint rules are followed when
+attempting any update operations (the default is true).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    HasErrors
+   </td>
+   <td>
+    Gets a value indicating whether there are errors in any of the rows in any of
+the DataTables of the DataSet.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    RemotingFormat
+   </td>
+   <td>
+    Allows you to define how the DataSet should serialize its content (binary or
+XML, which is the default).
+   </td>
+  </tr>
+</table>
+<h2>Key Methods of the DataSet</h2>
+<p>The methods of the DataSet work in conjunction with some of the functionality provided by the
+aforementioned properties. In addition to interacting with XML streams, the DataSet provides methods
+that allow you to copy the contents of your DataSet, navigate between the internal tables, and establish
+the beginning and ending points of a batch of updates. Table 22-2 describes some core methods.</p>
+<p><b>Table 22-2.</b> Select Methods of the DataSet</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Methods
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    AcceptChanges()
+   </td>
+   <td>
+    Commits all the changes made to this DataSet since it was loaded or the
+last time AcceptChanges() was called.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Clear()
+   </td>
+   <td>
+    Completely clears the DataSet data by removing every row in each
+DataTable.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Clone()
+   </td>
+   <td>
+    Clones the structure, but not the data, of the DataSet, including all
+DataTables, as well as all relations and any constraints.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Copy()
+   </td>
+   <td>
+    Copies both the structure and data for this DataSet.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    GetChanges()
+   </td>
+   <td>
+    Returns a copy of the DataSet containing all changes made to it since it
+was last loaded or since AcceptChanges() was called. This method is
+overloaded, so that you can get just the new rows, just the modified rows,
+or just the deleted rows.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    HasChanges()
+   </td>
+   <td>
+    Gets a value indicating whether the DataSet has changes, including new,
+deleted, or modified rows.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Merge()
+   </td>
+   <td>
+    Merges this DataSet with a specified DataSet.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ReadXml()
+   </td>
+   <td>
+    Allows you to define the structure of a DataSet object and populate it
+with data, based on XML schema and data read from a stream.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    RejectChanges()
+   </td>
+   <td>
+    Rolls back all the changes made to this DataSet since it was created or
+since the last time AcceptChanges() was called.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    WriteXml()
+   </td>
+   <td>
+    Allow you to write out the contents of a DataSet into a valid stream.
+   </td>
+  </tr>
+</table>
+<h2>Building a DataSet</h2>
+<p>Now that you have a better understanding of the role of the DataSet (and some idea of what you can do
+with one), create a new Console Application named SimpleDataSet and import the System.Data
+namespace. Within the Main() method, define a new DataSet object that contains three extended
+properties that represent a time stamp, a unique identifier (represented as a System.Guid type), and your
+company’s name:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with DataSets *****\n"</span>);
+
+    <span class="rem">// Create the DataSet object and add a few properties.</span>
+    DataSet carsInventoryDS = <span class="kwrd">new</span> DataSet(<span class="str">"Car Inventory"</span>);
+
+    carsInventoryDS.ExtendedProperties[<span class="str">"TimeStamp"</span>] = DateTime.Now;
+    carsInventoryDS.ExtendedProperties[<span class="str">"DataSetID"</span>] = Guid.NewGuid();
+    carsInventoryDS.ExtendedProperties[<span class="str">"Company"</span>] =
+        <span class="str">"Mikko’s Hot Tub Super Store"</span>;
+    Console.ReadLine();
+}</pre>
+<p>You might be unfamiliar with the concept of a globally unique identifier (GUID); all you need to
+know is that it is a statically unique 128-bit number. While GUIDs are used throughout the COM
+framework to identify numerous things (e.g., classes, interfaces, and applications), the System.Guid type
+remains helpful under .NET when you need to generate a unique identifier quickly.</p>
+<p>In any case, a DataSet object is not interesting until you insert any number of DataTables. Therefore,
+the next task is to examine the internal composition of the DataTable, beginning with the DataColumn
+type.</p>
+    </body>
+    </html>
+ 
+   
+

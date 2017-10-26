@@ -1,0 +1,179 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>LINQ Specific Programming Constructs</h1>
+  <p>From a very high level, LINQ can be understood as a strongly typed query language, embedded directly
+into the grammar of C# itself. Using LINQ, you can build any number of expressions which have a lookand-
+feel similar to that of a database SQL query. However, a LINQ query can be applied to any number
+of data stores, including stores that have nothing to do with a literal relational database.</p>
+<p><b>Note </b>Although LINQ queries look similar to SQL queries, the syntax is not identical. In fact, many LINQ queries
+seem to be the exact opposite format of a similar database query! If you attempt to map LINQ directly to SQL, you
+will surely become frustrated. To keep your sanity, I’d recommend that you try your best to regard LINQ queries as
+unique entities, which just “happen to look” similar to SQL.</p>
+<p>When LINQ was first introduced to the .NET platform in version 3.5, the C# (and VB) languages were
+each expanded with a large number of new programming constructs used to support the LINQ
+technology set. Specifically, the C# language uses the following core LINQ-centric features:</p>
+<ul>
+ <li>Implicitly typed local variables</li>
+ <li>Object/collection initialization syntax</li>
+ <li>Lambda expressions</li>
+ <li>Extension methods</li>
+ <li>Anonymous types</li>
+</ul>
+<p>These features have already been explored in detail within various chapters of the text. However, to
+get the ball rolling, let’s quickly review each feature in turn, just to make sure we are all in the proper
+mindset.</p>
+<h2>Implicit Typing of Local Variables</h2>
+  <p>In Chapter 3, you learned about the var keyword of C#. This keyword allows you to define a local variable
+without explicitly specifying the underlying data type. The variable, however, is strongly typed as the
+compiler will determine the correct data type based on the initial assignment. Recall the following code
+example from Chapter 3:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> DeclareImplicitVars()
+{
+    <span class="rem">// Implicitly typed local variables.</span>
+    <span class="kwrd">var</span> myInt = 0;
+    <span class="kwrd">var</span> myBool = <span class="kwrd">true</span>;
+    <span class="kwrd">var</span> myString = <span class="str">"Time, marches on..."</span>;
+
+    <span class="rem">// Print out the underlying type.</span>
+    Console.WriteLine(<span class="str">"myInt is a: {0}"</span>, myInt.GetType().Name);
+    Console.WriteLine(<span class="str">"myBool is a: {0}"</span>, myBool.GetType().Name);
+    Console.WriteLine(<span class="str">"myString is a: {0}"</span>, myString.GetType().Name);
+}</pre>
+<p>This language feature is very helpful, and often mandatory, when using LINQ. As you will see during
+this chapter, many LINQ queries will return a sequence of data types which are not known until compile
+time. Given that the underlying data type is not known until the application is compiled, you obviously
+can’t declare a variable explicitly!</p>
+<h2>Object and Collection Initialization Syntax</h2>
+  <p>Chapter 5 explored the role of object initialization syntax, which allows you to create a class or structure
+variable, and set any number of its public properties, in one fell swoop. The end result is a very compact
+(yet still easy on the eyes) syntax which can be used to get your objects ready for use. Also recall from
+Chapter 10, the C# language allows you to use a very similar syntax to initialize collections of objects.
+Consider the following code snippet which uses collection initialization syntax to fill a List&lt;T&gt; of
+Rectangle objects, each of which maintains two Point objects to represent an (x,y) position:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+List&lt;Rectangle&gt; myListOfRects = <span class="kwrd">new</span> List&lt;Rectangle&gt;
+{
+    <span class="kwrd">new</span> Rectangle {TopLeft = <span class="kwrd">new</span> Point { X = 10, Y = 10 },
+        BottomRight = <span class="kwrd">new</span> Point { X = 200, Y = 200}},
+    <span class="kwrd">new</span> Rectangle {TopLeft = <span class="kwrd">new</span> Point { X = 2, Y = 2 },
+        BottomRight = <span class="kwrd">new</span> Point { X = 100, Y = 100}},
+    <span class="kwrd">new</span> Rectangle {TopLeft = <span class="kwrd">new</span> Point { X = 5, Y = 5 },
+        BottomRight = <span class="kwrd">new</span> Point { X = 90, Y = 75}}
+};</pre>
+<p>While you are never required to use collection/object initialization syntax, you do end up with a
+more compact code base. Furthermore, this syntax, when combined with implicit typing of local
+variables, allows you to declare an anonymous type, which is very useful when creating a LINQ
+projection. You’ll learn about LINQ projections later in this chapter.</p>
+<h2>Lambda Expressions</h2>
+  <p>The C# lambda operator (=&gt;) was fully explored in Chapter 11. Recall that this operator allows us to build
+a lambda expression, which can be used any time you invoke a method that requires a strongly typed
+delegate as an argument. Lambdas greatly simplify how you work with .NET delegates, in that they
+reduce the amount of code you have to author by hand. Recall that a lambda expression can be broken
+down into the following usage:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+ArgumentsToProcess =&gt; StatementsToProcessThem</pre>
+<p>In Chapter 11, I walked you through how to interact with the FindAll() method of the generic
+List&lt;T&gt; class using three different approaches. After working with the raw Predicate&lt;T&gt; delegate and a
+C# anonymous method, you eventually arrived with the following (extremely concise) iteration which
+used the following lambda expression:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> LambdaExpressionSyntax()
+{
+    <span class="rem">// Make a list of integers.</span>
+    List&lt;<span class="kwrd">int</span>&gt; list = <span class="kwrd">new</span> List&lt;<span class="kwrd">int</span>&gt;();
+    list.AddRange(<span class="kwrd">new</span> <span class="kwrd">int</span>[] { 20, 1, 4, 8, 9, 44 });
+
+    <span class="rem">// C# lambda expression.</span>
+    List&lt;<span class="kwrd">int</span>&gt; evenNumbers = list.FindAll(i =&gt; (i % 2) == 0);
+
+    Console.WriteLine(<span class="str">"Here are your even numbers:"</span>);
+    <span class="kwrd">foreach</span> (<span class="kwrd">int</span> evenNumber <span class="kwrd">in</span> evenNumbers)
+    {
+        Console.Write(<span class="str">"{0}\t"</span>, evenNumber);
+    }
+    Console.WriteLine();
+}</pre>
+<p>Lambdas will be very useful when working with the underlying object model of LINQ. As you will
+soon find out, the C# LINQ query operators are simply a shorthand notation for calling true-blue
+methods on a class named System.Linq.Enumerable. These methods typically always require delegates
+(the Func&lt;&gt; delegate in particular) as parameters, which are used to process your data to yield the correct
+result set. Using lambdas, you can streamline your code, and allow the compiler to infer the underlying
+delegate.</p>
+<h2>Extension Methods</h2>
+  <p>C# extension methods allow you to tack on new functionality to existing classes without the need to
+subclass. As well, extension methods allow you to add new functionality to sealed classes and structures,
+which could never be subclassed in the first place. Recall from Chapter 12, when you author an
+extension method, the first parameter is qualified with the this operator, and marks the type being
+extended. Also recall that extension methods must always be defined within a static class, and must
+therefore also be declared using the static keyword. For an example, see the following code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">namespace</span> MyExtensions
+{
+    <span class="kwrd">static</span> <span class="kwrd">class</span> ObjectExtensions
+    {
+        <span class="rem">// Define an extension method to System.Object.</span>
+        <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> DisplayDefiningAssembly(<span class="kwrd">this</span> <span class="kwrd">object</span> obj)
+        {
+            Console.WriteLine(<span class="str">"{0} lives here:\n\t-&gt;{1}\n"</span>, obj.GetType().Name,
+                Assembly.GetAssembly(obj.GetType()));
+        }
+    }
+}</pre>
+<p>To use this extension, an application must first set a reference to the external assembly that contains
+the extension method implementation using the Add Reference dialog of Visual Studio 2010. At this
+point, simply import the defining namespace, and code away:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    <span class="rem">// Since everything extends System.Object, all classes and structures</span>
+    <span class="rem">// can use this extension.</span>
+    <span class="kwrd">int</span> myInt = 12345678;
+    myInt.DisplayDefiningAssembly();
+
+    System.Data.DataSet d = <span class="kwrd">new</span> System.Data.DataSet();
+    d.DisplayDefiningAssembly();
+    Console.ReadLine();
+}</pre>
+<p>When you working with LINQ, you will seldom, if ever, be required to manually build your own
+extension methods. However, as you create LINQ query expressions, you will in fact be making use of
+numerous extension methods already defined by Microsoft. In fact, each C# LINQ query operator is a
+shorthand notation for making a manual call on an underlying extension method, typically defined by
+the System.Linq.Enumerable utility class.</p>
+<h2>Anonymous Types</h2>
+  <p>The final C# language feature I’d like to quickly review is that of anonymous types which was fully
+explored in Chapter 12. This feature can be used to quickly model the “shape” of data, by allowing the
+compiler to generate a new class definition at compile time, based on a supplied set of name/value
+pairs. Recall that this type will be composed using value based semantics, and each virtual method of
+System.Object will be overridden accordingly. To define an anonymous type, declare an implicitly typed
+variable and specify the data’s shape using object initialization syntax:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Make an anonymous type that is composed of another.</span>
+<span class="kwrd">var</span> purchaseItem = <span class="kwrd">new</span> {
+    TimeBought = DateTime.Now,
+    ItemBought = <span class="kwrd">new</span> {Color = <span class="str">"Red"</span>, Make = <span class="str">"Saab"</span>, CurrentSpeed = 55},
+    Price = 34.000};</pre>
+ <p>LINQ makes frequent use of anonymous types when you wish to project new forms of data on the
+fly. For example, assume you have a collection of Person objects, and wish to use LINQ to obtain
+information on the age and social security number of each. Using a LINQ projection, you can allow the
+compiler to generate a new anonymous type that contains your information.</p>
+
+
+
+   
+   
+

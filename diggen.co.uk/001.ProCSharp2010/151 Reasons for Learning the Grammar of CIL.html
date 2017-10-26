@@ -1,0 +1,49 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Reasons for Learning the Grammar of CIL</h1>
+    <p>CIL is the true mother tongue of the .NET platform. When you build a .NET assembly using your
+managed language of choice (C#, VB, F#, COBOL.NET, etc.), the associated compiler translates your
+source code into terms of CIL. Like any programming language, CIL provides numerous structural and
+implementation-centric tokens. Given that CIL is just another .NET programming language, it should
+come as no surprise that it is possible to build your .NET assemblies directly using CIL and the CIL
+compiler (ilasm.exe) that ships with the .NET Framework 4.0 SDK.</p>
+<p>Now while it is true that few programmers would choose to build an entire .NET application directly
+with CIL, CIL is still an extremely interesting intellectual pursuit. Simply put, the more you understand the
+grammar of CIL, the better able you are to move into the realm of advanced .NET development. By way
+of some concrete examples, individuals who possess an understanding of CIL are capable of the following:</p>
+<ul>
+ <li>Talking intelligently about how different .NET programming languages map their
+respective keywords to CIL tokens.</li>
+ <li>Disassembling an existing .NET assembly, editing the CIL code, and recompiling
+the updated code base into a modified .NET binary. For example, there are some
+scenarios where you might need to modify CIL in order to interoperate with some
+advanced COM features.</li>
+ <li>Building dynamic assemblies using the System.Reflection.Emit namespace. This
+API allows you to generate an in-memory .NET assembly, which can optionally be
+persisted to disk.</li>
+ <li>Leveraging aspects of the CTS that are not supported by higher-level managed
+languages, but do exist at the level of CIL. To be sure, CIL is the only .NET
+language that allows you to access each and every aspect of the CTS. For example,
+using raw CIL, you are able to define global-level members and fields (which are
+not permissible in C#).</li>
+</ul>
+<p>Again, to be perfectly clear, if you choose not to concern yourself with the details of CIL code, you
+are absolutely able to gain mastery of C# and the .NET base class libraries. In many ways, knowledge of
+CIL is analogous to a C(++) programmer’s understanding of assembly language. Those who know the ins
+and outs of the low-level “goo” are able to create rather advanced solutions for the task at hand and gain
+a deeper understanding of the underlying programming (and runtime) environment. So, if you are up
+for the challenge, let’s begin to examine the details of CIL.</p>
+<p><b>Note</b> Understand that this chapter is not intended to be a comprehensive treatment of the syntax and semantics
+of CIL. If you require a full examination of the topic, I'd recommend downloading the official ECMA specification
+(ecma-335.pdf) from the ECMA International web site (http://www.ecma-international.org).</p>
+     </body>
+    </html>
+      
+   

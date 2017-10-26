@@ -1,0 +1,247 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>.NET Base Class Library, C#, and CIL Data Type Mappings</h1>
+    <p>Table 17-4 illustrates how a .NET base class type maps to the corresponding C# keyword, and how each
+C# keyword maps into raw CIL. As well, Table 17-4 documents the shorthand constant notations used
+for each CIL type. As you will see in just a moment, these constants are often referenced by numerous
+CIL opcodes.</p>
+<p><b>Table 17-4.</b> Mapping .NET Base Class Types to C# Keywords, and C# Keywords to CIL</p>
+<table class="gridtable"> 
+  <tr>
+   <th>
+    .NET Base Class Type
+   </th>
+   <th>
+    C# Keyword
+   </th>
+   <th>
+    CIL Representation
+   </th>
+   <th>
+    CIL Constant Notation
+   </th>
+  </tr>
+  <tr>
+   <td>
+    System.SByte
+   </td>
+   <td>
+    sbyte
+   </td>
+   <td>
+    int8
+   </td>
+   <td>
+    I1
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.Byte
+   </td>
+   <td>
+    byte
+   </td>
+   <td>
+    unsigned int8
+   </td>
+   <td>
+    U1
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.Int16
+   </td>
+   <td>
+    short
+   </td>
+   <td>
+    int16
+   </td>
+   <td>
+    I2
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.UInt16
+   </td>
+   <td>
+    ushort
+   </td>
+   <td>
+    unsigned int16
+   </td>
+   <td>
+    U2
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.Int32
+   </td>
+   <td>
+    int
+   </td>
+   <td>
+    int32
+   </td>
+   <td>
+    I4
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.UInt32
+   </td>
+   <td>
+    uint
+   </td>
+   <td>
+    unsigned int32
+   </td>
+   <td>
+    U4
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.Int64
+   </td>
+   <td>
+    long
+   </td>
+   <td>
+    int64
+   </td>
+   <td>
+    I8
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.UInt64
+   </td>
+   <td>
+    ulong
+   </td>
+   <td>
+    unsigned int64
+   </td>
+   <td>
+    U8
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.Char
+   </td>
+   <td>
+    char
+   </td>
+   <td>
+    char
+   </td>
+   <td>
+    CHAR
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.Single
+   </td>
+   <td>
+    float
+   </td>
+   <td>
+    float32
+   </td>
+   <td>
+    R4
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.Double
+   </td>
+   <td>
+    double
+   </td>
+   <td>
+    float64
+   </td>
+   <td>
+    R8
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.Boolean
+   </td>
+   <td>
+    bool
+   </td>
+   <td>
+    bool
+   </td>
+   <td>
+    BOOLEAN
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.String
+   </td>
+   <td>
+    string
+   </td>
+   <td>
+    string
+   </td>
+   <td>
+    N/A
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.Object
+   </td>
+   <td>
+    object
+   </td>
+   <td>
+    object
+   </td>
+   <td>
+    N/A
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.Void
+   </td>
+   <td>
+    void
+   </td>
+   <td>
+    void
+   </td>
+   <td>
+    VOID
+   </td>
+  </tr>
+</table>
+<p><b>Note</b> The System.IntPtr and System.UIntPtr types map to native int and native unsigned int (this is
+good to know, as many of COM interoperability and P/Invoke scenarios use these extensively).</p>
+</body>
+    </html>     
+      
+   

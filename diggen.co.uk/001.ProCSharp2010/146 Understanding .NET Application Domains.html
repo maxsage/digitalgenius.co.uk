@@ -1,0 +1,247 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Understanding .NET Application Domains</h1>
+<p>Under the .NET platform, executables are not hosted directly within a Windows process, as is the case in
+traditional unmanaged applications. Rather, a .NET executable is hosted by a logical partition within a
+process termed an application domain. As you will see, a single process may contain multiple
+application domains, each of which is hosting a .NET executable. This additional subdivision of a
+traditional Windows process offers several benefits, some of which are as follows:</p>    
+<ul>
+ <li>AppDomains are a key aspect of the OS-neutral nature of the .NET platform, given
+that this logical division abstracts away the differences in how an underlying OS
+represents a loaded executable.</li>
+ <li>AppDomains are far less expensive in terms of processing power and memory
+than a full-blown process. Thus, the CLR is able to load and unload application
+domains much quicker than a formal process, and can drastically improve
+scalability of server applications.</li>
+ <li>AppDomains provide a deeper level of isolation for hosting a loaded application. If
+one AppDomain within a process fails, the remaining AppDomains remain
+functional.</li>
+</ul>
+<p>As mentioned, a single process can host any number of AppDomains, each of which is fully and
+completely isolated from other AppDomains within this process (or any other process). Given this fact,
+be very aware that an application running in one AppDomain is unable to obtain data of any kind (global
+variables or static fields) within another AppDomain unless they make use of a distributed programming
+protocol (such as Windows Communication Foundation).</p>
+<p>While a single process may host multiple AppDomains, this is not typically the case. At the very
+least, an OS process will host what is termed the default application domain. This specific application
+domain is automatically created by the CLR at the time the process launches. After this point, the CLR
+creates additional application domains on an as-needed basis.</p>
+<h2>The System.AppDomain Class</h2>
+<p>The .NET platform allows you to programmatically monitor app domains, create new app domains (or
+unload them) at runtime, load assemblies into app domains, and a whole slew of additional tasks, using
+the AppDomain class in the System namespace of mscorlib.dll. Table 16-5 documents some useful
+methods of the AppDomain class (consult the .NET Framework 4.0 SDK documentation for full details).</p>
+<p><b>Table 16-5.</b> Select Methods of AppDomain</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Method
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+   </tr>
+  <tr>
+   <td>
+    CreateDomain()
+   </td>
+   <td>
+    This static method allows you to create a new AppDomain in the current
+process.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    CreateInstance()
+   </td>
+   <td>
+    Creates an instance of a type in an external assembly, after loading said
+assembly into the calling application domain.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ExecuteAssembly()
+   </td>
+   <td>
+    This method executes an *.exe assembly within an application domain,
+given its file name.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    GetAssemblies()
+   </td>
+   <td>
+    This method gets the set of .NET assemblies that have been loaded into
+this application domain (COM-based or C-based binaries are ignored).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    GetCurrentThreadId()
+   </td>
+   <td>
+    This static method returns the ID of the active thread in the current
+application domain.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Load()
+   </td>
+   <td>
+    This method is used to dynamically load an assembly into the current
+application domain.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Unload()
+   </td>
+   <td>
+    This is another static method that allows you to unload a specified
+AppDomain within a given process.
+   </td>
+  </tr>
+ </table>
+<p><b>Note</b> The .NET platform does not allow you to unload a specific assembly from memory. The only way to
+programmatically unload libraries is to tear down the hosting application domain via the Unload() method.</p>
+<p>In addition, the AppDomain class also defines a set of properties which can be useful when you wish
+to monitor activity of a given application domain. Table 16-6 documents some core properties of
+interest.</p>
+<p><b>Table 16-6.</b> Select Properties of AppDomain</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Property
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    BaseDirectory
+   </td>
+   <td>
+    Gets the directory path that the assembly resolver uses to probe for
+assemblies.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    CurrentDomain
+   </td>
+   <td>
+    This static property gets the application domain for the currently
+executing thread
+   </td>
+  </tr>
+  <tr>
+   <td>
+    FriendlyName
+   </td>
+   <td>
+    Gets the friendly name of the current application domain.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    MonitoringIsEnabled
+   </td>
+   <td>
+    Gets or sets a value that indicates whether CPU and memory monitoring
+of application domains is enabled for the current process. Once
+monitoring is enabled for a process, it cannot be disabled.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    SetupInformation
+   </td>
+   <td>
+    Gets the configuration details for a given application domain,
+represented by an AppDomainSetup object.
+   </td>
+  </tr>
+ </table>
+<p>Last but not least, the AppDomain class supports a set of events that correspond to various aspects of
+an application domain’s life cycle. Table 16-7 shows some of the more useful events you can hook into.</p>
+<p><b>Table 16-7.</b> Select Events of the AppDomain Type</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Event
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    AssemblyLoad
+   </td>
+   <td>
+    Occurs when an assembly is loaded into memory.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    AssemblyResolve
+   </td>
+   <td>
+    This event will fire when the assembly resolver cannot find the location
+of a required assembly.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DomainUnload
+   </td>
+   <td>
+    Occurs when an AppDomain is about to be unloaded from the hosting
+process.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    FirstChanceException
+   </td>
+   <td>
+    This event allows you to be notified that an exception has been thrown
+from the application domain, before the CLR will begin looking for a
+fitting catch statement.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ProcessExit
+   </td>
+   <td>
+    Occurs on the default application domain when the default application
+domain’s parent process exits.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    UnhandledException
+   </td>
+   <td>
+    Occurs when an exception is not caught by an exception handler.
+   </td>
+  </tr>
+ </table>
+</body>
+    </html>
+     
+      
+   

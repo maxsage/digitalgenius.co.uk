@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>DG</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />	
+</head>
+<body>
+<h1>Concurrent Garbage Collection under .NET 1.0 - 3.5</h1>
+   <p>Prior to .NET 4.0, the runtime would clean up unused objects using a technique termed concurrent
+garbage collection. Under this model, when a collection takes place for any generation 0 or generation 1
+objects (recall these are ephemeral generations), the garbage collector temporarily suspends all active
+threads within the current process to ensure that the application does not access the managed heap
+during the collection process.</p>
+<p>We will examine the topic of threads in Chapter 19; however, for the time being, simply regard a
+thread as a path of execution within a running executable. Once the garbage collection cycle has
+completed, the suspended threads are permitted to carry on their work. Thankfully, the .NET 3.5 (and
+earlier) garbage collector was highly optimized; you seldom (if ever) noticed this brief interruption in
+your application.</p>
+<p>As an optimization, concurrent garbage collection allowed objects that were not located in one of
+the ephemeral generations to be cleaned up on a dedicated thread. This decreased (but didn’t eliminate)
+the need for the .NET runtime to suspect active threads. Moreover, concurrent garbage collection
+allowed your program to continue allocating objects on the heap during the collection of nonephemeral
+generations.</p>
+<h2>Background Garbage Collection under .NET 4.0</h2>
+<p>.NET 4.0 changes the way the garbage collector deals with thread suspension when it cleans up objects
+on the managed heap, using background garbage collection. Despite its name, this does not mean that all
+garbage collection now takes place on additional background threads of execution. Rather, if a
+background garbage collection is taking place for objects living in a non-ephemeral generation, the .NET
+runtime is now able to collect objects on the ephemeral generations using a dedicated background
+thread.</p>
+<p>On a related note, the .NET 4.0 garbage collection has been improved to further reduce the amount
+of time a given thread involved with garbage collection details must be suspended. The end result of
+these changes is that the process of cleaning up unused objects living in generation 0 or generation 1 has
+been optimized and can result in better runtime performance of your programs (which is really
+important for real-time systems that require small (and predictable) GC stop time).</p>
+<p>Do understand, however, that the introduction of this new garbage collection model has no effect
+on how you build your .NET applications. For all practical purposes, you can simply allow the .NET
+garbage collector to perform its work without your direct intervention (and be happy that the folks at
+Microsoft are improving the collection process in a transparent manner).</p>
+    </body>
+    </html>
+
+ 
+   
+

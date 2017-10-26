@@ -1,0 +1,158 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>DG</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />	
+</head>
+<body>
+<h1>Building Finalizable and Disposable Objects</h1>
+   <p>At this point, we have seen two different approaches to constructing a class that cleans up internal
+unmanaged resources. On the one hand, you can override System.Object.Finalize(). Using this
+technique, you have the peace of mind that comes with knowing the object cleans itself up when
+garbage-collected (whenever that may be) without the need for user interaction. On the other hand, you
+can implement IDisposable to provide a way for the object user to clean up the object as soon as it is
+finished. However, if the caller forgets to call Dispose(), the unmanaged resources may be held in
+memory indefinitely.</p>
+<p>As you might suspect, it is possible to blend both techniques into a single class definition. By doing
+so, you gain the best of both models. If the object user does remember to call Dispose(), you can inform
+the garbage collector to bypass the finalization process by calling GC.SuppressFinalize(). If the object
+user forgets to call Dispose(), the object will eventually be finalized and have a chance to free up the
+internal resources. The good news is that the object’s internal unmanaged resources will be freed one
+way or another.</p>
+<p>Here is the next iteration of MyResourceWrapper, which is now finalizable and disposable, defined in
+a C# Console Application named FinalizableDisposableClass:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+// A sophisticated resource wrapper.
+<span class="kwrd">public</span> <span class="kwrd">class</span> MyResourceWrapper : IDisposable
+{
+    // The garbage collector will <span class="kwrd">call</span> this method <span class="kwrd">if</span> the
+    // <span class="kwrd">object</span> user forgets <span class="kwrd">to</span> <span class="kwrd">call</span> Dispose().
+    ~MyResourceWrapper()
+    {
+        // Clean up any internal unmanaged resources.
+        // <span class="kwrd">Do</span> **<span class="kwrd">not</span>** <span class="kwrd">call</span> Dispose() <span class="kwrd">on</span> any managed objects.
+    }
+
+    // The <span class="kwrd">object</span> user will <span class="kwrd">call</span> this method <span class="kwrd">to</span> clean up
+    // resources ASAP.
+    <span class="kwrd">public</span> void Dispose()
+    {
+        // Clean up unmanaged resources here.
+        // <span class="kwrd">Call</span> Dispose() <span class="kwrd">on</span> other contained disposable objects.
+        
+        // No need <span class="kwrd">to</span> finalize <span class="kwrd">if</span> user called Dispose(),
+        // so suppress finalization.
+        GC.SuppressFinalize(this);
+    }
+}</pre>
+<p>Notice that this Dispose() method has been updated to call GC.SuppressFinalize(), which informs
+the CLR that it is no longer necessary to call the destructor when this object is garbage-collected, given
+that the unmanaged resources have already been freed via the Dispose() logic.</p>
+<h2>A Formalized Disposal Pattern</h2>
+<p>The current implementation of MyResourceWrapper does work fairly well; however, we are left with a few
+minor drawbacks. First, the Finalize() and Dispose() methods each have to clean up the same
+unmanaged resources. This could result in duplicate code, which can easily become a nightmare to
+maintain. Ideally, you would define a private helper function that is called by either method.</p>
+<p>Next, you’d like to make sure that the Finalize() method does not attempt to dispose of any
+managed objects, while the Dispose() method should do so. Finally, you’d also like to be certain the
+object user can safely call Dispose() multiple times without error. Currently, our Dispose() method has
+no such safeguards.</p>
+<p>To address these design issues, Microsoft defined a formal, prim-and-proper disposal pattern that
+strikes a balance between robustness, maintainability, and performance. Here is the final (and
+annotated) version of MyResourceWrapper, which makes use of this official pattern:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> MyResourceWrapper : IDisposable
+{
+    // Used <span class="kwrd">to</span> determine <span class="kwrd">if</span> Dispose()
+    // has already been called.
+    <span class="kwrd">private</span> bool disposed = <span class="kwrd">false</span>;
+
+    <span class="kwrd">public</span> void Dispose()
+    {
+        // <span class="kwrd">Call</span> our helper method.
+        // Specifying <span class="str">"true"</span> signifies that
+        // the <span class="kwrd">object</span> user triggered the cleanup.
+        CleanUp(<span class="kwrd">true</span>);
+
+        // Now suppress finalization.
+        GC.SuppressFinalize(this);
+    }
+
+    <span class="kwrd">private</span> void CleanUp(bool disposing)
+    {
+        // Be sure we have <span class="kwrd">not</span> already been disposed!
+        <span class="kwrd">if</span> (!this.disposed)
+        {
+            // <span class="kwrd">If</span> disposing equals <span class="kwrd">true</span>, dispose all
+            // managed resources.
+            <span class="kwrd">if</span> (disposing)
+            {
+                // Dispose managed resources.
+            }
+            // Clean up unmanaged resources here.
+        }
+        disposed = <span class="kwrd">true</span>;
+    }
+
+    ~MyResourceWrapper()
+    {
+        // <span class="kwrd">Call</span> our helper method.
+        // Specifying <span class="str">"false"</span> signifies that
+        // the GC triggered the cleanup.
+        CleanUp(<span class="kwrd">false</span>);
+    }
+}</pre>
+    <p>Notice that MyResourceWrapper now defines a private helper method named CleanUp(). By specifying
+true as an argument, we indicate that the object user has initiated the cleanup, so we should clean up all
+managed and unmanaged resources. However, when the garbage collector initiates the cleanup, we
+specify false when calling CleanUp() to ensure that internal disposable objects are not disposed (as we
+can’t assume they are still in memory!). Last but not least, our bool member variable (disposed) is set to
+true before exiting CleanUp() to ensure that Dispose() can be called numerous times without error.</p>
+<p><b>Note</b> After an object has been “disposed”, it’s still possible for the client to invoke members on it as it is still in
+memory. Therefore, a robust resource wrapper class would also need to update each member of the class with
+additional coding logic that says, in effect, “if I am disposed, do nothing and return from the member.”</p>
+<p>To test our final iteration of MyResourceWrapper, add a call to Console.Beep() within the scope of
+your finalizer:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+~MyResourceWrapper()
+{
+    Console.Beep();
+    <span class="rem">// Call our helper method.</span>
+    <span class="rem">// Specifying "false" signifies that</span>
+    <span class="rem">// the GC triggered the cleanup.</span>
+    CleanUp(<span class="kwrd">false</span>);
+}</pre>
+<p>Next, update Main() as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Dispose() / Destructor Combo Platter *****"</span>);
+
+    <span class="rem">// Call Dispose() manually, this will not call the finalizer.</span>
+    MyResourceWrapper rw = <span class="kwrd">new</span> MyResourceWrapper();
+    rw.Dispose();
+
+    <span class="rem">// Don't call Dispose(), this will trigger the finalizer</span>
+    <span class="rem">// and cause a beep.</span>
+    MyResourceWrapper rw2 = <span class="kwrd">new</span> MyResourceWrapper();
+}</pre>
+<p>Notice that we are explicitly calling Dispose() on the rw object, so the destructor call is suppressed.
+However, we have "forgotten" to call Dispose() on the rw2 object, and therefore, when the application
+terminates, we hear a single beep. If you were to comment out the call to Dispose() on the rw object, you
+would hear two beeps.</p>
+    <p><b>Source Code</b> The FinalizableDisposableClass project is included under the Chapter 8 subdirectory.</p>
+<p>That concludes our investigation of how the CLR manages your objects via garbage collection. While
+there are additional (somewhat esoteric) details regarding the collection process I haven’t covered here
+(such as weak references and object resurrection), you are now in a perfect position for further
+exploration on your own. To wrap this chapter up, we will examine a brand new .NET 4.0 programming
+feature called “lazy instantiation” of objects.</p>
+</body>
+    </html> 
+   
+

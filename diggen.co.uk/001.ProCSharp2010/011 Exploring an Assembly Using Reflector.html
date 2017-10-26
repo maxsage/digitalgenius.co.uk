@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<title>Exploring an Assembly Using Reflector</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />	
+</head>
+
+<body>
+    <h1>Exploring an Assembly Using Reflector</h1>
+	<p>While using ildasm.exe is a very common task when you wish to dig into the guts of a .NET assembly, the
+    one gotcha is that you are only able to view the underlying CIL code, rather than looking at an
+    assembly’s implementation using your managed language of choice. Thankfully, many .NET object
+    browsers and decompilers are available for download, including the very popular Reflector.</p>
+    <p>This free tool can be downloaded from http://www.red-gate.com/products/reflector. Once you
+    have unzipped the archive, you are able to run the tool and plug in any assembly you wish using the File
+    | Open menu option. Figure 1-11 shows our Calc.exe application once again.</p>
+	<img src="http://www.diggen.co.uk/Images/Figure01_11.png" alt="Figure 1-11" />
+    <p><b>Figure 1-11.</b> Reflector is a very popular object browsing tool</p>
+    <p>Notice that reflector.exe supports a Disassembler window (opened by pressing the space bar) as
+    well as a drop-down list box that allows you to view the underlying code base in your language of choice
+    (including, of course, CIL code). I’ll leave it up to you to check out the number of intriguing features
+    found within this tool.</p>
+    <p><b>Note</b> Be aware that over the course of the remainder of the book, I’ll make use of both ildasm.exe as well as
+    reflector.exe to illustrate various concepts. So take a moment to download Reflector if you have not already
+    done so.</p>
+</body>
+</html>

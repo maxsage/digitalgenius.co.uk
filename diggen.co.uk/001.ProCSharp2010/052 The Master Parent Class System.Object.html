@@ -1,0 +1,390 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+
+<h1>The Master Parent Class: System.Object</h1>
+<p>To wrap up this chapter, I’d like to examine the details of the master parent class in the .NET platform:
+Object. As you were reading the previous section, you may have noticed that the base classes in your
+hierarchies (Car, Shape, Employee) never explicitly specify their parent classes:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Who is the parent of Car?</span>
+<span class="kwrd">class</span> Car
+{...}</pre>
+<p>In the .NET universe, every type ultimately derives from a base class named System.Object (which
+can be represented by the C# object keyword [lowercase ‘o’]). The Object class defines a set of common
+members for every type in the framework. In fact, when you do build a class that does not explicitly
+define its parent, the compiler automatically derives your type from Object. If you want to be very clear
+in your intentions, you are free to define classes that derive from Object as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Here we are explicitly deriving from System.Object.</span>
+<span class="kwrd">class</span> Car : <span class="kwrd">object</span>
+{...}</pre>
+<p>Like any class, System.Object defines a set of members. In the following formal C# definition, note
+that some of these items are declared virtual, which specifies that a given member may be overridden
+by a subclass, while others are marked with static (and are therefore called at the class level):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> Object
+{
+    <span class="rem">// Virtual members.</span>
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> <span class="kwrd">bool</span> Equals(<span class="kwrd">object</span> obj);
+    <span class="kwrd">protected</span> <span class="kwrd">virtual</span> <span class="kwrd">void</span> Finalize();
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> <span class="kwrd">int</span> GetHashCode();
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> <span class="kwrd">string</span> ToString();
+
+    <span class="rem">// Instance level, non-virtual members.</span>
+    <span class="kwrd">public</span> Type GetType();
+    <span class="kwrd">protected</span> <span class="kwrd">object</span> MemberwiseClone();
+
+    <span class="rem">// Static members.</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> Equals(<span class="kwrd">object</span> objA, <span class="kwrd">object</span> objB);
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> ReferenceEquals(<span class="kwrd">object</span> objA, <span class="kwrd">object</span> objB);
+}</pre>
+<p>Table 6-1 offers a rundown of the functionality provided by some of the methods you’re most likely
+to make use of.</p>
+<p><b>Table 6-1.</b> Core Members of System.Object</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Instance Method of Object Class 
+   </th>   
+   <th>
+    Meaning in Life
+   </th>
+  </tr> 
+  <tr>
+   <td>
+    Equals()
+   </td>   
+   <td>
+    By default, this method returns true only if the items being
+compared refer to the exact same item in memory. Thus,
+Equals() is used to compare object references, not the state of
+the object. Typically, this method is overridden to return true
+only if the objects being compared have the same internal state
+values (that is, value-based semantics).
+Be aware that if you override Equals(), you should also override
+GetHashCode(), as these methods are used internally by
+Hashtable types to retrieve subobjects from the container.
+The ValueType class overrides
+this method for all structures, so they work with value-based
+comparisons.
+   </td>
+  </tr> 
+  <tr>
+   <td>
+    Finalize() 
+    </td>   
+   <td>
+    For the time being, you can understand this method (when
+overridden) is called to free any allocated resources before the
+object is destroyed. 
+   </td>
+  </tr> 
+  <tr>
+   <td>
+    
+     GetHashCode()
+    
+   </td>   
+   <td>
+    This method returns an int that identifies a specific object
+    instance. 
+   </td>
+  </tr> 
+  <tr>
+   <td>
+    ToString()
+   </td>   
+   <td>
+    
+    This method returns a string representation of this object, using
+    the &lt;namespace&gt;.&lt;type name&gt; format (termed the fully qualified
+    name). This method will often be overridden by a subclass to
+    return a tokenized string of name/value pairs that represent the
+    object’s internal state, rather than its fully qualified name.
+   </td>
+  </tr> 
+  <tr>
+   <td>
+    GetType() 
+   </td>   
+   <td>
+    This method returns a Type object that fully describes the object
+    you are currently referencing. In short, this is a Runtime Type
+    Identification (RTTI) method available to all objects. 
+   </td>
+  </tr> 
+  <tr>
+   <td>
+    MemberwiseClone() 
+   </td>   
+   <td>
+    This method exists to return a member-by-member copy of the
+    current object, which is often used when cloning an object. 
+   </td>
+  </tr> 
+</table>
+<p>To illustrate some of the default behavior provided by the Object base class, create a new C#
+Console Application named ObjectOverrides. Insert a new C# class type that contains the following
+empty class definition for a type named Person:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Remember! Person extends Object.</span>
+<span class="kwrd">class</span> Person {}</pre>
+<p>Now, update your Main() method to interact with the inherited members of System.Object as
+follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Fun with System.Object *****\n"</span>);
+        Person p1 = <span class="kwrd">new</span> Person();
+
+        <span class="rem">// Use inherited members of System.Object.</span>
+        Console.WriteLine(<span class="str">"ToString: {0}"</span>, p1.ToString());
+        Console.WriteLine(<span class="str">"Hash code: {0}"</span>, p1.GetHashCode());
+        Console.WriteLine(<span class="str">"Type: {0}"</span>, p1.GetType());
+
+        <span class="rem">// Make some other references to p1.</span>
+        Person p2 = p1;
+        <span class="kwrd">object</span> o = p2;
+
+        <span class="rem">// Are the references pointing to the same object in memory?</span>
+        <span class="kwrd">if</span> (o.Equals(p1) &amp;&amp; p2.Equals(o))
+        {
+            Console.WriteLine(<span class="str">"Same instance!"</span>);
+        }
+        Console.ReadLine();
+    }
+}</pre>
+<p>Here is the output of the current Main() method.</p>
+<pre class="csharpcode">
+***** Fun with System.Object *****
+
+ToString: ObjectOverrides.Person
+Hash code: 46104728
+Type: ObjectOverrides.Person
+Same instance!</pre>
+<p>First, notice how the default implementation of ToString() returns the fully qualified name of the
+current type (ObjectOverrides.Person). Every C# project defines a “root namespace,” which has the same name of
+the project itself. Here, you created a project named ObjectOverrides; thus the Person type (as well as the
+Program class) have both been placed within the ObjectOverrides namespace.</p>
+<p>The default behavior of Equals() is to test whether two variables are pointing to the same object in
+memory. Here, you create a new Person variable named p1. At this point, a new Person object is placed
+on the managed heap. p2 is also of type Person. However, you are not creating a new instance, but rather
+assigning this variable to reference p1. Therefore, p1 and p2 are both pointing to the same object in
+memory, as is the variable o (of type object, which was thrown in for good measure). Given that p1, p2,
+and o all point to the same memory location, the equality test succeeds.</p>
+<p>Although the canned behavior of System.Object can fit the bill in a number of cases, it is quite
+common for your custom types to override some of these inherited methods. To illustrate, update the
+Person class to support some properties representing an individual’s first name, last name, and age, each
+of which can be set by a custom constructor:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Remember! Person extends Object.</span>
+<span class="kwrd">class</span> Person
+{
+    <span class="kwrd">public</span> <span class="kwrd">string</span> FirstName { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">string</span> LastName { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Age { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+
+    <span class="kwrd">public</span> Person(<span class="kwrd">string</span> fName, <span class="kwrd">string</span> lName, <span class="kwrd">int</span> personAge)
+    {
+        FirstName = fName;
+        LastName = lName;
+        Age = personAge;
+    }
+
+    <span class="kwrd">public</span> Person(){}
+}</pre>
+    <h2>Overriding System.Object.ToString()</h2>
+  <p>Many classes (and structures) that you create can benefit from overriding ToString() in order to return a
+string textual representation of the type’s current state. This can be quite helpful for purposes of
+debugging (among other reasons). How you choose to construct this string is a matter of personal
+choice; however, a recommended approach is to separate each name/value pair with semicolons and
+wrap the entire string within square brackets (many types in the .NET base class libraries follow this
+approach). Consider the following overridden ToString() for your Person class:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">string</span> ToString()
+{
+    <span class="kwrd">string</span> myState;
+    myState = <span class="kwrd">string</span>.Format(<span class="str">"[First Name: {0}; Last Name: {1}; Age: {2}]"</span>,
+        FirstName, LastName, Age);
+    <span class="kwrd">return</span> myState;
+}</pre>
+<p>This implementation of ToString() is quite straightforward, given that the Person class only has
+three pieces of state data. However, always remember that a proper ToString() override should also
+account for any data defined up the chain of inheritance.</p>
+<p>When you override ToString() for a class extending a custom base class, the first order of business is
+to obtain the ToString() value from your parent using the base keyword. Once you have obtained your
+parent’s string data, you can append the derived class’s custom information.</p>
+<h2>Overriding System.Object.Equals()</h2>
+  <p>Let’s also override the behavior of Object.Equals() to work with value-based semantics. Recall that by
+default, Equals() returns true only if the two objects being compared reference the same object instance
+in memory. For the Person class, it may be helpful to implement Equals() to return true if the two
+variables being compared contain the same state values (e.g., first name, last name, and age).</p>
+<p>First of all, notice that the incoming argument of the Equals() method is a general System. Object.
+Given this, your first order of business is to ensure the caller has indeed passed in a Person object, and as
+an extra safeguard, to make sure the incoming parameter is not a null reference.</p>
+<p>Once you have established the caller has passed you an allocated Person, one approach to
+implement Equals() is to perform a field-by-field comparison against the data of the incoming object to
+the data of the current object:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">bool</span> Equals(<span class="kwrd">object</span> obj)
+{
+    <span class="kwrd">if</span> (obj <span class="kwrd">is</span> Person &amp;&amp; obj != <span class="kwrd">null</span>)
+    {
+        Person temp;
+        temp = (Person)obj;
+        <span class="kwrd">if</span> (temp.FirstName == <span class="kwrd">this</span>.FirstName
+            &amp;&amp; temp.LastName == <span class="kwrd">this</span>.LastName
+            &amp;&amp; temp.Age == <span class="kwrd">this</span>.Age)
+        {
+            <span class="kwrd">return</span> <span class="kwrd">true</span>;
+        }
+        <span class="kwrd">else</span>
+        {
+            <span class="kwrd">return</span> <span class="kwrd">false</span>;
+        }
+    }
+    <span class="kwrd">return</span> <span class="kwrd">false</span>;
+}</pre>
+<p>Here, you are examining the values of the incoming object against the values of your internal values
+(note the use of the this keyword). If the name and age of each are identical, you have two objects with
+the exact same state data and therefore return true. Any other possibility results in returning false.</p>
+<p>While this approach does indeed work, you can certainly imagine how labor intensive it would be to
+implement a custom Equals() method for nontrivial types that may contain dozens of data fields. One
+common shortcut is to leverage your own implementation of ToString(). If a class has a prim-andproper
+implementation of ToString() that accounts for all field data up the chain of inheritance, you can
+simply perform a comparison of the object’s string data:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">bool</span> Equals(<span class="kwrd">object</span> obj)
+{
+    <span class="rem">// No need to cast 'obj' to a Person anymore,</span>
+    <span class="rem">// as everything has a ToString() method.</span>
+    <span class="kwrd">return</span> obj.ToString() == <span class="kwrd">this</span>.ToString();
+}</pre>
+<p>Notice in this case that we no longer need to check if the incoming argument is of the correct type (a
+Person in our example), as everything in .NET supports a ToString() method. Even better, we no longer
+need to perform a property-by-property equality check, as we are now simply testing the value returned
+from ToString().</p>
+<h2>Overriding System.Object.GetHashCode()</h2>
+  <p>When a class overrides the Equals() method, you should also override the default implementation of
+GetHashCode(). Simply put, a hash code is a numerical value that represents an object as a particular
+state. For example, if you create two string variables that hold the value Hello, you would obtain the
+same hash code. However, if one of the string objects were in all lowercase (hello), you would obtain
+different hash codes.</p>
+<p>By default, System.Object.GetHashCode() uses your object’s current location in memory to yield the
+hash value. However, if you are building a custom type that you intend to store in a Hashtable type
+(within the System.Collections namespace), you should always override this member, as the Hashtable
+will be internally invoking Equals() and GetHashCode() to retrieve the correct object.</p>
+<p><b>Note</b> To be more specific, the System.Collections.Hashtable class calls GetHashCode() internally to gain an
+general idea where the object is located, but a subsequent (internal) call to Equals() determines the exact match.</p>
+<p>Although you are not going to place your Person into a System.Collections.Hashtable, for
+completion, let’s override GetHashCode(). There are many algorithms that can be used to create a hash
+code, some fancy, others not so fancy. Most of the time, you are able to generate a hash code value by
+leveraging the System.String’s GetHashCode() implementation.</p>
+<p>Given that the String class already has a solid hash code algorithm that is using the character data
+of the String to compute a hash value, if you can identify a piece of field data on your class that should
+be unique for all instances (such as a Social Security number), simply call GetHashCode() on that point of
+field data. Thus, if the Person class defined a SSN property, we could author the following code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Return a hash code based on a point of unique string data.</span>
+<span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">int</span> GetHashCode()
+{
+    <span class="kwrd">return</span> SSN.GetHashCode();
+}</pre>
+<p>If you cannot find a single point of unique string data, but you have overridden ToString(), call
+GetHashCode() on your own string representation:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Return a hash code based on the person's ToString() value.</span>
+<span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">int</span> GetHashCode()
+{
+    <span class="kwrd">return</span> <span class="kwrd">this</span>.ToString().GetHashCode();
+}</pre>
+<h2>Testing Your Modified Person Class</h2>
+<p>Now that you have overridden the virtual members of Object, update Main() to test your updates.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with System.Object *****\n"</span>);
+    <span class="rem">// NOTE: We want these to be identical to test</span>
+    <span class="rem">// the Equals() and GetHashCode() methods.</span>
+    Person p1 = <span class="kwrd">new</span> Person(<span class="str">"Homer"</span>, <span class="str">"Simpson"</span>, 50);
+    Person p2 = <span class="kwrd">new</span> Person(<span class="str">"Homer"</span>, <span class="str">"Simpson"</span>, 50);
+
+    <span class="rem">// Get stringified version of objects.</span>
+    Console.WriteLine(<span class="str">"p1.ToString() = {0}"</span>, p1.ToString());
+    Console.WriteLine(<span class="str">"p2.ToString() = {0}"</span>, p2.ToString());
+
+    <span class="rem">// Test Overridden Equals()</span>
+    Console.WriteLine(<span class="str">"p1 = p2?: {0}"</span>, p1.Equals(p2));
+
+    <span class="rem">// Test hash codes.</span>
+    Console.WriteLine(<span class="str">"Same hash codes?: {0}"</span>, p1.GetHashCode() == p2.GetHashCode());
+    Console.WriteLine();
+
+    <span class="rem">// Change age of p2 and test again.</span>
+    p2.Age = 45;
+    Console.WriteLine(<span class="str">"p1.ToString() = {0}"</span>, p1.ToString());
+    Console.WriteLine(<span class="str">"p2.ToString() = {0}"</span>, p2.ToString());
+    Console.WriteLine(<span class="str">"p1 = p2?: {0}"</span>, p1.Equals(p2));
+    Console.WriteLine(<span class="str">"Same hash codes?: {0}"</span>, p1.GetHashCode() == p2.GetHashCode());
+    Console.ReadLine();
+}</pre>
+    <p>The output can be seen here:</p>
+<pre class="csharpcode">
+***** Fun with System.Object *****
+
+p1.ToString() = [First Name: Homer; Last Name: Simpson; Age: 50]
+p2.ToString() = [First Name: Homer; Last Name: Simpson; Age: 50]
+p1 = p2?: True
+Same hash codes?: True
+
+p1.ToString() = [First Name: Homer; Last Name: Simpson; Age: 50]
+p2.ToString() = [First Name: Homer; Last Name: Simpson; Age: 45]
+p1 = p2?: False
+Same hash codes?: False</pre>
+<h2>The Static Members of System.Object</h2>
+<p>In addition to the instance-level members you have just examined, System.Object does define two (very
+helpful) static members that also test for value-based or reference-based equality. Consider the
+following code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> StaticMembersOfObject()
+{
+    <span class="rem">// Static members of System.Object.</span>
+    Person p3 = <span class="kwrd">new</span> Person(<span class="str">"Sally"</span>, <span class="str">"Jones"</span>, 4);
+    Person p4 = <span class="kwrd">new</span> Person(<span class="str">"Sally"</span>, <span class="str">"Jones"</span>, 4);
+    Console.WriteLine(<span class="str">"P3 and P4 have same state: {0}"</span>, <span class="kwrd">object</span>.Equals(p3, p4));
+    Console.WriteLine(<span class="str">"P3 and P4 are pointing to same object: {0}"</span>,
+        <span class="kwrd">object</span>.ReferenceEquals(p3, p4));
+}</pre>
+<p>Here, you are able to simply send in two objects (of any type) and allow the System.Object class to
+determine the details automatically. These methods can be very helpful when you have redefined
+equality for a custom type, yet still need to quickly determine whether two reference variables point to
+the same location in memory (via the static ReferenceEquals() method).</p>
+    <p><b>Source Code</b> The ObjectOverrides project is located under the Chapter 6 subdirectory.</p>
+</body>
+</html>
+
+ 
+   
+

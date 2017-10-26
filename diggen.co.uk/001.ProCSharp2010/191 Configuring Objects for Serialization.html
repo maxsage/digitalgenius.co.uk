@@ -1,0 +1,97 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Configuring Objects for Serialization</h1>
+    <p>To make an object available to .NET serialization services, all you need to do is decorate each related
+class (or structure) with the [Serializable] attribute. If you determine that a given type has some
+member data that should not (or perhaps cannot) participate in the serialization scheme, you can mark
+such fields with the [NonSerialized] attribute. This can be helpful if you wish to reduce the size of the
+persisted data, and you have member variables in a serializable class that do not need to be remembered
+(e.g., fixed values, random -values, and transient data).</p>
+<h2>Defining Serializable Types</h2>
+<p>To get the ball rolling, create a new Console Application named SimpleSerialize. Insert a new class
+named Radio, which has been marked [Serializable], excluding a single member variable (radioID)
+that has been marked [NonSerialized] and will therefore not be persisted into the specified data stream:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+[Serializable]
+<span class="kwrd">public</span> <span class="kwrd">class</span> Radio
+{
+    <span class="kwrd">public</span> <span class="kwrd">bool</span> hasTweeters;
+    <span class="kwrd">public</span> <span class="kwrd">bool</span> hasSubWoofers;
+    <span class="kwrd">public</span> <span class="kwrd">double</span>[] stationPresets;
+
+    [NonSerialized]
+    <span class="kwrd">public</span> <span class="kwrd">string</span> radioID = <span class="str">"XF-552RR6"</span>;
+}</pre>
+<p>Next, insert two additional class types to represent the JamesBondCar and Car base classes, both of
+which are also marked [Serializable] and define the following pieces of field data:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+[Serializable]
+<span class="kwrd">public</span> <span class="kwrd">class</span> Car
+{
+    <span class="kwrd">public</span> Radio theRadio = <span class="kwrd">new</span> Radio();
+    <span class="kwrd">public</span> <span class="kwrd">bool</span> isHatchBack;
+}
+
+[Serializable]
+<span class="kwrd">public</span> <span class="kwrd">class</span> JamesBondCar : Car
+{
+    <span class="kwrd">public</span> <span class="kwrd">bool</span> canFly;
+    <span class="kwrd">public</span> <span class="kwrd">bool</span> canSubmerge;
+}</pre>
+<p>Be aware that you cannot inherit the [Serializable] attribute from a parent class. Therefore, if you
+derive a class from a type marked [Serializable], the child class must be marked [Serializable] as
+well, or it cannot be persisted. In fact, all objects in an object graph must be marked with the
+[Serializable] attribute. If you attempt to serialize a nonserializable object using the BinaryFormatter
+or SoapFormatter, you will receive a SerializationException at runtime.</p>
+<h2>Public Fields, Private Fields, and Public Properties</h2>
+<p>Notice that in each of these classes, you define the field data as public; this helps keep the example
+simple. Of course, private data exposed using public properties would be preferable from an OO point of
+view. Also, for the sake of simplicity, this example does not define any custom constructors on these
+types; therefore, all unassigned field data will receive the expected default values.</p>
+<p>OO design principles aside, you might wonder how the various formatters expect a type’s field data
+to be defined in order to be serialized into a stream. The answer is that it depends. If you persist an
+object’s state using the BinaryFormatter or SoapFormatter, it makes absolutely no difference. These types
+are programmed to serialize all serializable fields of a type, regardless of whether they are public fields,
+private fields, or private fields exposed through public properties. Recall, however, that if you have
+points of data that you do not want to be persisted into the object graph, you can selectively mark public
+or private fields as [NonSerialized], as you do with the string field of the Radio type.</p>
+<p>The situation is quite different if you use the XmlSerializer type, however. This type will only
+serialize public data fields or private data exposed by public properties. Private data not exposed from
+properties will be ignored. For example, consider the following serializable Person type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+[Serializable]
+<span class="kwrd">public</span> <span class="kwrd">class</span> Person
+{
+    <span class="rem">// A public field.</span>
+    <span class="kwrd">public</span> <span class="kwrd">bool</span> isAlive = <span class="kwrd">true</span>;
+
+    <span class="rem">// A private field.</span>
+    <span class="kwrd">private</span> <span class="kwrd">int</span> personAge = 21;
+
+    <span class="rem">// Public property/private data.</span>
+    <span class="kwrd">private</span> <span class="kwrd">string</span> fName = <span class="kwrd">string</span>.Empty;
+    <span class="kwrd">public</span> <span class="kwrd">string</span> FirstName
+    {
+        <span class="kwrd">get</span> { <span class="kwrd">return</span> fName; }
+        <span class="kwrd">set</span> { fName = value; }
+    }
+}</pre>
+<p>If you processed the preceding with BinaryFormatter or SoapFormatter, you would find that the
+isAlive, personAge, and fName fields are saved into the selected stream. However, the XmlSerializer
+would not save the value of personAge because this piece of private data is not encapsulated by a public
+type property. If you wished to persist the age of the person with the XmlSerializer, you would need to
+define the field publicly or encapsulate the private member using a public property.</p>
+     </body>
+    </html>
+      
+   

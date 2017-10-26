@@ -1,0 +1,28 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Debugging Unhandled Exceptions Using Visual Studio</h1>
+<p>Do be aware that Visual Studio 2010 supplies a number of tools that help you debug unhandled custom
+exceptions. Again, assume you have increased the speed of a Car object beyond the maximum. If you
+start a debugging session within Visual Studio 2010 (using the Debug &gt; Start Debugging menu
+selection), Visual Studio automatically breaks at the time the uncaught exception is thrown. Better yet,
+you are presented with a window (see Figure 7-4) displaying the value of the Message property.</p>
+  <img src="http://www.diggen.co.uk/Images/Figure07_04.png" alt="Figure 7-4" />
+<p><b>Figure 7-4</b> Debugging unhandled custom exceptions with Visual Studio 2010</p>
+<p><b>Note</b> If you fail to handle an exception thrown by a method in the .NET base class libraries, the Visual Studio
+2010 debugger breaks at the statement that called the offending method</p>
+<p>If you click the View Detail link, you will find the details regarding the state of the object (see
+Figure 7-5).</p>
+<img src="http://www.diggen.co.uk/Images/Figure07_05.png" alt="Figure 7-5" />
+<p><b>Figure 7-5</b> Viewing exception details</p>
+    </body>
+    </html>
+ 
+   
+

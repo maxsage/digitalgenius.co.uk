@@ -1,0 +1,217 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Configuring the State of an Exception</h1>
+  <p>Currently, the System.Exception object configured within the Accelerate() method simply establishes a
+value exposed to the Message property (via a constructor parameter). As shown previously in Table 7-1,
+however, the Exception class also supplies a number of additional members (TargetSite, StackTrace,
+HelpLink, and Data) that can be useful in further qualifying the nature of the problem. To spruce up our
+current example, let’s examine further details of these members on a case-by-case basis.</p>  
+<h2>The TargetSite Property</h2>
+ <p>The System.Exception.TargetSite property allows you to determine various details about the method
+that threw a given exception. As shown in the previous Main() method, printing the value of TargetSite
+will display the return type, name, and parameter types of the method that threw the exception.
+However, TargetSite does not return just a vanilla-flavored string, but rather a strongly typed
+System.Reflection.MethodBase object. This type can be used to gather numerous details regarding the
+offending method, as well as the class that defines the offending method. To illustrate, assume the
+previous catch logic has been updated as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+...
+    <span class="rem">// TargetSite actually returns a MethodBase object.</span>
+    <span class="kwrd">catch</span>(Exception e)
+    {
+        Console.WriteLine(<span class="str">"\n*** Error! ***"</span>);
+        Console.WriteLine(<span class="str">"Member name: {0}"</span>, e.TargetSite);
+        Console.WriteLine(<span class="str">"Class defining member: {0}"</span>, e.TargetSite.DeclaringType);
+        Console.WriteLine(<span class="str">"Member type: {0}"</span>, e.TargetSite.MemberType);
+        Console.WriteLine(<span class="str">"Message: {0}"</span>, e.Message);
+        Console.WriteLine(<span class="str">"Source: {0}"</span>, e.Source);
+    }
+    Console.WriteLine(<span class="str">"\n***** Out of exception logic *****"</span>);
+    Console.ReadLine();
+}</pre>
+<p>This time, you make use of the MethodBase.DeclaringType property to determine the fully qualified
+name of the class that threw the error (SimpleException.Car in this case) as well as the MemberType
+property of the MethodBase object to identify the type of member (such as a property vs. a method) where
+this exception originated. In this case, the catch logic would display the following:</p>
+<pre class="csharpcode">
+*** Error! ***
+Member name: Void Accelerate(Int32)
+Class defining member: SimpleException.Car
+Member type: Method
+Message: Zippy has overheated!
+Source: SimpleException </pre>
+<h2>The StackTrace Property</h2>
+ <p>The System.Exception.StackTrace property allows you to identify the series of calls that resulted in the
+exception. Be aware that you never set the value of StackTrace as it is established automatically at the
+time the exception is created. To illustrate, assume you have once again updated your catch logic:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">catch</span>(Exception e)
+{
+    ...
+    Console.WriteLine(<span class="str">"Stack: {0}"</span>, e.StackTrace);
+}</pre>
+<p>If you were to run the program, you would find the following stack trace is printed to the console
+(your line numbers and file paths may differ, of course):</p>
+<pre class="csharpcode">
+Stack: at SimpleException.Car.Accelerate(Int32 delta)
+in c:\MyApps\SimpleException\car.cs:line 65 at SimpleException.Program.Main()
+in c:\MyApps\SimpleException\Program.cs:line 21 </pre>
+<p>The string returned from StackTrace documents the sequence of calls that resulted in the throwing
+of this exception. Notice how the bottommost line number of this string identifies the first call in the
+sequence, while the topmost line number identifies the exact location of the offending member. Clearly,
+this information can be quite helpful during the debugging or logging of a given application, as you are
+able to “follow the flow” of the error’s origin.</p>
+<h2>The HelpLink Property</h2>
+ <p>While the TargetSite and StackTrace properties allow programmers to gain an understanding of a
+given exception, this information is of little use to the end user. As you have already seen, the
+System.Exception.Message property can be used to obtain human-readable information that can be
+displayed to the current user. In addition, the HelpLink property can be set to point the user to a specific
+URL or standard Windows help file that contains more detailed information.</p>
+<p>By default, the value managed by the HelpLink property is an empty string. If you wish to fill this
+property with a more interesting value, you need to do so before throwing the System.Exception object.
+Here are the relevant updates to the Car.Accelerate() method:</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">void</span> Accelerate(<span class="kwrd">int</span> delta)
+{
+    <span class="kwrd">if</span> (carIsDead)
+        Console.WriteLine(<span class="str">"{0} is out of order..."</span>, PetName);
+    <span class="kwrd">else</span>
+    {
+        CurrentSpeed += delta;
+        <span class="kwrd">if</span> (CurrentSpeed &gt;= MaxSpeed)
+        {
+            carIsDead = <span class="kwrd">true</span>;
+            CurrentSpeed = 0;
+
+            <span class="rem">// We need to call the HelpLink property, thus we need to</span>
+            <span class="rem">// create a local variable before throwing the Exception object.</span>
+            Exception ex =
+                <span class="kwrd">new</span> Exception(<span class="kwrd">string</span>.Format(<span class="str">"{0} has overheated!"</span>, PetName));
+            ex.HelpLink = <span class="str">"http://www.CarsRUs.com"</span>;
+            <span class="kwrd">throw</span> ex;
+        }
+        <span class="kwrd">else</span>
+            Console.WriteLine(<span class="str">"=&gt; CurrentSpeed = {0}"</span>, CurrentSpeed);
+    }
+}</pre>
+<p>The catch logic could now be updated to print out this help link information as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">catch</span>(Exception e)
+{
+    ...
+    Console.WriteLine(<span class="str">"Help Link: {0}"</span>, e.HelpLink);
+}</pre>
+<h2>The Data Property</h2>
+ <p>The Data property of System.Exception allows you to fill an exception object with relevant auxiliary
+information (such as a time stamp). The Data property returns an object implementing an interface
+named IDictionary, defined in the System.Collections namespace. Chapter 9 examines the role of
+interface-based programming as well as the System.Collections namespace. For the time being, just
+understand that dictionary collections allow you to create a set of values that are retrieved using a
+specific key. Observe the next update to the Car.Accelerate() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">void</span> Accelerate(<span class="kwrd">int</span> delta)
+{
+    <span class="kwrd">if</span> (carIsDead)
+        Console.WriteLine(<span class="str">"{0} is out of order..."</span>, PetName);
+    <span class="kwrd">else</span>
+    {
+        CurrentSpeed += delta;
+        <span class="kwrd">if</span> (CurrentSpeed &gt;= MaxSpeed)
+        {
+            carIsDead = <span class="kwrd">true</span>;
+            CurrentSpeed = 0;
+
+            <span class="rem">// We need to call the HelpLink property, thus we need</span>
+            <span class="rem">// to create a local variable before throwing the Exception object.</span>
+            Exception ex =
+                <span class="kwrd">new</span> Exception(<span class="kwrd">string</span>.Format(<span class="str">"{0} has overheated!"</span>, PetName));
+            ex.HelpLink = <span class="str">"http://www.CarsRUs.com"</span>;
+
+            <span class="rem">// Stuff in custom data regarding the error.</span>
+            ex.Data.Add(<span class="str">"TimeStamp"</span>,
+                <span class="kwrd">string</span>.Format(<span class="str">"The car exploded at {0}"</span>, DateTime.Now));
+            ex.Data.Add(<span class="str">"Cause"</span>, <span class="str">"You have a lead foot."</span>);
+            <span class="kwrd">throw</span> ex;
+        }
+        <span class="kwrd">else</span>
+            Console.WriteLine(<span class="str">"=&gt; CurrentSpeed = {0}"</span>, CurrentSpeed);
+    }
+}</pre>
+<p>To successfully enumerate over the key/value pairs, you must first make sure to specify a using
+directive for the System.Collections namespace, since you will use a DictionaryEntry type in the file
+containing the class implementing your Main() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System.Collections;</pre>
+<p>Next, you need to update the catch logic to test that the value returned from the Data property is not
+null (the default value). After that, you make use of the Key and Value properties of the DictionaryEntry
+type to print the custom data to the console:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">catch</span> (Exception e)
+{
+...
+    <span class="rem">// By default, the data field is empty, so check for null.</span>
+    Console.WriteLine(<span class="str">"\n-&gt; Custom Data:"</span>);
+    <span class="kwrd">if</span> (e.Data != <span class="kwrd">null</span>)
+    {
+        <span class="kwrd">foreach</span> (DictionaryEntry de <span class="kwrd">in</span> e.Data)
+            Console.WriteLine(<span class="str">"-&gt; {0}: {1}"</span>, de.Key, de.Value);
+    }
+}</pre>
+<p>With this, here’s the final output you’d see:</p>
+<pre class="csharpcode">
+***** Simple Exception Example *****
+=> Creating a car and stepping on it!
+Jamming...
+=> CurrentSpeed = 30
+=> CurrentSpeed = 40
+=> CurrentSpeed = 50
+=> CurrentSpeed = 60
+=> CurrentSpeed = 70
+=> CurrentSpeed = 80
+=> CurrentSpeed = 90
+
+*** Error! ***
+Member name: Void Accelerate(Int32)
+Class defining member: SimpleException.Car
+Member type: Method
+Message: Zippy has overheated!
+Source: SimpleException
+Stack: at SimpleException.Car.Accelerate(Int32 delta)
+ at SimpleException.Program.Main(String[] args)
+Help Link: http://www.CarsRUs.com
+
+-> Custom Data:
+-> TimeStamp: The car exploded at 1/12/2010 8:02:12 PM
+-> Cause: You have a lead foot.
+
+***** Out of exception logic ***** </pre>
+<p>The Data property is very useful in that it allows us to pack in custom information regarding the
+error at hand, without requiring the building of a brand-new class type to extend the Exception base
+class (which, prior to .NET 2.0, was our only option!). As helpful as the Data property may be, however, it
+is still common for .NET developers to build strongly typed exception classes, which handle custom data
+using strongly typed properties.</p>
+<p>This approach allows the caller to catch a specific exception-derived type, rather than having to dig
+into a data collection to obtain additional details. To understand how to do this, we need to examine the
+distinction between system-level and application-level exceptions.</p>
+<p><b>Source Code</b> The SimpleException project is included under the Chapter 7 subdirectory.</p>
+</body>
+    </html>
+ 
+   
+

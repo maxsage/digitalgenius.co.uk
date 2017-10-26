@@ -1,0 +1,152 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Working with the File Type</h1>
+<p>The File type uses several static members to provide functionality almost identical to that of the
+FileInfo type. Like FileInfo, File supplies AppendText(), Create(), CreateText(), Open(), OpenRead(),
+OpenWrite(), and OpenText() methods. In many cases, you can use the File and FileInfo types
+interchangeably. To see this in action, you can simplify each of the previous FileStream examples by
+using the File type instead:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    <span class="rem">// Obtain FileStream object via File.Create().</span>
+    <span class="kwrd">using</span>(FileStream fs = File.Create(<span class="str">@"C:\Test.dat"</span>))
+    {}
+
+    <span class="rem">// Obtain FileStream object via File.Open().</span>
+    <span class="kwrd">using</span>(FileStream fs2 = File.Open(<span class="str">@"C:\Test2.dat"</span>,
+        FileMode.OpenOrCreate,
+        FileAccess.ReadWrite, FileShare.None))
+    {}
+
+    <span class="rem">// Get a FileStream object with read-only permissions.</span>
+    <span class="kwrd">using</span>(FileStream readOnlyStream = File.OpenRead(<span class="str">@"Test3.dat"</span>))
+    {}
+
+    <span class="rem">// Get a FileStream object with write-only permissions.</span>
+    <span class="kwrd">using</span>(FileStream writeOnlyStream = File.OpenWrite(<span class="str">@"Test4.dat"</span>))
+    {}
+
+    <span class="rem">// Get a StreamReader object.</span>
+    <span class="kwrd">using</span>(StreamReader sreader = File.OpenText(<span class="str">@"C:\boot.ini"</span>))
+    {}
+
+    <span class="rem">// Get some StreamWriters.</span>
+    <span class="kwrd">using</span>(StreamWriter swriter = File.CreateText(<span class="str">@"C:\Test6.txt"</span>))
+    {}
+
+    <span class="kwrd">using</span>(StreamWriter swriterAppend = File.AppendText(<span class="str">@"C:\FinalTest.txt"</span>))
+    {}
+}</pre>
+<h2>Additional File-centric Members</h2>
+<p>The File type also supports a few members shown in Table 20-6, which can greatly simplify the
+processes of reading and writing textual data.</p>
+<p><b>Table 20-6.</b> Methods of the File Type</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Method
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    ReadAllBytes()
+   </td>
+   <td>
+    Opens the specified file, returns the binary data as an array of bytes, and
+then closes the file.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ReadAllLines()
+   </td>
+   <td>
+    Opens a specified file, returns the character data as an array of strings,
+and then closes the file.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ReadAllText()
+   </td>
+   <td>
+    Opens a specified file, returns the character data as a System.String, and
+then closes the file.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    WriteAllBytes()
+   </td>
+   <td>
+    Opens the specified file, writes out the byte array, and then closes the file.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    WriteAllLines()
+   </td>
+   <td>
+    Opens a specified file, writes out an array of strings, and then closes the
+file.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    WriteAllText()
+   </td>
+   <td>
+    Opens a specified file, writes the character data from a specified string,
+and then closes the file.
+   </td>
+  </tr>
+</table>
+<p>You can use these methods of the File type to read and write batches of data in only a few lines of
+code. Even better, each of these members automatically closes down the underlying file handle. For
+example, the following console program (named SimpleFileIO) persists the string data into a new file on
+the C: drive (and reads it into memory) with minimal fuss (this example assumes you have imported
+System.IO):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Simple IO with the File Type *****\n"</span>);
+        <span class="kwrd">string</span>[] myTasks = {
+            <span class="str">"Fix bathroom sink"</span>, <span class="str">"Call Dave"</span>,
+            <span class="str">"Call Mom and Dad"</span>, <span class="str">"Play Xbox 360"</span>};
+
+        <span class="rem">// Write out all data to file on C drive.</span>
+        File.WriteAllLines(<span class="str">@"C:\tasks.txt"</span>, myTasks);
+
+        <span class="rem">// Read it all back and print out.</span>
+        <span class="kwrd">foreach</span> (<span class="kwrd">string</span> task <span class="kwrd">in</span> File.ReadAllLines(<span class="str">@"C:\tasks.txt"</span>))
+        {
+            Console.WriteLine(<span class="str">"TODO: {0}"</span>, task);
+        }
+        Console.ReadLine();
+    }
+}</pre>
+<p>The lesson here: When you wish to obtain a file handle quickly, the File type will save you some
+keystrokes. However, one benefit of creating a FileInfo object first is that you can investigate the file
+using the members of the abstract FileSystemInfo base class.</p>
+    <p><b>Source Code</b> You can find the SimpleFileIO project under the Chapter 20 subdirectory.</p>
+    </body>
+    </html>
+
+     
+      
+   

@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />   
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />       
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />  
+</head>
+<body>
+    <h1>Decision Constructs and the Relational/Equality Operators</h1>
+    <p>Now that you can iterate over a block of statements, the next related concept is how to control the flow
+    of program execution. C# defines two simple constructs to alter the flow of your program, based on
+    various contingencies:</p>
+    <ul>
+        <li>The if/else statement</li>
+        <li>The switch statement</li>
+    </ul>
+    <h2>The if/else Statement</h2>
+    <p>First up is our good friend the if/else statement. Unlike in C and C++, however, the if/else statement
+    in C# operates only on Boolean expressions, not ad hoc values such as &#45;1 or 0. Given this, if/else
+    statements typically involve the use of the C# operators shown in Table 3&#45;7 in order to obtain a literal
+    Boolean value.</p>
+    <p><b>Table 3-7.</b> C# Relational and Equality Operators</p>
+    <table class="gridtable">
+        <tr>
+            <th>C# Equality/Relational Operator</th>
+            <th>Example Usage</th>
+            <th>Meaning in Life</th>
+        </tr>
+        <tr>
+            <td>==</td>
+            <td>if(age == 30)</td>
+            <td>Returns true only if each expression is the same.</td>
+        </tr>
+        <tr>
+            <td>!=</td>
+            <td>if("Foo" != myStr)</td>
+            <td>Returns true only if each expression is different.</td>
+        </tr>
+        <tr>
+            <td>
+                &lt;<br />
+                &gt;<br />
+                &lt;=<br />
+                &gt;=<br />
+            </td>
+            <td>
+                if(bonus &lt; 2000)<br />
+                if(bonus &gt; 2000)<br />
+                if(bonus &lt;= 2000)<br />
+                if(bonus &gt;= 2000)<br />
+            </td>
+            <td>Returns true if expression A (bonus) is less than,
+            greater than, less than or equal to, or greater than
+            or equal to expression B (2000).</td>
+        </tr>
+    </table>
+    <p>Again, C and C++ programmers need to be aware that the old tricks of testing a condition for a value
+    not equal to zero will not work in C#. Let�s say you want to see whether the string you are working with
+    is longer than zero characters. You may be tempted to write</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ExecuteIfElse()
+{
+    <span class="rem">// This is illegal, given that Length returns an int, not a bool.</span>
+    <span class="kwrd">string</span> stringData = <span class="str">"My textual data"</span>;
+    <span class="kwrd">if</span>(stringData.Length)
+    {
+        Console.WriteLine(<span class="str">"string is greater than 0 characters"</span>);
+    }
+}</pre>
+    <p>If you wish to make use of the String.Length property to determine truth or falsity, you need to
+    modify your conditional expression to resolve to a Boolean.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Legal, as this resolves to either true or false.</span>
+<span class="kwrd">if</span>(stringData.Length &gt; 0)
+{
+    Console.WriteLine(<span class="str">"string is greater than 0 characters"</span>);
+}</pre>
+    <p>An if statement may be composed of complex expressions as well and can contain else statements
+    to perform more complex testing. The syntax is identical to C(++) and Java. To build complex
+    expressions, C# offers an expected set of logical operators, as shown in Table 3-8.</p>
+    <p><b>Table 3-8.</b> C# Logical Operators</p>
+    <table class="gridtable">
+        <tr>
+            <th>Logical Operator</th>
+            <th>Example</th>
+            <th>Meaning in Life</th>
+        </tr>
+        <tr>
+            <td>&amp;&amp;</td>
+            <td>if(age == 30 &amp;&amp; name == "Fred") </td>
+            <td>AND operator. Returns true if all
+        expressions are true.</td>
+        </tr>
+        <tr>
+            <td>||</td>
+            <td>if(age == 30 || name == "Fred")</td>
+            <td>OR operator. Returns true if at least one expression is true.</td>
+        </tr>
+        <tr>
+            <td>!</td>
+            <td>if(!myBool)</td>
+            <td>NOT operator. Returns true if false, or false if true.</td>
+        </tr>
+    </table>
+    <p><b>Note</b> The &amp;&amp; and || operators both "short circuit" when necessary. This means once a complex expression has
+    been determined to be false, the remaining expressions will not be checked.</p>
+    <h2>The switch Statement</h2>
+    <p>The other simple selection construct offered by C# is the switch statement. As in other C-based
+    languages, the switch statement allows you to handle program flow based on a predefined set of choices.
+    For example, the following Main() logic prints a specific string message based on one of two possible
+    selections (the default case handles an invalid selection).</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Switch on a numerical value.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> ExecuteSwitch()
+{
+    Console.WriteLine(<span class="str">"1 [C#], 2 [VB]"</span>);
+    Console.Write(<span class="str">"Please pick your language preference: "</span>);
+
+    <span class="kwrd">string</span> langChoice = Console.ReadLine();
+    <span class="kwrd">int</span> n = <span class="kwrd">int</span>.Parse(langChoice);
+    
+    <span class="kwrd">switch</span> (n)
+    {
+        <span class="kwrd">case</span> 1:
+            Console.WriteLine(<span class="str">"Good choice, C# is a fine language."</span>);
+        <span class="kwrd">break</span>;
+        <span class="kwrd">case</span> 2:
+            Console.WriteLine(<span class="str">"VB: OOP, multithreading, and more!"</span>);
+        <span class="kwrd">break</span>;
+        <span class="kwrd">default</span>:
+            Console.WriteLine(<span class="str">"Well...good luck with that!"</span>);
+        <span class="kwrd">break</span>;
+    }
+}</pre>
+    <p><b>Note </b>C# demands that each case (including default) that contains executable statements have a terminating
+    break or goto to avoid fall-through.</p>
+    <p>One nice feature of the C# switch statement is that you can evaluate string data in addition to
+    numeric data. Here is an updated switch statement that does this very thing (notice we have no need to
+    parse the user data into a numeric value with this approach).</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ExecuteSwitchOnString()
+{
+    Console.WriteLine(<span class="str">"C# or VB"</span>);
+    Console.Write(<span class="str">"Please pick your language preference: "</span>);
+
+    <span class="kwrd">string</span> langChoice = Console.ReadLine();
+    <span class="kwrd">switch</span> (langChoice)
+    {
+        <span class="kwrd">case</span> <span class="str">"C#"</span>:
+            Console.WriteLine(<span class="str">"Good choice, C# is a fine language."</span>);
+        <span class="kwrd">break</span>;
+        <span class="kwrd">case</span> <span class="str">"VB"</span>:
+            Console.WriteLine(<span class="str">"VB: OOP, multithreading and more!"</span>);
+        <span class="kwrd">break</span>;
+        <span class="kwrd">default</span>:
+            Console.WriteLine(<span class="str">"Well...good luck with that!"</span>);
+        <span class="kwrd">break</span>;
+    }
+}</pre>
+    <p><b>Source Code</b> The IterationsAndDecisions project is located under the Chapter 3 subdirectory.</p>
+    <p>That wraps up your look at the looping and decision keywords of C#, and the common operators
+    that are used to build complex statements. I�ve tried to keep this part of the chapter short and to the
+    point, as I am assuming you have experience using similar keywords (if, for, switch, etc.) in your
+    current programming language. If you require more information, look up the topic of interest within the
+    .NET Framework 4.0 SDK Documentation.</p>
+</body>
+</html>

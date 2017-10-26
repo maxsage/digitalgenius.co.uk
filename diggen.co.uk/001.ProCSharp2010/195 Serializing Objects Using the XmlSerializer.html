@@ -1,0 +1,168 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Serializing Objects Using the XmlSerializer</h1>
+<p>In addition to the SOAP and binary formatters, the System.Xml.dll assembly provides a third formatter,
+System.Xml.Serialization.XmlSerializer. You can use this formatter to persist the public state of a
+given object as pure XML, as opposed to XML data wrapped within a SOAP message. Working with this
+type is a bit different from working with the SoapFormatter or BinaryFormatter type. Consider the
+following code, which assumes you have imported the System.Xml.Serialization namespace:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> SaveAsXmlFormat(<span class="kwrd">object</span> objGraph, <span class="kwrd">string</span> fileName)
+{
+    <span class="rem">// Save object to a file named CarData.xml in XML format.</span>
+    XmlSerializer xmlFormat = <span class="kwrd">new</span> XmlSerializer(<span class="kwrd">typeof</span>(JamesBondCar));
+
+    <span class="kwrd">using</span>(Stream fStream = <span class="kwrd">new</span> FileStream(fileName,
+        FileMode.Create, FileAccess.Write, FileShare.None))
+    {
+        xmlFormat.Serialize(fStream, objGraph);
+    }
+    Console.WriteLine(<span class="str">"=&gt; Saved car in XML format!"</span>);
+}</pre>
+<p>The key difference is that the XmlSerializer type requires you to specify type information that
+represents the class you want to serialize. If you were to look within the newly generated XML file
+(assuming you call this new method from within Main()), you would find the XML data shown here:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;?</span><span class="html">xml</span> <span class="attr">version</span><span class="kwrd">="1.0"</span>?<span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">JamesBondCar</span> <span class="attr">xmlns:xsi</span><span class="kwrd">="http://www.w3.org/2001/XMLSchema-instance"</span>
+<span class="attr">xmlns:xsd</span><span class="kwrd">="http://www.w3.org/2001/XMLSchema"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">theRadio</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">hasTweeters</span><span class="kwrd">&gt;</span>true<span class="kwrd">&lt;/</span><span class="html">hasTweeters</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">hasSubWoofers</span><span class="kwrd">&gt;</span>false<span class="kwrd">&lt;/</span><span class="html">hasSubWoofers</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">stationPresets</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">double</span><span class="kwrd">&gt;</span>89.3<span class="kwrd">&lt;/</span><span class="html">double</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">double</span><span class="kwrd">&gt;</span>105.1<span class="kwrd">&lt;/</span><span class="html">double</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">double</span><span class="kwrd">&gt;</span>97.1<span class="kwrd">&lt;/</span><span class="html">double</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">stationPresets</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">radioID</span><span class="kwrd">&gt;</span>XF-552RR6<span class="kwrd">&lt;/</span><span class="html">radioID</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">theRadio</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">isHatchBack</span><span class="kwrd">&gt;</span>false<span class="kwrd">&lt;/</span><span class="html">isHatchBack</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">canFly</span><span class="kwrd">&gt;</span>true<span class="kwrd">&lt;/</span><span class="html">canFly</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">canSubmerge</span><span class="kwrd">&gt;</span>false<span class="kwrd">&lt;/</span><span class="html">canSubmerge</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">JamesBondCar</span><span class="kwrd">&gt;</span></pre>
+<p><b>Note</b> The XmlSerializer demands that all serialized types in the object graph support a default constructor
+(so be sure to add it back if you define custom constructors). If this is not the case, you will receive an
+InvalidOperationException at runtime.</p>
+<h2>Controlling the Generated XML Data</h2>
+<p>If you have a background in XML technologies, you know that it is often critical to ensure the data within
+an XML document conforms to a set of rules that establish the validity of the data. Understand that a
+valid XML document does not have anything to do with the syntactic well-being of the XML elements
+(e.g., all opening elements must have a closing element). Rather, valid documents conform to agreedupon
+formatting rules (e.g., field X must be expressed as an attribute and not a sub-element), which are
+typically defined by an XML schema or document-type definition (DTD) file.</p>
+<p>By default, XmlSerializer serializes all public fields/properties as XML elements, rather than as XML
+attributes. If you wish to control how the XmlSerializer generates the resulting XML document, you can
+decorate types with any number of additional .NET attributes from the System.Xml.Serialization
+namespace. Table 20-12 documents some (but not all) of the .NET attributes that influence how XML
+data is encoded to a stream.</p>
+<p><b>Table 20-12.</b> Select Attributes of the System.Xml.Serialization Namespace</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    .NET Attribute
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    [XmlAttribute]
+   </td>
+   <td>
+    You can use this .NET attribute on a public field or property in a class to tell
+XmlSerializer to serialize the data as an XML attribute (rather than as a subelement).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [XmlElement]
+   </td>
+   <td>
+    The field or property will be serialized as an XML element named as you so choose.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [XmlEnum]
+   </td>
+   <td>
+    This attribute provides the element name of an enumeration member.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [XmlRoot]
+   </td>
+   <td>
+    This attribute controls how the root element will be constructed (namespace and
+element name).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [XmlText]
+   </td>
+   <td>
+    The property or field will be serialized as XML text (i.e. the content between the
+start tag and the end tag of the root element).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [XmlType]
+   </td>
+   <td>
+    This attribute provides the name and namespace of the XML type.
+   </td>
+  </tr>
+</table>
+<p>This simple example illustrates how the field data of JamesBondCar is currently persisted as XML:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;?</span><span class="html">xml</span> <span class="attr">version</span><span class="kwrd">="1.0"</span> <span class="attr">encoding</span><span class="kwrd">="utf-8"</span>?<span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">JamesBondCar</span> <span class="attr">xmlns:xsi</span><span class="kwrd">="http://www.w3.org/2001/XMLSchema-instance"</span>
+    <span class="attr">xmlns:xsd</span><span class="kwrd">="http://www.w3.org/2001/XMLSchema"</span><span class="kwrd">&gt;</span>
+...
+    <span class="kwrd">&lt;</span><span class="html">canFly</span><span class="kwrd">&gt;</span>true<span class="kwrd">&lt;/</span><span class="html">canFly</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">canSubmerge</span><span class="kwrd">&gt;</span>false<span class="kwrd">&lt;/</span><span class="html">canSubmerge</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">JamesBondCar</span><span class="kwrd">&gt;</span></pre>
+    <p>If you wish to specify a custom XML namespace that qualifies the JamesBondCar and encodes the
+canFly and canSubmerge values as XML attributes, you can do so by modifying the C# definition of
+JamesBondCar:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+[XmlRoot(Namespace = <span class="str">"http://www.MyCompany.com"</span>)]
+<span class="kwrd">public</span> <span class="kwrd">class</span> JamesBondCar : Car
+{
+    [XmlAttribute]
+    <span class="kwrd">public</span> <span class="kwrd">bool</span> canFly;
+    [XmlAttribute]
+    <span class="kwrd">public</span> <span class="kwrd">bool</span> canSubmerge;
+}</pre>
+<p>This yields the following XML document (note the opening &lt;JamesBondCar&gt; element):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;?</span><span class="html">xml</span> <span class="attr">version</span><span class="kwrd">="1.0"</span><span class="kwrd">""</span>?<span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">JamesBondCar</span> <span class="attr">xmlns:xsi</span><span class="kwrd">="http://www.w3.org/2001/XMLSchema-instance"</span>
+        <span class="attr">xmlns:xsd</span><span class="kwrd">="http://www.w3.org/2001/XMLSchema"</span>
+    <span class="attr">canFly</span><span class="kwrd">="true"</span> <span class="attr">canSubmerge</span><span class="kwrd">="false"</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://www.MyCompany.com"</span><span class="kwrd">&gt;</span>
+...
+<span class="kwrd">&lt;/</span><span class="html">JamesBondCar</span><span class="kwrd">&gt;</span></pre>
+    <p>Of course, you can use many other attributes to control how the XmlSerializer generates the
+resulting XML document. For full details, look up the System.Xml.Serialization namespace in the .NET
+Framework 4.0 SDK documentation.</p>
+    </body></html>
+      
+      
+   

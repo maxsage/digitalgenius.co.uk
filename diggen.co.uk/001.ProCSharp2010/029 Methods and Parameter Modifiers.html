@@ -1,0 +1,532 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />   
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />       
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />  
+</head>
+<body>
+    <h1>Methods and Parameter Modifiers</h1>
+    <p>To begin this chapter, let's examine the details of defining methods. Just like the Main() method (see
+    Chapter 3), your custom methods may or may not take parameters and may or may not return values to
+    the caller. As you will see over the next several chapters, methods can be implemented within the scope
+    of classes or structures (as well as prototyped within interface types) and may be decorated with various
+    keywords (e.g., internal, virtual, public, new) to qualify their behavior. At this point in the text, each of
+    our methods has followed this basic format:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Recall that static methods can be called directly</span>
+<span class="rem">// without creating a class instance.</span>
+<span class="kwrd">class</span> Program
+{
+    <span class="rem">// static returnType MethodName(params) {...}</span>
+    <span class="kwrd">static</span> <span class="kwrd">int</span> Add(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y){ <span class="kwrd">return</span> x + y; }
+}</pre>
+    <p>While the definition of a method in C# is quite straightforward, there are a handful of keywords that
+    you can use to control how arguments are passed to the method in question. These are listed in Table 4-1.</p>
+    <table class="gridtable">
+        <tr>
+            <th>
+                Parameter Modifier
+            </th>
+            <th>
+                Meaning in Life
+            </th>
+        </tr>
+        <tr>
+            <td>
+                (None)
+            </td>
+            <td>
+                If a parameter is not marked with a parameter modifier, it is assumed to be passed
+                by value, meaning the called method receives a copy of the original data.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                out
+            </td>
+            <td>
+                Output parameters must be assigned by the method being called, and therefore are
+                passed by reference. If the called method fails to assign output parameters, you
+                are issued a compiler error.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                ref
+            </td>
+            <td>
+                The value is initially assigned by the caller and may be optionally reassigned by
+                the called method (as the data is also passed by reference). No compiler error is
+                generated if the called method fails to assign a ref parameter.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                params
+            </td>
+            <td>
+                This parameter modifier allows you to send in a variable number of arguments as
+                a single logical parameter. A method can have only a single params modifier, and
+                it must be the final parameter of the method. In reality, you may not need to use
+                the params modifier all too often, however be aware that numerous methods within
+                the base class libraries do make use of this C# language feature.
+            </td>
+        </tr>
+    </table>
+    <p>To illustrate the use of these keywords, create a new Console Application project named
+    FunWithMethods. Now, let's walk through the role of each keyword.</p>
+    <h2>The Default Parameter-Passing Behavior</h2>
+    <p>The default manner in which a parameter is sent into a function is by value. Simply put, if you do not
+    mark an argument with a parameter modifier, a copy of the data is passed into the function. As
+    explained at the end of this chapter, exactly what is copied will depend on whether the parameter is a
+    value type or a reference type. For the time being, assume the following method within the Program class
+    that operates on two numerical data types passed by value:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Arguments are passed by value by default.</span>
+<span class="kwrd">static</span> <span class="kwrd">int</span> Add(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y)
+{
+    <span class="kwrd">int</span> ans = x + y;
+
+    <span class="rem">// Caller will not see these changes</span>
+    <span class="rem">// as you are modifying a copy of the</span>
+    <span class="rem">// original data.</span>
+    x = 10000;
+    y = 88888;
+    <span class="kwrd">return</span> ans;
+}</pre>    
+    <p>Numerical data falls under the category of value types. Therefore, if you change the values of the
+    parameters within the scope of the member, the caller is blissfully unaware, given that you are changing
+    the values on a copy of the caller's original data:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Methods *****\n"</span>);
+
+    <span class="rem">// Pass two variables in by value.</span>
+    <span class="kwrd">int</span> x = 9, y = 10;
+    Console.WriteLine(<span class="str">"Before call: X: {0}, Y: {1}"</span>, x, y);
+    Console.WriteLine(<span class="str">"Answer is: {0}"</span>, Add(x, y));
+    Console.WriteLine(<span class="str">"After call: X: {0}, Y: {1}"</span>, x, y);
+    Console.ReadLine();
+}</pre>
+    <p>As you would hope, the values of x and y remain identical before and after the call to Add(), as
+    shown in the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+***** Fun with Methods *****
+Before call: X: 9, Y: 10
+Answer <span class="kwrd">is</span>: 19
+After call: X: 9, Y: 10
+</pre>
+    <h2>The out Modifier</h2>
+     <p>Next, you have the use of output parameters. Methods that have been defined to take output parameters
+    (via the out keyword) are under obligation to assign them to an appropriate value before exiting the
+    method scope (if you fail to do so, you will receive compiler errors).</p>
+     <p>To illustrate, here is an alternative version of the Add() method that returns the sum of two integers
+    using the C# out modifier (note the physical return value of this method is now void):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Output parameters must be assigned by the called method.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Add(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y, <span class="kwrd">out</span> <span class="kwrd">int</span> ans)
+{
+    ans = x + y;
+}</pre>
+    <p>Calling a method with output parameters also requires the use of the out modifier. However, the
+    local variables which are passed as output variables are not required to be assigned before passing them
+    in as output arguments (if you do so, the original value is lost after the call). The reason the compiler
+    allows you to send in seemingly unassigned data is due to the fact that the method being called must
+    make an assignment. The following code is an example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Methods *****"</span>);
+...
+    <span class="rem">// No need to assign initial value to local variables</span>
+    <span class="rem">// used as output parameters, provided the first time</span>
+    <span class="rem">// you use them is as output arguments.</span>
+    <span class="kwrd">int</span> ans;
+    Add(90, 90, <span class="kwrd">out</span> ans);
+    Console.WriteLine(<span class="str">"90 + 90 = {0}"</span>, ans);
+    Console.ReadLine();
+}</pre>
+    <p>The previous example is intended to be illustrative in nature; you really have no reason to return the
+    value of your summation using an output parameter. However, the C# out modifier does serve a very
+    useful purpose: it allows the caller to obtain multiple return values from a single method invocation.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Returning multiple output parameters.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> FillTheseValues(<span class="kwrd">out</span> <span class="kwrd">int</span> a, <span class="kwrd">out</span> <span class="kwrd">string</span> b, <span class="kwrd">out</span> <span class="kwrd">bool</span> c)
+{
+    a = 9;
+    b = <span class="str">"Enjoy your string."</span>;
+    c = <span class="kwrd">true</span>;
+}</pre>
+    <p>The caller would be able to invoke the FillTheseValues() method. Do notice that you must use the
+    out modifier when you invoke the method, as well as when you implement the method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Methods *****"</span>);
+...
+    <span class="kwrd">int</span> i; <span class="kwrd">string</span> str; <span class="kwrd">bool</span> b;
+    FillTheseValues(<span class="kwrd">out</span> i, <span class="kwrd">out</span> str, <span class="kwrd">out</span> b);
+ 
+    Console.WriteLine(<span class="str">"Int is: {0}"</span>, i);
+    Console.WriteLine(<span class="str">"String is: {0}"</span>, str);
+    Console.WriteLine(<span class="str">"Boolean is: {0}"</span>, b);
+    Console.ReadLine();
+}</pre>
+    <p>Finally, always remember that a method that defines output parameters must assign the parameter
+    to a valid value before exiting the method scope. Therefore, the following code will result in a compiler
+    error, as the output parameter has not been assigned within the method scope:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ThisWontCompile(<span class="kwrd">out</span> <span class="kwrd">int</span> a)
+{
+    Console.WriteLine(<span class="str">"Error! Forgot to assign output arg!"</span>);
+}</pre>
+    <h2>The ref Modifier</h2>
+    <p>Now consider the use of the C# ref parameter modifier. Reference parameters are necessary when you
+    wish to allow a method to operate on (and usually change the values of) various data points declared in
+    the caller's scope (such as a sorting or swapping routine). Note the distinction between output and
+    reference parameters:</p>
+    <ul>
+        <li>Output parameters do not need to be initialized before they passed to the method.
+        The reason for this? The method must assign output parameters before exiting.</li>
+        <li>Reference parameters must be initialized before they are passed to the method.
+        The reason for this is that you are passing a reference to an existing variable. If you
+        don't assign it to an initial value, that would be the equivalent of operating on an
+        unassigned local variable.</li>
+    </ul>
+    <p>Let's check out the use of the ref keyword by way of a method that swaps two string variables:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Reference parameters.</span>
+<span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> SwapStrings(<span class="kwrd">ref</span> <span class="kwrd">string</span> s1, <span class="kwrd">ref</span> <span class="kwrd">string</span> s2)
+{
+    <span class="kwrd">string</span> tempStr = s1;
+    s1 = s2;
+    s2 = tempStr;
+}</pre>
+    <p>This method can be called as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Methods *****"</span>);
+...
+    <span class="kwrd">string</span> s1 = <span class="str">"Flip"</span>;
+    <span class="kwrd">string</span> s2 = <span class="str">"Flop"</span>;
+    Console.WriteLine(<span class="str">"Before: {0}, {1} "</span>, s1, s2);
+    SwapStrings(<span class="kwrd">ref</span> s1, <span class="kwrd">ref</span> s2);
+    Console.WriteLine(<span class="str">"After: {0}, {1} "</span>, s1, s2);
+    Console.ReadLine();
+}</pre>
+    <p>Here, the caller has assigned an initial value to local string data (s1 and s2). Once the call to
+    SwapStrings() returns, s1 now contains the value "Flop", while s2 reports the value "Flip":</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Before: Flip, Flop
+After: Flop, Flip</pre>
+    <p><b>Note</b> The C# ref keyword will be revisited later in this chapter in the section "Understanding Value Types and
+    Reference Types." As you will see, the behavior of this keyword changes just a bit depending on whether the
+    argument is a value type (structure) or reference type (class).</p>
+    <h2>The params Modifier</h2>
+    <p>C# supports the use of parameter arrays using the params keyword. To understand this language feature
+    you must (as the name implies) understand how to manipulate C# arrays. If this is not the case, you may
+    wish to return to this section once you read the section "Array Manipulation in C#" found a bit later in
+    this chapter.</p>
+    <p>The params keyword allows you to pass into a method a variable number of identically typed parameters as a single logical parameter. As well, 
+    arguments marked with the params keyword can be processed if the caller sends in a strongly typed array or 
+    a comma-delimited list of items. Yes, this can be confusing! To clear things up, assume you wish to 
+    create a function that allows the caller to pass in any number of arguments and return the calculated average.</p>
+    <p>If you were to prototype this method to take an array of doubles, this would force the caller to first
+    define the array, then fill the array, and finally pass it into the method. However, if you define
+    CalculateAverage() to take a params of double data types, the caller can simply pass a comma-delimited
+    list of doubles. The .NET runtime will automatically package the set of doubles into an array of type
+    double behind the scenes:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Return average of "some number" of doubles.</span>
+<span class="kwrd">static</span> <span class="kwrd">double</span> CalculateAverage(<span class="kwrd">params</span> <span class="kwrd">double</span>[] values)
+{
+    Console.WriteLine(<span class="str">"You sent me {0} doubles."</span>, values.Length);
+
+    <span class="kwrd">double</span> sum = 0;
+    <span class="kwrd">if</span>(values.Length == 0)
+        <span class="kwrd">return</span> sum;
+    
+    <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; values.Length; i++)
+        sum += values[i];
+    <span class="kwrd">return</span> (sum / values.Length);
+}</pre>
+    <p>This method has been defined to take a parameter array of doubles. What this method is in fact
+    saying is, "Send me any number of doubles (including zero) and I'll compute the average." Given this,
+    you can call CalculateAverage() in any of the following ways:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Methods *****"</span>);
+...
+    <span class="rem">// Pass in a comma-delimited list of doubles...</span>
+    <span class="kwrd">double</span> average;
+    average = CalculateAverage(4.0, 3.2, 5.7, 64.22, 87.2);
+    Console.WriteLine(<span class="str">"Average of data is: {0}"</span>, average);
+
+    <span class="rem">// ...or pass an array of doubles.</span>
+    <span class="kwrd">double</span>[] data = { 4.0, 3.2, 5.7 };
+    average = CalculateAverage(data);
+    Console.WriteLine(<span class="str">"Average of data is: {0}"</span>, average);
+
+    <span class="rem">// Average of 0 is 0!</span>
+    Console.WriteLine(<span class="str">"Average of data is: {0}"</span>, CalculateAverage());
+    Console.ReadLine();
+}</pre>
+    <p>If you did not make use of the params modifier in the definition of CalculateAverage(), the first
+    invocation of this method would result in a compiler error, as the compiler would be looking for a
+    version of CalculateAverage() which took five double arguments.</p>
+    <p><b>Note </b>To avoid any ambiguity, C# demands a method only support single params argument, which must be the
+    final argument in the parameter list.</p>
+    <p>As you might guess, this technique is nothing more than a convenience for the caller, given that the
+    array is created by the CLR as necessary. By the time the array is within the scope of the method being
+    called, you are able to treat it as a full-blown .NET array that contains all the functionality of the
+    System.Array base class library type. Consider the following output:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+You sent me 5 doubles.
+Average of data <span class="kwrd">is</span>: 32.864
+You sent me 3 doubles.
+Average of data <span class="kwrd">is</span>: 4.3
+You sent me 0 doubles.
+Average of data <span class="kwrd">is</span>: 0</pre>
+    <h2>Defining Optional Parameters</h2>
+    <p>With the release of .NET 4.0, C# programmers are now able to create methods which can take optional
+    arguments. This technique allows the caller to invoke a single method while omitting arguments deemed
+    unnecessary, provided the caller is happy with the specified defaults.</p>
+    <p><b>Note</b> As you will see in Chapter 18, a key motivation for adding optional arguments to C# is to simplify
+    interacting with COM objects. Several Microsoft object models (e.g., Microsoft Office) expose their functionality via
+    COM objects, many of which were written long ago to make use of optional parameters.</p>
+    <p>To illustrate working with optional arguments, assume you have a method named EnterLogData(),
+    which defines a single optional parameter:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> EnterLogData(<span class="kwrd">string</span> message, <span class="kwrd">string</span> owner = <span class="str">"Programmer"</span>)
+{
+    Console.Beep();
+    Console.WriteLine(<span class="str">"Error: {0}"</span>, message);
+    Console.WriteLine(<span class="str">"Owner of Error: {0}"</span>, owner);
+}</pre>
+    <p>Here, the final string argument has been assigned the default value of "Programmer", via an
+    assignment within the parameter definition. Given this, we can call EnterLogData() from within Main()
+    in two manners:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Methods *****"</span>);
+...
+    EnterLogData(<span class="str">"Oh no! Grid can't find data"</span>);
+    EnterLogData(<span class="str">"Oh no! I can't find the payroll data"</span>, <span class="str">"CFO"</span>);
+
+    Console.ReadLine();
+}</pre>
+    <p>Because the first invocation of EnterLogData() did not specify a second string argument, we would
+    find that the programmer is the one responsible for losing data for the grid, while the CFO misplaced the
+    payroll data (as specified by the second argument in the second method call).</p>
+    <p>One very important thing to be aware of, is that the value assigned to an optional parameter must be
+    known at compile time, and cannot be resolved at runtime (if you attempt to do so, you'll receive
+    compile time errors!). To illustrate, assume you wish to update EnterLogData() with the following extra
+    optional parameter:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Error! The default value for an optional arg must be known</span>
+
+<span class="rem">// at compile time!</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> EnterLogData(<span class="kwrd">string</span> message,
+    <span class="kwrd">string</span> owner = <span class="str">"Programmer"</span>, DateTime timeStamp = DateTime.Now)
+{
+    Console.Beep();
+    Console.WriteLine(<span class="str">"Error: {0}"</span>, message);
+    Console.WriteLine(<span class="str">"Owner of Error: {0}"</span>, owner);
+    Console.WriteLine(<span class="str">"Time of Error: {0}"</span>, timeStamp);
+}</pre>
+    <p>This will not compile, as the value of the Now property of the DateTime class is resolved at runtime,
+    not compile time.</p>
+    <p><b>Note </b>To avoid ambiguity, optional parameters must always be packed onto the end of a method signature. It is
+    a compiler error to have optional parameters listed before non-optional parameters.</p>
+    <h2>Invoking Methods using Named Parameters</h2>
+     <p>Another new language feature added to C# with the release of .NET 4.0 is support for named arguments.
+    To be honest, at first glance, this language construct may appear to do little more than result in
+    confusing code. And to continue being completely honest, this could be the case! Much like optional
+    arguments, including support for named parameters are largely motivated by the desire to simplify the
+    process of working with the COM interoperability layer.</p>
+    <p>Named arguments allow you to invoke a method by specifying parameter values in any order you
+    choose. Thus, rather than passing parameters solely by position (as you will do in most cases), you can
+    choose to specify each argument by name using a colon operator. To illustrate the use of named
+    arguments, assume we have added the following method to the Program class:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> DisplayFancyMessage(ConsoleColor textColor,
+    ConsoleColor backgroundColor, <span class="kwrd">string</span> message)
+{
+    <span class="rem">// Store old colors to restore once message is printed.</span>
+    ConsoleColor oldTextColor = Console.ForegroundColor;
+    ConsoleColor oldbackgroundColor = Console.BackgroundColor;
+
+    <span class="rem">// Set new colors and print message.</span>
+    Console.ForegroundColor = textColor;
+    Console.BackgroundColor = backgroundColor;
+
+    Console.WriteLine(message);
+
+    <span class="rem">// Restore previous colors.</span>
+    Console.ForegroundColor = oldTextColor;
+    Console.BackgroundColor = oldbackgroundColor;
+}</pre>
+    <p>Now, the way DisplayFancyMessage() was written, you would expect the caller to invoke this method
+    by passing two ConsoleColor variables followed by a string type. However, using named arguments, the
+    following calls are completely fine:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Methods *****"</span>);
+...
+    DisplayFancyMessage(message: <span class="str">"Wow! Very Fancy indeed!"</span>,
+        textColor: ConsoleColor.DarkRed,
+        backgroundColor: ConsoleColor.White);
+    
+    DisplayFancyMessage(backgroundColor: ConsoleColor.Green,
+        message: <span class="str">"Testing..."</span>,
+        textColor: ConsoleColor.DarkBlue);
+    Console.ReadLine();
+}</pre>
+    <p>One minor gotcha regarding named arguments is that if you begin to invoke a method using
+    positional parameters, they must be listed before any named parameters. In other words, named
+    arguments must always be packed onto the end of a method call. The following code is an example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This is OK, as positional args are listed before named args.</span>
+DisplayFancyMessage(ConsoleColor.Blue,
+    message: <span class="str">"Testing..."</span>,
+    backgroundColor: ConsoleColor.White);
+
+<span class="rem">// This is an ERROR, as positional args are listed after named args.</span>
+DisplayFancyMessage(message: <span class="str">"Testing..."</span>,
+    backgroundColor: ConsoleColor.White,
+    ConsoleColor.Blue);</pre>
+    <p>This restriction aside, you might still be wondering when you would ever want to use this language
+    feature. After all, if you need to specify three arguments to a method, why bother flipping around their
+    position?</p>
+    <p>Well, as it turns out, if you have a method that defines optional arguments, this feature can actually
+    be really helpful. Assume DisplayFancyMessage() has been rewritten to now support optional
+    arguments, as you have assigned fitting defaults:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> DisplayFancyMessage(ConsoleColor textColor = ConsoleColor.Blue,
+    ConsoleColor backgroundColor = ConsoleColor.White,
+    <span class="kwrd">string</span> message = <span class="str">"Test Message"</span>)
+{
+    ...
+}</pre>
+    <p>Given that each argument has a default value, named arguments allows the caller to only specify the
+    parameter(s) for which they do not wish to receive the defaults. Therefore, if the caller wants the value
+    "Hello!" to appear in blue text surrounded by a white background, they can simply say:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+DisplayFancyMessage(message: <span class="str">"Hello!"</span>);</pre>
+    <p>Or, if the caller wants to see "Test Message" print out with a green background containing blue text,
+    they can invoke DisplayFancyMessage():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+DisplayFancyMessage(backgroundColor: ConsoleColor.Green);</pre>
+    <p>As you can see, optional arguments and named parameters do tend to work hand in hand. To wrap
+    up our examination of building C# methods, I need to address the topic of method overloading.</p> 
+    <h2>Understanding Method Overloading</h2>
+    <p>Like other modern object-oriented languages, C# allows a method to be overloaded. Simply put, when
+    you define a set of identically named method that differ by the number (or type) of parameters, the
+    method in question is said to be overloaded.</p>
+    <p>To understand why overloading is so useful, consider life as a Visual Basic 6.0 developer. Assume
+    you are using VB6 to build a set of methods that return the sum of various incoming data types
+    (Integers, Doubles, and so on). Given that VB6 does not support method overloading, you would be
+    required to define a unique set of methods that essentially do the same thing (return the sum of the
+    arguments):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">' VB6 code examples.</span>
+<span class="kwrd">Public</span> <span class="kwrd">Function</span> AddInts(<span class="kwrd">ByVal</span> x <span class="kwrd">As</span> <span class="kwrd">Integer</span>, <span class="kwrd">ByVal</span> y <span class="kwrd">As</span> <span class="kwrd">Integer</span>) <span class="kwrd">As</span> <span class="kwrd">Integer</span>
+    AddInts = x + y
+<span class="kwrd">End</span> <span class="kwrd">Function</span>
+
+<span class="kwrd">Public</span> <span class="kwrd">Function</span> AddDoubles(<span class="kwrd">ByVal</span> x <span class="kwrd">As</span> <span class="kwrd">Double</span>, <span class="kwrd">ByVal</span> y <span class="kwrd">As</span> <span class="kwrd">Double</span>) <span class="kwrd">As</span> <span class="kwrd">Double</span>
+    AddDoubles = x + y
+<span class="kwrd">End</span> <span class="kwrd">Function</span>
+
+<span class="kwrd">Public</span> <span class="kwrd">Function</span> AddLongs(<span class="kwrd">ByVal</span> x <span class="kwrd">As</span> <span class="kwrd">Long</span>, <span class="kwrd">ByVal</span> y <span class="kwrd">As</span> <span class="kwrd">Long</span>) <span class="kwrd">As</span> <span class="kwrd">Long</span>
+    AddLongs = x + y
+<span class="kwrd">End</span> Function</pre>
+    <p>Not only can code such as this become tough to maintain, but the caller must now be painfully
+    aware of the name of each method. Using overloading, you are able to allow the caller to call a single
+    method named Add(). Again, the key is to ensure that each version of the method has a distinct set of
+    arguments (methods differing only by return type are not unique enough).</p>
+    <p><b>Note</b> As explained in Chapter 10, it is possible to build generic methods that take the concept of overloading to
+    the next level. Using generics, you can define "placeholders" for a method implementation that are specified at the
+    time you invoke the member.</p>
+    <p>To check this out firsthand, create a new Console Application project named MethodOverloading.
+    Now, consider the following class definition:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// C# code.</span>
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args) { }
+
+    <span class="rem">// Overloaded Add() method.</span>
+    <span class="kwrd">static</span> <span class="kwrd">int</span> Add(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y)
+    { <span class="kwrd">return</span> x + y; }
+    <span class="kwrd">static</span> <span class="kwrd">double</span> Add(<span class="kwrd">double</span> x, <span class="kwrd">double</span> y)
+    { <span class="kwrd">return</span> x + y; }
+    <span class="kwrd">static</span> <span class="kwrd">long</span> Add(<span class="kwrd">long</span> x, <span class="kwrd">long</span> y)
+    { <span class="kwrd">return</span> x + y; }
+}
+</pre>
+    <p>The caller can now simply invoke Add() with the required arguments and the compiler is happy to
+    comply, given the fact that the compiler is able to resolve the correct implementation to invoke given the
+    provided arguments:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Method Overloading *****\n"</span>);
+
+    <span class="rem">// Calls int version of Add()</span>
+    Console.WriteLine(Add(10, 10));
+
+    <span class="rem">// Calls long version of Add()</span>
+    Console.WriteLine(Add(900000000000, 900000000000));
+
+    <span class="rem">// Calls double version of Add()</span>
+    Console.WriteLine(Add(4.3, 4.4));
+
+    Console.ReadLine();
+}</pre>
+    <p>The Visual Studio 2010 IDE provides assistance when calling overloaded methods to boot. When
+    you type in the name of an overloaded method (such as our good friend Console.WriteLine()),
+    IntelliSense will list each version of the method in question. Note that you are able to cycle through each
+    version of an overloaded method using the up and down arrow keys shown in Figure 4-1.</p>
+    <img src="http://www.diggen.co.uk/Images/Figure04_01.png" alt="Figure 4-1" />
+    <p><b>Figure 4-1.</b> Visual Studio IntelliSense for overloaded methods</p>
+    <p><b>Source Code</b> The MethodOverloading application is located under the Chapter 4 subdirectory.</p>
+    <p>That wraps up our initial examination of building methods using the syntax of C#. Next, let's check
+    out how to build and manipulate arrays, enumerations, and structures. After this point, we will wrap up
+    the chapter with an examination of 'nullable data types' and the C# ? and ?? operators.</p>
+</body>
+</html>

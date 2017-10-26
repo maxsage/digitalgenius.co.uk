@@ -1,0 +1,525 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Hosting the WCF Service</h1>
+<p>You are now ready to define a host. Although you would host a production-level service from a Windows
+service or an IIS virtual directory, you will make your first host a simple console named
+MagicEightBallServiceHost.</p>
+<p>Once you create this new Console Application project, add a reference to the
+System.ServiceModel.dlly and MagicEightBallServiceLib.dlly assemblies, and then update your initial
+code file by importing the System.ServiceModel and MagicEightBallServiceLib namespaces:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System;
+<span class="kwrd">using</span> System.Collections.Generic;
+<span class="kwrd">using</span> System.Linq;
+<span class="kwrd">using</span> System.Text;
+
+<span class="kwrd">using</span> System.ServiceModel;
+<span class="kwrd">using</span> MagicEightBallServiceLib;
+
+<span class="kwrd">namespace</span> MagicEightBallServiceHost
+{
+    <span class="kwrd">class</span> Program
+    {
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            Console.WriteLine(<span class="str">"***** Console Based WCF Host *****"</span>);
+            Console.ReadLine();
+        }
+    }
+}</pre>
+<p>The first step you must take when building a host for a WCF service type is to decide whether you
+want to define the necessary hosting logic completely in code or to relegate several low-level details to
+an application configuration file. As mentioned previously, the benefit of *.config files is that the host
+can change the underlying plumbing without requiring you to recompile and redeploy the executable.
+However, always remember this is strictly optional because you can hard-code the hosting logic using
+the types within the System.ServiceModel.dll assembly.</p>
+<p>This console-based host will use an application configuration file, so insert a new Application
+Configuration File into your current project using the Project  Add New Item menu option.</p>
+<h2>Establishing the ABCs Within an App.config File</h2>
+<p>When you build a host for a WCF service type, you follow a predictable set of steps—some that rely on
+configuration and some that rely on code:</p>
+<ol>
+ <li>Define the endpoint for the WCF service being hosted within the host’s
+configuration file.</li>
+  <li>Programmatically use the ServiceHost type to expose the service types available from this endpoint.</li>
+  <li>Ensure the host remains running to service incoming client requests.
+Obviously, this step is not required if you host your service types using a
+Windows service or IIS.</li>
+</ol>
+<p>In the world of WCF, the term endpoint represents the address, binding, and contract rolled
+together in a nice, tidy package. In XML, an endpoint is expressed using the &lt;endpoint&gt; element and the
+address, binding, and contract elements. Update your *.config file to specify a single endpoint
+(reachable through port 8080) exposed by this host:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;?</span><span class="html">xml</span> <span class="attr">version</span><span class="kwrd">="1.0"</span> <span class="attr">encoding</span><span class="kwrd">="utf-8"</span> ?<span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">configuration</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">system.serviceModel</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">services</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">service</span> <span class="attr">name</span><span class="kwrd">="MagicEightBallServiceLib.MagicEightBallService"</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">endpoint</span> <span class="attr">address</span> <span class="kwrd">="http://localhost:8080/MagicEightBallService"</span>
+                    <span class="attr">binding</span><span class="kwrd">="basicHttpBinding"</span>
+                    <span class="attr">contract</span><span class="kwrd">="MagicEightBallServiceLib.IEightBall"</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">service</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">services</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">system.serviceModel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">configuration</span><span class="kwrd">&gt;</span></pre>
+<p>Notice that the &lt;system.serviceModel&gt; element is the root for all of a host’s WCF settings. Each
+service exposed by the host is represented by a &lt;service&gt; element that is wrapped by the &lt;services&gt;
+base element. Here, your single &lt;service&gt; element uses the (optional) name attribute to specify the
+friendly name of the service type.</p>
+<p>The nested &lt;endpoint&gt; element handles the task of defining the address, the binding model
+(basicHttpBinding, in this example), and the fully qualified name of the interface type defining the WCF
+service contract (IEightBall). Because you are using an HTTP-based binding, you use the http://
+scheme, specifying an arbitrary port ID.</p>
+<h2>Coding Against the ServiceHost Type</h2>
+<p>With the current configuration file in place, the actual programming logic required to complete the host
+is simple. When your executable starts up, you will create an instance of the ServiceHost class and
+inform it which WCF service it is responsible for hosting. At runtime, this object will automatically read
+the data within the scope of the &lt;system.serviceModel&gt; element of the host’s *.config file to determine
+the correct address, binding, and contract. It will then create the necessary plumbing:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Console Based WCF Host *****"</span>);
+
+    <span class="kwrd">using</span> (ServiceHost serviceHost = <span class="kwrd">new</span> ServiceHost(<span class="kwrd">typeof</span>(MagicEightBallService)))
+    {
+        <span class="rem">// Open the host and start listening for incoming messages.</span>
+        serviceHost.Open();
+
+        <span class="rem">// Keep the service running until the Enter key is pressed.</span>
+        Console.WriteLine(<span class="str">"The service is ready."</span>);
+        Console.WriteLine(<span class="str">"Press the Enter key to terminate service."</span>);
+        Console.ReadLine();
+    }
+}</pre>
+<p>If you run this application now, you will find that the host is alive in memory, ready to take
+incoming requests from remote clients.</p>
+<h2>Specifying Base Addresses</h2>
+<p>Currently, you create your ServiceHost using a constructor that requires only the service’s type
+information. However, it is also possible to pass in an array of System.Uri types as a constructor
+argument to represent the collection of addresses this service is accessible from. Currently, you find the
+address using the *.config file. However, assume that you were to update the using scope like this:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> (ServiceHost serviceHost = <span class="kwrd">new</span>
+    ServiceHost(<span class="kwrd">typeof</span>(MagicEightBallService),
+    <span class="kwrd">new</span> Uri[]{<span class="kwrd">new</span> Uri(<span class="str">"http://localhost:8080/MagicEightBallService"</span>)}))
+{
+...
+}</pre>
+<p>If you did, you could now define your endpoint like this:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">endpoint</span> <span class="attr">address</span> <span class="kwrd">=""</span>
+    <span class="attr">binding</span><span class="kwrd">="basicHttpBinding"</span>
+    <span class="attr">contract</span><span class="kwrd">="MagicEightBallServiceLib.IEightBall"</span><span class="kwrd">/&gt;</span></pre>
+ <p>Of course, too much hard-coding within a host’s code base decreases flexibility. Therefore, the
+current host example assumes you create the service host simply by supplying the type information, as
+you did before:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> (ServiceHost serviceHost = <span class="kwrd">new</span> ServiceHost(<span class="kwrd">typeof</span>(MagicEightBallService)))
+{
+    ...
+}</pre>
+<p>One of the (slightly frustrating) aspects of authoring host *.config files is that you have several ways
+to construct the XML descriptors, based on the amount of hard-coding you have in the code base (as you
+have just seen in the case of the optional Uri array). Here’s a reworking that shows yet another way to
+author *.config files:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;?</span><span class="html">xml</span> <span class="attr">version</span><span class="kwrd">="1.0"</span> <span class="attr">encoding</span><span class="kwrd">="utf-8"</span> ?<span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">configuration</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">system.serviceModel</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">services</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">service</span> <span class="attr">name</span><span class="kwrd">="MagicEightBallServiceLib.MagicEightBallService"</span><span class="kwrd">&gt;</span>
+                
+                <span class="rem">&lt;!-- Address obtained from &lt;baseAddresses&gt; --&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">endpoint</span> <span class="attr">address</span> <span class="kwrd">=""</span>
+                    <span class="attr">binding</span><span class="kwrd">="basicHttpBinding"</span>
+                    <span class="attr">contract</span><span class="kwrd">="MagicEightBallServiceLib.IEightBall"</span><span class="kwrd">/&gt;</span>
+
+                <span class="rem">&lt;!-- List all of the base addresses in a dedicated section--&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">host</span><span class="kwrd">&gt;</span>
+                    <span class="kwrd">&lt;</span><span class="html">baseAddresses</span><span class="kwrd">&gt;</span>
+                        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">baseAddress</span> <span class="kwrd">="http://localhost:8080/MagicEightBallService"</span><span class="kwrd">/&gt;</span>
+                    <span class="kwrd">&lt;/</span><span class="html">baseAddresses</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;/</span><span class="html">host</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">service</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">services</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">system.serviceModel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">configuration</span><span class="kwrd">&gt;</span></pre>
+<p>In this case, the address attribute of the &lt;endpoint&gt; element is still empty; regardless of the fact that
+you do not specify an array of Uri objects in code when creating the ServiceHost, the application runs as
+before because the value is pulled from the baseAddresses scope. The benefit of storing the base address
+in a &lt;host&gt;’s &lt;baseAddresses&gt; region is that other parts of a *.config file (such as, which you’ll learn
+about shortly) also need to know the address of the service’s endpoint. Thus, rather than having to copy
+and pass address values within a single *.config file, you can isolate the single value, as shown in the
+preceding snippet.</p>
+<p><b>Note</b> In a later example, you’ll be introduced to a graphical configuration tool that allows you to author
+configuration files in a less tedious manner.</p>
+<p>In any case, you have a bit more work to do before you build a client application to communicate
+with your service. Specifically, you will dig a bit deeper into the role of the ServiceHost class type and
+&lt;service.serviceModel&gt; element, as well as the role of metadata exchange (MEX) services.</p>
+<h2>Details of the ServiceHost Type</h2>
+<p>You use the ServiceHost class type to configure and expose a WCF service from the hosting executable.
+However, be aware that you will only use this type directly when building a custom *.exe to host your
+services. If you use IIS (or the Vista and Windows 7 specific WAS) to expose a service, the ServiceHost
+object is created automatically on your behalf.</p>
+<p>As you have seen, this type requires a complete service description, which is obtained dynamically
+through the configuration settings of the host’s *.config file. While this happens automatically when
+you create a ServiceHost object, it is possible to configure the state of your ServiceHost object manually
+using a number of members. In addition to Open() and Close() (which communicate with your service
+in a synchronous manner), Table 25-8 illustrates some further members of interest.</p>
+<p><b>Table 25-8.</b> Select Members of the ServiceHost Type</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Members
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Authorization
+   </td>
+   <td>
+    This property gets the authorization level for the service being hosted.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    AddDefaultEndpoints()
+   </td>
+   <td>
+    This method is new to .NET 4.0, and you can use it to configure a WCF
+service host programmatically so it uses any number of prebuilt endpoints
+supplied by the framework.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    AddServiceEndpoint()
+   </td>
+   <td>
+    This method allows you to register an endpoint to the host
+programmatically.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    BaseAddresses
+   </td>
+   <td>
+    This property obtains the list of registered base addresses for the current
+service.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    BeginOpen() BeginClose()
+   </td>
+   <td>
+    These methods allow you to open and close a ServiceHost object
+asynchronously, using the standard asynchronous .NET delegate syntax.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    CloseTimeout
+   </td>
+   <td>
+    This property allows you to set and get the time allowed for the service to
+close down.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Credentials
+   </td>
+   <td>
+    This property obtains the security credentials used by the current service.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    EndOpen() EndClose()
+   </td>
+   <td>
+    These methods are the asynchronous counterparts to BeginOpen() and
+BeginClose().
+   </td>
+  </tr>
+  <tr>
+   <td>
+    OpenTimeout
+   </td>
+   <td>
+    This property allows you to set and get the time allowed for the service to
+start up.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    State
+   </td>
+   <td>
+    This property gets a value that indicates the current state of the
+communication object, which is represented by the CommunicationState
+enum (e.g., opened, closed, and created).
+   </td>
+  </tr>
+</table>
+<p>You can see some additional aspects of ServiceHost in action by updating your Program class with a
+new static method that prints out the ABCs of each endpoint used by the host:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> DisplayHostInfo(ServiceHost host)
+{
+    Console.WriteLine();
+    Console.WriteLine(<span class="str">"***** Host Info *****"</span>);
+
+    <span class="kwrd">foreach</span> (System.ServiceModel.Description.ServiceEndpoint se
+        <span class="kwrd">in</span> host.Description.Endpoints)
+    {
+        Console.WriteLine(<span class="str">"Address: {0}"</span>, se.Address);
+        Console.WriteLine(<span class="str">"Binding: {0}"</span>, se.Binding.Name);
+        Console.WriteLine(<span class="str">"Contract: {0}"</span>, se.Contract.Name);
+        Console.WriteLine();
+    }
+    Console.WriteLine(<span class="str">"**********************"</span>);
+}</pre>
+<p>Now assuming that you call this new method from within Main() after opening your host:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> (ServiceHost serviceHost = <span class="kwrd">new</span> ServiceHost(<span class="kwrd">typeof</span>(MagicEightBallService)))
+{
+    <span class="rem">// Open the host and start listening for incoming messages.</span>
+    serviceHost.Open();
+    DisplayHostInfo(serviceHost);
+...
+}</pre>
+<p>Doing this will generate the statistics shown in the following output:</p>
+<pre class="csharpcode">
+***** Console Based WCF Host *****
+
+***** Host Info *****
+Address: http://localhost:8080/MagicEightBallService
+Binding: BasicHttpBinding
+Contract: IEightBall
+**********************
+The service is ready.
+Press the Enter key to terminate service.</pre>
+<h2>Details of the &lt;system.serviceModel&gt; Element</h2>
+<p>Like any XML element, &lt;system.serviceModel&gt; can define a set of sub-elements, each of which can be
+qualified using various attributes. While you should consult the .NET Framework 4.0 SDK
+documentation for full details regarding the set of possible attributes, here is a skeleton that lists the
+critical sub-elements:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">system.serviceModel</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">behaviors</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">behaviors</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">client</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">client</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">commonBehaviors</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">commonBehaviors</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">diagnostics</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">diagnostics</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">comContracts</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">comContracts</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">services</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">services</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">bindings</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">bindings</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">system.serviceModel</span><span class="kwrd">&gt;</span></pre>
+<p>You’ll see more exotic configuration files as you move through the chapter; however, you can see
+the crux of each sub-element in Table 25-9.</p>
+<p><b>Table 25-9.</b> Sub-elements of &lt;service.serviceModel&gt;</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Sub-element
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    behaviors
+   </td>
+   <td>
+    WCF supports various endpoint and service behaviors. In a nutshell, a
+behavior allows you to qualify further the functionality of a host, service,
+or client.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    bindings
+   </td>
+   <td>
+    This element allows you to fine-tune each of the WCF-supplied bindings
+(e.g., basicHttpBinding and netMsmqBinding), as well as to specify any
+custom bindings used by the host.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    client
+   </td>
+   <td>
+    This element contains a list of endpoints a client uses to connect to a
+service. Obviously, this is not particularly useful in a host’s *.config file.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    comContracts
+   </td>
+   <td>
+    This element defines COM contracts enabled for WCF and COM
+interoperability.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    commonBehaviors
+   </td>
+   <td>
+    This element can only be set within a machine.config file. You can use it
+to define all of the behaviors used by each WCF service on a given
+machine.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    diagnostics
+   </td>
+   <td>
+    This element contains settings for the diagnostic features of WCF. The
+user can enable/disable tracing, performance counters, and the WMI
+provider; the user can also add custom message filters.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    services
+   </td>
+   <td>
+    This element contains a collection of WCF services exposed by the host.
+   </td>
+  </tr>
+</table>
+<h2>Enabling Metadata Exchange</h2>
+<p>Recall that WCF client applications communicate with the WCF service through an intervening proxy
+type. While you could author the proxy code completely by hand, doing so would be tedious and errorprone.
+Ideally, you could use a tool to generate the necessary grunge code (including the client-side
+*.config file). Thankfully, the .NET Framework 4.0 SDK provides a command-line tool (svcutil.exe) for
+this purpose. Also, Visual Studio 2010 provides similar functionality through its Project ? Add Service
+Reference menu option.</p>
+<p>For these tools to generate the necessary proxy code/*.config file, however, they must be able to
+discover the format of the WCF service interfaces and any defined data contracts (e.g., the method
+names and type of parameters).</p>
+<p>Metadata exchange (MEX) is a WCF service behavior that you can use to fine-tune how the WCF
+runtime handles your service. Simply put, each &lt;behavior&gt; element can define a set of activities a given
+service can subscribe to. WCF provides numerous behaviors out of the box, and it is possible to build
+your own.</p>
+<p>The MEX behavior (which is disabled by default) will intercept any metadata requests sent through
+HTTP GET. You must enable MEX if you want to allow svcutil.exe or Visual Studio 2010 to automate the
+creation of the required client-side proxy *.config file.</p>
+<p>Enabling MEX is a matter of tweaking the host’s *.config file with the proper settings (or authoring
+the corresponding C# code). First, you must add a new &lt;endpoint&gt; just for MEX. Second, you need to
+define a WCF behavior to allow HTTP GET access. Third, you need to associate this behavior by name to
+your service using the behaviorConfiguration attribute on the opening &lt;service&gt; element. Finally, you
+need to add a &lt;host&gt; element to define the base address of this service (MEX will look here to figure out
+the locations of the types to describe).</p>
+<p><b>Note</b> You can bypass this final step if you pass in a System.Uri object to represent the base address as a
+parameter to the ServiceHost constructor.</p>
+<p>Consider the following updated host *.config file, which creates a custom &lt;behavior&gt; element
+(named EightBallServiceMEXBehavior) that is associated to your service through the
+behaviorConfiguration attribute within the &lt;service&gt; definition:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;?</span><span class="html">xml</span> <span class="attr">version</span><span class="kwrd">="1.0"</span> <span class="attr">encoding</span><span class="kwrd">="utf-8"</span> ?<span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">configuration</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">system.serviceModel</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">services</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">service</span> <span class="attr">name</span><span class="kwrd">="MagicEightBallServiceLib.MagicEightBallService"</span>
+                    <span class="attr">behaviorConfiguration</span> = <span class="kwrd">"EightBallServiceMEXBehavior"</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">endpoint</span> <span class="attr">address</span> <span class="kwrd">=""</span>
+                    <span class="attr">binding</span><span class="kwrd">="basicHttpBinding"</span>
+                    <span class="attr">contract</span><span class="kwrd">="MagicEightBallServiceLib.IEightBall"</span><span class="kwrd">/&gt;</span>
+                    
+                <span class="rem">&lt;!-- Enable the MEX endpoint --&gt;</span>
+                    <span class="kwrd">&lt;</span><span class="html">endpoint</span> <span class="attr">address</span><span class="kwrd">="mex"</span>
+                    <span class="attr">binding</span><span class="kwrd">="mexHttpBinding"</span>
+                    <span class="attr">contract</span><span class="kwrd">="IMetadataExchange"</span> <span class="kwrd">/&gt;</span>
+                
+                <span class="rem">&lt;!-- Need to add this so MEX knows the address of our service --&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">host</span><span class="kwrd">&gt;</span>
+                    <span class="kwrd">&lt;</span><span class="html">baseAddresses</span><span class="kwrd">&gt;</span>
+                        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">baseAddress</span> <span class="kwrd">="http://localhost:8080/MagicEightBallService"</span><span class="kwrd">/&gt;</span>
+                    <span class="kwrd">&lt;/</span><span class="html">baseAddresses</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;/</span><span class="html">host</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">service</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">services</span><span class="kwrd">&gt;</span>
+        
+        <span class="rem">&lt;!-- A behavior definition for MEX --&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">behaviors</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">serviceBehaviors</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">behavior</span> <span class="attr">name</span><span class="kwrd">="EightBallServiceMEXBehavior"</span> <span class="kwrd">&gt;</span>
+                    <span class="kwrd">&lt;</span><span class="html">serviceMetadata</span> <span class="attr">httpGetEnabled</span><span class="kwrd">="true"</span> <span class="kwrd">/&gt;</span>
+                <span class="kwrd">&lt;/</span><span class="html">behavior</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">serviceBehaviors</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">behaviors</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">system.serviceModel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">configuration</span><span class="kwrd">&gt;</span></pre>
+<p>You can now restart the service and view its metadata description using the web browser of your
+choice. To do so, enter the address as the URL while the host is still running:</p>
+<pre class="cmdline">
+http://localhost:8080/MagicEightBallService</pre>
+<p>Once you are at the homepage for your WCF service (see Figure 25-6), you are provided with basic
+details regarding how to interact with this service programmatically, as well as a way to view the WSDL
+contract by clicking the hyperlink at the top of the page. Recall that Web Service Description Language
+(WSDL) is a grammar that describes the structure of web services at a given endpoint.</p>
+<img src="http://www.diggen.co.uk/Images/Figure25_06.png" alt="Figure 25-6" />
+<p><b>Figure 25-6</b> Ready to view metadata using MEX</p>
+<p>Your host now exposes two different endpoints (one for the service and one for MEX), so your host’s
+console output will appear like this:</p>
+<pre class="cmdline">
+***** Console Based WCF Host *****
+
+***** Host Info *****
+Address: http://localhost:8080/MagicEightBallService
+Binding: BasicHttpBinding
+Contract: IEightBall
+
+Address: http://localhost:8080/MagicEightBallService/mex
+Binding: MetadataExchangeHttpBinding
+Contract: IMetadataExchange
+**********************
+
+The service is ready.
+</pre>
+<p><b>Source Code </b>You can find the MagicEightBallServiceHost project under the MagicEightBallServiceHTTP
+directory of Chapter 25.</p>
+    </body>
+    </html>
+ 
+   
+

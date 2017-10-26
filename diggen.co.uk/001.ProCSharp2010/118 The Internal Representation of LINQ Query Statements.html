@@ -1,0 +1,240 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>The Internal Representation of LINQ Query Statements</h1>
+  <p>At this point, you have been introduced to the process of building query expressions using various C#
+query operators (such as from, in, where, orderby, and select). Also, you discovered that some
+functionality of the LINQ to Objects API can only be accessed when calling extension methods of the
+Enumerable class. The truth of the matter, however, is that when compiled, the C# compiler actually
+translates all C# LINQ operators into calls on methods of the Enumerable class. In fact, if you were really a
+glutton for punishment, you could build all of your LINQ statements using nothing but the underlying
+object model.</p>
+<p>A great many of the methods of Enumerable have been prototyped to take delegates as arguments. In
+particular, many methods require a generic delegate named Func&lt;&gt; defined within the System
+namespace of System.Core.dll. For example, consider the Where() method of Enumerable which is called
+on your behalf when you use the C# where LINQ query operator:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Overloaded versions of the Enumerable.Where&lt;T&gt;() method.</span>
+<span class="rem">// Note the second parameter is of type System.Func&lt;&gt;.</span>
+<span class="kwrd">public</span> <span class="kwrd">static</span> IEnumerable&lt;TSource&gt; Where&lt;TSource&gt;(<span class="kwrd">this</span> IEnumerable&lt;TSource&gt; source,
+    System.Func&lt;TSource,<span class="kwrd">int</span>,<span class="kwrd">bool</span>&gt; predicate)
+
+<span class="kwrd">public</span> <span class="kwrd">static</span> IEnumerable&lt;TSource&gt; Where&lt;TSource&gt;(<span class="kwrd">this</span> IEnumerable&lt;TSource&gt; source,
+    System.Func&lt;TSource,<span class="kwrd">bool</span>&gt; predicate)</pre>
+<p>The Func&lt;&gt; delegate (as the name implies) represents a pattern for a given function with a set of
+arguments and a return value. If you were to examine this type using the Visual Studio 2010 object
+browser, you’ll notice that the Func&lt;&gt; delegate can take between zero and four input arguments (here
+typed T1, T2, T3, and T4 and named arg1, arg2, arg3, and arg4), and a return type denoted by TResult:</p> 
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// The various formats of the Func&lt;&gt; delegate.</span>
+<span class="kwrd">public</span> <span class="kwrd">delegate</span> TResult Func&lt;T1,T2,T3,T4,TResult&gt;(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+
+<span class="kwrd">public</span> <span class="kwrd">delegate</span> TResult Func&lt;T1,T2,T3,TResult&gt;(T1 arg1, T2 arg2, T3 arg3)
+
+<span class="kwrd">public</span> <span class="kwrd">delegate</span> TResult Func&lt;T1,T2,TResult&gt;(T1 arg1, T2 arg2)
+
+<span class="kwrd">public</span> <span class="kwrd">delegate</span> TResult Func&lt;T1,TResult&gt;(T1 arg1)
+
+<span class="kwrd">public</span> <span class="kwrd">delegate</span> TResult Func&lt;TResult&gt;()</pre>
+<p>Given that many members of System.Linq.Enumerable demand a delegate as input, when invoking
+them, you can either manually create a new delegate type and author the necessary target methods,
+make use of a C# anonymous method, or define a proper lambda expression. Regardless of which
+approach you take, the end result is identical.</p>
+<p>While it is true that making use of C# LINQ query operators is far and away the simplest way to build
+a LINQ query expression, let’s walk through each of these possible approaches just so you can see the
+connection between the C# query operators and the underlying Enumerable type.</p>
+<h2>Building Query Expressions with Query Operators (Revisited)</h2>
+  <p>To begin, create a new Console Application named LinqUsingEnumerable. The Program class will define
+a series of static helper methods (each of which is called within the Main() method) to illustrate the
+various manners in which you can build LINQ query expressions.</p>
+<p>The first method, QueryStringsWithOperators(), offers the most straightforward way to build a
+query expression and is identical to the code seen in the LinqOverArray example found earlier in this
+chapter:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> QueryStringWithOperators()
+{
+    Console.WriteLine(<span class="str">"***** Using Query Operators *****"</span>);
+
+    <span class="kwrd">string</span>[] currentVideoGames = {<span class="str">"Morrowind"</span>, <span class="str">"Uncharted 2"</span>,
+        <span class="str">"Fallout 3"</span>, <span class="str">"Daxter"</span>, <span class="str">"System Shock 2"</span>};
+
+    <span class="kwrd">var</span> subset = <span class="kwrd">from</span> game <span class="kwrd">in</span> currentVideoGames
+        where game.Contains(<span class="str">" "</span>) orderby game select game;
+
+    <span class="kwrd">foreach</span> (<span class="kwrd">string</span> s <span class="kwrd">in</span> subset)
+        Console.WriteLine(<span class="str">"Item: {0}"</span>, s);
+}</pre>
+<p>The obvious benefit of using C# query operators to build query expressions is the fact that the
+Func&lt;&gt; delegates and calls on the Enumerable type are out of sight and out of mind, as it is the job of the
+C# compiler to perform this translation. To be sure, building LINQ expressions using various query
+operators (from, in, where, or orderby) is the most common and straightforward approach.</p>
+<h2>Building Query Expressions Using the Enumerable Type and Lambda Expressions</h2>
+  <p>Keep in mind that the LINQ query operators used here are simply shorthand versions for calling various
+extension methods defined by the Enumerable type. Consider the following
+QueryStringsWithEnumerableAndLambdas() method, which is processing the local string array now
+making direct use of the Enumerable extension methods:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> QueryStringsWithEnumerableAndLambdas()
+{
+    Console.WriteLine(<span class="str">"***** Using Enumerable / Lambda Expressions *****"</span>);
+
+    <span class="kwrd">string</span>[] currentVideoGames = {<span class="str">"Morrowind"</span>, <span class="str">"Uncharted 2"</span>,
+        <span class="str">"Fallout 3"</span>, <span class="str">"Daxter"</span>, <span class="str">"System Shock 2"</span>};
+
+    <span class="rem">// Build a query expression using extension methods</span>
+    <span class="rem">// granted to the Array via the Enumerable type.</span>
+    <span class="kwrd">var</span> subset = currentVideoGames.Where(game =&gt; game.Contains(<span class="str">" "</span>))
+        .OrderBy(game =&gt; game).Select(game =&gt; game);
+
+    <span class="rem">// Print out the results.</span>
+    <span class="kwrd">foreach</span> (<span class="kwrd">var</span> game <span class="kwrd">in</span> subset)
+        Console.WriteLine(<span class="str">"Item: {0}"</span>, game);
+    Console.WriteLine();
+}</pre>
+<p>Here, you begin by calling the Where() extension method on the currentVideoGames string array.
+Recall the Array class receives this via an extension method granted by Enumerable. The
+Enumerable.Where() method requires a System.Func&lt;T1, TResult&gt; delegate parameter. The first type
+parameter of this delegate represents the IEnumerable&lt;T&gt; compatible data to process (an array of strings
+in this case), while the second type parameter represents the method result data, which is obtained from
+a single statement fed into the lambda expression.</p>
+<p>The return value of the Where() method is hidden from view in this code example, but under the
+covers you are operating on an OrderedEnumerable type. From this object, you call the generic OrderBy()
+method, which also requires a Func&lt; &gt; delegate parameter. This time, you are simply passing each item
+in turn via a fitting lambda expression. The end result of calling OrderBy() is a new ordered sequence of
+the initial data</p>
+<p>Last but not least, you call the Select() method off the sequence returned from OrderBy(), which
+results in the final set of data that is stored in an implicitly typed variable named subset.</p>
+<p>To be sure, this “long hand” LINQ query is a bit more complex to tease apart than the previous C#
+LINQ query operator example. Part of the complexity is no doubt due to the chaining together of calls
+using the dot operator. Here is the exact same query, with each step broken into discrete chunks:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> QueryStringsWithEnumerableAndLambdas()
+{
+    Console.WriteLine(<span class="str">"***** Using Enumerable / Lambda Expressions *****"</span>);
+
+    <span class="kwrd">string</span>[] currentVideoGames = {<span class="str">"Morrowind"</span>, <span class="str">"Uncharted 2"</span>,
+        <span class="str">"Fallout 3"</span>, <span class="str">"Daxter"</span>, <span class="str">"System Shock 2"</span>};
+
+    <span class="rem">// Build a query expression using extension methods</span>
+    <span class="rem">// granted to the Array via the Enumerable type.</span>
+    <span class="kwrd">var</span> subset = currentVideoGames.Where(game =&gt; game.Contains(<span class="str">" "</span>))
+        .OrderBy(game =&gt; game).Select(game =&gt; game);
+
+    <span class="rem">// Print out the results.</span>
+    <span class="kwrd">foreach</span> (<span class="kwrd">var</span> game <span class="kwrd">in</span> subset)
+        Console.WriteLine(<span class="str">"Item: {0}"</span>, game);
+    Console.WriteLine();
+}</pre>
+<p>As you may agree, building a LINQ query expression using the methods of the Enumerable class
+directly is much more verbose than making use of the C# query operators. As well, given that the
+methods of Enumerable require delegates as parameters, you will typically need to author lambda
+expressions to allow the input data to be processed by the underlying delegate target.</p>
+<h2>Building Query Expressions Using the Enumerable Type and Anonymous Methods</h2>
+  <p>Given that C# lambda expressions are simply shorthand notations for working with anonymous
+methods, consider the third query expression created within the QueryStringsWithAnonymousMethods()
+helper function:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> QueryStringsWithAnonymousMethods()
+{
+    Console.WriteLine(<span class="str">"***** Using Anonymous Methods *****"</span>);
+    
+    <span class="kwrd">string</span>[] currentVideoGames = {<span class="str">"Morrowind"</span>, <span class="str">"Uncharted 2"</span>,
+        <span class="str">"Fallout 3"</span>, <span class="str">"Daxter"</span>, <span class="str">"System Shock 2"</span>};
+    
+    <span class="rem">// Build the necessary Func&lt;&gt; delegates using anonymous methods.</span>
+    Func&lt;<span class="kwrd">string</span>, <span class="kwrd">bool</span>&gt; searchFilter =
+        <span class="kwrd">delegate</span>(<span class="kwrd">string</span> game) { <span class="kwrd">return</span> game.Contains(<span class="str">" "</span>); };
+    Func&lt;<span class="kwrd">string</span>, <span class="kwrd">string</span>&gt; itemToProcess = <span class="kwrd">delegate</span>(<span class="kwrd">string</span> s) { <span class="kwrd">return</span> s; };
+    
+    <span class="rem">// Pass the delegates into the methods of Enumerable.</span>
+    <span class="kwrd">var</span> subset = currentVideoGames.Where(searchFilter)
+        .OrderBy(itemToProcess).Select(itemToProcess);
+    
+    <span class="rem">// Print out the results.</span>
+    <span class="kwrd">foreach</span> (<span class="kwrd">var</span> game <span class="kwrd">in</span> subset)
+        Console.WriteLine(<span class="str">"Item: {0}"</span>, game);
+    Console.WriteLine();
+}</pre>
+<p>This iteration of the query expression is even more verbose, because you are manually creating the
+Func&lt;&gt; delegates used by the Where(), OrderBy(), and Select() methods of the Enumerable class. On the
+plus side, the anonymous method syntax does keep all the delegate processing contained within a single
+method definition. Nevertheless, this method is functionally equivalent to the
+QueryStringsWithEnumerableAndLambdas() and QueryStringsWithOperators() methods created in the
+previous sections.</p>
+<h2>Building Query Expressions Using the Enumerable Type and Raw Delegates</h2>
+  <p>Finally, if you want to build a query expression using the really verbose approach, you could avoid the
+use of lambdas/anonymous method syntax and directly create delegate targets for each Func&lt;&gt; type.
+Here is the final iteration of your query expression, modeled within a new class type named
+VeryComplexQueryExpression:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> VeryComplexQueryExpression
+{
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> QueryStringsWithRawDelegates()
+    {
+        Console.WriteLine(<span class="str">"***** Using Raw Delegates *****"</span>);
+
+        <span class="kwrd">string</span>[] currentVideoGames = {<span class="str">"Morrowind"</span>, <span class="str">"Uncharted 2"</span>,
+            <span class="str">"Fallout 3"</span>, <span class="str">"Daxter"</span>, <span class="str">"System Shock 2"</span>};
+
+        <span class="rem">// Build the necessary Func&lt;&gt; delegates.</span>
+        Func&lt;<span class="kwrd">string</span>, <span class="kwrd">bool</span>&gt; searchFilter = <span class="kwrd">new</span> Func&lt;<span class="kwrd">string</span>, <span class="kwrd">bool</span>&gt;(Filter);
+        Func&lt;<span class="kwrd">string</span>, <span class="kwrd">string</span>&gt; itemToProcess = <span class="kwrd">new</span> Func&lt;<span class="kwrd">string</span>,<span class="kwrd">string</span>&gt;(ProcessItem);
+
+        <span class="rem">// Pass the delegates into the methods of Enumerable.</span>
+        <span class="kwrd">var</span> subset = currentVideoGames
+            .Where(searchFilter).OrderBy(itemToProcess).Select(itemToProcess);
+
+        <span class="rem">// Print out the results.</span>
+        <span class="kwrd">foreach</span> (<span class="kwrd">var</span> game <span class="kwrd">in</span> subset)
+            Console.WriteLine(<span class="str">"Item: {0}"</span>, game);
+        Console.WriteLine();
+    }
+
+    <span class="rem">// Delegate targets.</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> Filter(<span class="kwrd">string</span> game) {<span class="kwrd">return</span> game.Contains(<span class="str">" "</span>);}
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">string</span> ProcessItem(<span class="kwrd">string</span> game) { <span class="kwrd">return</span> game; }
+}</pre>
+<p>You can test this iteration of your string processing logic by calling this method within Main()
+method of the Program class as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+VeryComplexQueryExpression.QueryStringsWithRawDelegates();</pre>
+<p>If you were to now run the application to test each possible approach, it should not be too
+surprising that the output is identical regardless of the path taken. Keep the following points in mind
+regarding how LINQ query expressions are represented under the covers:</p>
+<ul>
+ <li>Query expressions are created using various C# query operators.</li>
+ <li>Query operators are simply shorthand notations for invoking extension methods
+defined by the System.Linq.Enumerable type.</li>
+ <li>Many methods of Enumerable require delegates (Func&lt;&gt; in particular) as
+parameters.</li>
+ <li>Any method requiring a delegate parameter can instead be passed a lambda
+expression.</li>
+ <li>Lambda expressions are simply anonymous methods in disguise (which greatly
+improve readability).</li>
+ <li>Anonymous methods are shorthand notations for allocating a raw delegate and
+manually building a delegate target method.</li>
+</ul>
+<p>Whew! That might have been a bit deeper under the hood than you wish to have gone, but I hope
+this discussion has helped you understand what the user-friendly C# query operators are actually doing
+behind the scenes.</p>
+    </body>
+    <//html>
+
+
+   
+   
+

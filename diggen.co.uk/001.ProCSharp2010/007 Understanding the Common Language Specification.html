@@ -1,0 +1,98 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Understanding the Common Language Specification</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />	
+</head>
+<body>
+    <h1>Understanding the Common Language Specification</h1>
+     <p>As you are aware, different languages express the same programming constructs in unique, language specific
+    terms. For example, in C# you denote string concatenation using the plus operator (+), while in
+    VB you typically make use of the ampersand (&amp;). Even when two distinct languages express the same
+    programmatic idiom (e.g., a function with no return value), the chances are very good that the syntax
+    will appear quite different on the surface.</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <pre class="csharpcode">
+    <span class="rem">// C# method returning nothing.</span>
+    <span class="kwrd">public</span> <span class="kwrd">void</span> MyMethod()
+    {
+    <span class="rem">// Some interesting code...</span>
+    }</pre>
+    <pre>
+    ' VB method returning nothing.
+    Public Sub MyMethod()
+    ' Some interesting code...
+    End Sub
+    </pre>
+    <p>As you have already seen, these minor syntactic variations are inconsequential in the eyes of the
+    .NET runtime, given that the respective compilers (csc.exe or vbc.exe, in this case) emit a similar set of
+    CIL instructions. However, languages can also differ with regard to their overall level of functionality. For
+    example, a .NET language may or may not have a keyword to represent unsigned data, and may or may
+    not support pointer types. Given these possible variations, it would be ideal to have a baseline to which
+    all .NET-aware languages are expected to conform.</p>
+    <p>The CLS is a set of rules that describe in vivid detail the minimal and complete set of features a given
+    .NET-aware compiler must support to produce code that can be hosted by the CLR, while at the same
+    time be accessed in a uniform manner by all languages that target the .NET platform. In many ways, the
+    CLS can be viewed as a subset of the full functionality defined by the CTS.</p>
+    <p>The CLS is ultimately a set of rules that compiler builders must conform to if they intend their
+    products to function seamlessly within the .NET universe. Each rule is assigned a simple name (e.g., CLS
+    Rule 6) and describes how this rule affects those who build the compilers as well as those who (in some
+    way) interact with them. The crème de la crème of the CLS is the mighty Rule 1.</p>
+    <ul>
+        <li>
+            <p><i>Rule 1:</i> CLS rules apply only to those parts of a type that are exposed outside the
+            defining assembly.</p>
+        </li>
+    </ul>
+    <p>Given this rule, you can (correctly) infer that the remaining rules of the CLS do not apply to the logic
+    used to build the inner workings of a .NET type. The only aspects of a type that must conform to the CLS
+    are the member definitions themselves (i.e., naming conventions, parameters, and return types). The
+    implementation logic for a member may use any number of non-CLS techniques, as the outside world
+    won't know the difference.</p>
+    <p>To illustrate, the following C# Add() method is not CLS compliant, as the parameters and return
+    values make use of unsigned data (which is not a requirement of the CLS):</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <pre class="csharpcode">
+    <span class="kwrd">class</span> Calc
+    {
+        <span class="rem">// Exposed unsigned data is not CLS compliant!</span>
+        <span class="kwrd">public</span> <span class="kwrd">ulong</span> Add(<span class="kwrd">ulong</span> x, <span class="kwrd">ulong</span> y)
+        { <span class="kwrd">return</span> x + y; }
+    }</pre>
+    <p>However, if you were to only make use of unsigned data internally in a method as follows,</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <pre class="csharpcode">
+    <span class="kwrd">class</span> Calc
+    {
+        <span class="kwrd">public</span> <span class="kwrd">int</span> Add(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y)
+        {
+            <span class="rem">// As this ulong variable is only used internally,</span>
+            <span class="rem">// we are still CLS compliant.</span>
+            <span class="kwrd">ulong</span> temp = 0;
+            ...
+            <span class="kwrd">return</span> x + y;
+        }
+    }</pre>
+    <p>you have still conformed to the rules of the CLS and can rest assured that all .NET languages are able to
+    invoke the Add() method.</p>
+    <p>Of course, in addition to Rule 1, the CLS defines numerous other rules. For example, the CLS
+    describes how a given language must represent text strings, how enumerations should be represented
+    internally (the base type used for storage), how to define static members, and so forth. Luckily, you dont
+    have to commit these rules to memory to be a proficient .NET developer. Again, by and large, an
+    intimate understanding of the CTS and CLS specifications is only of interest to tool/compiler builders.</p>
+    <h2>Ensuring CLS Compliance</h2>
+    <p>As you will see over the course of this book, C# does define a number of programming constructs that
+    are not CLS compliant. The good news, however, is that you can instruct the C# compiler to check your
+    code for CLS compliance using a single .NET attribute.</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <pre class="csharpcode">
+    <span class="rem">// Tell the C# compiler to check for CLS compliance.</span>
+    [assembly: System.CLSCompliant(<span class="kwrd">true</span>)]</pre>
+    <p>Chapter 15 dives into the details of attribute-based programming. Until then, simply understand
+    that the [CLSCompliant] attribute will instruct the C# compiler to check each and every line of code
+    against the rules of the CLS. If any CLS violations are discovered, you receive a compiler error and a
+    description of the offending code.</p>
+</body>
+</html>

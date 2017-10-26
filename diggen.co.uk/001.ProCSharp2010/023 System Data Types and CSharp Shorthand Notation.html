@@ -1,0 +1,634 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />   
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />       
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />  
+</head>
+<body>
+    <h1>System Data Types and C# Shorthand Notation</h1>
+    <p>Like any programming language, C# defines an intrinsic set of fundamental data types, which are used
+    to represent local variables, member variables, return values, and parameters. Unlike other
+    programming languages, however, these keywords are much more than simple compiler-recognized
+    tokens. Rather, the C# data type keywords are actually shorthand notations for full-blown types in the
+    System namespace. Table 3-4 lists each system data type, its range, the corresponding C# keyword, and
+    the type's compliance with the common language specification (CLS).</p>
+    <p><b>Note</b> Recall from Chapter 1 that CLS-compliant .NET code can be used by any managed programming language. If
+    you expose non'CLS-compliant data from your programs, other languages may not be able to make use of it.</p>
+    <p><b>Table 3-4.</b> The Intrinsic Data Types of C#</p>
+    <table class="gridtable">
+        <tr>
+            <th>
+                C# Shorthand
+            </th>
+            <th>
+                CLS Comliant?
+            </th>
+            <th>
+                System Type
+            </th>
+            <th>
+                Range
+            </th>
+            <th>
+                Meaning in Life
+            </th>
+        </tr>
+        <tr>
+            <td>
+                bool
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                System.Boolean
+            </td>
+            <td>
+                true or false
+            </td>
+            <td>
+                Represents truth or falsity
+            </td>
+        </tr>
+        <tr>
+            <td>
+                sbyte
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                System.SByte
+            </td>
+            <td>
+                -128 to 127
+            </td>
+            <td>
+                Signed 8-bit number
+            </td>
+        </tr>
+        <tr>
+            <td>
+                byte
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                System.Byte
+            </td>
+            <td>
+                0 to 255
+            </td>
+            <td>
+                Unsigned 8-bit number
+            </td>
+        </tr>
+        <tr>
+            <td>
+                short
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                System.Int16
+            </td>
+            <td>
+                -32,768 to 32,767
+            </td>
+            <td>
+                Signed 16-bit number
+            </td>
+        </tr>
+        <tr>
+            <td>
+                ushort
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                System.UInt16
+            </td>
+            <td>
+                0 to 65,535
+            </td>
+            <td>
+                Unsigned 16-bit number
+            </td>
+        </tr>
+        <tr>
+            <td>
+                int
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                System.Int32
+            </td>
+            <td>
+                -2,147,483,648 to 2,147,483,647
+            </td>
+            <td>
+                Signed 32-bit number
+            </td>
+        </tr>
+        <tr>
+            <td>
+                uint
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                System.UInt32
+            </td>
+            <td>
+                0 to 4,294,967,295
+            </td>
+            <td>
+                Unsigned 32-bit number
+            </td>
+        </tr>
+        <tr>
+            <td>
+                long
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                System.Int64
+            </td>
+            <td>
+                -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807
+            </td>
+            <td>
+                Signed 64-bit number
+            </td>
+        </tr>
+        <tr>
+            <td>
+                ulong
+            </td>
+            <td>
+                No
+            </td>
+            <td>
+                System.UInt64
+            </td>
+            <td>
+                0 to 18,446,744,073,709,551,615
+            </td>
+            <td>
+                Unsigned 64-bit number
+            </td>
+        </tr>
+        <tr>
+            <td>
+                char
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                System.Char
+            </td>
+            <td>
+                U+0000 to U+ffff
+            </td>
+            <td>
+                Single 16-bit Unicode character
+            </td>
+        </tr>
+        <tr>
+            <td>
+                float
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                System.Single
+            </td>
+            <td>
+                DISPLAY PROPERLY
+            </td>
+            <td>
+                32-bit floating point number
+            </td>
+        </tr>
+        <tr>
+            <td>
+                double
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                System.Double
+            </td>
+            <td>
+                DISPLAY PROPERLY
+            </td>
+            <td>
+                64-bit floating point number
+            </td>
+        </tr>
+        <tr>
+            <td>
+                decimal
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                System.Decimal
+            </td>
+            <td>
+                DISPLAY PROPERLY
+            </td>
+            <td>
+                96-bit floating point number
+            </td>
+        </tr>
+        <tr>
+            <td>
+                string
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                System.String
+            </td>
+            <td>
+                Limited by system memory
+            </td>
+            <td>
+                Represents a set of Unicdoe characters
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Object
+            </td>
+            <td>
+                Yes
+            </td>
+            <td>
+                System.Object
+            </td>
+            <td>
+                Can store any data type in an object variable
+            </td>
+            <td>
+                The base class of all types in the .NET universe
+            </td>
+        </tr>
+    </table>
+    <p><b>Note</b> By default, a floating point number is treated as a double. To declare a float variable, use the suffix f
+    or F to the raw numerical value (for example, 5.3F). As well, raw whole numbers default to an int data type. To
+    set the underlying data type to a long, suffix l or L (4L).</p>
+    <p>Each of the numerical types, such as short or int, map to a corresponding structure in the System
+    namespace. Simply put, structures are value types allocated on the stack. On the other hand, string and
+    object are reference types, meaning the data stored in the variable is allocated on the managed heap. 
+    Understand that value types can be allocated into memory very quickly and have a fixed and predictable
+    lifetime.</p>
+    <h2>Variable Declaration and Initialization</h2>
+    <p>When you are declaring a local variable (e.g., a variable within a member scope), you do so by specifying
+    the data type followed by the variable's name. To begin, create a new Console Application project
+    named BasicDataTypes. Update the Program class with the following helper method that is called from
+    within Main():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> LocalVarDeclarations()
+{
+    Console.WriteLine(<span class="str">"=&gt; Data Declarations:"</span>);
+    <span class="rem">// Local variables are declared as so:</span>
+    <span class="rem">// dataType varName;</span>
+    <span class="kwrd">int</span> myInt;
+    <span class="kwrd">string</span> myString;
+
+    Console.WriteLine();
+}</pre>
+    <p>Be aware that it is a compiler error to make use of a local variable before assigning an initial value.
+    Given this, it is good practice to assign an initial value to your local data points at the time of declaration.
+    You may do so on a single line, or by separating the declaration and assignment into two code
+    statements.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> LocalVarDeclarations()
+{
+    Console.WriteLine(<span class="str">"=&gt; Data Declarations:"</span>);
+    <span class="rem">// Local variables are declared and initialized as follows:</span>
+    <span class="rem">// dataType varName = initialValue;</span>
+    <span class="kwrd">int</span> myInt = 0;
+
+    <span class="rem">// You can also declare and assign on two lines.</span>
+    <span class="kwrd">string</span> myString;
+    myString = <span class="str">"This is my character data"</span>;
+    
+    Console.WriteLine();
+}
+</pre>
+    <p>It is also permissible to declare multiple variables of the same underlying type on a single line of
+    code, as in the following three bool variables:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> LocalVarDeclarations()
+{
+    Console.WriteLine(<span class="str">"=&gt; Data Declarations:"</span>);
+    <span class="kwrd">int</span> myInt = 0;
+    <span class="kwrd">string</span> myString;
+    myString = <span class="str">"This is my character data"</span>;
+    
+    <span class="rem">// Declare 3 bools on a single line.</span>
+    <span class="kwrd">bool</span> b1 = <span class="kwrd">true</span>, b2 = <span class="kwrd">false</span>, b3 = b1;
+    Console.WriteLine();
+}
+</pre>
+    <p>Since the C# bool keyword is simply a shorthand notation for the System.Boolean structure, it is also
+    possible to allocate any data type using its full name (of course, the same point holds true for any C#
+    data type keyword). Here is the final implementation of LocalVarDeclarations().</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> LocalVarDeclarations()
+{
+    Console.WriteLine(<span class="str">"=&gt; Data Declarations:"</span>);
+    <span class="rem">// Local variables are declared and initialized as follows:</span>
+    <span class="rem">// dataType varName = initialValue;</span>
+    <span class="kwrd">int</span> myInt = 0;
+
+    <span class="kwrd">string</span> myString;
+    myString = <span class="str">"This is my character data"</span>;
+
+    <span class="rem">// Declare 3 bools on a single line.</span>
+    <span class="kwrd">bool</span> b1 = <span class="kwrd">true</span>, b2 = <span class="kwrd">false</span>, b3 = b1;
+
+    <span class="rem">// Use System data type to declare a bool.</span>
+    System.Boolean b4 = <span class="kwrd">false</span>;
+
+    Console.WriteLine(<span class="str">"Your data: {0}, {1}, {2}, {3}, {4}, {5}"</span>,
+        myInt, myString, b1, b2, b3, b4);
+    Console.WriteLine();
+}</pre>
+    <h2>Intrinsic Data Types and the new Operator</h2>
+    <p>All intrinsic data types support what is known as a default constructor (see Chapter 5). This feature
+    allows you to create a variable using the new keyword, which automatically sets the variable to its default
+    value.</p>
+    <ul>
+        <li>bool variables are set to false.</li>
+        <li>Numeric data is set to 0 (or 0.0 in the case of floating-point data types).</li>
+        <li>char variables are set to a single empty character.</li>
+        <li>>BigInteger variables are set to 0.</li>
+        <li>DateTime variables are set to 1/1/0001 12:00:00 AM.</li>
+        <li>Object references (including strings) are set to null.</li>
+    </ul>
+    <p><b>Note</b> The BigInteger data type seen in the previous list is a new .NET 4.0 programming feature, which will be
+    explained in just a bit.</p>
+    <p>Although it is more cumbersome to use the new keyword when creating a basic data type variable,
+    the following is syntactically well-formed C# code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> NewingDataTypes()
+{
+    Console.WriteLine(<span class="str">"=&gt; Using new to create variables:"</span>);
+    <span class="kwrd">bool</span> b = <span class="kwrd">new</span> <span class="kwrd">bool</span>(); <span class="rem">// Set to false.</span>
+    <span class="kwrd">int</span> i = <span class="kwrd">new</span> <span class="kwrd">int</span>(); <span class="rem">// Set to 0.</span>
+    <span class="kwrd">double</span> d = <span class="kwrd">new</span> <span class="kwrd">double</span>(); <span class="rem">// Set to 0.</span>
+    DateTime dt = <span class="kwrd">new</span> DateTime(); <span class="rem">// Set to 1/1/0001 12:00:00 AM</span>
+    Console.WriteLine(<span class="str">"{0}, {1}, {2}, {3}"</span>, b, i, d, dt);
+    Console.WriteLine();
+}</pre>
+    <h2>The Data Type Class Hierarchy</h2>
+    <p>It is very interesting to note that even the primitive .NET data types are arranged in a class hierarchy. If
+    you are new to the world of inheritance, you will discover the full details in Chapter 6. Until then, just
+    understand that types at the top of a class hierarchy provide some default behaviors that are granted to
+    the derived types. The relationship between these core system types can be understood as shown in
+    Figure 3-6.</p>
+    <img src="http://www.diggen.co.uk/Images/Figure03_06.png" alt="Figure 3-6" />
+    <p><b>Figure 3-6</b> The class hierarchy of system types</p>
+    <p>Notice that each of these types ultimately derive from System.Object, which defines a set of
+    methods (e.g., ToString(), Equals(), GetHashCode()) common to all types in the .NET base class libraries
+    (these methods are fully detailed in Chapter 6).</p>
+    <p>Also note that many numerical data types derive from a class named System.ValueType.
+    Descendents of ValueType are automatically allocated on the stack and therefore have a very predictable
+    lifetime and are quite efficient. On the other hand, types that do not have System.ValueType in their
+    inheritance chain (such as System.Type, System.String, System.Array, System.Exception, and
+    System.Delegate) are not allocated on the stack, but on the garbage-collected heap.</p>
+    <p>Without getting too hung up on the details of System.Object and System.ValueType , just understand
+    that because a C# keyword (such as int) is simply shorthand notation for the corresponding system type
+    (in this case, System.Int32), the following is perfectly legal syntax, given that System.Int32 (the C# int)
+    eventually derives from System.Object and therefore can invoke any of its public members, as illustrated
+    by this additional helper function:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ObjectFunctionality()
+{
+    Console.WriteLine(<span class="str">"=&gt; System.Object Functionality:"</span>);
+
+    <span class="rem">// A C# int is really a shorthand for System.Int32.</span>
+    <span class="rem">// which inherits the following members from System.Object.</span>
+    Console.WriteLine(<span class="str">"12.GetHashCode() = {0}"</span>, 12.GetHashCode());
+    Console.WriteLine(<span class="str">"12.Equals(23) = {0}"</span>, 12.Equals(23));
+    Console.WriteLine(<span class="str">"12.ToString() = {0}"</span>, 12.ToString());
+    Console.WriteLine(<span class="str">"12.GetType() = {0}"</span>, 12.GetType());
+    Console.WriteLine();
+}
+</pre>
+    <p>If you were to call this method from within Main(), you would find the output shown in Figure 3-7.</p>
+    <img src="http://www.diggen.co.uk/Images/Figure03_07.png" alt="Figure 3-7" />
+    <p><b>Figure 3-7</b> All types (even numerical data) extend System.Object</p>
+    <h2>Members of Numerical Data Types</h2>
+    <p>To continue experimenting with the intrinsic C# data types, understand that the numerical types of .NET
+    support MaxValue and MinValue properties that provide information regarding the range a given type can
+    store. In addition to the MinValue/MaxValue properties, a given numerical system type may define further
+    useful members. For example, the System.Double type allows you to obtain the values for epsilon and
+    infinity (which may be of interest to those of you with a mathematical flare). To illustrate, consider the
+    following helper function:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> DataTypeFunctionality()
+{
+    Console.WriteLine(<span class="str">"=&gt; Data type Functionality:"</span>);
+
+    Console.WriteLine(<span class="str">"Max of int: {0}"</span>, <span class="kwrd">int</span>.MaxValue);
+    Console.WriteLine(<span class="str">"Min of int: {0}"</span>, <span class="kwrd">int</span>.MinValue);
+    This book was purchased by max.sage@webitec.co.uk
+    Console.WriteLine(<span class="str">"Max of double: {0}"</span>, <span class="kwrd">double</span>.MaxValue);
+    Console.WriteLine(<span class="str">"Min of double: {0}"</span>, <span class="kwrd">double</span>.MinValue);
+    Console.WriteLine(<span class="str">"double.Epsilon: {0}"</span>, <span class="kwrd">double</span>.Epsilon);
+    Console.WriteLine(<span class="str">"double.PositiveInfinity: {0}"</span>,
+        <span class="kwrd">double</span>.PositiveInfinity);
+    Console.WriteLine(<span class="str">"double.NegativeInfinity: {0}"</span>,
+        <span class="kwrd">double</span>.NegativeInfinity);
+    Console.WriteLine();
+}</pre>
+    <h2>Members of System.Boolean</h2>
+    <p>Next, consider the System.Boolean data type. The only valid assignment a C# bool can take is from the set
+    {true | false}. Given this point, it should be clear that System.Boolean does not support a
+    MinValue/MaxValue property set, but rather TrueString/FalseString (which yields the string "True" or
+    "False", respectively). Add the following code statements to the DataTypeFunctionality() helper
+    method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Console.WriteLine(<span class="str">"bool.FalseString: {0}"</span>, <span class="kwrd">bool</span>.FalseString);
+Console.WriteLine(<span class="str">"bool.TrueString: {0}"</span>, <span class="kwrd">bool</span>.TrueString);</pre>
+    <p>Figure 3-8 shows the output of invoking DataTypeFunctionality() from within Main().</p>
+    <img src="http://www.diggen.co.uk/Images/Figure03_08.png" alt="Figure 3-8" />
+    <p><b>Figure 3-8</b> Select functionality of various data types</p>
+    <h2>Members of System.Char</h2>
+    <p>C# textual data is represented by the string and char keywords, which are simple shorthand notations
+    for System.String and System.Char, both of which are Unicode under the hood. As you may already
+    know, a string represents a contiguous set of characters (e.g., "Hello"), while the char can represent a
+    single slot in a string (e.g., 'H').</p>
+    <p>The System.Char type provides you with a great deal of functionality beyond the ability to hold a
+    single point of character data. Using the static methods of System.Char, you are able to determine
+    whether a given character is numerical, alphabetical, a point of punctuation, or whatnot. Consider the
+    following method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> CharFunctionality()
+{
+    Console.WriteLine(<span class="str">"=&gt; char type Functionality:"</span>);
+
+    <span class="kwrd">char</span> myChar = <span class="str">'a'</span>;
+    Console.WriteLine(<span class="str">"char.IsDigit('a'): {0}"</span>, <span class="kwrd">char</span>.IsDigit(myChar));
+    Console.WriteLine(<span class="str">"char.IsLetter('a'): {0}"</span>, <span class="kwrd">char</span>.IsLetter(myChar));
+    Console.WriteLine(<span class="str">"char.IsWhiteSpace('Hello There', 5): {0}"</span>,
+        <span class="kwrd">char</span>.IsWhiteSpace(<span class="str">"Hello There"</span>, 5));
+    Console.WriteLine(<span class="str">"char.IsWhiteSpace('Hello There', 6): {0}"</span>,
+        <span class="kwrd">char</span>.IsWhiteSpace(<span class="str">"Hello There"</span>, 6));
+    Console.WriteLine(<span class="str">"char.IsPunctuation('?'): {0}"</span>,
+        <span class="kwrd">char</span>.IsPunctuation(<span class="str">'?'</span>));
+    Console.WriteLine();
+}</pre>
+    <p>As illustrated in the previous code snippet, many members of System.Char have two calling
+    conventions: a single character or a string with a numerical index that specifies the position of the
+    character to test.</p>
+    <h2>Parsing Values from String Data</h2>
+    <p>The .NET data types provide the ability to generate a variable of their underlying type given a textual
+    equivalent (e.g., parsing). This technique can be extremely helpful when you wish to convert a bit of user
+    input data (such as a selection from a GUI-based, drop-down list box) into a numerical value. Consider
+    the following parsing logic within a method named ParseFromStrings():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ParseFromStrings()
+{
+    Console.WriteLine(<span class="str">"=&gt; Data type parsing:"</span>);
+
+    <span class="kwrd">bool</span> b = <span class="kwrd">bool</span>.Parse(<span class="str">"True"</span>);
+    Console.WriteLine(<span class="str">"Value of b: {0}"</span>, b);
+    <span class="kwrd">double</span> d = <span class="kwrd">double</span>.Parse(<span class="str">"99.884"</span>);
+    Console.WriteLine(<span class="str">"Value of d: {0}"</span>, d);
+    <span class="kwrd">int</span> i = <span class="kwrd">int</span>.Parse(<span class="str">"8"</span>);
+    Console.WriteLine(<span class="str">"Value of i: {0}"</span>, i);
+    <span class="kwrd">char</span> c = Char.Parse(<span class="str">"w"</span>);
+    Console.WriteLine(<span class="str">"Value of c: {0}"</span>, c);
+    Console.WriteLine();
+}
+</pre>
+    <h2>System.DateTime and System.TimeSpan</h2>
+    <p>The System namespace defines a few useful data types for which there is no C# keyword, such as the
+    DateTime and TimeSpan structures (I'll leave the investigation of System.Guid and System.Void, as shown
+    in Figure 3-6, to interested readers).</p>
+    <p>The DateTime type contains data that represents a specific date (month, day, year) and time value,
+    both of which may be formatted in a variety of ways using the supplied members. The TimeSpan structure
+    allows you to easily define and transform units of time using various members.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> UseDatesAndTimes()
+{
+    Console.WriteLine(<span class="str">"=&gt; Dates and Times:"</span>);
+
+    <span class="rem">// This constructor takes (year, month, day)</span>
+    DateTime dt = <span class="kwrd">new</span> DateTime(2010, 10, 17);
+
+    <span class="rem">// What day of the month is this?</span>
+    Console.WriteLine(<span class="str">"The day of {0} is {1}"</span>, dt.Date, dt.DayOfWeek);
+
+    <span class="rem">// Month is now December.</span>
+    dt = dt.AddMonths(2);
+    Console.WriteLine(<span class="str">"Daylight savings: {0}"</span>, dt.IsDaylightSavingTime());
+
+    <span class="rem">// This constructor takes (hours, minutes, seconds)</span>
+    TimeSpan ts = <span class="kwrd">new</span> TimeSpan(4, 30, 0);
+    Console.WriteLine(ts);
+
+    <span class="rem">// Subtract 15 minutes from the current TimeSpan and</span>
+    <span class="rem">// print the result.</span>
+    Console.WriteLine(ts.Subtract(<span class="kwrd">new</span> TimeSpan(0, 15, 0)));
+}</pre>
+    <h2>The .NET 4.0 System.Numerics Namespace</h2>
+    <p>.NET 4.0 introduces a new namespace named System.Numerics, which defines a structure named
+    BigInteger. As its name implies, the BigInteger data type can be used when you need to represent
+    humongous numerical values (sadly, such as the national debt of the United States), which are not
+    constrained by a fixed upper or lower limit.</p>
+    <p><b>Note</b> The System.Numerics namespace defines a second structure named Complex, which allows you to
+    model mathematically complex numerical data (e.g., imaginary data, real data, hyperbolic tangents). Consult the
+    .NET Framework 4.0 SDK documentation if you are interested.</p>
+    <p>While many of your .NET applications may never need to make use of the BigInteger structure, if
+    you do find the need to define a massive numerical value, your first step is to reference the
+    System.Numerics.dll assembly into your project. If you wish to follow along with the current example,
+    perform the following tasks:</p>
+    <ul>
+        <li>Select the Project | Add Reference' menu option of Visual Studio.</li>
+        <li>Select the .NET tab from the resulting dialog box.</li>
+        <li>Locate and select the System.Numerics assembly within the list of presented libraries.</li>
+        <li>Press the OK button.</li>
+    </ul>
+    <p>Once you have done so, add the following using directive to the file, which will be using the
+    BigInteger data type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// BigInteger lives here!</span>
+<span class="kwrd">using</span> System.Numerics;</pre>
+    <p>At this point, you can create a BigInteger variable using the new operator. Within the constructor
+    you can specify a numerical value, including floating point data. However, recall that when you define a
+    literal whole number (such as 500), the runtime will default the data type to an int. Likewise, literal
+    floating point data (such as 55.333) will default to a double. How, then, can you set BigInteger to a
+    massive value while not overflowing the default data types used for raw numerical values?</p>
+    <p>The simplest approach is to establish the massive numerical value as a text literal, which can be
+    converted into a BigInteger variable via the static Parse() method. If required, you can also pass in a
+    byte array directly to the constructor of the BigInteger class.</p>
+    <p><b>Note</b> Once you assign a value to a BigInteger variable, you cannot change it, as the data is immutable.
+    However, the BigInteger class defines a number of members that will return new BigInteger objects based
+    on your data modifications (such as the static Multiply() method used in the proceeding code sample).</p>
+    <p>In any case, once you have defined a BigInteger variable, you will find this class defines very similar
+    members as other intrinsic C# data types (e.g., float, int). In addition, the BigInteger class defines
+    several static members that allow you to apply basic mathematical expressions (such as adding and
+    multiplying) to BigInteger variables. Here is an example of working with the BigInteger class.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> UseBigInteger()
+{
+    Console.WriteLine(<span class="str">"=&gt; Use BigInteger:"</span>);
+    BigInteger biggy =
+        BigInteger.Parse(<span class="str">"9999999999999999999999999999999999999999999999"</span>);
+    Console.WriteLine(<span class="str">"Value of biggy is {0}"</span>, biggy);
+    Console.WriteLine(<span class="str">"Is biggy an even value?: {0}"</span>, biggy.IsEven);
+    Console.WriteLine(<span class="str">"Is biggy a power of two?: {0}"</span>, biggy.IsPowerOfTwo);
+    BigInteger reallyBig = BigInteger.Multiply(biggy,
+        BigInteger.Parse(<span class="str">"8888888888888888888888888888888888888888888"</span>));
+    Console.WriteLine(<span class="str">"Value of reallyBig is {0}"</span>, reallyBig);
+}    
+</pre>
+    <p>It is also important to note that the BigInteger data type responds to C#'s intrinsic mathematical
+    operators, such as +, -, and *. Therefore, rather than calling BigInteger.Multiply() to multiply two huge
+    numbers, you could author the following code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+BigInteger reallyBig2 = biggy * reallyBig;</pre>
+    <p>At this point, I hope you understand that the C# keywords representing basic data types have a
+    corresponding type in the .NET base class libraries, each of which exposes a fixed functionality. While I
+    have not detailed each member of these data types, you are in a great position to dig into the details as
+    you see fit. Be sure to consult the .NET Framework 4.0 SDK documentation for full details regarding the
+    various .NET data types.</p>
+    <p><b>Source Code</b> The BasicDataTypes project is located under the Chapter 3 subdirectory.</p>
+</body>
+</html>

@@ -1,0 +1,115 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Understanding the Nature of Web Controls</h1>
+    <p>A major benefit of ASP.NET is the ability to assemble the UI of your pages using the types defined in the
+System.Web.UI.WebControls namespace. As you have seen, these controls (which go by the names server
+controls, web controls, or Web Form controls) are extremely helpful in that they automatically generate
+the necessary HTML for the requesting browser and expose a set of events that may be processed on the
+web server. Furthermore, because each ASP.NET control has a corresponding class in the
+System.Web.UI.WebControls namespace, it can be manipulated in an object-oriented manner.</p>
+<p>When you configure the properties of a web control using the Visual Studio 2010 Properties window,
+your edits are recorded in the opening control declaration of a given element in the *.aspx file as a series
+of name/value pairs. Thus, if you add a new TextBox to the designer of a given *.aspx file and change the
+ID, BorderStyle, BorderWidth, BackColor, and Text properties, the opening &lt;asp:TextBox&gt; tag is modified
+accordingly (however, note that the Text value becomes the inner text of the TextBox scope):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:TextBox</span> <span class="attr">ID</span><span class="kwrd">="txtNameTextBox"</span> <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">BackColor</span><span class="kwrd">="#C0FFC0"</span>
+    <span class="attr">BorderStyle</span><span class="kwrd">="Dotted"</span> <span class="attr">BorderWidth</span><span class="kwrd">="3px"</span><span class="kwrd">&gt;</span>Enter Your Name<span class="kwrd">&lt;/</span><span class="html">asp:TextBox</span><span class="kwrd">&gt;</span></pre>
+     <p>Given that the declaration of a web control eventually becomes a member variable from the
+System.Web.UI.WebControls namespace (via the dynamic compilation cycle examined in Chapter 32),
+you are able to interact with the members of this type within a server-side &lt;script&gt; block or the page’s
+code-behind file. If you add a new Button control to an*.aspx file, you can handle the Click event and
+write a server side handler that changes the background color of the TextBox:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">partial</span> <span class="kwrd">class</span> _Default : System.Web.UI.Page
+{
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> btnChangeTextBoxColor_Click(<span class="kwrd">object</span> sender, System.EventArgs e)
+    {
+        <span class="rem">// Change color of text box object in code.</span>
+        <span class="kwrd">this</span>.txtNameTextBox.BackColor = System.Drawing.Color.DarkBlue;
+    }
+}</pre>
+<p>All ASP.NET web controls ultimately derive from a common base class named
+System.Web.UI.WebControls.WebControl. In turn, WebControl derives from System.Web.UI.Control
+(which derives from System.Object). Control and WebControl each define a number of properties
+common to all server-side controls. Before I examine the inherited functionality, let’s formalize what it
+means to handle a server-side event.</p>
+<h2>Understanding Server-Side Event Handling</h2>
+<p>Given the current state of the World Wide Web, it is impossible to avoid the fundamental nature of
+browser/web server interaction. Whenever these two entities communicate, there is always an
+underlying, stateless HTTP request-and-response cycle. While ASP.NET server controls do a great deal to
+shield you from the details of the raw HTTP protocol, always remember that treating the Web as an
+event-driven entity is just a magnificent smoke-and-mirrors show provided by the CLR, and it is not
+identical to the event-driven model of a Windows-based UI.</p>
+<p>For example, although the System.Windows.Forms, System.Windows.Controls, and
+System.Web.UI.WebControls namespaces define types with the same simple names (Button, TextBox,
+Label, and so on), they do not expose an identical set of events. For example, there is no way to handle a
+server-side MouseMove event when the user moves the cursor over a Web Form Button control. Obviously,
+this is a good thing. (Who wants to post back to the server each time the user mouse moves in the
+browser?)</p>
+<p>The bottom line is that a given ASP.NET web control will expose a limited set of events, all of which
+ultimately result in a postback to the web server. Any necessary client-side event processing will require
+you to author blurbs of client-side JavaScript/VBScript script code to be processed by the requesting
+browser’s scripting engine. Given that ASP.NET is primarily a server-side technology, I will not be
+addressing the topic of authoring client-side scripts.</p>
+<p><b>Note</b> Handling an event for a given web control using Visual Studio 2010 can be done in an identical manner as
+doing so for a Windows Forms control. Simply select the widget from the designer and click the lightning bolt icon
+on the Properties window.</p>
+<h2>The AutoPostBack Property</h2>
+<p>It is also worth pointing out that many of the ASP.NET web controls support a property named
+AutoPostBack (most notably, the CheckBox, RadioButton, and TextBox controls, as well as any widget that
+derives from the abstract ListControl type). By default, this property is set to false, which disables an
+immediate postback to the server (even if you have indeed rigged up the event in the code-behind file).
+In most cases, this is the exact behavior you require, given that UI elements such as check boxes typically
+don’t require postback functionality. In other words, you don’t want to post back to the server
+immediately after the user checks or unchecks a checkbox, as the page object can obtain the state of the
+widget within a more natural Button Click event handler.</p>
+<p>However, if you wish to cause any of these widgets to post back to a server-side event handler
+immediately, simply set the value of AutoPostBack to true. This technique can be helpful if you wish to
+have the state of one widget automatically populate another value within another widget on the same
+page. To illustrate, assume you have a web page that contains a single TextBox (named txtAutoPostback)
+and a single ListBox control (named lstTextBoxData). Here is the relevant markup:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">form</span> <span class="attr">id</span><span class="kwrd">="form1"</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">asp:TextBox</span> <span class="attr">ID</span><span class="kwrd">="txtAutoPostback"</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;&lt;/</span><span class="html">asp:TextBox</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">br</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">asp:ListBox</span> <span class="attr">ID</span><span class="kwrd">="lstTextBoxData"</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;&lt;/</span><span class="html">asp:ListBox</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">form</span><span class="kwrd">&gt;</span></pre>
+    <p>Now, handle the TextChanged event of the TextBox, and within the server-side event handler,
+populate the ListBox with the current value in the TextBox:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">partial</span> <span class="kwrd">class</span> _Default : System.Web.UI.Page
+{
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> txtAutoPostback_TextChanged(<span class="kwrd">object</span> sender, System.EventArgs e)
+    {
+        lstTextBoxData.Items.Add(txtAutoPostback.Text);
+    }
+}</pre>
+<p>If you run the application as is, you will find that as you type in the TextBox, nothing happens.
+Furthermore, if you type in the TextBox and tab to the next control, nothing happens. The reason is that
+the AutoPostBack property of the TextBox is set to false by default. However, if you set this property to
+true</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:TextBox</span> <span class="attr">ID</span><span class="kwrd">="txtAutoPostback"</span>
+    <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">AutoPostBack</span><span class="kwrd">="true"</span> ... <span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">asp:TextBox</span><span class="kwrd">&gt;</span></pre>
+    <p>you will find that when you tab away from the TextBox (or press the Enter key), the ListBox is
+automatically populated with the current value in the TextBox. To be sure, beyond the need to populate
+the items of one widget based on the value of another widget, you will typically not need to alter the state
+of a widget’s AutoPostBack property (and even then, sometimes this can be accomplished purely in client
+script, removing the need for server interaction at all).</p>
+</body></html>   
+      
+   

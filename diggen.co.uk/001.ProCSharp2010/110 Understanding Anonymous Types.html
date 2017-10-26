@@ -1,0 +1,250 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Understanding Anonymous Types</h1>
+  <p>As an OO programmer, you know the benefits of defining classes to represent the state and functionality
+of a given programming entity. To be sure, whenever you need to define a class that is intended to be
+reused across projects and provides numerous bits of functionality through a set of methods, events,
+properties, and custom constructors, creating a new C# class is common practice and often mandatory.</p>
+<p>However, there are other times when you would like to define a class simply to model a set of
+encapsulated (and somehow related) data points without any associated methods, events, or other
+custom functionality. Furthermore, what if this type is only to be used internally to your current
+application and it’s not intended to be reused? If you need such a “temporary” type, earlier versions of
+C# would require you to nevertheless build a new class definition by hand:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">internal</span> <span class="kwrd">class</span> SomeClass
+{
+    <span class="rem">// Define a set of private member variables...</span>
+
+    <span class="rem">// Make a property for each member variable...</span>
+
+    <span class="rem">// Override ToString() to account for each member variable...</span>
+
+    <span class="rem">// Override GetHashCode() and Equals() to work with value based equality...</span>
+}</pre>
+<p>While building such a class is not rocket science, it can be rather labor-intensive if you are
+attempting to encapsulate more than a handful of members (although automatic properties do help in
+this regard). These days, we are provided with a massive shortcut for this very situation (termed
+anonymous types) that in many ways is a natural extension of C#’s anonymous methods syntax
+(examined in Chapter 11).</p>
+<p>When you define an anonymous type, you do so by making use of the var keyword (see Chapter 3)
+in conjunction with object initialization syntax (see Chapter 5). To illustrate, create a new Console
+Application named AnonymousTypes. Now, update Main() with the following anonymous class, which
+models a simple car type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Anonymous Types *****\n"</span>);
+
+    <span class="rem">// Make an anonymous type representing a car.</span>
+    <span class="kwrd">var</span> myCar = <span class="kwrd">new</span> { Color = <span class="str">"Bright Pink"</span>, Make = <span class="str">"Saab"</span>, CurrentSpeed = 55 };
+
+    <span class="rem">// Now show the color and make.</span>
+    Console.WriteLine(<span class="str">"My car is a {0} {1}."</span>, myCar.Color, myCar.Make);
+    Console.ReadLine();
+}</pre>
+<p>Again note that the myCar variable must be implicitly typed, which makes good sense as we are not
+modeling the concept of an automobile using a strongly typed class definition. At compile time, the C#
+compiler will autogenerate a uniquely named class on our behalf. Given the fact that this class name is
+not visible from C#, the use of implicit typing using the var keyword is mandatory.</p>
+<p>Also notice that we have to specify (using object initialization syntax) the set of properties that
+model the data we are attempting to encapsulate. Once defined, these values can then be obtained using
+standard C# property invocation syntax.</p>
+<h2>The Internal Representation of Anonymous Types</h2>
+  <p>All anonymous types are automatically derived from System.Object, and therefore support each of the
+members provided by this base class. Given this, we could invoke ToString(), GetHashCode(), Equals(),
+or GetType() on the implicitly typed myCar object. Assume our Program class defines the following static
+helper function:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ReflectOverAnonymousType(<span class="kwrd">object</span> obj)
+{
+    Console.WriteLine(<span class="str">"obj is an instance of: {0}"</span>, obj.GetType().Name);
+    Console.WriteLine(<span class="str">"Base class of {0} is {1}"</span>,
+        obj.GetType().Name,
+        obj.GetType().BaseType);
+    Console.WriteLine(<span class="str">"obj.ToString() = {0}"</span>, obj.ToString());
+    Console.WriteLine(<span class="str">"obj.GetHashCode() = {0}"</span>, obj.GetHashCode());
+    Console.WriteLine();
+}</pre>
+<p>Now assume we invoke this method from Main(), passing in the myCar object as the parameter:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Anonymous types *****\n"</span>);
+
+    <span class="rem">// Make an anonymous type representing a car.</span>
+    <span class="kwrd">var</span> myCar = <span class="kwrd">new</span> {Color = <span class="str">"Bright Pink"</span>, Make = <span class="str">"Saab"</span>, CurrentSpeed = 55};
+
+    <span class="rem">// Reflect over what the compiler generated.</span>
+    ReflectOverAnonymousType(myCar);
+    Console.ReadLine();
+}</pre>
+<p>The output will look similar to the following:</p>
+<pre class="csharpcode">
+***** Fun with Anonymous types *****
+
+obj is an instance of: &lt;&gt;f__AnonymousType0`3
+Base class of &lt;&gt;f__AnonymousType0`3 is System.Object
+obj.ToString() = { Color = Bright Pink, Make = Saab, CurrentSpeed = 55 }
+obj.GetHashCode() = 2038548792</pre>
+<p>First of all, notice that in this example, the myCar object is of type &lt;&gt;f__AnonymousType0`3 (your name
+may differ). Remember that the assigned type name is completely determined by the compiler and is not
+directly accessible in your C# code base.</p>
+<p>Perhaps most important, notice that each name/value pair defined using the object initialization
+syntax is mapped to an identically named read-only property and a corresponding private read-only
+backing field. The following C# code approximates the compiler-generated class used to represent the
+myCar object (which again can be verified using tools such as reflector.exe or ildasm.exe):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">internal</span> <span class="kwrd">sealed</span> <span class="kwrd">class</span> &lt;&gt;f__AnonymousType0&lt;&lt;Color&gt;j__TPar,
+    &lt;Make&gt;j__TPar, &lt;CurrentSpeed&gt;j__TPar&gt;
+{
+    <span class="rem">// Read-only fields</span>
+    <span class="kwrd">private</span> <span class="kwrd">readonly</span> &lt;Color&gt;j__TPar &lt;Color&gt;i__Field;
+    <span class="kwrd">private</span> <span class="kwrd">readonly</span> &lt;CurrentSpeed&gt;j__TPar &lt;CurrentSpeed&gt;i__Field;
+    <span class="kwrd">private</span> <span class="kwrd">readonly</span> &lt;Make&gt;j__TPar &lt;Make&gt;i__Field;
+    
+    <span class="rem">// Default constructor</span>
+    <span class="kwrd">public</span> &lt;&gt;f__AnonymousType0(&lt;Color&gt;j__TPar Color,
+        &lt;Make&gt;j__TPar Make, &lt;CurrentSpeed&gt;j__TPar CurrentSpeed);
+    
+    <span class="rem">// Overridden methods</span>
+    <span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">bool</span> Equals(<span class="kwrd">object</span> value);
+    <span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">int</span> GetHashCode();
+    <span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">string</span> ToString();
+    
+    <span class="rem">// Read-only properties</span>
+    <span class="kwrd">public</span> &lt;Color&gt;j__TPar Color { <span class="kwrd">get</span>; }
+    <span class="kwrd">public</span> &lt;CurrentSpeed&gt;j__TPar CurrentSpeed { <span class="kwrd">get</span>; }
+    <span class="kwrd">public</span> &lt;Make&gt;j__TPar Make { <span class="kwrd">get</span>; }
+}</pre>
+<h2>The Implementation of ToString() and GetHashCode()</h2>
+  <p>All anonymous types automatically derive from System.Object and are provided with an overridden
+version of Equals(), GetHashCode(), and ToString(). The ToString() implementation simply builds a
+string from each name/value pair, for example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">string</span> ToString()
+{
+    StringBuilder builder = <span class="kwrd">new</span> StringBuilder();
+    builder.Append(<span class="str">"{ Color = "</span>);
+    builder.Append(<span class="kwrd">this</span>.&lt;Color&gt;i__Field);
+    builder.Append(<span class="str">", Make = "</span>);
+    builder.Append(<span class="kwrd">this</span>.&lt;Make&gt;i__Field);
+    builder.Append(<span class="str">", CurrentSpeed = "</span>);
+    builder.Append(<span class="kwrd">this</span>.&lt;CurrentSpeed&gt;i__Field);
+    builder.Append(<span class="str">" }"</span>);
+    <span class="kwrd">return</span> builder.ToString();
+}</pre>
+<p>The GetHashCode() implementation computes a hash value using each anonymous type’s member
+variables as input to the System.Collections.Generic.EqualityComparer&lt;T&gt; type. Using this
+implementation of GetHashCode(), two anonymous types will yield the same hash value if (and only if)
+they have the same set of properties that have been assigned the same values. Given this
+implementation, anonymous types are well-suited to be contained within a Hashtable container.</p>
+<h2>The Semantics of Equality for Anonymous Types</h2>
+  <p>While the implementation of the overridden ToString() and GetHashCode() methods is fairly
+straightforward, you may be wondering how the Equals() method has been implemented. For example,
+if we were to define two "anonymous cars" variables that specify the same name/value pairs, would
+these two variables be considered equal or not? To see the results firsthand, update your Program type
+with the following new method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> EqualityTest()
+{
+    <span class="rem">// Make 2 anonymous classes with identical name/value pairs.</span>
+    <span class="kwrd">var</span> firstCar = <span class="kwrd">new</span> { Color = <span class="str">"Bright Pink"</span>, Make = <span class="str">"Saab"</span>, CurrentSpeed = 55 };
+    <span class="kwrd">var</span> secondCar = <span class="kwrd">new</span> { Color = <span class="str">"Bright Pink"</span>, Make = <span class="str">"Saab"</span>, CurrentSpeed = 55 };
+
+    <span class="rem">// Are they considered equal when using Equals()?</span>
+    <span class="kwrd">if</span> (firstCar.Equals(secondCar))
+        Console.WriteLine(<span class="str">"Same anonymous object!"</span>);
+    <span class="kwrd">else</span>
+        Console.WriteLine(<span class="str">"Not the same anonymous object!"</span>);
+    
+    <span class="rem">// Are they considered equal when using ==?</span>
+    <span class="kwrd">if</span> (firstCar == secondCar)
+        Console.WriteLine(<span class="str">"Same anonymous object!"</span>);
+    <span class="kwrd">else</span>
+        Console.WriteLine(<span class="str">"Not the same anonymous object!"</span>);
+    
+    <span class="rem">// Are these objects the same underlying type?</span>
+    <span class="kwrd">if</span> (firstCar.GetType().Name == secondCar.GetType().Name)
+        Console.WriteLine(<span class="str">"We are both the same type!"</span>);
+    <span class="kwrd">else</span>
+        Console.WriteLine(<span class="str">"We are different types!"</span>);
+    
+    <span class="rem">// Show all the details.</span>
+    Console.WriteLine();
+    ReflectOverAnonymousType(firstCar);
+    ReflectOverAnonymousType(secondCar);
+}</pre>
+<p>Assuming you have called this method from within Main(), Figure 12-6 shows the (somewhat
+surprising) output.</p>
+<img src="http://www.diggen.co.uk/Images/Figure12_06.png" alt="Figure 12-6" />
+<p><b>Figure 12-6. </b>The equality of anonymous types</p>
+<p>When you run this test code, you will see that the first conditional test where you call Equals()
+returns true, and therefore the message “Same anonymous object!” prints out to the screen. This is
+because the compiler-generated Equals() method makes use of value-based semantics when testing for
+equality (e.g., checking the value of each field of the objects being compared).</p>
+<p>However, the second conditional test (which makes use of the C# equality operator, ==) prints out
+"Not the same anonymous object!", which may seem at first glance to be a bit counterintuitive. This
+result is due to the fact that anonymous types do not receive overloaded versions of the C# equality
+operators (== and !=). Given this, when you test for equality of anonymous types using the C# equality
+operators (rather than the Equals() method), the references, not the values maintained by the objects,
+are being tested for equality.</p>
+<p>Last but not least, in our final conditional test (where we examine the underlying type name), we
+find that the anonymous types are instances of the same compiler-generated class type (in this example,
+&lt;&gt;f__AnonymousType0`3), due to the fact that firstCar and secondCar have the same properties (Color,
+Make, and CurrentSpeed).</p>
+<p>This illustrates an important but subtle point: the compiler will only generate a new class definition
+when an anonymous type contains unique names of the anonymous type. Thus, if you declare identical
+anonymous types (again, meaning the same names) within the same assembly, the compiler generates
+only a single anonymous type definition.</p>
+<h2>Anonymous Types Containing Anonymous Types</h2>
+  <p>It is possible to create an anonymous type that is composed of other anonymous types. For example,
+assume you wish to model a purchase order that consists of a timestamp, a price point, and the
+automobile purchased. Here is a new (slightly more sophisticated) anonymous type representing such
+an entity:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Make an anonymous type that is composed of another.</span>
+<span class="kwrd">var</span> purchaseItem = <span class="kwrd">new</span> {
+    TimeBought = DateTime.Now,
+    ItemBought = <span class="kwrd">new</span> {Color = <span class="str">"Red"</span>, Make = <span class="str">"Saab"</span>, CurrentSpeed = 55},
+    Price = 34.000};
+
+ReflectOverAnonymousType(purchaseItem);</pre>
+ <p>At this point, you should understand the syntax used to define anonymous types, but you may still
+be wondering exactly where (and when) to use this new language feature. To be blunt, anonymous type
+declarations should be used sparingly, typically only when making use of the LINQ technology set (see
+Chapter 14). You would never want to abandon the use of strongly typed classes/structures simply for
+the sake of doing so, given anonymous types’ numerous limitations, which include the following:</p>
+<ul>
+ <li>You don’t control the name of the anonymous type.</li>
+ <li>Anonymous types always extend System.Object.</li>
+ <li>The fields and properties of an anonymous type are always read-only.</li>
+ <li>Anonymous types cannot support events, custom methods, custom operators, or
+custom overrides.</li>
+ <li>Anonymous types are always implicitly sealed.</li>
+ <li>Anonymous types are always created using the default constructor.</li>
+</ul>
+<p>However, when programming with the LINQ technology set, you will find that in many cases this
+syntax can be very helpful when you want to quickly model the overall shape of an entity rather than its
+functionality.</p>
+    <p><b>Source Code</b> The AnonymousTypes project can be found under the Chapter 12 subdirectory.</p>
+</body>
+    </html>
+
+   
+   
+

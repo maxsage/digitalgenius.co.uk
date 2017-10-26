@@ -1,0 +1,113 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Understanding Object Serialization</h1>
+<p>The term serialization describes the process of persisting (and possibly transferring) the state of an
+object into a stream (e.g., file stream and memory stream). The persisted data sequence contains all the
+necessary information you need to reconstruct (or deserialize) the state of the object for use later. Using
+this technology makes it trivial to save vast amounts of data (in various formats). In many cases, saving
+application data using serialization services results in less code than using the readers/writers you find
+in the System.IO namespace.</p>
+<p>For example, assume you want to create a GUI-based desktop application that provides a way for
+end users to save their preferences (e.g., window color and font size). To do this, you might define a class
+named UserPrefs that encapsulates 20 or so pieces of field data. Now, if you were to use a
+System.IO.BinaryWriter type, you would need to save each field of the UserPrefs object manually.
+Likewise, if you were to load the data from a file back into memory, you would need to use a
+System.IO.BinaryReader and (once again) manually read in each value to reconfigure a new UserPrefs
+object.</p>
+<p>This is all doable, but you can save yourself a good amount of time by marking the UserPrefs class
+with the [Serializable] attribute:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+[Serializable]
+<span class="kwrd">public</span> <span class="kwrd">class</span> UserPrefs
+{
+    <span class="kwrd">public</span> <span class="kwrd">string</span> WindowColor;
+    <span class="kwrd">public</span> <span class="kwrd">int</span> FontSize;
+}</pre>
+<p>Doing this means that you can persist entire state of the object with only a few lines of code.
+Without getting hung up on the details for the time being, consider the following Main() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    UserPrefs userData= <span class="kwrd">new</span> UserPrefs();
+    userData.WindowColor = <span class="str">"Yellow"</span>;
+    userData.FontSize = <span class="str">"50"</span>;
+
+    <span class="rem">// The BinaryFormatter persists state data in a binary format.</span>
+    <span class="rem">// You would need to import System.Runtime.Serialization.Formatters.Binary</span>
+    <span class="rem">// to gain access to BinaryFormatter.</span>
+    BinaryFormatter binFormat = <span class="kwrd">new</span> BinaryFormatter();
+
+    <span class="rem">// Store object in a local file.</span>
+    <span class="kwrd">using</span>(Stream fStream = <span class="kwrd">new</span> FileStream(<span class="str">"user.dat"</span>,
+        FileMode.Create, FileAccess.Write, FileShare.None))
+    {
+        binFormat.Serialize(fStream, userData);
+    }
+    Console.ReadLine();
+}</pre>
+<p>.NET object serialization makes it easy to persist objects; however, the processes used behind the
+scenes are quite sophisticated. For example, when an object is persisted to a stream, all associated data
+(e.g., base class data and contained objects) are automatically serialized, as well. Therefore, if you
+attempt to persist a derived class, all data up the chain of inheritance comes along for the ride. As you
+will see, you use an object graph to represent a set of interrelated objects.</p>
+<p>.NET serialization services also allow you to persist an object graph in a variety of formats. The
+previous code example uses the BinaryFormatter type; therefore, the state of the UserPrefs object is
+persisted as a compact binary format. You can also persist an object graph into SOAP or XML format
+using other types. These formats can be quite helpful when you wish to ensure that your persisted
+objects travel well across operating systems, languages, and architectures.</p>
+<p><b>Note</b> WCF prefers a slightly different mechanism for serializing objects to/from WCF service operations; it uses
+the [DataContract] and [DataMember] attributes. You’ll learn more about this in Chapter 25.</p>
+<p>Finally, understand that you can persist an object graph into any System.IO.Stream-derived type. In
+the previous example, you use the FileStream type to persist a UserPrefs object into a local file.
+However, if you would rather store an object to a specific region of memory, you could use a
+MemoryStream type instead. All that matters is the fact that the sequence of data correctly represents the
+state of objects within the graph.</p>
+<h2>The Role of Object Graphs</h2>
+<p>As mentioned previously, the CLR will account for all related objects to ensure that data is persisted
+correctly when an object is serialized. This set of related objects is referred to as an object graph. Object
+graphs provide a simple way to document how a set of objects refer to each other, and these
+relationships do not necessarily map to classic OO relationships (such as the is-a or has-a relationship),
+although they do model this paradigm quite well.</p>
+<p>Each object in an object graph is assigned a unique numerical value. Keep in mind that the numbers
+assigned to the members in an object graph are arbitrary and have no real meaning to the outside world.
+Once you assign all objects a numerical value, the object graph can record each object’s set of
+dependencies.</p>
+<p>For example, assume you have created a set of classes that model some automobiles (of course).
+You have a base class named Car, which has-a Radio. Another class named JamesBondCar extends the Car
+base type. Figure 20-4 shows a possible object graph that models these relationships.</p>
+<img src="http://www.diggen.co.uk/Images/Figure20_04.png" alt="Figure 20-4" />
+<p><b>Figure 20-4</b> A simple object graph</p>
+<p>When reading object graphs, you can use the phrase depends on or refers to when connecting the
+arrows. Thus, in Figure 20-4, you can see that the Car refers to the Radio class (given the has-a
+relationship). JamesBondCar refers to Car (given the is-a relationship), as well as to Radio (it inherits this
+protected member variable).</p>
+<p>Of course, the CLR does not paint pictures in memory to represent a graph of related objects.
+Rather, the relationship documented in the previous diagram is represented by a mathematical formula
+that looks something like this:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+[Car 3, <span class="kwrd">ref</span> 2], [Radio 2], [JamesBondCar 1, <span class="kwrd">ref</span> 3, <span class="kwrd">ref</span> 2]</pre>
+<p>If you parse this formula, you can see that object 3 (the Car) has a dependency on object 2 (the
+Radio). Object 2, the Radio, is a lone wolf and requires nobody. Finally, object 1 (the JamesBondCar) has a
+dependency on object 3, as well as object 2. In any case, when you serialize or deserialize an instance of
+JamesBondCar, the object graph ensures that the Radio and Car types also participate in the process.</p>
+<p>The beautiful thing about the serialization process is that the graph representing the relationships
+among your objects is established automatically behind the scenes. As you will see later in this chapter,
+however, you can become more involved in the construction of a given object graph by customizing the
+serialization process using attributes and interfaces.</p>
+<p><b>Note</b> Strictly speaking, the XmlSerializer type (described later in this chapter) does not persist state using
+object graphs; however, this type still serializes and deserializes related objects in a predictable manner.</p>
+    </body>
+    </html>
+     
+      
+   

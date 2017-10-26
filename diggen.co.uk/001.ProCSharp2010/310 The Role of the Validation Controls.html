@@ -1,0 +1,327 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>The Role of the Validation Controls</h1>
+    <p>The next set of Web Form controls we will examine are known collectively as validation controls. Unlike
+the other Web Form controls we’ve examined, validation controls are not used to emit HTML for
+rendering purposes, but are used to emit client-side JavaScript (and possibly related server-side code)
+for the purpose of form validation. As illustrated at the beginning of this chapter, client-side form
+validation is quite useful because you can ensure that various constraints are in place before posting
+back to the web server, thereby avoiding expensive round-trips. Table 33-3 gives a rundown of the
+ASP.NET validation controls.</p>
+<p><b>Table 33-3.</b> ASP.NET Validation Controls</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Control
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    CompareValidator
+   </td>
+   <td>
+    Validates that the value of an input control is equal to a given value
+of another input control or a fixed constant.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    CustomValidator
+   </td>
+   <td>
+    Allows you to build a custom validation function that validates a
+given control.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    RangeValidator
+   </td>
+   <td>
+    Determines that a given value is in a predetermined range.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    RegularExpressionValidator
+   </td>
+   <td>
+    Checks whether the value of the associated input control matches
+the pattern of a regular expression.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    RequiredFieldValidator
+   </td>
+   <td>
+    Ensures that a given input control contains a value (i.e., is not
+empty).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ValidationSummary
+   </td>
+   <td>
+    Displays a summary of all validation errors of a page in a list,
+bulleted list, or single-paragraph format. The errors can be
+displayed inline and/or in a pop-up message box.
+   </td>
+  </tr>
+</table>
+<p>All of the validation controls ultimately derive from a common base class named
+System.Web.UI.WebControls.BaseValidator, and therefore they have a set of common features. Table 33-
+4 documents the key members.</p>
+<p><b>Table 33-4.</b> Common Properties of the ASP.NET Validators</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Member
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    ControlToValidate
+   </td>
+   <td>
+    Gets or sets the input control to validate.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Display
+   </td>
+   <td>
+    Gets or sets the display behavior of the error message in a validation control.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    EnableClientScript
+   </td>
+   <td>
+    Gets or sets a value indicating whether client-side validation is enabled.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ErrorMessage
+   </td>
+   <td>
+    Gets or sets the text for the error message.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ForeColor
+   </td>
+   <td>
+    Gets or sets the color of the message displayed when validation fails.
+   </td>
+  </tr>
+</table>
+<p>To illustrate working with these validation controls, create a new Empty Web Site project named
+ValidatorCtrls and insert a new Web Form named Default.aspx. To begin, place four (well-named)
+TextBox controls (with four corresponding and descriptive Labels) onto your page. Next, place a
+RequiredFieldValidator, RangeValidator, RegularExpressionValidator, and CompareValidator type
+adjacent to each respective input field. Last of all, add a single Button and final Label (see Figure 33-19).</p>
+<img src="http://www.diggen.co.uk/Images/Figure33_19.png" alt="Figure 33-19" />
+<p><b>Figure 33-19</b> ASP.NET validation controls will ensure your form data is correct before allowing postback</p>
+<p>Now that you have an initial UI, let’s walk through the process of configuring each validator.</p>
+<h2>The RequiredFieldValidator</h2>
+<p>Configuring the RequiredFieldValidator is straightforward. Simply set the ErrorMessage and
+ControlToValidate properties accordingly using the Visual Studio 2010 Properties window. Here is the
+resulting markup that ensures the txtRequiredField text box is not empty:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:RequiredFieldValidator</span> <span class="attr">ID</span><span class="kwrd">="RequiredFieldValidator1"</span>
+    <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">ControlToValidate</span><span class="kwrd">="txtRequiredField"</span>
+    <span class="attr">ErrorMessage</span><span class="kwrd">="Oops! Need to enter data."</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">asp:RequiredFieldValidator</span><span class="kwrd">&gt;</span></pre>
+    <p>The RequiredFieldValidator supports an InitialValue property. You can use this property to
+ensure that the user enters any value other than the initial value in the related TextBox. For example,
+when the user first posts to a page, you may wish to configure a TextBox to contain the value “Please
+enter your name”. Now, if you did not set the InitialValue property of the RequiredFieldValidator, the
+runtime would assume that the string “Please enter your name” is valid. Thus, to ensure a required
+TextBox is valid only when the user enters anything other than “Please enter your name”, configure your
+widgets as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:RequiredFieldValidator</span> <span class="attr">ID</span><span class="kwrd">="RequiredFieldValidator1"</span>
+    <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">ControlToValidate</span><span class="kwrd">="txtRequiredField"</span>
+    <span class="attr">ErrorMessage</span><span class="kwrd">="Oops! Need to enter data."</span>
+    <span class="attr">InitialValue</span><span class="kwrd">="Please enter your name"</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">asp:RequiredFieldValidator</span><span class="kwrd">&gt;</span></pre>
+<h2>The RegularExpressionValidator</h2>
+<p>The RegularExpressionValidator can be used when you wish to apply a pattern against the characters
+entered within a given input field. To ensure that a given TextBox contains a valid US Social Security
+number, you could define the widget as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:RegularExpressionValidator</span> <span class="attr">ID</span><span class="kwrd">="RegularExpressionValidator1"</span>
+    <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">ControlToValidate</span><span class="kwrd">="txtRegExp"</span>
+    <span class="attr">ErrorMessage</span><span class="kwrd">="Please enter a valid US SSN."</span>
+    <span class="attr">ValidationExpression</span><span class="kwrd">="\d{3}-\d{2}-\d{4}"</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">asp:RegularExpressionValidator</span><span class="kwrd">&gt;</span></pre>
+    <p>Notice how the RegularExpressionValidator defines a ValidationExpression property. If you have
+never worked with regular expressions before, all you need to be aware of for this example is that they
+are used to match a given string pattern. Here, the expression "\d{3}-\d{2}-\d{4}" is capturing a
+standard US Social Security number of the form xxx-xx-xxxx (where x is any digit).</p>
+<p>This particular regular expression is fairly self-explanatory; however, assume you wish to test for a
+valid Japanese phone number. The correct expression now becomes much more complex: "(0\d{1,4}-
+|\(0\d{1,4}\)?)?\d{1,4}-\d{4}". The good news is that when you select the ValidationExpression
+property using the Properties window, you can pick from a predefined set of common regular
+expressions by clicking the ellipse button.</p>
+<p><b>Note</b> If you are interested in regular expressions, you will be happy to know that the .NET platform supplies two
+namespaces (System.Text.RegularExpressions and System.Web.RegularExpressions) devoted to the
+programmatic manipulation of such patterns.</p>
+<h2>The RangeValidator</h2>
+<p>In addition to a MinimumValue and MaximumValue property, RangeValidators have a property named Type.
+Because you are interested in testing the user-supplied input against a range of whole numbers, you
+need to specify Integer (which is not the default!):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:RangeValidator</span> <span class="attr">ID</span><span class="kwrd">="RangeValidator1"</span>
+    <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">ControlToValidate</span><span class="kwrd">="txtRange"</span>
+    <span class="attr">ErrorMessage</span><span class="kwrd">="Please enter value between 0 and 100."</span>
+    <span class="attr">MaximumValue</span><span class="kwrd">="100"</span> <span class="attr">MinimumValue</span><span class="kwrd">="0"</span> <span class="attr">Type</span><span class="kwrd">="Integer"</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">asp:RangeValidator</span><span class="kwrd">&gt;</span></pre>
+<p>The RangeValidator can also be used to test whether a given value is between a currency value, date,
+floating-point number, or string data (the default setting).</p>
+<h2>The CompareValidator</h2>
+<p>Finally, notice that the CompareValidator supports an Operator property:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:CompareValidator</span> <span class="attr">ID</span><span class="kwrd">="CompareValidator1"</span> <span class="attr">runat</span><span class="kwrd">="server"</span>
+    <span class="attr">ControlToValidate</span><span class="kwrd">="txtComparison"</span>
+    <span class="attr">ErrorMessage</span><span class="kwrd">="Enter a value less than 20."</span> <span class="attr">Operator</span><span class="kwrd">="LessThan"</span>
+    <span class="attr">ValueToCompare</span><span class="kwrd">="20"</span> <span class="attr">Type</span><span class="kwrd">="Integer"</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">asp:CompareValidator</span><span class="kwrd">&gt;</span></pre>
+    <p>Given that the role of this validator is to compare the value in the text box against another value
+using a binary operator, it should be no surprise that the Operator property may be set to values such as
+LessThan, GreaterThan, Equal, and NotEqual. Also note that the ValueToCompare is used to establish a
+value to compare against. Do notice here that we have set the Type attribute to Integer. By default, the
+CompareValidator will be testing against string values!</p>
+<p><b>Note</b> The CompareValidator can also be configured to compare a value within another Web Form control
+(rather than a hard-coded value) using the ControlToValidate property.</p>
+<p>To finish up the code for this page, handle the Click event for the Button control and inform the user
+that he or she has succeeded in the validation logic:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> _Default : System.Web.UI.Page
+{
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> Page_Load(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+    }
+
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> btnPostback_Click(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+        lblValidationComplete.Text = <span class="str">"You passed validation!"</span>;
+    }
+}</pre>
+<p>Now, navigate to this page using your browser of choice. At this point, you should not see any
+noticeable changes. However, when you attempt to click the Submit button after entering bogus data,
+your error message is suddenly visible. Once you enter valid data, the error messages are removed and
+postback occurs.</p>
+<p>If you look at the HTML rendered by the browser, you see that the validation controls generate a
+client-side JavaScript function that makes use of a specific library of JavaScript functions that is
+automatically downloaded to the user’s machine. Once the validation has occurred, the form data is
+posted back to the server, where the ASP.NET runtime will perform the same validation tests on the web
+server (just to ensure that no along-the-wire tampering has taken place).</p>
+<p>On a related note, if the HTTP request was sent by a browser that does not support client-side
+JavaScript, all validation will occur on the server. In this way, you can program against the validation
+controls without being concerned with the target browser; the returned HTML page redirects the error
+processing back to the web server.</p>
+<h2>Creating Validation Summaries</h2>
+<p>The next validation-centric topic we will examine here is the use of the ValidationSummary widget.
+Currently, each of your validators displays its error message at the exact place in which it was positioned
+at design time. In many cases, this may be exactly what you are looking for. However, on a complex form
+with numerous input widgets, you may not want to have random blobs of red text pop up. Using the
+ValidationSummary type, you can instruct all of your validation types to display their error messages at a
+specific location on the page.</p>
+<p>The first step is to simply place a ValidationSummary on your *.aspx file. You may optionally set the
+HeaderText property of this type as well as the DisplayMode, which by default will list all error messages as
+a bulleted list.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:ValidationSummary</span> <span class="attr">id</span><span class="kwrd">="ValidationSummary1"</span>
+    <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">Width</span><span class="kwrd">="353px"</span>
+    <span class="attr">HeaderText</span><span class="kwrd">="Here are the things you must correct."</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">asp:ValidationSummary</span><span class="kwrd">&gt;</span></pre>
+    <p>Next, you need to set the Display property to None for each of the individual validators (e.g.,
+RequiredFieldValidator, RangeValidator) on the page. This will ensure that you do not see duplicate
+error messages for a given validation failure (one in the summary pane and another at the validator’s
+location). Figure 33-20 shows the summary pane in action.</p>
+<img src="http://www.diggen.co.uk/Images/Figure33_20.png" alt="Figure 33-20" />
+<p><b>Figure 33-20</b> Using a validation summary</p>
+<p>Last but not least, if you would rather have the error messages displayed using a client-side
+MessageBox, set the ValidationSummary control’s ShowMessageBox property to true and the ShowSummary
+property to false.</p>
+<h2>Defining Validation Groups</h2>
+<p>It is also possible to define groups for validators to belong to. This can be very helpful when you have
+regions of a page that work as a collective whole. For example, you may have one group of controls in a
+Panel object to allow the user to enter his or her mailing address and another Panel containing UI
+elements to gather credit card information. Using groups, you can configure each group of controls to be
+validated independently.</p>
+<p>Insert a new page into your current project named ValidationGroups.aspx that defines
+two Panels. The first Panel object expects a TextBox to contain some form of user input (via a
+RequiredFieldValidator) and the second Panel expects a US SSN value (via a
+RegularExpressionValidator). Figure 33-21 shows one possible UI.</p>
+<img src="http://www.diggen.co.uk/Images/Figure33_21.png" alt="Figure 33-21" />
+<p><b>Figure 33-21</b> These Panel objects will independently configure their input areas</p>
+<p>To ensure that the validators function independently, simply assign each validator and the control
+being validated to a uniquely named group using the ValidationGroup property. In the following
+possible markup, note that the Click event handlers used here are essentially empty stubs in the code
+file, and they are only used to allow postback to occur to the web server:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">form</span> <span class="attr">id</span><span class="kwrd">="form1"</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;</span>
+
+    <span class="kwrd">&lt;</span><span class="html">asp:Panel</span> <span class="attr">ID</span><span class="kwrd">="Panel1"</span> <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">Height</span><span class="kwrd">="83px"</span> <span class="attr">Width</span><span class="kwrd">="296px"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">asp:TextBox</span> <span class="attr">ID</span><span class="kwrd">="txtRequiredData"</span> <span class="attr">runat</span><span class="kwrd">="server"</span>
+            <span class="attr">ValidationGroup</span><span class="kwrd">="FirstGroup"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">asp:TextBox</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">asp:RequiredFieldValidator</span> <span class="attr">ID</span><span class="kwrd">="RequiredFieldValidator1"</span> <span class="attr">runat</span><span class="kwrd">="server"</span>
+            <span class="attr">ErrorMessage</span><span class="kwrd">="*Required field!"</span> <span class="attr">ControlToValidate</span><span class="kwrd">="txtRequiredData"</span>
+            <span class="attr">ValidationGroup</span><span class="kwrd">="FirstGroup"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">asp:RequiredFieldValidator</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">asp:Button</span> <span class="attr">ID</span><span class="kwrd">="bntValidateRequired"</span> <span class="attr">runat</span><span class="kwrd">="server"</span>
+            <span class="attr">OnClick</span><span class="kwrd">="bntValidateRequired_Click"</span>
+            <span class="attr">Text</span><span class="kwrd">="Validate"</span> <span class="attr">ValidationGroup</span><span class="kwrd">="FirstGroup"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">asp:Panel</span><span class="kwrd">&gt;</span>
+
+    <span class="kwrd">&lt;</span><span class="html">asp:Panel</span> <span class="attr">ID</span><span class="kwrd">="Panel2"</span> <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">Height</span><span class="kwrd">="119px"</span> <span class="attr">Width</span><span class="kwrd">="295px"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">asp:TextBox</span> <span class="attr">ID</span><span class="kwrd">="txtSSN"</span> <span class="attr">runat</span><span class="kwrd">="server"</span>
+            <span class="attr">ValidationGroup</span><span class="kwrd">="SecondGroup"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">asp:TextBox</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">asp:RegularExpressionValidator</span> <span class="attr">ID</span><span class="kwrd">="RegularExpressionValidator1"</span>
+            <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">ControlToValidate</span><span class="kwrd">="txtSSN"</span>
+            <span class="attr">ErrorMessage</span><span class="kwrd">="*Need SSN"</span> <span class="attr">ValidationExpression</span><span class="kwrd">="\d{3}-\d{2}-\d{4}"</span>
+            <span class="attr">ValidationGroup</span><span class="kwrd">="SecondGroup"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">asp:RegularExpressionValidator</span><span class="kwrd">&gt;</span><span class="attr">&amp;nbsp;</span>
+        <span class="kwrd">&lt;</span><span class="html">asp:Button</span> <span class="attr">ID</span><span class="kwrd">="btnValidateSSN"</span> <span class="attr">runat</span><span class="kwrd">="server"</span>
+            <span class="attr">OnClick</span><span class="kwrd">="btnValidateSSN_Click"</span> <span class="attr">Text</span><span class="kwrd">="Validate"</span>
+            <span class="attr">ValidationGroup</span><span class="kwrd">="SecondGroup"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">asp:Panel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">form</span><span class="kwrd">&gt;</span></pre>
+<p>Now, right-click this page’s designer and select the View In Browser menu option to verify each
+panel’s widgets operate in a mutually exclusive manner.</p>
+    <p><b>Source Code</b> The ValidatorCtrls website is included under the Chapter 33 subdirectory.</p>
+   </body>
+    </html>
+      
+   

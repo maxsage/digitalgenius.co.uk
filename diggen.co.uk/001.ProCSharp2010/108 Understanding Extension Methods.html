@@ -1,0 +1,446 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Understanding Extension Methods</h1>
+  <p>.NET 3.5 introduced the concept of extension methods, which allow you to tack on new functionality to
+precompiled types on the fly. As you know, once a type is defined and compiled into a .NET assembly, its
+definition is, more or less, final. The only way to add new members, update members, or remove
+members is to recode and recompile the code base into an updated assembly (or take more drastic
+measures, such as using the System.Reflection.Emit namespace to dynamically reshape a compiled
+type in memory).</p>
+<p>In C#, it is now possible to define extension methods. In a nutshell, extension methods allow
+existing compiled types (specifically, classes, structures, or interface implementations) as well as types
+currently being compiled (such as types in a project that contains extension methods) to gain new
+functionality without needing to directly update the type being extended.</p>
+<p>This technique can be quite helpful when you need to inject new functionality into types for which
+you do not have an existing code base. It can also be handy when you need to force a type to support a
+set of members (in the interest of polymorphism), but cannot modify the original type declaration.
+Using extension methods, you can add functionality to precompiled types while providing the illusion
+these methods were there all along.</p>
+<p><b>Note</b> Understand that extension methods do not literally change the compiled code base! This technique only
+adds members to a type within the context of the current application.</p>
+<p>When you define extension methods, the first restriction is that they must be defined within a static
+class (see Chapter 5), and therefore each extension method must be declared with the static keyword.
+The second point is that all extension methods are marked as such by using the this keyword as a
+modifier on the first (and only the first) parameter of the method in question. The third point is that
+every extension method can be called either from the correct instance in memory or statically via the
+defining static class! Sound strange? Let’s look at a full example to clarify matters.</p>
+<h2>Defining Extension Methods</h2>
+  <p>Create a new Console Application named ExtensionMethods. Now, assume you are authoring a utility
+class named MyExtensions that defines two extension methods. The first method allows any object in the
+.NET base class libraries to have a brand-new method named DisplayDefiningAssembly() that makes
+use of types in the System.Reflection namespace to display the assembly of the specified type.</p>
+<p><b>Note </b>You will formally examine the reflection API in Chapter 15. If you are new to the topic, simply understand
+that reflection allows you to discover the structure of assemblies, types, and type members at runtime.</p>
+  <p>The second extension method, named ReverseDigits(), allows any System.Int32 to obtain a new
+version of itself where the value is reversed digit by digit. For example, if an integer with the value 1234
+called ReverseDigits(), the integer returned is set to the value 4321. Consider the following class
+implementation (be sure to import the System.Reflection namespace if you are following along):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">class</span> MyExtensions
+{
+    <span class="rem">// This method allows any object to display the assembly</span>
+    <span class="rem">// it is defined in.</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> DisplayDefiningAssembly(<span class="kwrd">this</span> <span class="kwrd">object</span> obj)
+    {
+        Console.WriteLine(<span class="str">"{0} lives here: =&gt; {1}\n"</span>, obj.GetType().Name,
+            Assembly.GetAssembly(obj.GetType()).GetName().Name);
+    }
+
+    <span class="rem">// This method allows any integer to reverse its digits.</span>
+    <span class="rem">// For example, 56 would return 65.</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">int</span> ReverseDigits(<span class="kwrd">this</span> <span class="kwrd">int</span> i)
+    {
+        <span class="rem">// Translate int into a string, and then</span>
+        <span class="rem">// get all the characters.</span>
+        <span class="kwrd">char</span>[] digits = i.ToString().ToCharArray();
+
+        <span class="rem">// Now reverse items in the array.</span>
+        Array.Reverse(digits);
+    
+        <span class="rem">// Put back into string.</span>
+        <span class="kwrd">string</span> newDigits = <span class="kwrd">new</span> <span class="kwrd">string</span>(digits);
+
+        <span class="rem">// Finally, return the modified string back as an int.</span>
+        <span class="kwrd">return</span> <span class="kwrd">int</span>.Parse(newDigits);
+    }
+}</pre>
+<p>Again, note how the first parameter of each extension method has been qualified with the this
+keyword, before defining the parameter type. It is always the case that the first parameter of an extension
+method represents the type being extended. Given that DisplayDefiningAssembly() has been prototyped
+to extend System.Object, any type in any assembly now has this new member. However,
+ReverseDigits() has been prototyped to only extend integer types, and therefore if anything other than
+an integer attempts to invoke this method, you will receive a compile-time error.</p>
+<p>Understand that a given extension method can have multiple parameters, but only the first
+parameter can be qualified with this. For example, here is an overloaded extension method defined in
+another utility class named TesterUtilClass:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">class</span> TesterUtilClass
+{
+    <span class="rem">// Every Int32 now has a Foo() method...</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> Foo(<span class="kwrd">this</span> <span class="kwrd">int</span> i)
+    { Console.WriteLine(<span class="str">"{0} called the Foo() method."</span>, i); }
+
+    <span class="rem">// ...which has been overloaded to take a string!</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> Foo(<span class="kwrd">this</span> <span class="kwrd">int</span> i, <span class="kwrd">string</span> msg)
+    { Console.WriteLine(<span class="str">"{0} called Foo() and told me: {1}"</span>, i, msg); }
+}</pre>
+<h2>Invoking Extension Methods on an Instance Level</h2>
+  <p>Now that we have these extension methods, look at how all objects (which of course means everything in
+the .NET base class libraries) have a new method named DisplayDefiningAssembly(), while
+System.Int32 types (and only integers) have methods named ReverseDigits() and Foo():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Extension Methods *****\n"</span>);
+    
+    <span class="rem">// The int has assumed a new identity!</span>
+    <span class="kwrd">int</span> myInt = 12345678;
+    myInt.DisplayDefiningAssembly();
+    
+    <span class="rem">// So has the DataSet!</span>
+    System.Data.DataSet d = <span class="kwrd">new</span> System.Data.DataSet();
+    d.DisplayDefiningAssembly();
+    
+    <span class="rem">// And the SoundPlayer!</span>
+    System.Media.SoundPlayer sp = <span class="kwrd">new</span> System.Media.SoundPlayer();
+    sp.DisplayDefiningAssembly();
+    
+    <span class="rem">// Use new integer functionality.</span>
+    Console.WriteLine(<span class="str">"Value of myInt: {0}"</span>, myInt);
+    Console.WriteLine(<span class="str">"Reversed digits of myInt: {0}"</span>, myInt.ReverseDigits());
+    myInt.Foo();
+    myInt.Foo(<span class="str">"Ints that Foo? Who would have thought it!"</span>);
+    
+    <span class="kwrd">bool</span> b2 = <span class="kwrd">true</span>;
+    
+    <span class="rem">// Error! Booleans don't have the Foo() method!</span>
+    <span class="rem">// b2.Foo();</span>
+    
+    Console.ReadLine();
+}</pre>
+<p>Here is the output.</p>
+<pre class="csharpcode">
+***** Fun with Extension Methods *****
+
+Int32 lives here: => mscorlib
+
+DataSet lives here: => System.Data
+
+SoundPlayer lives here: => System
+
+Value of myInt: 12345678
+Reversed digits of myInt: 87654321
+12345678 called the Foo() method.
+12345678 called Foo() and told me: Ints that Foo? Who would have thought it!</pre>
+<h2>Invoking Extension Methods Statically</h2>
+  <p>Recall that the first parameter of an extension method is marked with the this keyword, followed by the
+type of item the method is applicable to. If you peek at what is happening behind the scenes (as verified
+by a tool such as ildasm.exe), you will find that the compiler simply calls the “normal” static method,
+passing in the variable calling the method as a parameter (e.g., it is the value of this). Consider the
+following C# code, which approximates the code substitution that took place:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Extension Methods *****\n"</span>);
+    <span class="kwrd">int</span> myInt = 12345678;
+    MyExtensions.DisplayDefiningAssembly(myInt);
+    
+    System.Data.DataSet d = <span class="kwrd">new</span> DataSet();
+    MyExtensions.DisplayDefiningAssembly(d);
+    
+    System.Media.SoundPlayer sp = <span class="kwrd">new</span> SoundPlayer();
+    MyExtensions.DisplayDefiningAssembly(sp);
+    
+    Console.WriteLine(<span class="str">"Value of myInt: {0}"</span>, myInt);
+    Console.WriteLine(<span class="str">"Reversed digits of myInt: {0}"</span>,
+        MyExtensions.ReverseDigits(myInt));
+    
+    TesterUtilClass.Foo(myInt);
+    TesterUtilClass.Foo(myInt, <span class="str">"Ints that Foo? Who would have thought it!"</span>);
+    
+    Console.ReadLine();
+}</pre>
+<p>Given that calling an extension method from an object (thereby making it seem that the method is
+in fact an instance-level method) is just some smoke-and-mirrors effect provided by the compiler, you
+are always free to call extension methods as normal static methods using the expected C# syntax (as just
+shown).</p>
+<h2>The Scope of an Extension Method</h2>
+  <p>As just explained, extension methods are essentially static methods that can be invoked from an instance
+of the extended type. Given this flavor of syntactic sugar, it is really important to point out that unlike a
+“normal” method, extension methods do not have direct access to the members of the type they are
+extending; said another way, extending is not inheriting. Consider the following simple Car type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> Car
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Speed;
+    <span class="kwrd">public</span> <span class="kwrd">int</span> SpeedUp()
+    {
+        <span class="kwrd">return</span> ++Speed;
+    }
+}</pre>
+<p>If you were to build an extension method for the Car type named SlowDown(), you would not have
+direct access to the members of Car within the scope of the extension method as this is not classical
+inheritance. Therefore, the following would result in a compiler error:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">class</span> CarExtensions
+{
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">int</span> SlowDown(<span class="kwrd">this</span> Car c)
+    {
+        <span class="rem">// Error! This method is not deriving from Car!</span>
+        <span class="kwrd">return</span> --Speed;
+    }    
+}</pre>
+<p>The problem here is that the static SlowDown() extension method is attempting to access the Speed
+field of the Car type. However, because SlowDown() is a static member of the CarExtensions class, Speed
+does not exist in this context! What is permissible, however, is to make use of the this-qualified
+parameter to access all public members (and only the public members) of the type being extending.
+Thus, the following code compiles as expected:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">class</span> CarExtensions
+{
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">int</span> SlowDown(<span class="kwrd">this</span> Car c)
+    {
+        <span class="rem">// OK!</span>
+        <span class="kwrd">return</span> --c.Speed;
+    }
+}</pre>
+<p>At this point, you could create a Car object and invoke the SpeedUp() and SlowDown() methods as
+follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> UseCar()
+{
+    Car c = <span class="kwrd">new</span> Car();
+    Console.WriteLine(<span class="str">"Speed: {0}"</span>, c.SpeedUp());
+    Console.WriteLine(<span class="str">"Speed: {0}"</span>, c.SlowDown());
+}</pre>
+<h2>Importing Types That Define Extension Methods</h2>
+  <p>When you partition a set of static classes containing extension methods in a unique namespace, other
+namespaces in that assembly will make use of the standard C# using keyword to import not only the
+static classes themselves, but also each of the supported extension methods. This is important to
+remember, because if you do not explicitly import the correct namespace, the extension methods are
+not available for that C# code file.</p>
+<p>In effect, although it can appear on the surface that extension methods are global in nature, they are
+in fact limited to the namespaces that define them or the namespaces that import them. Thus, if we
+wrap the definitions of our static classes (MyExtensions, TesterUtilClass, and CarExtensions) into a
+namespace named MyExtensionMethods as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">namespace</span> MyExtensionMethods
+{
+    <span class="kwrd">static</span> <span class="kwrd">class</span> MyExtensions
+    {
+        ...
+    }
+
+    <span class="kwrd">static</span> <span class="kwrd">class</span> TesterUtilClass
+    {
+        ...
+    }
+
+    <span class="kwrd">static</span> <span class="kwrd">class</span> CarExtensions
+    {
+        ...
+    }
+}</pre>
+<p>other namespaces in the project would need to explicitly import the MyExtensionMethods namespace to
+gain the extension methods defined by these types. Therefore, the following is a compiler error:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Here is our only using directive.</span>
+<span class="kwrd">using</span> System;
+
+<span class="kwrd">namespace</span> MyNewApp
+{
+    <span class="kwrd">class</span> JustATest
+    {    
+        <span class="kwrd">void</span> SomeMethod()
+        {
+            <span class="rem">// Error! Need to import MyExtensionMethods</span>
+            <span class="rem">// namespace to extend int with Foo()!</span>
+            <span class="kwrd">int</span> i = 0;
+            i.Foo();
+        }
+    }
+}</pre>
+<h2>The IntelliSense of Extension Methods</h2>
+  <p>Given the fact that extension methods are not literally defined on the type being extended, it is certainly
+possible to become confused when examining an existing code base. For example, assume you have
+imported a namespace that defined some number of extension methods authored by a teammate. As
+you are authoring your code, you might create a variable of the extended type, apply the dot operator,
+and find dozens of new methods that are not members of the original class definition!</p>
+<p>Thankfully, Visual Studio’s IntelliSense mechanism marks all extension methods with a unique,
+blue down-arrow icon (see Figure 12-5).</p>
+<p><b>Figure 12-5. </b>The IntelliSense of extension methods</p>
+<p>Any method marked with this visual icon is a friendly reminder that the method is defined outside
+of the original class definition via an extension method.</p>
+<h2>Building and Using Extension Libraries</h2>
+  <p>The previous example extended the functionality of various types (such as the System.Int32 type) for use
+by the current console application. However, I am sure you can imagine the usefulness of building
+a.NET code library that defines extensions that can be referenced by multiple applications. As luck
+would have it, doing so is very straightforward.</p>
+<p>Chapter 14 will delve into the details of creating and configuring custom libraries; however, if you
+wish to follow along for this example, create a new Class Library project named MyExtensionsLibrary.
+Next, rename your initial C# code file to MyExtensions.cs and copy the MyExtensions class definition in
+your new namespace:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">namespace</span> MyExtensionsLibrary
+{
+    <span class="rem">// Be sure to import System.Reflection.</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">class</span> MyExtensions
+    {
+        <span class="rem">// Same implementation as before.</span>
+        <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> DisplayDefiningAssembly(<span class="kwrd">this</span> <span class="kwrd">object</span> obj)
+        {...}
+
+        <span class="rem">// Same implementation as before.</span>
+        <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">int</span> ReverseDigits(<span class="kwrd">this</span> <span class="kwrd">int</span> i)
+        {...}
+    }
+}</pre>
+<p><b>Note </b>If you wish to export extension methods from a .NET code library, the defining type must be declared with
+the public keyword (recall that the default access modifier for a type is internal).</p>
+<p>At this point, you can compile your library and reference the MyExtensionsLibrary.dll assembly
+within new .NET projects. When you do so, the new functionality provided to System.Object and
+System.Int32 can be used by any application that references the library.</p>
+<p>To test this out, add a new Console Application project (named MyExtensionsLibraryClient). Next,
+add a reference to the MyExtensionsLibrary.dll assembly. Within the initial code file, specify that you
+are using the MyExtensionsLibrary namespace and author some simple code that invokes these new
+methods on a local integer:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System;
+
+<span class="rem">// Import our custom namespace.</span>
+<span class="kwrd">using</span> MyExtensionsLibrary;
+
+<span class="kwrd">namespace</span> MyExtensionsLibraryClient
+{
+    <span class="kwrd">class</span> Program
+    {
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            Console.WriteLine(<span class="str">"***** Using Library with Extensions *****\n"</span>);
+            <span class="rem">// This time, these extension methods</span>
+            <span class="rem">// have been defined within an external</span>
+            <span class="rem">// .NET class library.</span>
+            <span class="kwrd">int</span> myInt = 987;
+            myInt.DisplayDefiningAssembly();
+            Console.WriteLine(<span class="str">"{0} is reversed to {1}"</span>,
+                myInt, myInt.ReverseDigits());
+            Console.ReadLine();
+        }
+    }
+}</pre>
+<p>Microsoft recommends placing types that have extension methods in a dedicated assembly (within
+a dedicated namespace). The reason is simply to reduce cluttering of your programming environment.
+By way of example, if you were to author a core library for your company that every application was
+expected to make use of, and if the root namespace of that library defined 30 extension methods, the end
+result would be that all applications would see these methods pop up in IntelliSense (even if they are not
+required).</p>
+    <p><b>Source Code</b> The MyExtensionsLibrary and MyExtensionsLibraryClient projects can be found under the Chapter
+12 subdirectory.</p>
+<h2>Extending Interface Types via Extension Methods</h2>
+  <p>At this point, you have seen how to extend classes (and, indirectly, structures that follow the same
+syntax) with new functionality via extension methods. To wrap up our investigation of C# extension
+methods, allow me to point out that it is possible to extend an interface type with new methods;
+however, the semantics of such an action are sure to be a bit different from what you might expect.</p>
+<p>Create a new Console Application named InterfaceExtensions and define a simple interface type
+(IBasicMath) that contains a single method named Add(). Next, implement this interface on a class type
+(MyCalc) in a fitting manner, for example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Define a normal interface in C#.</span>
+<span class="kwrd">interface</span> IBasicMath
+{
+    <span class="kwrd">int</span> Add(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y);
+}
+
+<span class="rem">// Implementation of IBasicMath.</span>
+<span class="kwrd">class</span> MyCalc : IBasicMath
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Add(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y)
+    {
+        <span class="kwrd">return</span> x + y;
+    }
+}</pre>
+<p>Now, assume you do not have access to the code definition of IBasicMath, but wish to add a new
+member (such as a subtraction method) to expand its behavior. You might attempt to author the
+following extension class to do so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">class</span> MathExtensions
+{
+    <span class="rem">// Extend IBasicMath with subtraction method?</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">int</span> Subtract(<span class="kwrd">this</span> IBasicMath itf,
+        <span class="kwrd">int</span> x, <span class="kwrd">int</span> y);
+}</pre>
+<p>However, this will result in compile-time errors. When you extend an interface with new members,
+you must also supply an implementation of these members! This seems to fly in the face of the very
+nature of interface types, as interfaces do not provide implementations, only definitions. Nevertheless,
+you are required to define your MathExtensions class as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">class</span> MathExtensions
+{
+    <span class="rem">// Extend IBasicMath this method and this</span>
+    <span class="rem">// implementation.</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">int</span> Subtract(<span class="kwrd">this</span> IBasicMath itf, <span class="kwrd">int</span> x, <span class="kwrd">int</span> y)
+    {
+        <span class="kwrd">return</span> x - y;
+    }
+}</pre>
+<p>At this point, you might assume you could create a variable of type IBasicMath and directly invoke
+Subtract(). Again, if this were possible (which it is not), it would destroy the nature of .NET interface
+types. In reality, what we have actually said here is “Any class in my project implementing IBasicMath
+now has a Subtract() method, implemented in this manner.” As before, all the basic rules apply,
+therefore the namespace defining MyCalc must have access to the namespace defining MathExtensions.
+Consider the following Main() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Extending an interface *****\n"</span>);
+
+    <span class="rem">// Call IBasicMath members from MyCalc object.</span>
+    MyCalc c = <span class="kwrd">new</span> MyCalc();
+    Console.WriteLine(<span class="str">"1 + 2 = {0}"</span>, c.Add(1, 2));
+    Console.WriteLine(<span class="str">"1 - 2 = {0}"</span>, c.Subtract(1, 2));
+
+    <span class="rem">// Can also cast into IBasicMath to invoke extension.</span>
+    Console.WriteLine(<span class="str">"30 - 9 = {0}"</span>, ((IBasicMath)c).Subtract(30, 9));
+
+    <span class="rem">// This would NOT work!</span>
+    <span class="rem">// IBasicMath itfBM = new IBasicMath();</span>
+    <span class="rem">// itfBM.Subtract(10, 10);</span>
+
+    Console.ReadLine();
+}</pre>
+<p>That wraps up our examination of C# extension methods. Remember that this particular language
+feature can be very useful whenever you wish to extend the functionality of a type, even if you do not
+have access to the original source code (or if the type is sealed), for the purposes of polymorphism. And,
+much like implicitly typed local variables, extension methods are a key element of working with the
+LINQ API. As you will see in the next chapter, numerous existing types in the base class libraries have
+been extended with new functionality, via extension methods, to allow them to integrate with the LINQ
+programming model.</p>
+<p><b>Source Code</b> The InterfaceExtension project can be found under the Chapter 12 subdirectory.</p>
+    </body></html>
+
+   
+   
+

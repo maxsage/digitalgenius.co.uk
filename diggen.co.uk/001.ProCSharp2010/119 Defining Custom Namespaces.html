@@ -1,0 +1,295 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Defining Custom Namespaces</h1>
+  <p>Before diving into the details of assembly deployment and configuration, you must know how to create
+custom .NET namespaces. Up to this point in the text, you’ve been building small test programs that
+leverage existing namespaces in the .NET universe (System in particular). However, when you build your
+own custom applications, it can be very helpful to group your related types into custom namespaces. In
+C#, this is accomplished using the namespace keyword. Explicitly defining custom namespaces is even
+more important when creating .NET *.dll assemblies, as other developers will need to import your
+custom namespaces in order to use your types.</p>
+<p>To investigate the issues firsthand, begin by creating a new Console Application named
+CustomNamespaces. Now, assume you are developing a collection of geometric classes named Square,
+Circle, and Hexagon. Given their similarities, you would like to group them all together into a unique
+namespace within the CustomNamespaces.exe assembly called MyShapes. You have two basic approaches.
+First, you can choose to define all classes in a single C# file (ShapesLib.cs) as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// ShapesLib.cs</span>
+<span class="kwrd">using</span> System;
+<span class="kwrd">namespace</span> MyShapes
+{
+    <span class="rem">// Circle class</span>
+    <span class="kwrd">public</span> <span class="kwrd">class</span> Circle { <span class="rem">/* Interesting members... */</span> }
+
+    <span class="rem">// Hexagon class</span>
+    <span class="kwrd">public</span> <span class="kwrd">class</span> Hexagon { <span class="rem">/* More interesting members... */</span> }
+
+    <span class="rem">// Square class</span>
+    <span class="kwrd">public</span> <span class="kwrd">class</span> Square { <span class="rem">/* Even more interesting members... */</span> }
+}
+</pre>
+<p>Alternatively, you can split a single namespace into multiple C# files. To ensure each type is
+packaged into the same logical group, simply wrap the given class definitions in the same namespace
+scope:</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Circle.cs</span>
+<span class="kwrd">using</span> System;
+<span class="kwrd">namespace</span> MyShapes
+{
+    <span class="rem">// Circle class</span>
+    <span class="kwrd">public</span> <span class="kwrd">class</span> Circle { <span class="rem">/* Interesting methods... */</span> }
+}
+
+<span class="rem">// Hexagon.cs</span>
+<span class="kwrd">using</span> System;
+
+<span class="kwrd">namespace</span> MyShapes
+{
+    <span class="rem">// Hexagon class</span>
+    <span class="kwrd">public</span> <span class="kwrd">class</span> Hexagon { <span class="rem">/* More interesting methods... */</span> }
+}
+
+<span class="rem">// Square.cs</span>
+<span class="kwrd">using</span> System;
+
+<span class="kwrd">namespace</span> MyShapes
+{
+    <span class="rem">// Square class</span>
+    <span class="kwrd">public</span> <span class="kwrd">class</span> Square { <span class="rem">/* Even more interesting methods... */</span> }
+}</pre>
+<p>In both cases, notice how the MyShapes namespace acts as the conceptual “container” of these
+classes. When another namespace (such as CustomNamespaces) needs to import types defined within a
+separate namespace, you make use of the using keyword, just as you would when using types in the
+.NET base class libraries:</p> 
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Make use of types defined the MyShape namespace.</span>
+<span class="kwrd">using</span> System;
+<span class="kwrd">using</span> MyShapes;
+<span class="kwrd">namespace</span> CustomNamespaces
+{
+    <span class="kwrd">public</span> <span class="kwrd">class</span> Program
+    {
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            Hexagon h = <span class="kwrd">new</span> Hexagon();
+            Circle c = <span class="kwrd">new</span> Circle();
+            Square s = <span class="kwrd">new</span> Square();
+        }
+    }
+}</pre>
+<p>For this particular example, the assumption is that the C# file(s) that define the MyShapes namespace
+are part of the same Console Application project that contains the file defining the CustomNamespaces
+namespace; in other words, all of the files are used to compile a single .NET executable assembly.</p>
+<p>If you defined the MyShapes namespace within an external assembly, you might need to set a
+reference to that library before you could compile successfully. You’ll learn all the details of building
+applications that make use of external libraries during the course of this chapter.</p>
+<h2>Resolving Name Clashes with Fully Qualified Names</h2>
+<p>Technically speaking, you are not required to use the C# using keyword when referring to types defined
+in external namespaces. You could use the fully qualified name of the type, which, as you recall from
+Chapter 1, is the type’s name prefixed with the defining namespace:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Note we are not importing MyShapes anymore.</span>
+<span class="kwrd">using</span> System;
+
+<span class="kwrd">namespace</span> CustomNamespaces
+{
+    <span class="kwrd">public</span> <span class="kwrd">class</span> Program
+    {
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            MyShapes.Hexagon h = <span class="kwrd">new</span> MyShapes.Hexagon();
+            MyShapes.Circle c = <span class="kwrd">new</span> MyShapes.Circle();
+            MyShapes.Square s = <span class="kwrd">new</span> MyShapes.Square();
+        }
+    }
+}</pre>
+<p>Typically there is no need to use a fully qualified name. Not only does it require a greater number of
+keystrokes, it also makes no difference whatsoever in terms of code size or execution speed. In fact, in
+CIL code, types are always defined with the fully qualified name. In this light, the C# using keyword is
+simply a typing time-saver.</p>
+<p>However, fully qualified names can be very helpful (and sometimes necessary) to avoid potential
+name clashes when using multiple namespaces that contain identically named types. Assume you have
+a new namespace termed My3DShapes, which defines three classes capable of rendering a shape in
+stunning 3D:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Another shape-centric namespace.</span>
+<span class="kwrd">using</span> System;
+<span class="kwrd">namespace</span> My3DShapes
+{
+    <span class="rem">// 3D Circle class</span>
+    <span class="kwrd">public</span> <span class="kwrd">class</span> Circle { }
+
+    <span class="rem">// 3D Hexagon class</span>
+    <span class="kwrd">public</span> <span class="kwrd">class</span> Hexagon { }
+
+    <span class="rem">// 3D Square class</span>
+    <span class="kwrd">public</span> <span class="kwrd">class</span> Square { }
+}</pre>
+<p>If you update the Program class as seen next, you are issued a number of compile-time errors,
+because both namespaces define identically named classes:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Ambiguities abound!</span>
+<span class="kwrd">using</span> System;
+<span class="kwrd">using</span> MyShapes;
+<span class="kwrd">using</span> My3DShapes;
+<span class="kwrd">namespace</span> CustomNamespaces
+{
+    <span class="kwrd">public</span> <span class="kwrd">class</span> Program
+    {
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            <span class="rem">// Which namespace do I reference?</span>
+            Hexagon h = <span class="kwrd">new</span> Hexagon(); <span class="rem">// Compiler error!</span>
+            Circle c = <span class="kwrd">new</span> Circle(); <span class="rem">// Compiler error!</span>
+            Square s = <span class="kwrd">new</span> Square(); <span class="rem">// Compiler error!</span>
+        }
+    }
+}</pre>
+<p>The ambiguity can be resolved using the type’s fully qualified name:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// We have now resolved the ambiguity.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    My3DShapes.Hexagon h = <span class="kwrd">new</span> My3DShapes.Hexagon();
+    My3DShapes.Circle c = <span class="kwrd">new</span> My3DShapes.Circle();
+    MyShapes.Square s = <span class="kwrd">new</span> MyShapes.Square();
+}</pre>
+<h2>Resolving Name Clashes with Aliases</h2>
+<p>The C# using keyword also lets you create an alias for a type’s fully qualified name. When you do so, you
+define a token that is substituted for the type’s full name at compile time. Defining aliases provides a
+second way to resolve name-clashes, for example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System;
+<span class="kwrd">using</span> MyShapes;
+<span class="kwrd">using</span> My3DShapes;
+
+<span class="rem">// Resolve the ambiguity using a custom alias.</span>
+<span class="kwrd">using</span> The3DHexagon = My3DShapes.Hexagon;
+
+<span class="kwrd">namespace</span> CustomNamespaces
+{
+    <span class="kwrd">class</span> Program
+    {    
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)    
+        {
+            <span class="rem">// This is really creating a My3DShapes.Hexagon class.</span>
+            The3DHexagon h2 = <span class="kwrd">new</span> The3DHexagon();
+...
+        }
+    }
+}</pre>
+<p>This alternative using syntax also lets you create an alias for a lengthy namespace. One of the longer
+namespaces in the base class library is System.Runtime.Serialization.Formatters.Binary, which
+contains a member named BinaryFormatter. If you wish, you can create an instance of the
+BinaryFormatter as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> bfHome = System.Runtime.Serialization.Formatters.Binary;
+<span class="kwrd">namespace</span> MyApp
+{
+    <span class="kwrd">class</span> ShapeTester
+    {
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            bfHome.BinaryFormatter b = <span class="kwrd">new</span> bfHome.BinaryFormatter();
+        }
+    }
+}</pre>
+<p>as well as with a traditional using directive:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System.Runtime.Serialization.Formatters.Binary;
+<span class="kwrd">namespace</span> MyApp
+{
+    <span class="kwrd">class</span> ShapeTester
+    {
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            BinaryFormatter b = <span class="kwrd">new</span> BinaryFormatter();
+        }
+    }
+}</pre>
+<p>At this point in the game, there is no need to concern yourself with what the BinaryFormatter class is
+used for (you’ll examine this class in Chapter 20). For now, simply remember that the C# using keyword
+can be used to define aliases for lengthy fully qualified names or, more commonly, to resolve nameclashes
+that can arise when importing multiple namespaces that define identically named types.</p>
+<p><b>Note</b> Be aware that overuse of C# aliases can result in a confusing code base. If other programmers on your
+team are unaware of your custom aliases, they may assume the aliases refer to types in the .NET base class
+libraries and become quite confused when they can’t find these tokens in the .NET 4.0 framework SDK
+documentation!</p>
+<h2>Creating Nested Namespaces</h2>
+<p>When organizing your types, you are free to define namespaces within other namespaces. The .NET base
+class libraries do so in numerous places to provide deeper levels of type organization. For example, the
+IO namespace is nested within System, to yield System.IO. If you want to create a root namespace
+containing the existing My3DShapes namespace, you can update your code as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Nesting a namespace.</span>
+<span class="kwrd">namespace</span> Chapter14
+{
+    <span class="kwrd">namespace</span> My3DShapes
+    {
+        <span class="rem">// 3D Circle class</span>
+        <span class="kwrd">class</span> Circle{ }
+        <span class="rem">// 3D Hexagon class</span>
+        <span class="kwrd">class</span> Hexagon{ }
+        <span class="rem">// 3D Square class</span>
+        <span class="kwrd">class</span> Square{ }
+    }
+}</pre>
+<p>In many cases, the role of a root namespace is simply to provide a further level of scope, and
+therefore it may not define any types directly within its scope (as in the case of the Chapter14
+namespace). If this is the case, a nested namespace can be defined using the following compact form:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Nesting a namespace (take two).</span>
+<span class="kwrd">namespace</span> Chapter14.My3DShapes
+{
+    <span class="rem">// 3D Circle class</span>
+    <span class="kwrd">class</span> Circle{ }
+    <span class="rem">// 3D Hexagon class</span>
+    <span class="kwrd">class</span> Hexagon{ }
+    <span class="rem">// 3D Square class</span>
+    <span class="kwrd">class</span> Square{ }
+}</pre>
+<p>Given that you have now nested the My3DShapes namespace within the Chapter14 root namespace,
+you need to update any existing using directives and type aliases:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> Chapter14.My3DShapes;
+<span class="kwrd">using</span> The3DHexagon = Chapter14.My3DShapes.Hexagon;</pre>
+<h2>The Default Namespace of Visual Studio 2010</h2>
+<p>On a final namespace-related note, it is worth pointing out that, by default, when you create a new C#
+project using Visual Studio 2010, the name of your application’s default namespace will be identical to
+the project name. From this point on, when you insert new code files using the Project &gt; Add New Item
+menu selection, types will automatically be wrapped within the default namespace. If you wish to
+change the name of the default namespace, simply access the Default namespace option using the
+Application tab of the project’s Properties window (see Figure 14-1).</p>
+<p><b>Figure 14-1</b> Configuring the default namespace</p>
+<img src="http://www.diggen.co.uk/Images/Figure14_01.png" alt="Figure 14-1" />
+<p>With this update, any new item inserted into the project will be wrapped within the
+MyDefaultNamespace namespace (and, obviously, if another namespace wishes to use these types, the
+correct using directive must be applied).</p>
+<p>So far so good. Now that you have seen some details regarding how to package up your custom
+types into well-organized namespaces, let’s quickly review the benefits and format of the .NET assembly.
+After this, we will delve into the details of creating, deploying, and configuring your applications.</p>
+ <p><b>Source Code</b> The CustomNamespaces project is located under the Chapter 14 subdirectory.</p> 
+</body>
+    </html>
+   
+

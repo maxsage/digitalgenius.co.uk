@@ -1,0 +1,191 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Understanding the WPF Resource System</h1>
+    <p>Our first task is to examine the topic of embedding and accessing application resources. WPF supports
+two flavors of resources. The first is a binary resource, and this category typically includes items most
+programmers consider a resource in the traditional sense (embedded image files or sound clips, icons
+used by the application, and so on).</p>
+<p>The second flavor, termed object resources or logical resources, represents a named .NET object that
+can be packaged and reused throughout the application. While any .NET object can be packaged as an
+object resource, logical resources are particularly helpful when working with graphical data of any sort,
+given that you can define commonly used graphic primitives (brushes, pens, animations, etc.) and refer
+to them when required.</p>
+<h2>Working with Binary Resources</h2>
+<p>Before we get to the topic of object resources, let’s quickly examine how to package up binary resources
+such as icons or image files (e.g., company logos and images for an animation) into your applications. If
+you’d like to follow along, create a new WPF application named BinaryResourcesApp using Visual Studio
+2010. Update the markup for your initial window to use a DockPanel as the layout root:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span> <span class="attr">x:Class</span><span class="kwrd">="BinaryResourcesApp.MainWindow"</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">Title</span><span class="kwrd">="Fun with Binary Resources"</span> <span class="attr">Height</span><span class="kwrd">="500"</span> <span class="attr">Width</span><span class="kwrd">="649"</span><span class="kwrd">&gt;</span>
+
+    <span class="kwrd">&lt;</span><span class="html">DockPanel</span> <span class="attr">LastChildFill</span><span class="kwrd">="True"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">DockPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+    <p>Now, let’s say your application needs to display one of three image files inside part of the window,
+based on user input. The WPF Image control can be used to not only display a typical image file (*.bmp,
+*.gif, *.ico, *.jpg, *.png, *.wdp, and *.tiff) but also data in a DrawingImage (as you saw in Chapter 29).
+You might build a UI for your window that supports a DockPanel containing a simple toolbar with Next
+and Previous buttons. Below this toolbar you can place an Image control, which currently does not have
+a value set to the Source property, as we will do this in code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span> <span class="attr">x:Class</span><span class="kwrd">="BinaryResourcesApp.MainWindow"</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">Title</span><span class="kwrd">="Fun with Binary Resources"</span> <span class="attr">Height</span><span class="kwrd">="500"</span> <span class="attr">Width</span><span class="kwrd">="649"</span><span class="kwrd">&gt;</span>
+
+    <span class="kwrd">&lt;</span><span class="html">DockPanel</span> <span class="attr">LastChildFill</span><span class="kwrd">="True"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">ToolBar</span> <span class="attr">Height</span><span class="kwrd">="60"</span> <span class="attr">Name</span><span class="kwrd">="picturePickerToolbar"</span> <span class="attr">DockPanel</span>.<span class="attr">Dock</span><span class="kwrd">="Top"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnPreviousImage"</span> <span class="attr">Height</span><span class="kwrd">="40"</span> <span class="attr">Width</span><span class="kwrd">="100"</span> <span class="attr">BorderBrush</span><span class="kwrd">="Black"</span>
+                <span class="attr">Margin</span><span class="kwrd">="5"</span> <span class="attr">Content</span><span class="kwrd">="Previous"</span> <span class="attr">Click</span><span class="kwrd">="btnPreviousImage_Click"</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnNextImage"</span> <span class="attr">Height</span><span class="kwrd">="40"</span> <span class="attr">Width</span><span class="kwrd">="100"</span> <span class="attr">BorderBrush</span><span class="kwrd">="Black"</span>
+                <span class="attr">Margin</span><span class="kwrd">="5"</span> <span class="attr">Content</span><span class="kwrd">="Next"</span> <span class="attr">Click</span><span class="kwrd">="btnNextImage_Click"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">ToolBar</span><span class="kwrd">&gt;</span>
+        
+        <span class="rem">&lt;!-- We will fill this Image in code --&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Border</span> <span class="attr">BorderThickness</span><span class="kwrd">="2"</span> <span class="attr">BorderBrush</span><span class="kwrd">="Green"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Image</span> <span class="attr">x:Name</span><span class="kwrd">="imageHolder"</span> <span class="attr">Stretch</span><span class="kwrd">="Fill"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">Border</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">DockPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+<p>Please note that the Click event has been handled for each Button objects. Assuming you have used
+the IDE to handle these events, you will have two empty methods in your C# code file. So, how can we
+code the Click event handlers to cycle through the image data? More importantly, do we want to have
+the image data located on the user’s hard drive or embedded in our compiled assembly? Let’s examine
+our options.</p>
+<h2>Including Loose Resource Files in a Project</h2>
+<p>Let’s assume you wish to ship your image files as a set of loose files in a subdirectory of the application
+install path. Using the Solution Explorer window of Visual Studio, you can right-click on your project node
+and select the Add &gt; New Folder menu option to create such a subdirectory, which I have called Images.</p>
+<p>Now, when you right-click on this folder, you can select the Add &gt; Existing Item menu option, to
+copy the image files into the new subdirectory. In the downloadable source code for this project, you will
+find three image files named Welcome.jpg, Dogs.jpg and Deer.jpg that you can include in this project, or
+simply add three image files of your choice. Figure 30-1 shows the current setup.</p>
+<img src="http://www.diggen.co.uk/Images/Figure30_01.png" alt="Figure 30-1" />
+<p><b>Figure 30-1</b> A new subdirectory in our WPF project containing image data</p>
+<h2>Configuring the Loose Resources</h2>
+<p>When you want Visual Studio 2010 to copy project content to your output directory, you need to adjust a
+few settings using the Properties window. To ensure that the content of your \Images folder is copied to
+the \bin\Debug folder, begin by selecting each image in the Solution Explorer. Now, with these images
+still selected, use the Properties window to set the Build Action property to Content, and the Copy to
+Output Directory property to Copy always (see Figure 30-2).</p>
+<img src="http://www.diggen.co.uk/Images/Figure30_02.png" alt="Figure 30-2" />
+<p><b>Figure 30-2</b> Configuring the image data to be copied to our output directory</p>
+<p>If you recompile your program, you can now click on the Show all Files button of the Solution
+Explorer and view the copied Image folder under your \bin\Debug directory (you might need to click the
+refresh button). See Figure 30-3.</p>
+<img src="http://www.diggen.co.uk/Images/Figure30_03.png" alt="Figure 30-3" />
+<p><b>Figure 30-3</b> The copied data</p>
+<h2>Programmatically Loading an Image</h2>
+<p>WPF provides a class named BitmapImage, which is part of the System.Windows.Media.Imaging
+namespace. This class allows you to load data from an image file whose location is represented by a
+System.Uri object. If you handle the Loaded event of your window, you might fill a List&lt;T&gt; of
+BitmapImages like so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> MainWindow : Window
+{
+    <span class="rem">// A List of BitmapImage files.</span>
+    List&lt;BitmapImage&gt; images = <span class="kwrd">new</span> List&lt;BitmapImage&gt;();
+
+    <span class="rem">// Current position in the list.</span>
+    <span class="kwrd">private</span> <span class="kwrd">int</span> currImage = 0;
+    <span class="kwrd">private</span> <span class="kwrd">const</span> <span class="kwrd">int</span> MAX_IMAGES = 2;
+
+    <span class="kwrd">private</span> <span class="kwrd">void</span> Window_Loaded(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+    {
+        <span class="kwrd">try</span>
+        {
+            <span class="kwrd">string</span> path = Environment.CurrentDirectory;
+
+            <span class="rem">// Load these images when the window loads.</span>
+            images.Add(<span class="kwrd">new</span> BitmapImage(<span class="kwrd">new</span> Uri(<span class="kwrd">string</span>.Format(<span class="str">@"{0}\Images\Deer.jpg"</span>, path))));
+            images.Add(<span class="kwrd">new</span> BitmapImage(<span class="kwrd">new</span> Uri(<span class="kwrd">string</span>.Format(<span class="str">@"{0}\Images\Dogs.jpg"</span>, path))));
+            images.Add(<span class="kwrd">new</span> BitmapImage(<span class="kwrd">new</span> Uri(<span class="kwrd">string</span>.Format(<span class="str">@"{0}\Images\Welcome.jpg"</span>, path))));
+
+            <span class="rem">// Show first image in the List&lt;&gt;.</span>
+            imageHolder.Source = images[currImage];
+        }
+        <span class="kwrd">catch</span> (Exception ex)
+        {
+            MessageBox.Show(ex.Message);
+        }
+    }
+...
+}</pre>
+<p>Notice that this class also defines an int member variable (currImage) that will allow the Click event
+handlers to loop through each item in the List&lt;T&gt; and display it in the Image control by setting the
+Source property. (Here, our Loaded event handler sets the Source property to the first image in the
+List&lt;T&gt;.) In addition, our MAX_IMAGES constant will let us test for upper and lower limits as we iterate
+over the list. Here are the Click handlers that do exactly this:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> btnPreviousImage_Click(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+{
+    <span class="kwrd">if</span> (--currImage &lt; 0)
+        currImage = MAX_IMAGES;
+    imageHolder.Source = images[currImage];
+}
+
+<span class="kwrd">private</span> <span class="kwrd">void</span> btnNextImage_Click(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+{
+    <span class="kwrd">if</span> (++currImage &gt; MAX_IMAGES)
+        currImage = 0;
+    imageHolder.Source = images[currImage];
+}</pre>
+<p>At this point, you can run your program and flip through each picture.</p>
+<h2>Embedding Application Resources</h2>
+<p>If you’d rather configure your image files to be compiled directly into your .NET assembly as binary
+resources, select the image files in Solution Explorer (in the \Images folder, not in the
+\bin\Debug\Images folder). Then change the Build Action property to Resource and the Copy to Output
+Directory property to Do not copy (Figure 30-4).</p>
+<img src="http://www.diggen.co.uk/Images/Figure30_04.png" alt="Figure 30-4" />
+<p><b>Figure 30-4</b> Configuring the images to be embedded resources</p>
+<p>Now, using Visual Studio 2010’s Build menu, select the Clean Solution option to wipe out the
+current contents of \bin\Debug\Images, then rebuild your project. Refresh the Solution Explorer, and
+observe the absence of \bin\Debug\Images in your \bin\Debug directory</p>
+<p>With the current build options, your graphical data is no longer copied to the output folder and is
+now embedded within the assembly itself. Assuming you have recompiled your project, you can open
+the assembly into reflector.exe, and see the embedded image data (Figure 30-5).</p>
+<img src="http://www.diggen.co.uk/Images/Figure30_05.png" alt="Figure 30-5" />
+<p><b>Figure 30-5</b> The embedded image data</p>
+<p>With this adjustment, we will now need to modify our code to load these images by extracting them
+from the compiled assembly:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> btnPreviousImage_Click(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+{
+    <span class="kwrd">if</span> (--currImage &lt; 0)
+        currImage = MAX_IMAGES;
+    imageHolder.Source = images[currImage];
+}
+
+<span class="kwrd">private</span> <span class="kwrd">void</span> btnNextImage_Click(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+{
+    <span class="kwrd">if</span> (++currImage &gt; MAX_IMAGES)
+        currImage = 0;
+    imageHolder.Source = images[currImage];
+}</pre>
+<p>Notice in this case, we no longer need to determine the installation path and can simply list the
+resources by name, which takes into account the name of the original subdirectory. Also notice, when
+we create our Uri objects, we specify a UriKind value of Relative. In any case, at this point our
+executable is a standalone entity that can be run from any location on the machine, as all compiled data
+is within the binary. Figure 30-6 shows the completed application.</p>
+<img src="http://www.diggen.co.uk/Images/Figure30_06.png" alt="Figure 30-6" />
+<p><b>Figure 30-6</b> Our simple picture viewer</p>
+    </body>
+    </html>
+    
+      
+   

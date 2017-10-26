@@ -1,0 +1,124 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Investigating the Core WCF Assemblies</h1>
+   <p>As you might expect, the programming fabric of WCF is represented by a set of .NET assemblies installed
+into the GAC. Table 25-1 describes the overall role of the core WCF assemblies you need to use in just
+about any WCF application.</p>
+<p><b>Table 25-1.</b> Core WCF Assemblies</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Assembly
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    System.Runtime.Serialization.dll
+   </td>
+   <td>
+    Defines namespaces and types that you can use for serializing
+and deserializing objects in the WCF framework.
+   </td>
+  </tr>
+    <tr>
+   <td>
+    System.ServiceModel.dll
+   </td>
+   <td>
+    This core assembly contains the types used to build any sort of
+WCF application.
+   </td>
+  </tr>
+</table>
+<p>These two assemblies define many new namespaces and types. You should consult the .NET
+Framework 4.0 SDK documentation for complete details; however, Table 25-2 documents the roles of
+some of the important namespaces.</p>
+<p><b>Table 25-2.</b> Core WCF Namespaces</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Namespace
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    System.Runtime.Serialization
+   </td>
+   <td>
+    Defines many types you use to control how data is
+serialized and deserialized within the WCF framework.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.ServiceModel
+   </td>
+   <td>
+    This primary WCF namespace defines binding and hosting
+types, as well as basic security and transactional types.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.ServiceModel.Configuration
+   </td>
+   <td>
+    Defines numerous types that provide programmatic access
+to WCF configuration files.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.ServiceModel.Description
+   </td>
+   <td>
+    Defines types that provide an object model to the
+addresses, bindings, and contracts defined within WCF
+configuration files.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.ServiceModel.MsmqIntegration
+   </td>
+   <td>
+    Contains types to integrate with the MSMQ service.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.ServiceModel.Securit
+   </td>
+   <td>
+    Defines numerous types to control aspects of the WCF
+security layers.
+   </td>
+  </tr>
+</table>
+<h2>A Brief Word Regarding CardSpace</h2>
+<p>In addition to System.ServiceModel.dll and System.Runtime.Serialization.dll, WCF
+provides a third assembly named System.IdentityModel.dll. This assembly contains many
+additional namespaces and types that support the CardSpace API. This technology allows you to establish
+and manage digital identities within a WCF application. Essentially, the CardSpace API provides a unified
+programming model to account for various security-related details for WCF applications, such as caller
+identity, user authentication/authorization services, and so on.</p>
+<p>You will not examine CardSpace further in this edition of the book, so be sure to consult the .NET
+Framework 4.0 SDK documentation if you want to learn more.</p>
+    </body>
+    </html>
+ 
+   
+

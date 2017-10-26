@@ -1,0 +1,461 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+    <h1>Understanding Value Types and Reference Types</h1>
+    <p><b>Note</b> The following discussion of value types and reference types assumes that you have a background in
+    object-oriented programming. If this is not the case, you may wish to skip to the final section in this chapter
+    (Understanding C# Nullable Types) and return to this section once you have read Chapters 5 and 6.</p>
+    <p>Unlike arrays, strings, or enumerations, C# structures do not have an identically named representation
+    in the .NET library (that is, there is no System.Structure class), but are implicitly derived from
+    System.ValueType. Simply put, the role of System.ValueType is to ensure that the derived type (e.g., any
+    structure) is allocated on the stack rather than the garbage collected heap. Simply put, data allocated on
+    the stack can be created and destroyed very quickly, as its lifetime is determined by the defining scope.
+    Heap allocated data, on the other hand, is monitored by the .NET garbage collector, and has a lifetime
+    that is determined by a large number of factors.</p>
+    <p>Functionally, the only purpose of System.ValueType is to override the virtual methods defined by
+    System.Object to use value-based, versus reference-based, semantics. As you may know, overriding is
+    the process of changing the implementation of a virtual (or possibly abstract) method defined within a
+    base class. The base class of ValueType is System.Object. In fact, the instance methods defined by
+    System.ValueType are identical to those of System.Object:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Structures and enumerations implicitly extend System.ValueType.</span>
+<span class="kwrd">public</span> <span class="kwrd">abstract</span> <span class="kwrd">class</span> ValueType : <span class="kwrd">object</span>
+{
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> <span class="kwrd">bool</span> Equals(<span class="kwrd">object</span> obj);
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> <span class="kwrd">int</span> GetHashCode();
+    <span class="kwrd">public</span> Type GetType();
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> <span class="kwrd">string</span> ToString();
+}
+
+</pre>
+    <p>Given the fact that value types are using value-based semantics, the lifetime of a structure (which
+    includes all numerical data types [int, float], as well as any enum or custom structure) is very predictable.
+    When a structure variable falls out of the defining scope, it is removed from memory immediately:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Local structures are popped off</span>
+<span class="rem">// the stack when a method returns.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> LocalValueTypes()
+{
+
+    <span class="rem">// Recall! "int" is really a System.Int32 structure.</span>
+    <span class="kwrd">int</span> i = 0;
+
+    <span class="rem">// Recall! Point is a structure type.</span>
+    Point p = <span class="kwrd">new</span> Point();
+} <span class="rem">// "i" and "p" popped off the stack here!   </span></pre>
+    <h2>Value Types, References Types, and the Assignment Operator</h2>
+    <p>When you assign one value type to another, a member-by-member copy of the field data is achieved. In
+    the case of a simple data type such as System.Int32, the only member to copy is the numerical value.
+    However, in the case of your Point, the X and Y values are copied into the new structure variable. To
+    illustrate, create a new Console Application project named ValueAndReferenceTypes, then copy your
+    previous Point definition into your new namespace. Next, add the following method to your Program
+    type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Assigning two intrinsic value types results in</span>
+<span class="rem">// two independent variables on the stack.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> ValueTypeAssignment()
+{
+    Console.WriteLine(<span class="str">"Assigning value types\n"</span>);
+
+    Point p1 = <span class="kwrd">new</span> Point(10, 10);
+    Point p2 = p1;
+
+    <span class="rem">// Print both points.</span>
+    p1.Display();
+    p2.Display();
+
+    <span class="rem">// Change p1.X and print again. p2.X is not changed.</span>
+    p1.X = 100;
+    Console.WriteLine(<span class="str">"\n=&gt; Changed p1.X\n"</span>);
+    p1.Display();
+    p2.Display();
+}</pre>
+    <p>Here you have created a variable of type Point (named p1) that is then assigned to another Point
+    (p2). Because Point is a value type, you have two copies of the MyPoint type on the stack, each of which
+    can be independently manipulated. Therefore, when you change the value of p1.X, the value of p2.X is
+    unaffected:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Assigning value types
+
+X = 10, Y = 10
+X = 10, Y = 10
+
+=&gt; Changed p1.X
+
+X = 100, Y = 10
+X = 10, Y = 10</pre>
+    <p>In stark contrast to value types, when you apply the assignment operator to reference types
+    (meaning all class instances), you are redirecting what the reference variable points to in memory. To
+    illustrate, create a new class type named PointRef that has the exact same members as the Point
+    structures, beyond renaming the constructor to match the class name:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Classes are always reference types.</span>
+<span class="kwrd">class</span> PointRef
+{
+    <span class="rem">// Same members as the Point structure...</span>
+
+    <span class="rem">// Be sure to change your constructor name to PointRef!</span>
+    <span class="kwrd">public</span> PointRef(<span class="kwrd">int</span> XPos, <span class="kwrd">int</span> YPos)
+    {
+        X = XPos;
+        Y = YPos;
+    }
+}</pre>
+    <p>Now, make use of your PointRef type within the following new method. Note that beyond using the
+    PointRef class, rather than the Point structure, the code is identical to the ValueTypeAssignment()
+    method.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ReferenceTypeAssignment()
+{
+    Console.WriteLine(<span class="str">"Assigning reference types\n"</span>);
+    PointRef p1 = <span class="kwrd">new</span> PointRef(10, 10);
+    PointRef p2 = p1;
+
+    <span class="rem">// Print both point refs.</span>
+    p1.Display();
+    p2.Display();
+
+    <span class="rem">// Change p1.X and print again.</span>
+    p1.X = 100;
+    Console.WriteLine(<span class="str">"\n=&gt; Changed p1.X\n"</span>);
+    p1.Display();
+    p2.Display();
+}</pre>
+    <p>In this case, you have two references pointing to the same object on the managed heap. Therefore,
+    when you change the value of X using the p2 reference, p1.X reports the same value. Assuming you have
+    called this new method within Main(), your output should look like the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Assigning reference types
+
+X = 10, Y = 10
+X = 10, Y = 10
+
+=&gt; Changed p1.X
+
+X = 100, Y = 10
+X = 100, Y = 10</pre>
+    <h2>Value Types Containing Reference Types</h2>
+     <p>Now that you have a better feeling for the basic differences between value types and reference types,
+    let's examine a more complex example. Assume you have the following reference (class) type that
+    maintains an informational string that can be set using a custom constructor:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> ShapeInfo
+{
+    <span class="kwrd">public</span> <span class="kwrd">string</span> infoString;
+    <span class="kwrd">public</span> ShapeInfo(<span class="kwrd">string</span> info)
+    { infoString = info; }
+}</pre>
+    <p>Now assume that you want to contain a variable of this class type within a value type named
+    Rectangle. To allow the caller to set the value of the inner ShapeInfo member variable, you also provide a
+    custom constructor. Here is the complete definition of the Rectangle type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">struct</span> Rectangle
+{
+    <span class="rem">// The Rectangle structure contains a reference type member.</span>
+    <span class="kwrd">public</span> ShapeInfo rectInfo;
+
+    <span class="kwrd">public</span> <span class="kwrd">int</span> rectTop, rectLeft, rectBottom, rectRight;
+
+    <span class="kwrd">public</span> Rectangle(<span class="kwrd">string</span> info, <span class="kwrd">int</span> top, <span class="kwrd">int</span> left, <span class="kwrd">int</span> bottom, <span class="kwrd">int</span> right)
+    {
+        rectInfo = <span class="kwrd">new</span> ShapeInfo(info);
+        rectTop = top; rectBottom = bottom;
+        rectLeft = left; rectRight = right;
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> Display()
+    {
+        Console.WriteLine(<span class="str">"String = {0}, Top = {1}, Bottom = {2}, "</span> +
+            <span class="str">"Left = {3}, Right = {4}"</span>,
+            rectInfo.infoString, rectTop, rectBottom, rectLeft, rectRight);
+    }
+}</pre>
+    <p>At this point, you have contained a reference type within a value type. The million dollar question
+    now becomes, what happens if you assign one Rectangle variable to another?Given what you already
+    know about value types, you would be correct in assuming that the integer data (which is indeed a
+    structure) should be an independent entity for each Rectangle variable. But what about the internal
+    reference type? Will the object's state be fully copied, or will the reference to that object be copied? To
+    answer this question, define the following method and invoke it from Main().</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ValueTypeContainingRefType()
+{
+    <span class="rem">// Create the first Rectangle.</span>
+    Console.WriteLine(<span class="str">"-&gt; Creating r1"</span>);
+    Rectangle r1 = <span class="kwrd">new</span> Rectangle(<span class="str">"First Rect"</span>, 10, 10, 50, 50);
+
+    <span class="rem">// Now assign a new Rectangle to r1.</span>
+    Console.WriteLine(<span class="str">"-&gt; Assigning r2 to r1"</span>);
+    Rectangle r2 = r1;
+
+    <span class="rem">// Change some values of r2.</span>
+    Console.WriteLine(<span class="str">"-&gt; Changing values of r2"</span>);
+    r2.rectInfo.infoString = <span class="str">"This is new info!"</span>;
+    r2.rectBottom = 4444;
+
+    <span class="rem">// Print values of both rectangles.</span>
+    r1.Display();
+    r2.Display();
+}
+</pre>
+    <p>The output can been seen in the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+-&gt; Creating r1
+-&gt; Assigning r2 to r1
+-&gt; Changing values of r2
+String = This is new info!, Top = 10, Bottom = 50, Left = 10, Right = 50
+String = This is new info!, Top = 10, Bottom = 4444, Left = 10, Right = 50</pre>  
+    <p>As you can see, when you change the value of the informational string using the r2 reference, the r1
+    reference displays the same value. By default, when a value type contains other reference types,
+    assignment results in a copy of the references. In this way, you have two independent structures, each of
+    which contains a reference pointing to the same object in memory (i.e., a shallow copy). When you want
+    to perform a deep copy, where the state of internal references is fully copied into a new object, one
+    approach is to implement the ICloneable interface</p>
+    <h2>Passing Reference Types by Value</h2>
+    <p>"Reference types or value types can obviously be passed as parameters to methods. However, passing a 
+    reference type (e.g., a class) by reference is quite different from passing it by value. To understand 
+    the distinction, assume you have a simple Person class defined in a new Console Application project 
+    named RefTypeValTypeParams, defined as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Person
+{
+    <span class="kwrd">public</span> <span class="kwrd">string</span> personName;
+    <span class="kwrd">public</span> <span class="kwrd">int</span> personAge;
+
+    <span class="rem">// Constructors.</span>
+    <span class="kwrd">public</span> Person(<span class="kwrd">string</span> name, <span class="kwrd">int</span> age)
+    {
+        personName = name;
+        personAge = age;
+    }
+
+    <span class="kwrd">public</span> Person(){}
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> Display()
+    {
+        Console.WriteLine(<span class="str">"Name: {0}, Age: {1}"</span>, personName, personAge);
+    }
+}</pre>
+    <p>Now, what if you create a method that allows the caller to send in the Person object by value (note the 
+    lack of parameter modifiers, such as out or ref):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> SendAPersonByValue(Person p)
+{
+    <span class="rem">// Change the age of "p"?</span>
+    p.personAge = 99;
+
+    <span class="rem">// Will the caller see this reassignment?</span>
+    p = <span class="kwrd">new</span> Person(<span class="str">"Nikki"</span>, 99);
+}</pre>     
+    <p>Notice how the SendAPersonByValue() method attempts to reassign the incoming Person reference to a new 
+    Person object as well as change some state data. Now let's test this method using the following Main() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    <span class="rem">// Passing ref-types by value.</span>
+    Console.WriteLine(<span class="str">"***** Passing Person object by value *****"</span>);
+    Person fred = <span class="kwrd">new</span> Person(<span class="str">"Fred"</span>, 12);
+    Console.WriteLine(<span class="str">"\nBefore by value call, Person is:"</span>);
+    fred.Display();
+
+    SendAPersonByValue(fred);
+    Console.WriteLine(<span class="str">"\nAfter by value call, Person is:"</span>);
+    fred.Display();
+    Console.ReadLine();
+}</pre>           
+    <p>The following is the output of this call.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+***** Passing Person <span class="kwrd">object</span> by value *****
+
+Before by value call, Person <span class="kwrd">is</span>:
+Name: Fred, Age: 12
+
+After by value call, Person <span class="kwrd">is</span>:
+Name: Fred, Age: 133</pre>
+    <p>As you can see, the value of personAge has been modified. This behavior seems to fly in the face of
+    what it means to pass a parameter "by value." Given that you were able to change the state of the
+    incoming Person, what was copied? The answer: a copy of the reference to the caller's object. Therefore,
+    as the SendAPersonByValue() method is pointing to the same object as the caller, it is possible to alter the
+    object's state data. What is not possible is to reassign what the reference is pointing to.</p>
+    <h2>Passing Reference Types by Reference</h2>
+     <p>Now assume you have a SendAPersonByReference() method, which passes a reference type by reference
+    (note the ref parameter modifier):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> SendAPersonByReference(<span class="kwrd">ref</span> Person p)
+{
+    <span class="rem">// Change some data of "p".</span>
+    p.personAge = 555;
+
+    <span class="rem">// "p" is now pointing to a new object on the heap!</span>
+    p = <span class="kwrd">new</span> Person(<span class="str">"Nikki"</span>, 999);
+}</pre>
+    <p>As you might expect, this allows complete flexibility of how the callee is able to manipulate the
+    incoming parameter. Not only can the callee change the state of the object, but if it so chooses, it may
+    also reassign the reference to a new Person type. Now ponder the following updated Main() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    <span class="rem">// Passing ref-types by ref.</span>
+    Console.WriteLine(<span class="str">"***** Passing Person object by reference *****"</span>);
+    Person mel = <span class="kwrd">new</span> Person(<span class="str">"Mel"</span>, 23);
+    Console.WriteLine(<span class="str">"Before by ref call, Person is:"</span>);
+    mel.Display();
+
+    SendAPersonByReference(<span class="kwrd">ref</span> mel);
+    Console.WriteLine(<span class="str">"After by ref call, Person is:"</span>);
+    mel.Display();
+    Console.ReadLine();
+}</pre>
+    <p>Notice the following output:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+***** Passing Person object by reference *****
+Before by ref call, Person is:
+Name: Mel, Age: 23
+After by ref call, Person is:
+Name: Nikki, Age: 999</pre>
+    <p>As you can see, an object named Mel returns after the call as an object named Nikki, as the method
+    was able to change what the incoming reference pointed to in memory. The golden rule to keep in mind
+    when passing reference types is the following:</p>
+    <ul>
+        <li>If a reference type is passed by reference, the callee may change the values of the
+        object's state data as well as the object it is referencing.</li>
+        <li>If a reference type is passed by value, the callee may change the values of the
+        object's state data but not the object it is referencing.</li>
+    </ul>
+    <h2>Final Details Regarding Value Types and Reference Types</h2>
+    <p>To wrap up this topic, consider the information in Table 4-3, which summarizes the core distinctions
+    between value types and reference types.</p>
+    <p><b>Table 4-3.</b> Value Types and Reference Types Side by Side</p>
+    <table class="gridtable">
+        <tr>
+            <th>
+                Intriguing Question
+            </th>
+            <th>
+                Value Type
+            </th>
+            <th>
+                Reference Type
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Where is this type allocated?
+            </td>
+            <td>
+                Allocated on the stack.
+            </td>
+            <td>
+                Allocated on the managed heap.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                How is a variable represented?
+            </td>
+            <td>
+                Value type variables are local copies.
+            </td>
+            <td>
+                Reference type variables are pointing to the memory occupied by the allocated instance.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                What is the base type?
+            </td>
+            <td>
+                Must derive from System.ValueType.
+            </td>
+            <td>
+                Can derive from any other type (except System.ValueType), as long as that type is
+                not "sealed".
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Can this type function as a base to other types?
+            </td>
+            <td>
+                No. Value types are always sealed and cannot be inherited from.
+            </td>
+            <td>
+                Yes. If the type is not sealed, it may function as a base to other types.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                What is the default parameter passing behavior?
+            </td>
+            <td>
+                Variables are passed by value (i.e., a copy of the variable is passed into the called
+                function).
+            </td>
+            <td>
+                For value types, the object is copied-by-value. For reference types, the reference
+                is copied-by-value.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Can this type override System.Object.Finalize()?
+            </td>
+            <td>
+                No. Value types are never placed onto the heap and therefore do not need to be finalized.
+            </td>
+            <td>
+                Yes, indirectly.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Can I define constructors for this type?
+            </td>
+            <td>
+                Yes, but the default constructor is reserved (i.e., your custom constructors must
+                all have arguments).
+            </td>
+            <td>
+                But of course!
+            </td>
+        </tr>
+        <tr>
+            <td>
+                When do variables of this type die?
+            </td>
+            <td>
+                When they fall out of the defining scope
+            </td>
+            <td>
+                When the object is garbage collected.
+            </td>
+        </tr>
+    </table>
+    <p>Despite their differences, value types and reference types both have the ability to implement
+    interfaces and may support any number of fields, methods, overloaded operators, constants, properties,
+    and events.</p>
+</body>
+</html>

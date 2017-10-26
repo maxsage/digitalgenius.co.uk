@@ -1,0 +1,149 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Maintaining Session Data</h1>
+    <p>So much for our examination of application-level and cached data. Next, let’s check out the role of peruser
+data. As mentioned earlier, a session is little more than a given user’s ongoing interaction with a web
+application, which is represented via a unique HttpSessionState object. To maintain stateful
+information for a particular user, you can use the Session property in your web page class or in
+Global.asax. The classic example of the need to maintain per-user data is an online shopping cart.
+Again, if 10 people all log on to an online store, each individual will have a unique set of items that she
+(may) intend to purchase, and that data needs to be maintained.</p>
+<p>When a new user joins to your web application, the .NET runtime automatically assigns the user a
+unique session ID, which is used to identify that user. Each session ID identifies a custom instance of the
+HttpSessionState type to hold on to user-specific data. Inserting or retrieving session data is
+syntactically identical to manipulating application data, for example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Add/retrieve session data for current user.</span>
+Session[<span class="str">"DesiredCarColor"</span>] = <span class="str">"Green"</span>;
+<span class="kwrd">string</span> color = (<span class="kwrd">string</span>) Session[<span class="str">"DesiredCarColor"</span>];</pre>
+    <p>In Global.asax, you can intercept the beginning and end of a session via the Session_Start() and
+Session_End() event handlers. Within Session_Start(), you can freely create any per-user data items,
+while Session_End() allows you to perform any work you may need to do when the user’s session has
+terminated:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="asp">&lt;%@ Application Language="C#" %&gt;</span>
+...
+void Session_Start(Object sender, EventArgs e)
+{
+    // New session! Prep if required.
+}
+
+void Session_End(Object sender, EventArgs e)
+{
+    // User logged off/timed out. Tear down if needed.
+}</pre>
+<p>Like application state, session state may hold any System.Object-derived type, including your
+custom classes. For example, assume you have a new Empty Web Site project (named SessionState) that
+defines a class named UserShoppingCart:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> UserShoppingCart
+{
+    <span class="kwrd">public</span> <span class="kwrd">string</span> desiredCar;
+    <span class="kwrd">public</span> <span class="kwrd">string</span> desiredCarColor;
+    <span class="kwrd">public</span> <span class="kwrd">float</span> downPayment;
+    <span class="kwrd">public</span> <span class="kwrd">bool</span> isLeasing;
+    <span class="kwrd">public</span> DateTime dateOfPickUp;
+    <span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">string</span> ToString()
+    {
+        <span class="kwrd">return</span> <span class="kwrd">string</span>.Format
+            (<span class="str">"Car: {0}&lt;br&gt;Color: {1}&lt;br&gt;$ Down: {2}&lt;br&gt;Lease: {3}&lt;br&gt;Pick-up Date: {4}"</span>,
+                desiredCar, desiredCarColor, downPayment, isLeasing,
+                dateOfPickUp.ToShortDateString());
+    }
+}</pre>
+    <p>Now, insert a Global.asax file. Within the Session_Start() event handler, you can now assign each
+user a new instance of the UserShoppingCart class:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">void</span> Session_Start(Object sender, EventArgs e)
+{
+    Session[<span class="str">"UserShoppingCartInfo"</span>]
+        = <span class="kwrd">new</span> UserShoppingCart();
+}</pre>
+<p>As the user traverses your web pages, you are able to pluck out the UserShoppingCart instance and
+fill the fields with user-specific data. For example, assume you have a simple *.aspx page that defines a
+set of input controls that correspond to each field of the UserShoppingCart type, a Button for setting the
+values, and two Labels that will be used to display the user’s session ID and session information (see
+Figure 34-7).</p>
+<img src="http://www.diggen.co.uk/Images/Figure34_07.png" alt="Figure 34-7" />
+<p><b>Figure 34-7</b> The session application GUI</p>
+<p>The server-side Click event handler for the Button control is straightforward (scrape out values from
+TextBoxes and display the shopping cart data on a Label control):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">protected</span> <span class="kwrd">void</span> btnSubmit_Click(<span class="kwrd">object</span> sender, EventArgs e)
+{
+    <span class="rem">// Set current user prefs.</span>
+    UserShoppingCart cart =
+        (UserShoppingCart)Session[<span class="str">"UserShoppingCartInfo"</span>];
+    cart.dateOfPickUp = myCalendar.SelectedDate;
+    cart.desiredCar = txtCarMake.Text;
+    cart.desiredCarColor = txtCarColor.Text;
+    cart.downPayment = <span class="kwrd">float</span>.Parse(txtDownPayment.Text);
+    cart.isLeasing = chkIsLeasing.Checked;
+    lblUserInfo.Text = cart.ToString();
+    Session[<span class="str">"UserShoppingCartInfo"</span>] = cart;
+}</pre>
+<p>Within Session_End(), you may wish to persist the fields of the UserShoppingCart to a database or
+whatnot (however, as you will see at the conclusion of this chapter, the ASP.NET Profile API will do so
+automatically). As well, you may wish to implement Session_Error() to trap any faulty input (or perhaps
+make use of various validation controls on the Default.aspx page to account for such user errors).</p>
+<p>In any case, if you were to launch two or three instances of your browser of choice all posting to the
+same URL (via a copy/paste operation as you did for the data cache example), you would find that each
+user is able to build a custom shopping cart that maps to his unique instance of HttpSessionState.</p>
+<h2>Additional Members of HttpSessionState</h2>
+<p>The HttpSessionState class defines a number of other members of interest beyond the type indexer.
+First, the SessionID property will return the current user’s unique ID. If you wish to view the
+automatically assigned session ID for this example, handle the Load event of your page as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">protected</span> <span class="kwrd">void</span> Page_Load(<span class="kwrd">object</span> sender, EventArgs e)
+{
+    lblUserID.Text = <span class="kwrd">string</span>.Format(<span class="str">"Here is your ID: {0}"</span>,
+        Session.SessionID);
+}</pre>
+    <p>The Remove() and RemoveAll() methods may be used to clear items out of the user’s instance of
+HttpSessionState:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Session.Remove(<span class="str">"SomeItemWeDontNeedAnymore"</span>);</pre>
+<p>The HttpSessionState type also defines a set of members that control the expiration policy of the
+current session. Again, by default each user has 20 minutes of inactivity before the HttpSessionState
+object is destroyed. Thus, if a user enters your web application (and therefore obtains a unique session
+ID), but then does not return to the site within 20 minutes, the runtime assumes the user is no longer
+interested and destroys all session data for that user. You are free to change this default 20-minute
+expiration value on a user-by-user basis using the Timeout property. The most common place to do so is
+within the scope of your Session_Start() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">void</span> Session_Start(Object sender, EventArgs e)
+{
+    <span class="rem">// Each user has 5 minutes of inactivity.</span>
+    Session.Timeout = 5;
+    Session[<span class="str">"UserShoppingCartInfo"</span>]
+        = <span class="kwrd">new</span> UserShoppingCart();
+}</pre>
+<p><b>Note</b> If you do not need to tweak each user’s Timeout value, you can alter the 20-minute default for all users
+via the Timeout attribute of the &lt;sessionState&gt; element within the Web.config file (examined at the end of
+this chapter).</p>
+<p>The benefit of the Timeout property is that you have the ability to assign specific timeout values
+separately for each user. For example, imagine you have created a web application that allows users to
+pay cash for a given membership level. You may say that Gold members should time out within one
+hour, while Wood members should get only 30 seconds. This possibility begs the question, how can you
+remember user-specific information (such as the current membership level) if users close the browser
+and come back at a later time? One possible answer is through the use of the HttpCookie type. (And
+speaking of cookies . . .)</p>
+    <p><b>Source Code</b> The SessionState web site is included under the Chapter 34 subdirectory.</p>
+   </body></html>
+      
+   

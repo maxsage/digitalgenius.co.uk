@@ -1,0 +1,101 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Introducing the Documents API</h1>
+<p>WPF ships with many controls that allow you to capture or display simple blurbs of textual data,
+including Label, TextBox, TextBlock, and PasswordBox. These controls are useful, but some WPF
+applications require the use of sophisticated, highly formatted text data, similar to what you might find
+in an Adobe PDF file. The Documents API of WPF provides such functionality; however, it uses the XML
+Paper Specification (XPS) format rather than the PDF file format .</p>
+<p>You can use the Documents API to construct a print-ready document by leveraging several classes
+from the System.Windows.Documents namespace. Here you will find a number of types that represent
+pieces of a rich XPS document, such as List, Paragraph, Section, Table, LineBreak, Figure, Floater, and
+Span.</p>
+<h2>Block Elements and Inline Elements</h2>
+<p>Formally speaking, the items you add to a XPS document belong to one of two broad categories: block
+elements and inline elements. This first category, block elements, consists of classes that extend the
+System.Windows.Documents.Block base class. Examples of block elements include List, Paragraph,
+BlockUIContainer, Section, and Table. You use classes from this category to group together other
+content (e.g., a list containing paragraph data, and a paragraph containing sub paragraphs for different
+text formatting).</p>
+<p>The second category, inline elements, consists of classes that extend the
+System.Windows.Documents.Inline base class. You nest inline elements within another block item (or
+possibly within another inline element inside a block element). Some common inline elements include
+Run, Span, LineBreak, Figure, and Floater.</p>
+<p>These classes possess names that you might encounter when building a rich document with a
+professional editor. As with any other WPF control, you can configure these classes in XAML or through
+code. Therefore, you can declare an empty &lt;Paragraph&gt; element that is populated at runtime (you’ll see
+how to do such tasks in this example).</p>
+<h2>Document Layout Managers</h2>
+<p>You might think you can simply place inline and block elements directly into a panel container such as a
+Grid; however, you need to wrap them in a &lt;FlowDocument&gt; element or a &lt;FixedDocument&gt; element.</p>
+<p>It is ideal to place items in a FlowDocument when you wish to let your end user change the way the
+data is presented on the computer screen. The user can do this by zooming text or changing how the
+data is presented (e.g., a single long page or a pair of columns). You’re better off using FixedDocument for
+true print-ready (WYSIWYG), unchangeable document data.</p>
+<p>For this example, you will only concern yourself with the FlowDocument container. Once you insert
+inline and block items to your FlowDocument, the FlowDocument object is placed in one of four specialized
+XPS-aware layout managers, listed in Table 28-4.</p>
+<p><b>Table 28-4.</b> XPS Control Layout Managers</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Panel Control
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    FlowDocumentReader
+   </td>
+   <td>
+    Displays data in a FlowDocument and adds support for zooming,
+searching, and content layout in various forms.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    FlowDocumentScrollViewer
+   </td>
+   <td>
+    Displays data in a FlowDocument; however, the data is presented as a
+single document viewed with scrollbars. This container does not
+support zooming, searching, or alternative layout modes.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    RichTextBox
+   </td>
+   <td>
+    Displays data in a FlowDocument and adds support for user editing.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    FlowDocumentPageViewer
+   </td>
+   <td>
+    Displays the document page-by-page, one page at a time. Data can also
+be zoomed, but not searched.
+   </td>
+  </tr>
+</table>
+<p>The most feature-rich way to display a FlowDocument is to wrap it within a FlowDocumentReader
+manager. When you do this, the user can alter the layout, search for words in the document, and zoom
+in on the data using the provided UI. The one limitation of this container (as well as of
+FlowDocumentScrollViewer and FlowDocumentPageViewer) is that the content you display with it is read
+only. However, if you do want to allow the end user to enter new information to the FlowDocument, you
+can wrap it in a RichTextBox control.</p>
+    </body></html>
+   
+      
+   

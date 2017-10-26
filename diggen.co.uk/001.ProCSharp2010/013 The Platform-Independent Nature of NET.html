@@ -1,0 +1,129 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title>The Platform-Independent Nature of .NET</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />	
+</head>
+<body>
+    <h1>The Platform-Independent Nature of .NET</h1>
+    <p>To the surprise of most developers, .NET assemblies can be developed and executed on non-
+    Microsoft operating systems—Mac OS X, various Linux distributions, Solaris, as well as the Apple iPhone
+    device (via the MonoTouch API). To understand how this is possible, you need to come to terms with yet
+    another abbreviation in the .NET universe: CLI (Common Language Infrastructure).</p>
+    <p>When Microsoft released the C# programming language and the .NET platform, they also crafted a
+    set of formal documents that described the syntax and semantics of the C# and CIL languages, the .NET
+    assembly format, core .NET namespaces, and the mechanics of a hypothetical .NET runtime engine
+    (known as the Virtual Execution System, or VES).</p>
+     <p>Better yet, these documents have been submitted to (and ratified by) Ecma International as official
+    international standards (http://www.ecma-international.org). The specifications of interest are</p>
+    <ul>
+        <li>
+            <p>
+                ECMA-334: The C# Language Specification
+            </p>
+        </li>
+        <li>
+            <p>
+                ECMA-335: The Common Language Infrastructure (CLI)
+            </p>
+        </li>
+    </ul>
+     <p>The importance of these documents becomes clear when you understand that they enable third
+    parties to build distributions of the .NET platform for any number of operating systems and/or
+    processors. ECMA-335 is the more “meaty” of the two specifications, so much so that is has been broken
+    into six partitions, as shown in the following table.</p>
+    <p><b>Table 1-4.</b> Partitions of the CLI</p>
+    <table class="gridtable">
+        <tr>
+            <th>Partitions of ECMA-335</th>
+            <th>Meaning in Life</th> 
+        </tr> 
+        <tr>
+            <td>Partition I: Concepts and Architecture</td>
+            <td>Describes the overall architecture of the CLI, including the rules of
+            the CTS and CLS, and the mechanics of the .NET runtime engine.</td> 
+        </tr> 
+        <tr>
+            <td>
+                Partition II: Metadata Definition and Semantics 
+            </td>
+            <td>
+                Describes the details of .NET metadata and the assembly format.
+            </td> 
+        </tr> 
+        <tr>
+            <td>
+                Partition III: CIL Instruction Set 
+            </td>
+            <td>
+                Describes the syntax and semantics of CIL code.
+            </td> 
+        </tr> 
+        <tr>
+            <td>
+                Partition IV: Profiles and Libraries 
+            </td>
+            <td>
+                Gives a high-level overview of the minimal and complete class
+                libraries that must be supported by a .NET distribution.
+            </td> 
+        </tr> 
+        <tr>
+            <td>
+                Partition V 
+            </td>
+            <td>
+                Debug Interchange Format
+            </td> 
+        </tr> 
+        <tr>
+            <td>
+                Partition VI: Annexes 
+            </td>
+            <td>
+                Provides a collection of odds-and-ends details such as class library
+                design guidelines and the implementation details of a CIL compiler.
+            </td> 
+        </tr> 
+    </table>
+    <p>Be aware that Partition IV (Profiles and Libraries) defines only a minimal set of namespaces that
+    represent the core services expected by a CLI distribution (e.g., collections, console I/O, file I/O,
+    threading, reflection, network access, core security needs, XML data manipulation). The CLI does not
+    define namespaces that facilitate web development (ASP.NET), database access (ADO.NET), or desktop
+    graphical user interface (GUI) application development (Windows Forms/Windows Presentation
+    Foundation).</p>
+    <p>The good news, however, is that the mainstream .NET distributions extend the CLI libraries with
+    Microsoft-compatible equivalents of ASP.NET, ADO.NET, and Windows Forms in order to provide fullfeatured,
+    production-level development platforms. To date, there are two major implementations of the
+    CLI (beyond Microsoft’s Windows-specific offering). Although this text focuses on the creation of .NET
+    applications using Microsoft’s .NET distribution, Table 1-5 provides information regarding the Mono
+    and Portable .NET projects.</p>
+    <p><b>Table 1-5.</b> Open Source .NET Distributions</p>
+    <table class="gridtable">
+        <tr>
+            <th>Distribution</th>
+            <th>Meaning in Life</th>
+        </tr>
+        <tr>
+            <td>http://www.mono-project.com</td>
+            <td>The Mono project is an open source distribution of the CLI that
+                targets various Linux distributions (e.g., openSUSE, Fedora) as well as
+                Windows and Mac OS X / iPhone devices.</td>
+        </tr>
+        <tr>
+            <td>http://www.dotgnu.org</td>
+            <td>Portable.NET is another open source distribution of the CLI that runs
+                on numerous operating systems. Portable.NET aims to target as many
+                operating systems as possible (e.g., Windows, AIX, BeOS, Mac OS X,
+                Solaris, all major Linux distributions).</td>
+        </tr>
+    </table>
+    <p>Both Mono and Portable.NET provide an ECMA-compliant C# compiler, .NET runtime engine, code
+    samples, documentation, as well as numerous development tools that are functionally equivalent to the
+    tools that ship with Microsoft’s .NET Framework 4.0 SDK. Furthermore, Mono and Portable.NET
+    collectively ship with a VB .NET, Java, and C complier.</p>
+    <p><b>Note</b> Coverage of creating cross-platform .NET applications using Mono can be found in Appendix B.</p>
+</body>
+</html>

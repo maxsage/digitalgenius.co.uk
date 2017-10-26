@@ -1,0 +1,98 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Data Binding Entities to Windows Forms GUIs</h1>
+    <p>To conclude this introductory examination of the ADO.NET Entity Framework, you will create a simple
+example where you bind entity objects to a Windows Forms GUI. As mentioned earlier in this chapter,
+you will examine data-binding operations in WPF and ASP.NET projects.</p>
+<p>Create a new Windows Forms application named AutoLotEDM_GUI and rename your initial form to
+MainForm. After you create the project (and similar to the previous client application you created), you set
+a reference to System.Data.Entity.dll and the latest and greatest version of AutoLotDAL.dll. Next, insert
+the App.config file from your AutoLotDAL project (using the Project &gt; Add Existing Item menu option)
+and import the AutoLotDAL namespace into your Form’s primary code file.</p>
+<p>Now add a DataGridView object to the form designer and rename the control to gridInventory. Once
+you place this control on the designer, select the inline grid editor (the tiny arrow on the upper right of
+the widget). From the Choose Data Source dropdown box, add a project data source (see Figure 23-24).</p>
+<img src="http://www.diggen.co.uk/Images/Figure23_24.png" alt="Figure 23-24" />
+<p><b>Figure 23-24</b> Designing the Windows Forms DataGridView control</p>
+<p>In this case, you do not bind directly to the database; instead, you bind to an entity class, so pick the
+Object option (see Figure 23-25).</p>
+<img src="http://www.diggen.co.uk/Images/Figure23_25.png" alt="Figure 23-25" />
+<p><b>Figure 23-25</b> Binding to a strongly typed object</p>
+<p>In the final step, check off the Inventory table of AutoLotDAL.dll as shown in Figure 23-26 (if you
+don’t see it listed, you probably forgot to reference this library).</p>
+<img src="http://www.diggen.co.uk/Images/Figure23_26.png" alt="Figure 23-26" />
+<p><b>Figure 23-26</b> Selecting the Inventory table</p>
+<p>Once you click the Finish button, you’ll see that the grid displays each property of the Inventory
+entity class, including the navigation properties! To remove them from the grid, activate the inline editor
+again (that tiny little arrow) and this time click the Edit Columns... link. Select the Orders column in the
+Edit Columns dialog and remove it from view (see Figure 23-27).</p>
+<img src="http://www.diggen.co.uk/Images/Figure23_27.png" alt="Figure 23-27" />
+<p><b>Figure 23-27</b>  Cleaning up the grid’s UI</p>
+<p>To finish the UI, add a single Button control and rename it to btnUpdate. At this point, your designer
+should look something like what you see in Figure 23-28.</p>
+<img src="http://www.diggen.co.uk/Images/Figure23_28.png" alt="Figure 23-28" />
+<p><b>Figure 23-28</b> The final UI</p>
+<h2>Adding the Data Binding Code</h2>
+<p>At this point, you have a grid that can display any number of Inventory objects; however, you need to
+write the code to do so. Thanks to the runtime engine of the EF, the code could not be simpler. Begin by
+handling the FormClosed and Load events of your MainForm class (using the Properties window) and the
+Click event of the Button control. Once you do this, update your code file with the following snippet:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> MainForm : Form
+{
+    AutoLotEntities context = <span class="kwrd">new</span> AutoLotEntities();
+    <span class="kwrd">public</span> MainForm()
+    {
+        InitializeComponent();
+    }
+
+    <span class="kwrd">private</span> <span class="kwrd">void</span> MainForm_Load(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+        <span class="rem">// Bind the ObjectSet&lt;Inventory&gt; collection to the grid.</span>
+        gridInventory.DataSource = context.Inventories;
+    }
+    
+    <span class="kwrd">private</span> <span class="kwrd">void</span> btnUpdate_Click(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+        context.SaveChanges();
+        MessageBox.Show(<span class="str">"Data saved!"</span>);
+    }
+
+    <span class="kwrd">private</span> <span class="kwrd">void</span> MainForm_FormClosed(<span class="kwrd">object</span> sender, FormClosedEventArgs e)
+    {
+        context.Dispose();
+    }
+}</pre>
+<p>This is all you need to do! If you run your application, you can now add new records to the grid,
+select a row and delete it, and modify existing rows. When you click your Update button, the Inventory
+database is updated automatically because the object context has been kind enough to generate all the
+necessary SQL statements for selecting, updating, deleting, and inserting automatically. Figure 23-29
+shows the completed Windows Forms application.</p>
+<img src="http://www.diggen.co.uk/Images/Figure23_29.png" alt="Figure 23-29" />
+<p><b>Figure 23-29</b> The completed application</p>
+<p>Here are some key takeaways from this preceding example:</p>
+<ul>
+ <li>The context remains allocated throughout the application.</li>
+ <li>The call to context.Inventories executes SQL to fetch all rows from the Inventory
+table into memory.</li>
+ <li>The context tracks dirty entities, so it knows what SQL to execute upon
+SaveChanges().</li>
+ <li>After SaveChanges(), the entities are considered clean again.</li>
+</ul>
+<p>That wraps up this chapter’s examination of the ADO.NET Entity Framework. While there is so
+much more to this programming model than this chapter can address, you should now have a solid
+understanding about what problems EF attempts to solve and how to work with the overall
+programming model. Be sure to consult the .NET Framework 4.0 SDK documentation for more details
+of this slick data programming API.</p>
+</body>
+    </html>
+   
+

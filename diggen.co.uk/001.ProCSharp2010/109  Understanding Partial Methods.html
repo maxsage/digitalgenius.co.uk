@@ -1,0 +1,148 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Understanding Partial Methods</h1>
+  <p>Since the release of .NET 2.0, it has been possible to build partial class definitions using the partial
+keyword (see Chapter 5). Recall that this bit of syntax allows you to partition the full implementation of a
+type across multiple code files (or other locations, such as in memory). As long as each aspect of the
+partial type has the same fully qualified name, the end result is a single “normal” compiled class type in
+the assembly being constructed.</p>
+<p>C# recycles the role of the partial keyword in that it can now be applied on the method level. In a
+nutshell, this allows you to prototype a method in one file, yet implement it in another file. If you have a
+C++ background, this might remind you of a C++ header/implementation file; however, C# partial
+methods have a number of important restrictions:</p>
+<ul>
+ <li>Partial methods can only be defined within a partial class.</li>
+ <li>Partial methods must return void.</li>
+ <li>Partial methods can be static or instance level.</li>
+ <li>Partial methods can have arguments (including parameters modified by this, ref,
+or params—but not with the out modifier).</li>
+ <li>Partial methods are always implicitly private.</li>
+</ul>
+<p>Even stranger is the fact that a partial method may or may not be emitted into the compiled
+assembly! Let’s see an example to clarify matters.</p>
+<h2>A First Look at Partial Methods</h2>
+  <p>To see the implications of defining a partial method, create a new Console Application project named
+PartialMethods. Now, define a new class named CarLocator within a C# file named CarLocator.cs:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// CarLocator.cs</span>
+<span class="kwrd">partial</span> <span class="kwrd">class</span> CarLocator
+{
+    <span class="rem">// This member will always be part of the</span>
+    <span class="rem">// CarLocator class.</span>
+    <span class="kwrd">public</span> <span class="kwrd">bool</span> CarAvailableInZipCode(<span class="kwrd">string</span> zipCode)
+    {
+        <span class="rem">// This call *may* be part of this method</span>
+        <span class="rem">// implementation.</span>
+        VerifyDuplicates(zipCode);
+
+        <span class="rem">// Assume some interesting database logic</span>
+        <span class="rem">// here...</span>
+        <span class="kwrd">return</span> <span class="kwrd">true</span>;
+    }
+
+    <span class="rem">// This member *may* be part of the CarLocator class!</span>
+    <span class="kwrd">partial</span> <span class="kwrd">void</span> VerifyDuplicates(<span class="kwrd">string</span> make);
+}</pre>
+<p>Notice that the VerifyDuplicates() method has been defined with the partial modifier and does
+not define a method body within this file. Also notice that the CarAvailableInZipCode() method is
+making a call to VerifyDuplicates() within its implementation.</p>
+<p>If you were to compile this application as it now stands and open the compiled assembly in a tool
+such as ildasm.exe or reflector.exe, you would find no trace of the VerifyDuplicates() method in the
+CarLocator class, and no trace of the call to VerifyDuplicates() within CarAvailableInZipCode()! With
+the project as it now stands, you really authored the following definition of the CarLocator class as far as
+the compiler is concerned:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">internal</span> <span class="kwrd">class</span> CarLocator
+{
+    <span class="kwrd">public</span> <span class="kwrd">bool</span> CarAvailableInZipCode(<span class="kwrd">string</span> zipCode)
+    {
+        <span class="kwrd">return</span> <span class="kwrd">true</span>;
+    }
+}</pre>
+<p>The reason for this strange stripping away of code has to do with the fact that the partial
+VerifyDuplicates() method was never given a true implementation. If you were to now add a new file to
+your project (named perhaps CarLocatorImpl.cs) that defined the remainder of the partial method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// CarLocatorImpl.cs</span>
+<span class="kwrd">partial</span> <span class="kwrd">class</span> CarLocator
+{
+    <span class="kwrd">partial</span> <span class="kwrd">void</span> VerifyDuplicates(<span class="kwrd">string</span> make)
+    {
+        <span class="rem">// Assume some expensive data validation</span>
+        <span class="rem">// takes place here...</span>
+    }
+}</pre>
+<p>you would find that the full scope of the CarLocator class is taken into account at compile time, as shown
+in the following approximate C# code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">internal</span> <span class="kwrd">class</span> CarLocator
+{
+    <span class="kwrd">public</span> <span class="kwrd">bool</span> CarAvailableInZipCode(<span class="kwrd">string</span> zipCode)
+    {
+        <span class="kwrd">this</span>.VerifyDuplicates(zipCode);
+        <span class="kwrd">return</span> <span class="kwrd">true</span>;
+    }
+
+    <span class="kwrd">private</span> <span class="kwrd">void</span> VerifyDuplicates(<span class="kwrd">string</span> make)
+    {
+    }
+}</pre>
+<p>As you can see, when a method is defined with the partial keyword, the compiler will determine if it
+should be emitted into the assembly based on whether the method has a method body or is simply an
+empty signature. If there is no method body, all traces of the method (invocations, metadata
+descriptions, prototypes) are stripped out during the compilation cycle.</p>
+<p>In some ways, C# partial methods are a strongly typed version of conditional code compilation (via
+the #if, #elif, #else, and #endif preprocessor directives). The major difference, however, is that a
+partial method will be completely ignored during the compilation cycle (regardless of build settings) if
+there is not a supporting implementation.</p>
+<h2>Uses of Partial Methods</h2>
+<p>Given the restrictions that come with partial methods, most notably that they must be implicitly private
+and always return void, it is hard to see many useful applications of this new language feature. Truth be
+told, out of all of the language features of C#, partial methods seem among those likely to be used the
+least.</p>
+<p>In the current example, the VerifyDuplicates() method was marked as partial for illustrative
+purposes. However, imagine that this method, if implemented, had to perform some very intensive
+calculations.</p>
+<p>By marking this method with the partial modifier, other class builders have the option of providing
+implementation details if they so choose. In this case, partial methods provide a cleaner solution than
+using preprocessor directives, supplying “dummy” implementations to virtual methods, or throwing
+NotImplementedException objects.</p>
+<p>The most common use of this syntax is to define what are termed lightweight events. This technique
+enables class designers to provide method hooks, similar to event handlers, that developers may choose
+to implement or not. As a naming convention, such lightweight event-handling methods take an On
+prefix, for example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// CarLocator.EventHandler.cs</span>
+<span class="kwrd">partial</span> <span class="kwrd">class</span> CarLocator
+{
+    <span class="kwrd">public</span> <span class="kwrd">bool</span> CarAvailableInZipCode(<span class="kwrd">string</span> zipCode)
+    {
+        ...
+        OnZipCodeLookup(zipCode);
+        <span class="kwrd">return</span> <span class="kwrd">true</span>;
+    }
+    ...
+
+    <span class="rem">// A "lightweight" event handler.</span>
+    <span class="kwrd">partial</span> <span class="kwrd">void</span> OnZipCodeLookup(<span class="kwrd">string</span> make);
+}</pre>
+<p>If any class builders wish to be informed when the CarAvailableInZipCode() method has been
+called, they can provide an implementation of the OnZipCodeLookup() method. If they do not care, they
+simply do nothing.</p>
+    <p><b>Source Code</b> The PartialMethods project can be found under the Chapter 12 subdirectory.</p>
+    </body></html>
+   
+   
+

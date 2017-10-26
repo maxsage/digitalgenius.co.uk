@@ -1,0 +1,67 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Invoking a Service Asynchronously from the Client</h1>
+<p>Create a new Console Application named MathClient and set a Service Reference to your running WCF
+service (that is current hosted by the Windows service running in the background) using the Add Service
+Reference option of Visual Studio (you’ll need to type the URL in the Addresses box). Don’t click the OK
+button yet, however! Notice that the Add Service Reference dialog box has an Advanced button in the
+lower-left corner (see Figure 25-17).</p>
+<img src="http://www.diggen.co.uk/Images/Figure25_17.png" alt="Figure 25-17" />
+<p><b>Figure 25-17</b> Referencing your MathService and getting ready to configure advanced settings</p>
+<p>Click this button now to view the additional proxy configuration settings (see Figure 25-18). You can
+use this dialog box to generate code that allows you to call the remote methods in an asynchronous
+manner, provided you check the Generate Asynchronous Operators check box. Go ahead and check this
+option for the time being.</p>
+<img src="http://www.diggen.co.uk/Images/Figure25_18.png" alt="Figure 25-18" />
+<p><b>Figure 25-18</b> Advanced client-side proxy configuration options</p>
+<p>At this point, the proxy code contains additional methods that allow you to invoke each member of
+the service contract using the expected Begin/End asynchronous invocation pattern described in Chapter
+19. Here is a simple implementation that uses a lambda expression rather than a strongly typed
+AsyncCallback delegate:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System;
+<span class="kwrd">using</span> MathClient.ServiceReference;
+<span class="kwrd">using</span> System.Threading;
+
+<span class="kwrd">namespace</span> MathClient
+{
+    <span class="kwrd">class</span> Program
+    {
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            Console.WriteLine(<span class="str">"***** The Async Math Client *****\n"</span>);
+
+            <span class="kwrd">using</span> (BasicMathClient proxy = <span class="kwrd">new</span> BasicMathClient())
+            {
+                proxy.Open();
+                <span class="rem">// Add numbers in an async manner, using a lambda expression.</span>
+                IAsyncResult result = proxy.BeginAdd(2, 3,
+                    ar =&gt;
+                    {
+                        Console.WriteLine(<span class="str">"2 + 5 = {0}"</span>, proxy.EndAdd(ar));
+                    },
+                    <span class="kwrd">null</span>);
+    
+                while (!result.IsCompleted)
+                {
+                    Thread.Sleep(200);
+                    Console.WriteLine(<span class="str">"Client working..."</span>);
+                }
+            }
+            Console.ReadLine();
+        }
+    }
+}</pre>
+    </body>
+    </html>
+ 
+      
+   

@@ -1,0 +1,267 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Understanding Indexer Methods</h1>
+  <p>As a programmer, you are certainly familiar with the process of accessing individual items contained
+within a simple array using the index operator ([]), for example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    <span class="rem">// Loop over incoming command line arguments</span>
+    <span class="rem">// using index operator.</span>
+    <span class="kwrd">for</span>(<span class="kwrd">int</span> i = 0; i &lt; args.Length; i++)
+        Console.WriteLine(<span class="str">"Args: {0}"</span>, args[i]);
+
+    <span class="rem">// Declare an array of local integers.</span>
+    <span class="kwrd">int</span>[] myInts = { 10, 9, 100, 432, 9874};
+
+    <span class="rem">// Use the index operator to access each element.</span>
+    <span class="kwrd">for</span>(<span class="kwrd">int</span> j = 0; j &lt; myInts.Length; j++)
+        Console.WriteLine(<span class="str">"Index {0} = {1} "</span>, j, myInts[j]);
+    Console.ReadLine();
+}</pre>
+<p>This code is by no means a major newsflash. However, the C# language provides the capability to
+design custom classes and structures that may be indexed just like a standard array, by defining an
+indexer method. This particular feature is most useful when you are creating custom collection classes
+(generic or nongeneric).</p>
+<p>Before examining how to implement a custom indexer, let’s begin by seeing one in action. Assume
+you have added support for an indexer method to the custom PeopleCollection type developed in
+Chapter 10 (specifically, the CustomNonGenericCollection project). Observe the following usage within
+a new Console Application named SimpleIndexer:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Indexers allow you to access items in an array-like fashion.</span>
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Fun with Indexers *****\n"</span>);
+        
+        PeopleCollection myPeople = <span class="kwrd">new</span> PeopleCollection();
+
+        <span class="rem">// Add objects with indexer syntax.</span>
+        myPeople[0] = <span class="kwrd">new</span> Person(<span class="str">"Homer"</span>, <span class="str">"Simpson"</span>, 40);
+        myPeople[1] = <span class="kwrd">new</span> Person(<span class="str">"Marge"</span>, <span class="str">"Simpson"</span>, 38);
+        myPeople[2] = <span class="kwrd">new</span> Person(<span class="str">"Lisa"</span>, <span class="str">"Simpson"</span>, 9);
+        myPeople[3] = <span class="kwrd">new</span> Person(<span class="str">"Bart"</span>, <span class="str">"Simpson"</span>, 7);
+        myPeople[4] = <span class="kwrd">new</span> Person(<span class="str">"Maggie"</span>, <span class="str">"Simpson"</span>, 2);
+
+        <span class="rem">// Now obtain and display each item using indexer.</span>
+        <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; myPeople.Count; i++)
+        {
+            Console.WriteLine(<span class="str">"Person number: {0}"</span>, i);
+            Console.WriteLine(<span class="str">"Name: {0} {1}"</span>,
+                myPeople[i].FirstName, myPeople[i].LastName);
+            Console.WriteLine(<span class="str">"Age: {0}"</span>, myPeople[i].Age);
+            Console.WriteLine();
+        }
+    }    
+}</pre>
+    <p>As you can see, indexers behave much like a custom collection supporting the IEnumerator and
+IEnumerable interfaces (or their generic counterparts) in that they provide access to a container’s
+subitems. The major difference, of course, is that rather than accessing the contents using the foreach
+construct, you are able to manipulate the internal collection of sub-objects just like a standard array.</p>
+<p>Now for the big question: How do you configure the PeopleCollection class (or any custom class or
+structure) to support this functionality? An indexer is represented as a slightly modified C# property
+definition. In its simplest form, an indexer is created using the this[] syntax. Here is the required update
+for the PeopleCollection class from Chapter 10:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Add the indexer to the existing class definition.</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> PeopleCollection : IEnumerable
+{
+    <span class="kwrd">private</span> ArrayList arPeople = <span class="kwrd">new</span> ArrayList();
+
+    <span class="rem">// Custom indexer for this class.</span>
+    <span class="kwrd">public</span> Person <span class="kwrd">this</span>[<span class="kwrd">int</span> index]
+    {
+        <span class="kwrd">get</span> { <span class="kwrd">return</span> (Person)arPeople[index]; }
+        <span class="kwrd">set</span> { arPeople.Insert(index, value); }
+    }
+...
+}</pre>
+<p>Apart from using the this keyword, the indexer looks just like any other C# property declaration. For
+example, the role of the get scope is to return the correct object to the caller. Here, we are doing so by
+delegating the request to the indexer of the ArrayList object! The set scope is in charge this example,
+this is achieved by calling the Insert() method of the ArrayList.</p>
+<p>As you can see, indexers are yet another form of syntactic sugar, given that this functionality can
+also be achieved using “normal” public methods such as AddPerson() or GetPerson(). Nevertheless,
+when you support indexer methods on your custom collection types, they integrate well into the fabric
+of the .NET base class libraries.</p>
+<p>While creating indexer methods is quite commonplace when you are building custom collections,
+do remember that generic types give you this very functionality out of the box. Consider the following
+method, which makes use of a generic List&lt;T&gt; of Person objects. Note that you can simply use the
+indexer of List&lt;T&gt; directly, for example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> UseGenericListOfPeople()
+{
+    List&lt;Person&gt; myPeople = <span class="kwrd">new</span> List&lt;Person&gt;();
+    myPeople.Add(<span class="kwrd">new</span> Person(<span class="str">"Lisa"</span>, <span class="str">"Simpson"</span>, 9));
+    myPeople.Add(<span class="kwrd">new</span> Person(<span class="str">"Bart"</span>, <span class="str">"Simpson"</span>, 7));
+
+    <span class="rem">// Change first person with indexer.</span>
+    myPeople[0] = <span class="kwrd">new</span> Person(<span class="str">"Maggie"</span>, <span class="str">"Simpson"</span>, 2);
+
+    <span class="rem">// Now obtain and display each item using indexer.</span>
+    <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; myPeople.Count; i++)
+    {
+        Console.WriteLine(<span class="str">"Person number: {0}"</span>, i);
+        Console.WriteLine(<span class="str">"Name: {0} {1}"</span>, myPeople[i].FirstName,
+            myPeople[i].LastName);
+        Console.WriteLine(<span class="str">"Age: {0}"</span>, myPeople[i].Age);
+        Console.WriteLine();
+    }
+}</pre>
+    <p><b>Source Code</b> The SimpleIndexer project is located under the Chapter 12 subdirectory.</p>
+<h2>Indexing Data Using String Values</h2>
+  <p>The current PeopleCollection class defined an indexer that allowed the caller to identify subitems using
+a numerical value. Understand, however, that this is not a requirement of an indexer method. Suppose
+you’d prefer to contain the Person objects using a System.Collections.Generic.Dictionary&lt;TKey,
+TValue&gt; rather than an ArrayList. Given that ListDictionary types allow access to the contained types
+using a string token (such as a person’s first name), you could define an indexer as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> PeopleCollection : IEnumerable
+{
+    <span class="kwrd">private</span> Dictionary&lt;<span class="kwrd">string</span>, Person&gt; listPeople =
+        <span class="kwrd">new</span> Dictionary&lt;<span class="kwrd">string</span>, Person&gt;();
+
+    <span class="rem">// This indexer returns a person based on a string index.</span>
+    <span class="kwrd">public</span> Person <span class="kwrd">this</span>[<span class="kwrd">string</span> name]
+    {
+        <span class="kwrd">get</span> { <span class="kwrd">return</span> (Person)listPeople[name]; }
+        <span class="kwrd">set</span> { listPeople[name] = value; }
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> ClearPeople()
+    { listPeople.Clear(); }
+
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Count
+    { <span class="kwrd">get</span> { <span class="kwrd">return</span> listPeople.Count; } }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    { <span class="kwrd">return</span> listPeople.GetEnumerator(); }
+}</pre>
+<p>The caller would now be able to interact with the contained Person objects as shown here:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Indexers *****\n"</span>);
+
+    PeopleCollection myPeople = <span class="kwrd">new</span> PeopleCollection();
+
+    myPeople[<span class="str">"Homer"</span>] = <span class="kwrd">new</span> Person(<span class="str">"Homer"</span>, <span class="str">"Simpson"</span>, 40);
+    myPeople[<span class="str">"Marge"</span>] = <span class="kwrd">new</span> Person(<span class="str">"Marge"</span>, <span class="str">"Simpson"</span>, 38);
+
+    <span class="rem">// Get "Homer" and print data.</span>
+    Person homer = myPeople[<span class="str">"Homer"</span>];
+    Console.WriteLine(homer.ToString());
+
+    Console.ReadLine();
+}</pre>
+<p>Again, if you were to use the generic Dictionary&lt;TKey, TValue&gt; type directly, you’d gain the indexer
+method functionality out of the box, without building a custom, non-generic class supporting a string
+indexer.</p>
+    <p><b>Source Code</b> The StringIndexer project is located under the Chapter 12 subdirectory.</p>
+<h2>Overloading Indexer Methods</h2>
+  <p>Understand that indexer methods may be overloaded on a single class or structure. Thus, if it makes
+sense to allow the caller to access subitems using a numerical index or a string value, you might define
+multiple indexers for a single type. By way of example, if you have ever programmed with ADO.NET
+(.NET’s native database-access API), you may recall that the DataSet type supports a property named
+Tables, which returns to you a strongly typed DataTableCollection type. As it turns out,
+DataTableCollection defines three indexers to get and set DataTable objects—one by ordinal position,
+and the others by a friendly string moniker and optional containing namespace:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">sealed</span> <span class="kwrd">class</span> DataTableCollection : InternalDataCollectionBase
+{
+...
+    <span class="rem">// Overloaded indexers!</span>
+    <span class="kwrd">public</span> DataTable <span class="kwrd">this</span>[<span class="kwrd">string</span> name] { <span class="kwrd">get</span>; }
+    <span class="kwrd">public</span> DataTable <span class="kwrd">this</span>[<span class="kwrd">string</span> name, <span class="kwrd">string</span> tableNamespace] { <span class="kwrd">get</span>; }
+    <span class="kwrd">public</span> DataTable <span class="kwrd">this</span>[<span class="kwrd">int</span> index] { <span class="kwrd">get</span>; }
+}</pre>
+<p>Note that a number of types in the base class libraries support indexer methods. So be aware, even if
+your current project does not require you to build custom indexers for your classes and structures, that
+many types already support this syntax.</p>
+<h2>Indexers with Multiple Dimensions</h2>
+  <p>You can also create an indexer method that takes multiple parameters. Assume you have a custom
+collection that stores subitems in a 2D array. If this is the case, you may define an indexer method as
+follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> SomeContainer
+{
+    <span class="kwrd">private</span> <span class="kwrd">int</span>[,] my2DintArray = <span class="kwrd">new</span> <span class="kwrd">int</span>[10, 10];
+
+    <span class="kwrd">public</span> <span class="kwrd">int</span> <span class="kwrd">this</span>[<span class="kwrd">int</span> row, <span class="kwrd">int</span> column]
+    { <span class="rem">/* get or set value from 2D array */</span> }
+}</pre>
+<p>Again, unless you are building a highly stylized custom collection class, you won’t have much need
+to build a multi-dimensional indexer. Still, once again ADO.NET showcases how useful this construct
+can be. The ADO.NET DataTable is essentially a collection of rows and columns, much like a piece of
+graph paper or the general structure of a Microsoft Excel spreadsheet.</p>
+<p>While DataTable objects are typically populated on your behalf using a related “data adapter,” the
+following code illustrates how to manually create an in-memory DataTable containing three columns
+(for the first name, last name, and age of each record). Notice how once we have added a single row to
+the DataTable, we use a multidimensional indexer to drill into each column of the first (and only) row. (If
+you are following along, you’ll need to import the System.Data namespace into your code file.)</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> MultiIndexerWithDataTable()
+{
+    <span class="rem">// Make a simple DataTable with 3 columns.</span>
+    DataTable myTable = <span class="kwrd">new</span> DataTable();
+    myTable.Columns.Add(<span class="kwrd">new</span> DataColumn(<span class="str">"FirstName"</span>));
+    myTable.Columns.Add(<span class="kwrd">new</span> DataColumn(<span class="str">"LastName"</span>));
+    myTable.Columns.Add(<span class="kwrd">new</span> DataColumn(<span class="str">"Age"</span>));
+
+    <span class="rem">// Now add a row to the table.</span>
+    myTable.Rows.Add(<span class="str">"Mel"</span>, <span class="str">"Appleby"</span>, 60);
+
+    <span class="rem">// Use multi-dimension indexer to get details of first row.</span>
+    Console.WriteLine(<span class="str">"First Name: {0}"</span>, myTable.Rows[0][0]);
+    Console.WriteLine(<span class="str">"Last Name: {0}"</span>, myTable.Rows[0][1]);
+    Console.WriteLine(<span class="str">"Age : {0}"</span>, myTable.Rows[0][2]);
+}</pre>
+<p>Do be aware that we’ll take a rather deep dive into ADO.NET beginning with Chapter 21, so if some
+of the previous code seems unfamiliar, fear not. The main point of this example is that indexer methods
+can support multiple dimensions, and if used correctly, can simplify the way you interact with contained
+subobjects in custom collections.</p>
+<h2>Indexer Definitions on Interface Types</h2>
+  <p>Indexers can be defined on a given .NET interface type to allow supporting types to provide a custom
+implementation. Here is a simple example of an interface that defines a protocol for obtaining string
+objects using a numerical indexer:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IStringContainer
+{
+    <span class="rem">// This interface defines an indexer that returns</span>
+    <span class="rem">// strings based on a numerical index.</span>
+    <span class="kwrd">string</span> <span class="kwrd">this</span>[<span class="kwrd">int</span> index] { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+}</pre>
+<p>With this interface definition, any class or structure that implements this interface must now
+support a read/write indexer that manipulates subitems using a numerical value.</p>
+<p>That wraps up the first major topic of this chapter. While understanding the syntax of C# indexers is
+important, as explained in Chapter 10, typically the only time a programmer needs to build a custom
+generic collection class is to add constraints to the type parameters. If you happen to build such a class,
+adding a custom indexer will make your collection class look and feel like the standard collection classes
+in the .NET base class libraries.</p>
+<p>Now let’s examine a language feature that lets you build custom classes or structures that respond
+uniquely to the intrinsic operators of C#. Allow me to introduce operator overloading.</p>
+</body>
+</html>
+
+
+ 
+   
+

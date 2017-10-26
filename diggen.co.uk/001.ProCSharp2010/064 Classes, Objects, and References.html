@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Understanding the Previous State of Affairs</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />	
+</head>
+<body>
+    <h1>Classes, Objects, and References</h1>
+<p>To frame the topics covered in this chapter, it is important to further clarify the distinction between
+classes, objects, and references. Recall that a class is nothing more than a blueprint that describes how
+an instance of this type will look and feel in memory. Classes, of course, are defined within a code file
+(which in C# takes a *.cs extension by convention). Consider a simple Car class defined within a new C#
+Console Application project named SimpleGC:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Car.cs</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> Car
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> CurrentSpeed {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+    <span class="kwrd">public</span> <span class="kwrd">string</span> PetName {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+
+    <span class="kwrd">public</span> Car(){}
+    <span class="kwrd">public</span> Car(<span class="kwrd">string</span> name, <span class="kwrd">int</span> speed)
+    {
+        PetName = name;
+        CurrentSpeed = speed;
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">string</span> ToString()
+    {
+        <span class="kwrd">return</span> <span class="kwrd">string</span>.Format(<span class="str">"{0} is going {1} MPH"</span>,
+            PetName, CurrentSpeed);
+    }
+}</pre>
+<p>Once a class is defined, you can allocate any number of objects using the C# new keyword.
+Understand, however, that the new keyword returns a reference to the object on the heap, not the actual
+object itself. If you declare the reference variable as a local variable in a method scope, it is stored on the
+stack for further use in your application. When you wish to invoke members on the object, apply the C#
+dot operator to the stored reference:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** GC Basics *****"</span>);
+
+        <span class="rem">// Create a new Car object on</span>
+        <span class="rem">// the managed heap. We are</span>
+        <span class="rem">// returned a reference to this</span>
+        <span class="rem">// object ("refToMyCar").</span>
+        Car refToMyCar = <span class="kwrd">new</span> Car(<span class="str">"Zippy"</span>, 50);
+    
+        <span class="rem">// The C# dot operator (.) is used</span>
+        <span class="rem">// to invoke members on the object</span>
+        <span class="rem">// using our reference variable.</span>
+        Console.WriteLine(refToMyCar.ToString());
+        Console.ReadLine();
+    }
+}</pre>
+<p>Figure 8-1 illustrates the class, object, and reference relationship.</p>
+  <img src="http://www.diggen.co.uk/Images/Figure08_01.png" alt="Figure 8-1" />
+<p><b>Figure 8-1</b> References to objects on the managed heap</p>
+<p><b>Note</b> Recall from Chapter 4 that structures are value types that are always allocated directly on the stack and
+are never placed on the .NET managed heap. Heap allocation only occurs when you are creating instances of classes.</p>
+ </body></html>
+   
+

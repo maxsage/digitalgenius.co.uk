@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>DG</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />	
+</head>
+<body>
+<h1>Arrays of Interface Types</h1>
+  <p>Recall that the same interface can be implemented by numerous types, even if they are not within the
+same class hierarchy and do not have a common parent class beyond System.Object. This can yield
+some very powerful programming constructs. For example, assume you have developed three new class
+types within your current project that model kitchen utensils (via Knife and Fork classes) and another
+modeling gardening equipment (à la PitchFork). Consider Figure 9-4.</p>
+<img src="http://www.diggen.co.uk/Images/Figure09_04.png" alt="Figure 9-4" />
+  
+<p><b>Figure 9-4.</b> Recall that interfaces can be “plugged into” any type in any part of a class hierarchy</p>
+<p>If you defined the PitchFork, Fork, and Knife types, you could now define an array of IPointycompatible
+objects. Given that these members all support the same interface, you can iterate through
+the array and treat each item as an IPointy-compatible object, regardless of the overall diversity of the
+class hierarchies:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+...
+    <span class="rem">// This array can only contain types that</span>
+    <span class="rem">// implement the IPointy interface.</span>
+    IPointy[] myPointyObjects = {<span class="kwrd">new</span> Hexagon(), <span class="kwrd">new</span> Knife(),
+        <span class="kwrd">new</span> Triangle(), <span class="kwrd">new</span> Fork(), <span class="kwrd">new</span> PitchFork()};
+
+    <span class="kwrd">foreach</span>(IPointy i <span class="kwrd">in</span> myPointyObjects)
+        Console.WriteLine(<span class="str">"Object has {0} points."</span>, i.Points);
+    Console.ReadLine();
+}</pre>
+    <p><b>Source Code</b> The CustomInterface project is located under the Chapter 9 subdirectory.</p>
+    </body></html>

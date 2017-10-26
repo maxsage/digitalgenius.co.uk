@@ -1,0 +1,254 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Interacting with the Incoming HTTP Request</h1>
+<p>As you saw earlier in this chapter, the basic flow of a web application begins with a client requesting
+a web page, possibly filling in user information, and clicking a “Submit button” to post back the
+HTML form data to a given web page for processing. In most cases, the opening tag of the form
+statement specifies an action attribute and a method attribute that indicates the file on the web
+server that will be sent the data in the various HTML widgets, as well as the method of sending this
+data (GET or POST):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">form</span> <span class="attr">name</span><span class="kwrd">="defaultPage"</span> <span class="attr">id</span><span class="kwrd">="defaultPage"</span>
+    <span class="attr">action</span><span class="kwrd">="http://localhost/Cars/ClassicAspPage.asp"</span> <span class="attr">method</span> = <span class="kwrd">"GET"</span><span class="kwrd">&gt;</span>
+...
+<span class="kwrd">&lt;/</span><span class="html">form</span><span class="kwrd">&gt;</span></pre>
+<p>All ASP.NET pages support the System.Web.UI.Page.Request property, which provides access to an
+instance of the HttpRequest class type (see Table 32-5 for some common members of this class).</p>
+<p><b>Table 32-5.</b> Members of the HttpRequest Type</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Member
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    ApplicationPath
+   </td>
+   <td>
+    Gets the ASP.NET application’s virtual application root path on the server
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Browser
+   </td>
+   <td>
+    Provides information about the capabilities of the client browser
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Cookies
+   </td>
+   <td>
+    Gets a collection of cookies sent by the client browser
+   </td>
+  </tr>
+  <tr>
+   <td>
+    FilePath
+   </td>
+   <td>
+    Indicates the virtual path of the current request
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Form
+   </td>
+   <td>
+    Gets a collection of HTTP form variables
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Headers
+   </td>
+   <td>
+    Gets a collection of HTTP headers
+   </td>
+  </tr>
+  <tr>
+   <td>
+    HttpMethod
+   </td>
+   <td>
+    Indicates the HTTP data transfer method used by the client (GET, POST)
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IsSecureConnection
+   </td>
+   <td>
+    Indicates whether the HTTP connection is secure (i.e., HTTPS)
+   </td>
+  </tr>
+  <tr>
+   <td>
+    QueryString
+   </td>
+   <td>
+    Gets the collection of HTTP query string variables
+   </td>
+  </tr>
+  <tr>
+   <td>
+    RawUrl
+   </td>
+   <td>
+    Gets the current request’s raw URL
+   </td>
+  </tr>
+  <tr>
+   <td>
+    RequestType
+   </td>
+   <td>
+    Indicates the HTTP data transfer method used by the client (GET, POST)
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ServerVariables
+   </td>
+   <td>
+    Gets a collection of web server variables
+   </td>
+  </tr>
+  <tr>
+   <td>
+    UserHostAddress
+   </td>
+   <td>
+    Gets the IP host address of the remote client
+   </td>
+  </tr>
+  <tr>
+   <td>
+    UserHostName
+   </td>
+   <td>
+    Gets the DNS name of the remote clien
+   </td>
+  </tr>
+ </TableRowGroup>
+</table>
+<p>In addition to these properties, the HttpRequest type has a number of useful methods, including the
+following:</p>
+<ul>
+ <li>MapPath(): Maps the virtual path in the requested URL to a physical path on the
+server for the current request</li>
+ <li>SaveAs(): Saves details of the current HTTP request to a file on the web server,
+which can prove helpful for debugging purposes.</li>
+ <li>ValidateInput(): If the validation feature is enabled via the Validate attribute of
+the page directive, this method can be called to check all user input data
+(including cookie data) against a predefined list of potentially dangerous input
+data.</li>
+</ul>
+<h2>Obtaining Brower Statistics</h2>
+<p>The first interesting aspect of the HttpRequest type is the Browser property, which provides access to an
+underlying HttpBrowserCapabilities object. HttpBrowserCapabilities, in turn, exposes numerous
+members that allow you to programmatically investigate statistics regarding the browser that sent the
+incoming HTTP request.</p>
+<p>Create a new ASP.NET website named FunWithPageMembers (again, elect to use the File System
+option). Your first task is to build a UI that allows users to click a Button web control (named
+btnGetBrowserStats) to view various statistics about the calling browser. These statistics will be
+generated dynamically and attached to a Label type (named lblOutput). The button’s Click event
+handler is as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">protected</span> <span class="kwrd">void</span> btnGetBrowserStats_Click(<span class="kwrd">object</span> sender, EventArgs e)
+{
+    <span class="kwrd">string</span> theInfo = <span class="str">""</span>;
+    theInfo += <span class="kwrd">string</span>.Format(<span class="str">"&lt;li&gt;Is the client AOL? {0}&lt;/li&gt;"</span>,
+        Request.Browser.AOL);
+    theInfo += <span class="kwrd">string</span>.Format(<span class="str">"&lt;li&gt;Does the client support ActiveX? {0}&lt;/li&gt;"</span>,
+        Request.Browser.ActiveXControls);
+    theInfo += <span class="kwrd">string</span>.Format(<span class="str">"&lt;li&gt;Is the client a Beta? {0}&lt;/li&gt;"</span>,
+        Request.Browser.Beta);
+    theInfo += <span class="kwrd">string</span>.Format(<span class="str">"&lt;li&gt;Does the client support Java Applets? {0}&lt;/li&gt;"</span>,
+        Request.Browser.JavaApplets);
+    theInfo += <span class="kwrd">string</span>.Format(<span class="str">"&lt;li&gt;Does the client support Cookies? {0}&lt;/li&gt;"</span>,
+        Request.Browser.Cookies);
+    theInfo += <span class="kwrd">string</span>.Format(<span class="str">"&lt;li&gt;Does the client support VBScript? {0}&lt;/li&gt;"</span>,
+        Request.Browser.VBScript);
+    lblOutput.Text = theInfo;
+}</pre>
+<p>Here you are testing for a number of browser capabilities. As you would guess, it is (very) helpful to
+discover a browser’s support for ActiveX controls, Java applets, and client-side VBScript code. If the
+calling browser does not support a given web technology, your *.aspx page will be able to take an
+alternative course of action.</p>
+<h2>Access to Incoming Form Data</h2>
+<p>Other aspects of the HttpResponse type are the Form and QueryString properties. These two properties
+allow you to examine the incoming form data using name/value pairs. While you could make use of the
+HttpRequest.Form and HttpRequest.QueryString properties to access client-supplied form data on the
+web server, ASP.NET provides a more elegant, object-oriented approach. Given that ASP.NET supplies
+you with server-side web controls, you are able to treat HTML UI elements as true objects. Therefore,
+rather than obtaining the value within a text box as follows</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">protected</span> <span class="kwrd">void</span> btnGetFormData_Click(<span class="kwrd">object</span> sender, System.EventArgs e)
+{
+    <span class="rem">// Get value for a widget with ID txtFirstName.</span>
+    <span class="kwrd">string</span> firstName = Request.Form(<span class="str">"txtFirstName"</span>);
+    <span class="rem">// Use this value in your page...</span>
+}</pre>
+    <p>you can simply ask the server-side widget directly via the Text property for use in your program, like so</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">protected</span> <span class="kwrd">void</span> btnGetFormData_Click(<span class="kwrd">object</span> sender, System.EventArgs e)
+{
+    <span class="rem">// Get value for a widget with ID txtFirstName.</span>
+    <span class="kwrd">string</span> firstName = txtFirstName.Text;
+    
+    <span class="rem">// Use this value in your page...</span>
+}</pre>
+    <p>Not only does this approach lend itself to solid OO principles, but also you do not need to concern
+yourself with how the form data was submitted (GET or POST) before obtaining the values. Furthermore,
+working with the widget directly is much more type-safe, given that typing errors are discovered at
+compile time rather than runtime. Of course, this is not to say that you will never need to make use of the
+Form or QueryString property in ASP.NET; rather, the need to do so has greatly diminished and is usually
+optional.</p>
+<h2>The IsPostBack Property</h2>
+<p>Another very important member of HttpRequest is the IsPostBack property. Recall that “postback” refers
+to a web page posting back to the same URL at the Web server. Given this definition, understand that the
+IsPostBack property will return true if the current HTTP request has been sent by a user currently in
+session, and false if this is the user’s first interaction with the page.</p>
+<p>Typically, the need to determine whether the current HTTP request is indeed a postback is most
+helpful when you wish to execute a block of code only the first time the user accesses a given page. For
+example, you may wish to populate an ADO.NET DataSet when the user first accesses an *.aspx file and
+cache the object for later use. When the caller returns to the page, you can avoid the need to hit the
+database unnecessarily (of course, some pages may require that the DataSet always be updated upon
+each request, but that is another issue). Assuming your *.aspx file has handled the page’s Load event
+(described in detail later in this chapter), you could programmatically test for postback conditions as
+follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">protected</span> <span class="kwrd">void</span> Page_Load(<span class="kwrd">object</span> sender, System.EventArgs e)
+{
+    <span class="rem">// Fill DataSet only the very first time</span>
+    <span class="rem">// the user comes to this page.</span>
+    <span class="kwrd">if</span> (!IsPostBack)
+    {
+        <span class="rem">// Populate DataSet and cache it!</span>
+    }
+    <span class="rem">// Use cached DataSet.</span>
+}</pre>
+    </body>
+    </html>
+   
+      
+   

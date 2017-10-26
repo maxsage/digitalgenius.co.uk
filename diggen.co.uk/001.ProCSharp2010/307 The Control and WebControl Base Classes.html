@@ -1,0 +1,378 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>The Control and WebControl Base Classes</h1>
+    <p>The System.Web.UI.Control base class defines various properties, methods, and events that allow the
+ability to interact with core (typically non-GUI) aspects of a web control. Table 33-1 documents some,
+but not all, members of interest.</p>
+<p><b>Table 33-1.</b> Select Members of System.Web.UI.Control</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Member
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Controls
+   </td>
+   <td>
+    This property gets a ControlCollection object that represents the child
+controls within the current control.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DataBind()
+   </td>
+   <td>
+    This method binds a data source to the invoked server control and all its child
+controls.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    EnableTheming
+   </td>
+   <td>
+    This property establishes whether the control supports theme functionality
+(the default is true).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    HasControls()
+   </td>
+   <td>
+    This method determines whether the server control contains any child
+controls.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ID
+   </td>
+   <td>
+    This property gets or sets the programmatic identifier assigned to the server
+control.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Page
+   </td>
+   <td>
+    This property gets a reference to the Page instance that contains the server
+control.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Parent
+   </td>
+   <td>
+    This property gets a reference to the server control’s parent control in the
+page control hierarchy.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    SkinID
+   </td>
+   <td>
+    This property gets or sets the skin to apply to the control, which allows you to
+set the look and feel using server side resources.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Visible
+   </td>
+   <td>
+    This property gets or sets a value that indicates whether a server control is
+rendered as a UI element on the page.
+   </td>
+  </tr>
+</table>
+<h2>Enumerating Contained Controls</h2>
+<p>The first aspect of System.Web.UI.Control we will examine is the fact that all web controls (including
+Page itself) inherit a custom controls collection (accessed via the Controls property). Much like in a
+Windows Forms application, the Controls property provides access to a strongly typed collection of
+WebControl derived types. Like any .NET collection, you have the ability to add, insert, and remove items
+dynamically at runtime.</p>
+<p>While it is technically possible to add web controls directly to a Page-derived type, it is easier (and
+more robust) to make use of a Panel control. The Panel class represents a container of widgets that may
+or may not be visible to the end user (based on the value of its Visible and BorderStyle properties).</p>
+<p>To illustrate, create a new Empty Web Site named DynamicCtrls and add a new web page to your
+project. Using the Visual Studio 2010 page designer, add a Panel control (named myPanel) that contains a
+TextBox, Button, and HyperLink widget named whatever you choose (be aware that the designer requires
+that you drag internal items within the UI of the Panel type). Next, place a Label widget outside the scope
+of the Panel (named lblControlInfo) to hold the rendered output. Here is one possible HTML
+description:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">html</span> <span class="attr">xmlns</span><span class="kwrd">="http://www.w3.org/1999/xhtml"</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">head</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">title</span><span class="kwrd">&gt;</span>Dynamic Control Test<span class="kwrd">&lt;/</span><span class="html">title</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">head</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">body</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">form</span> <span class="attr">id</span><span class="kwrd">="form1"</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">div</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">hr</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">h1</span><span class="kwrd">&gt;</span>Dynamic Controls<span class="kwrd">&lt;/</span><span class="html">h1</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">asp:Label</span> <span class="attr">ID</span><span class="kwrd">="lblTextBoxText"</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;&lt;/</span><span class="html">asp:Label</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">hr</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">div</span><span class="kwrd">&gt;</span>
+
+        <span class="rem">&lt;!-- The Panel has three contained controls --&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">asp:Panel</span> <span class="attr">ID</span><span class="kwrd">="myPanel"</span> <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">Width</span><span class="kwrd">="200px"</span>
+                <span class="attr">BorderColor</span><span class="kwrd">="Black"</span> <span class="attr">BorderStyle</span><span class="kwrd">="Solid"</span> <span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">asp:TextBox</span> <span class="attr">ID</span><span class="kwrd">="TextBox1"</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;&lt;/</span><span class="html">asp:TextBox</span><span class="kwrd">&gt;&lt;</span><span class="html">br</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">asp:Button</span> <span class="attr">ID</span><span class="kwrd">="Button1"</span> <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">Text</span><span class="kwrd">="Button"</span><span class="kwrd">/&gt;&lt;</span><span class="html">br</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">asp:HyperLink</span> <span class="attr">ID</span><span class="kwrd">="HyperLink1"</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;</span>HyperLink
+            <span class="kwrd">&lt;/</span><span class="html">asp:HyperLink</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">asp:Panel</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">br</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">br</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">asp:Label</span> <span class="attr">ID</span><span class="kwrd">="lblControlInfo"</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;&lt;/</span><span class="html">asp:Label</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">form</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">body</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">html</span><span class="kwrd">&gt;</span></pre>
+<p>With this markup, your page designer will look something like that of Figure 33-1.</p>
+<img src="http://www.diggen.co.uk/Images/Figure33_01.png" alt="Figure 33-01" />
+<p><b>Figure 33-1</b> The UI of the Dynamic Controls web page</p>
+<p>Assume in the Page_Load() event you wish to obtain details regarding the controls contained within
+the Panel and assign this information to the Label control (named lblControlInfo). Consider the
+following C# code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> _Default : System.Web.UI.Page
+{
+    <span class="kwrd">private</span> <span class="kwrd">void</span> ListControlsInPanel()
+    {
+        <span class="kwrd">string</span> theInfo = <span class="str">""</span>;
+        theInfo = <span class="kwrd">string</span>.Format(<span class="str">"&lt;b&gt;Does the panel have controls? {0} &lt;/b&gt;&lt;br/&gt;"</span>,
+            myPanel.HasControls());
+
+        <span class="rem">// Get all controls in the panel.</span>
+        <span class="kwrd">foreach</span> (Control c <span class="kwrd">in</span> myPanel.Controls)
+        {
+            <span class="kwrd">if</span> (!<span class="kwrd">object</span>.ReferenceEquals(c.GetType(),
+                <span class="kwrd">typeof</span>(System.Web.UI.LiteralControl)))
+            {
+                theInfo += <span class="str">"***************************&lt;br/&gt;"</span>;
+                theInfo += <span class="kwrd">string</span>.Format(<span class="str">"Control Name? {0} &lt;br/&gt;"</span>, c.ToString());
+                theInfo += <span class="kwrd">string</span>.Format(<span class="str">"ID? {0} &lt;br&gt;"</span>, c.ID);
+                theInfo += <span class="kwrd">string</span>.Format(<span class="str">"Control Visible? {0} &lt;br/&gt;"</span>, c.Visible);
+                theInfo += <span class="kwrd">string</span>.Format(<span class="str">"ViewState? {0} &lt;br/&gt;"</span>, c.EnableViewState);
+            }
+        }
+        lblControlInfo.Text = theInfo;
+    }
+
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> Page_Load(<span class="kwrd">object</span> sender, System.EventArgs e)
+    {
+        ListControlsInPanel();
+    }
+}</pre>
+<p>Here, you iterate over each WebControl maintained on the Panel and perform a check to see whether
+the current type is of type System.Web.UI.LiteralControl, and if so, we skip over it. This class is used to
+represent literal HTML tags and content (such as &lt;br&gt;, text literals, etc.). If you do not do this sanity
+check, you might be surprised to find many more controls in the scope of the Panel (given the *.aspx
+declaration seen previously). Assuming the control is not literal HTML content, you then print out some
+various statistics about the widget. Figure 33-2 shows the output.</p>
+<img src="http://www.diggen.co.uk/Images/Figure33_02.png" alt="Figure 33-02" />
+<p><b>Figure 33-2</b> Enumerating controls at runtime</p>
+<h2>Dynamically Adding and Removing Controls</h2>
+<p>Now, what if you wish to modify the contents of a Panel at runtime? Let’s update the current page
+to support an additional Button (named btnAddWidgets) that dynamically adds three new TextBox
+controls to the Panel and another Button (named btnClearPanel) that clears the Panel widget of all
+controls. The Click event handlers for each are shown here:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">protected</span> <span class="kwrd">void</span> btnClearPanel_Click(<span class="kwrd">object</span> sender, System.EventArgs e)
+{
+    <span class="rem">// Clear all content from the panel, then re-list items.</span>
+    myPanel.Controls.Clear();
+    ListControlsInPanel();
+}
+
+<span class="kwrd">protected</span> <span class="kwrd">void</span> btnAddWidgets_Click(<span class="kwrd">object</span> sender, System.EventArgs e)
+{
+    <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; 3; i++)
+    {
+        <span class="rem">// Assign an ID so we can get</span>
+        <span class="rem">// the text value out later</span>
+        <span class="rem">// using the incoming form data.</span>
+        TextBox t = <span class="kwrd">new</span> TextBox();
+        t.ID = <span class="kwrd">string</span>.Format(<span class="str">"newTextBox{0}"</span>, i);
+        myPanel.Controls.Add(t);
+        ListControlsInPanel();
+    }
+}</pre>
+<p>Notice that you assign a unique ID to each TextBox (e.g., newTextBox0, newTextBox1, and so on). If
+you run your page, you should be able to add new items to the Panel control and clear the Panel of all
+content.</p>
+<h2>Interacting with Dynamically Created Controls</h2>
+<p>Now, if you want to obtain the values within these dynamically generated TextBoxes, you can do so in a
+variety of ways. First, update your UI with one additional Button (named btnGetTextData), a final Label
+control named lblTextBoxData, and handle the Click event for the Button.</p>
+<p>To get access to the data within the dynamically created text boxes, you have a few options. One
+approach is to loop over each item contained within the incoming HTML form data (accessed via
+HttpRequest.Form) and concatenate the textual information to a locally scoped System.String. Once you
+have exhausted the collection, assign this string to the Text property of the new Label control:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">protected</span> <span class="kwrd">void</span> btnGetTextData_Click(<span class="kwrd">object</span> sender, System.EventArgs e)
+{
+    <span class="kwrd">string</span> textBoxValues = <span class="str">""</span>;
+    <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; Request.Form.Count; i++)
+    {
+        textBoxValues += <span class="kwrd">string</span>.Format(<span class="str">"&lt;li&gt;{0}&lt;/li&gt;&lt;br/&gt;"</span>, Request.Form[i]);
+    }
+    lblTextBoxData.Text = textBoxValues;
+}</pre>
+<p>When you run the application, you will find that you are able to view the content of each text box,
+including some rather long (unreadable) string data. This string contains the view state for each control
+on the page. You’ll learn about the role of view state in Chapter 35.</p>
+<p>To clean up the output, you could instead pluck out the textual data for your uniquely named items
+(newTextBox0, newTextBox1 and newTextBox2). Consider the following update:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">protected</span> <span class="kwrd">void</span> btnGetTextData_Click(<span class="kwrd">object</span> sender, System.EventArgs e)
+{
+    <span class="rem">// Get teach text box by name.</span>
+    <span class="kwrd">string</span> lableData = <span class="kwrd">string</span>.Format(<span class="str">"&lt;li&gt;{0}&lt;/li&gt;&lt;br/&gt;"</span>,
+        Request.Form.Get(<span class="str">"newTextBox0"</span>));
+    lableData += <span class="kwrd">string</span>.Format(<span class="str">"&lt;li&gt;{0}&lt;/li&gt;&lt;br/&gt;"</span>,
+        Request.Form.Get(<span class="str">"newTextBox1"</span>));
+    lableData += <span class="kwrd">string</span>.Format(<span class="str">"&lt;li&gt;{0}&lt;/li&gt;&lt;br/&gt;"</span>,
+        Request.Form.Get(<span class="str">"newTextBox2"</span>));
+    lblTextBoxData.Text = lableData;
+}</pre>
+<p>Using either approach, you will notice that once the request has been processed, the text boxes
+disappear. Again, the reason has to do with the stateless nature of HTTP. If you wish to maintain these
+dynamically created TextBoxes between postbacks, you need to persist these objects using ASP.NET state
+programming techniques (again, see Chapter 35).</p>
+    <p><b>Source Code</b> The DynamicCtrls website is included under the Chapter 33 subdirectory.</p>
+<h2>Functionality of the WebControl Base Class</h2>
+<p>As you can tell, the Control type provides a number of non–GUI-related behaviors (the controls
+collection, autopostback support, etc.). On the other hand, the WebControl base class provides a
+graphical polymorphic interface to all web widgets, as suggested in Table 33-2.</p>
+<p><b>Table 33-2.</b> Select Properties of the WebControl Base Class</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Property
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    BackColor
+   </td>
+   <td>
+    Gets or sets the background color of the web control.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    BorderColor
+   </td>
+   <td>
+    Gets or sets the border color of the web control.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    BorderStyle
+   </td>
+   <td>
+    Gets or sets the border style of the web control.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    BorderWidth
+   </td>
+   <td>
+    Gets or sets the border width of the web control.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Enabled
+   </td>
+   <td>
+    Gets or sets a value indicating whether the web control is enabled.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    CssClass
+   </td>
+   <td>
+    Allows you to assign a class defined within a Cascading Style Sheet to a web
+widget.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Font
+   </td>
+   <td>
+    Gets font information for the web control.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ForeColor
+   </td>
+   <td>
+    Gets or sets the foreground color (typically the color of the text) of the web
+control.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Height, Width
+   </td>
+   <td>
+    Get or set the height and width of the web control.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    TabIndex
+   </td>
+   <td>
+    Gets or sets the tab index of the web control.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ToolTip
+   </td>
+   <td>
+    Gets or sets the tool tip for the web control to be displayed when the cursor is
+over the control.
+   </td>
+  </tr>
+</table>
+<p>Almost all of these properties are self-explanatory, so rather than drill through the use of them one
+by one, let’s instead check out a number of ASP.NET Web Form controls in action.</p>
+    </body></html>
+   
+      
+   

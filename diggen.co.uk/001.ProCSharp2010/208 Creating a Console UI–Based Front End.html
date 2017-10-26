@@ -1,0 +1,305 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Creating a Console UI–Based Front End</h1>
+    <p>Create a new Console Application named AutoLotCUIClient. After you create your new project, be sure
+to add a reference to your AutoLotDAL.dll assembly, as well as System.Configuration.dll. Next, add the
+following using statements to your C# code file:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> AutoLotConnectedLayer;
+<span class="kwrd">using</span> System.Configuration;
+<span class="kwrd">using</span> System.Data;</pre>
+<p>Now insert a new App.config file into your project that contains a &lt;connectionStrings&gt; element,
+which you will use to connect to your instance of the AutoLot database, as in this example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">configuration</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">connectionStrings</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">name</span> <span class="kwrd">="AutoLotSqlProvider"</span> <span class="attr">connectionString</span> =
+        <span class="kwrd">"Data Source=(local)\SQLEXPRESS;
+        Integrated Security=SSPI;Initial Catalog=AutoLot"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">connectionStrings</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">configuration</span><span class="kwrd">&gt;</span></pre>
+<h2>Implementing the Main() Method</h2>
+<p>The Main() method is responsible for prompting the user for a specific course of action and executing
+that request using a switch statement. This program allows the user to enter the following commands:</p>
+<ul>
+ <li>I: Inserts a new record into the Inventory table.</li>
+ <li>U: Updates an existing record in the Inventory table.</li>
+ <li>D: Deletes an existing record from the Inventory table.</li>
+ <li>L: Displays the current inventory using a data reader.</li>
+ <li>S: Shows these options to the user.</li>
+ <li>P: Looks up pet name from car ID.</li>
+ <li>Q: Quits the program.</li>
+</ul>
+<p>Each possible option is handled by a unique static method within the Program class. The next
+snippet shows the complete implementation of Main(). Notice that each method invoked from the
+do/while loop (with the exception of the ShowInstructions() method) takes an InventoryDAL object as its
+sole parameter:</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** The AutoLot Console UI *****\n"</span>);
+
+    <span class="rem">// Get connection string from App.config.</span>
+    <span class="kwrd">string</span> cnStr =
+        ConfigurationManager.ConnectionStrings[<span class="str">"AutoLotSqlProvider"</span>].ConnectionString;
+    <span class="kwrd">bool</span> userDone = <span class="kwrd">false</span>;
+    <span class="kwrd">string</span> userCommand = <span class="str">""</span>;
+
+    <span class="rem">// Create our InventoryDAL object.</span>
+    InventoryDAL invDAL = <span class="kwrd">new</span> InventoryDAL();
+    invDAL.OpenConnection(cnStr);
+
+    <span class="rem">// Keep asking for input until user presses the Q key.</span>
+    <span class="kwrd">try</span>
+    {
+        ShowInstructions();
+        <span class="kwrd">do</span>
+        {
+            Console.Write(<span class="str">"\nPlease enter your command: "</span>);
+            userCommand = Console.ReadLine();
+            Console.WriteLine();
+            <span class="kwrd">switch</span> (userCommand.ToUpper())
+            {
+                <span class="kwrd">case</span> <span class="str">"I"</span>:
+                    InsertNewCar(invDAL);
+                    <span class="kwrd">break</span>;
+                <span class="kwrd">case</span> <span class="str">"U"</span>:
+                    UpdateCarPetName(invDAL);
+                    <span class="kwrd">break</span>;
+                <span class="kwrd">case</span> <span class="str">"D"</span>:
+                    DeleteCar(invDAL);
+                    <span class="kwrd">break</span>;
+                <span class="kwrd">case</span> <span class="str">"L"</span>:
+                    ListInventory(invDAL);
+                    <span class="kwrd">break</span>;
+                <span class="kwrd">case</span> <span class="str">"S"</span>:
+                    ShowInstructions();
+                    <span class="kwrd">break</span>;
+                <span class="kwrd">case</span> <span class="str">"P"</span>:
+                    LookUpPetName(invDAL);
+                    <span class="kwrd">break</span>;
+                <span class="kwrd">case</span> <span class="str">"Q"</span>:
+                    userDone = <span class="kwrd">true</span>;
+                    <span class="kwrd">break</span>;
+                <span class="kwrd">default</span>:
+                    Console.WriteLine(<span class="str">"Bad data! Try again"</span>);
+                    <span class="kwrd">break</span>;
+            }
+        } while (!userDone);
+    }
+    <span class="kwrd">catch</span> (Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+    <span class="kwrd">finally</span>
+    {
+        invDAL.CloseConnection();
+    }
+}</pre>
+<h2>Implementing the ShowInstructions() Method</h2>
+<p>The ShowInstructions() method does what you would expect:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> ShowInstructions()
+{
+    Console.WriteLine(<span class="str">"I: Inserts a new car."</span>);
+    Console.WriteLine(<span class="str">"U: Updates an existing car."</span>);
+    Console.WriteLine(<span class="str">"D: Deletes an existing car."</span>);
+    Console.WriteLine(<span class="str">"L: Lists current inventory."</span>);
+    Console.WriteLine(<span class="str">"S: Shows these instructions."</span>);
+    Console.WriteLine(<span class="str">"P: Looks up pet name."</span>);
+    Console.WriteLine(<span class="str">"Q: Quits program."</span>);
+}</pre>
+<h2>Implementing the ListInventory() Method</h2>
+<p>You could implement the ListInventory() method in either of two ways, based on how you constructed
+your data access library. Recall that the GetAllInventoryAsDataTable() method of InventoryDAL returns
+a DataTable object. You could implement this approach like this:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> ListInventory(InventoryDAL invDAL)
+{
+    <span class="rem">// Get the list of inventory.</span>
+    DataTable dt = invDAL.GetAllInventoryAsDataTable();
+    
+    <span class="rem">// Pass DataTable to helper function to display.</span>
+    DisplayTable(dt);
+}</pre>
+<p>The DisplayTable() helper method displays the table data using the Rows and Columns properties of
+the incoming DataTable (again, you will learn the full details of the DataTable object the next chapter, so
+don’t fret over the details):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> DisplayTable(DataTable dt)
+{
+    <span class="rem">// Print out the column names.</span>
+    <span class="kwrd">for</span> (<span class="kwrd">int</span> curCol = 0; curCol &lt; dt.Columns.Count; curCol++)
+    {
+        Console.Write(dt.Columns[curCol].ColumnName + <span class="str">"\t"</span>);
+    }
+    Console.WriteLine(<span class="str">"\n----------------------------------"</span>);
+
+    <span class="rem">// Print the DataTable.</span>
+    <span class="kwrd">for</span> (<span class="kwrd">int</span> curRow = 0; curRow &lt; dt.Rows.Count; curRow++)
+    {
+        <span class="kwrd">for</span> (<span class="kwrd">int</span> curCol = 0; curCol &lt; dt.Columns.Count; curCol++)
+        {
+            Console.Write(dt.Rows[curRow][curCol].ToString() + <span class="str">"\t"</span>);
+        }
+        Console.WriteLine();
+    }
+}</pre>
+<p>If you would prefer to call the GetAllInventoryAsList() method of InventoryDAL, you could
+implement a method named ListInventoryViaList():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> ListInventoryViaList(InventoryDAL invDAL)
+{
+    <span class="rem">// Get the list of inventory.</span>
+    List&lt;NewCar&gt; record = invDAL.GetAllInventoryAsList();
+
+    <span class="kwrd">foreach</span> (NewCar c <span class="kwrd">in</span> record)
+    {
+        Console.WriteLine(<span class="str">"CarID: {0}, Make: {1}, Color: {2}, PetName: {3}"</span>,
+            c.CarID, c.Make, c.Color, c.PetName);
+    }
+}</pre>
+<h2>Implementing the DeleteCar() Method</h2>
+<p>Deleting an existing automobile is as simple as asking the user for the ID of the car and passing this to
+the DeleteCar() method of the InventoryDAL type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> DeleteCar(InventoryDAL invDAL)
+{
+    <span class="rem">// Get ID of car to delete.</span>
+    Console.Write(<span class="str">"Enter ID of Car to delete: "</span>);
+    <span class="kwrd">int</span> id = <span class="kwrd">int</span>.Parse(Console.ReadLine());
+
+    <span class="rem">// Just in case you have a referential integrity</span>
+    <span class="rem">// violation!</span>
+    <span class="kwrd">try</span>
+    {
+        invDAL.DeleteCar(id);
+    }
+    <span class="kwrd">catch</span>(Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+}</pre>
+<h2>Implementing the InsertNewCar() Method</h2>
+<p>Inserting a new record into the Inventory table is a simple matter of asking the user for the new bits of
+data (using Console.ReadLine() calls) and passing this data into the InsertAuto() method of
+InventoryDAL:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> InsertNewCar(InventoryDAL invDAL)
+{
+    <span class="rem">// First get the user data.</span>
+    <span class="kwrd">int</span> newCarID;
+    <span class="kwrd">string</span> newCarColor, newCarMake, newCarPetName;
+
+    Console.Write(<span class="str">"Enter Car ID: "</span>);
+    newCarID = <span class="kwrd">int</span>.Parse(Console.ReadLine());
+
+    Console.Write(<span class="str">"Enter Car Color: "</span>);
+    newCarColor = Console.ReadLine();
+
+    Console.Write(<span class="str">"Enter Car Make: "</span>);
+    newCarMake = Console.ReadLine();
+
+    Console.Write(<span class="str">"Enter Pet Name: "</span>);
+    newCarPetName = Console.ReadLine();
+
+    <span class="rem">// Now pass to data access library.</span>
+    invDAL.InsertAuto(newCarID, newCarColor, newCarMake, newCarPetName);
+}</pre>
+<p>Recall that you overloaded InsertAuto() to take a NewCar object, rather than a set of independent
+arguments. Thus, you could have implemented InsertNewCar() like this:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> InsertNewCar(InventoryDAL invDAL)
+{
+    <span class="rem">// First get the user data.</span>
+...
+    <span class="rem">// Now pass to data access library.</span>
+    NewCar c = <span class="kwrd">new</span> NewCar { CarID = newCarID, Color = newCarColor,
+        Make = newCarMake, PetName = newCarPetName };
+    invDAL.InsertAuto(c);
+}</pre>
+<h2>Implementing the UpdateCarPetName() Method</h2>
+<p>The implementation of UpdateCarPetName() looks similar:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> UpdateCarPetName(InventoryDAL invDAL)
+{
+    <span class="rem">// First get the user data.</span>
+    <span class="kwrd">int</span> carID;
+    <span class="kwrd">string</span> newCarPetName;
+
+    Console.Write(<span class="str">"Enter Car ID: "</span>);
+    carID = <span class="kwrd">int</span>.Parse(Console.ReadLine());
+    Console.Write(<span class="str">"Enter New Pet Name: "</span>);
+    newCarPetName = Console.ReadLine();
+
+    <span class="rem">// Now pass to data access library.</span>
+    invDAL.UpdateCarPetName(carID, newCarPetName);
+}</pre><h2>Implementing LookUpPetName()</h2>
+<p>Obtaining the pet name of a given automobile works similarly to the previous methods; this is so
+because the data access library encapsulates all of the lower-level ADO.NET calls:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> LookUpPetName(InventoryDAL invDAL)
+{
+    <span class="rem">// Get ID of car to look up.</span>
+    Console.Write(<span class="str">"Enter ID of Car to look up: "</span>);
+    <span class="kwrd">int</span> id = <span class="kwrd">int</span>.Parse(Console.ReadLine());
+    Console.WriteLine(<span class="str">"Petname of {0} is {1}."</span>,
+        id, invDAL.LookUpPetName(id));
+}</pre>
+<p>With this, your console-based front end is finished! It’s time to run your program and test each
+method. Here is some partial output that tests the L, P, and Q commands:</p>
+<pre class="csharpcode">
+***** The AutoLot Console UI *****
+I: Inserts a new car.
+U: Updates an existing car.
+D: Deletes an existing car.
+L: Lists current inventory.
+S: Shows these instructions.
+P: Looks up pet name.
+Q: Quits program.
+
+Please enter your command: L
+
+CarID     Make     Color     PetName
+----------------------------------
+83     Ford     Rust     Rusty
+107     Ford     Red     Snake
+678     Yugo     Green     Clunker
+904     VW     Black     Hank
+1000     BMW     Black     Bimmer
+1001     BMW     Tan     Daisy
+1992     Saab     Pink     Pinkey
+
+Please enter your command: P
+
+Enter ID of Car to look up: 904
+Petname of 904 is Hank.
+
+Please enter your command: Q
+
+Press any key to continue . . .</pre>
+    <p><b>Source Code</b> You can find the AutoLotCUIClient application under the Chapter 21 subdirectory.</p>
+    </body>
+    </html>
+      
+      
+   

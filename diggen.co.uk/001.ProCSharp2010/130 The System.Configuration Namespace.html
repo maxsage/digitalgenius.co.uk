@@ -1,0 +1,73 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>The System.Configuration Namespace</h1>
+    <p>Currently, all of the *.config files shown in this chapter have made use of well-known XML elements
+that are read by the CLR to resolve the location of external assemblies. In addition to these recognized
+elements, it is perfectly permissible for a client configuration file to contain application-specific data
+that has nothing to do with binding heuristics. Given this, it should come as no surprise that the .NET
+Framework provides a namespace that allows you to programmatically read the data within a client
+configuration file.</p>
+<p>The System.Configuration namespace provides a small set of types you can use to read custom data
+from a client’s *.config file. These custom settings must be contained within the scope of an
+&lt;appSettings&gt; element. The &lt;appSettings&gt; element contains any number of &lt;add&gt; elements that define
+key/value pairs to be obtained programmatically.</p>
+<p>For example, assume you have an App.config file for a Console Application named
+AppConfigReaderApp that defines two application specific values, listed like so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">configuration</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">appSettings</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">key</span><span class="kwrd">="TextColor"</span> <span class="attr">value</span><span class="kwrd">="Green"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">key</span><span class="kwrd">="RepeatCount"</span> <span class="attr">value</span><span class="kwrd">="8"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">appSettings</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">configuration</span><span class="kwrd">&gt;</span></pre>
+    <p>Reading these values for use by the client application is as simple as calling the instance-level
+GetValue() method of the System.Configuration.AppSettingsReader type. As shown in the following
+code, the first parameter to GetValue() is the name of the key in the *.config file, whereas the second
+parameter is the underlying type of the key (obtained via the C# typeof operator):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System.Collections.Generic;
+<span class="kwrd">using</span> System.Linq;
+<span class="kwrd">using</span> System.Text;
+<span class="kwrd">using</span> System.Configuration;
+<span class="kwrd">namespace</span> AppConfigReaderApp
+{
+    <span class="kwrd">class</span> Program
+    {
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {    
+            Console.WriteLine(<span class="str">"***** Reading &lt;appSettings&gt; Data *****\n"</span>);
+
+            <span class="rem">// Get our custom data from the *.config file.</span>
+            AppSettingsReader ar = <span class="kwrd">new</span> AppSettingsReader();
+            <span class="kwrd">int</span> numbOfTimes = (<span class="kwrd">int</span>)ar.GetValue(<span class="str">"RepeatCount"</span>, <span class="kwrd">typeof</span>(<span class="kwrd">int</span>));
+            <span class="kwrd">string</span> textColor = (<span class="kwrd">string</span>)ar.GetValue(<span class="str">"TextColor"</span>, <span class="kwrd">typeof</span>(<span class="kwrd">string</span>));
+
+            Console.ForegroundColor =
+                (ConsoleColor)Enum.Parse(<span class="kwrd">typeof</span>(ConsoleColor), textColor);
+
+            <span class="rem">// Now print a message correctly.</span>
+            <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; numbOfTimes; i++)
+                Console.WriteLine(<span class="str">"Howdy!"</span>);
+            Console.ReadLine();
+        }    
+    }
+}</pre>
+<p>As you work throughout the remainder of the book, you will find many other important sections
+that can be found within a client (or web-based) configuration file. To be sure, the deeper you dive into
+.NET programming, the more critical an understanding of XML configuration files become.</p>
+    <p><b>Source Code</b> The AppConfigReaderApp application can be found under the Chapter 14 subdirectory.</p>
+</body>
+    </html>
+
+        
+      
+   

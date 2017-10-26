@@ -1,0 +1,150 @@
+﻿<!DOCTYPE>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Understanding the Role of ASP.NET View State</h1>
+    <p>The term view state has been thrown out a few times here and in the previous two chapters without a
+formal definition, so let’s demystify this term once and for all. Under classic (COM-based) ASP, web
+developers were required to manually repopulate the values of the incoming form widgets during the
+process of constructing the outgoing HTTP response. For example, if the incoming HTTP request
+contained five text boxes with specific values, the *.asp file required script code to extract the current
+values (via the Form or QueryString collections of the Request object) and manually place them back into
+the HTTP response stream. Needless to say, this was a drag. If the developer failed to do so, the caller
+was presented with a set of five empty text boxes!</p>
+<p>Under ASP.NET, we no longer have to manually scrape out and repopulate the values in the HTML
+widgets because the ASP.NET runtime automatically embeds a hidden form field (named __VIEWSTATE),
+which will flow between the browser and a specific page. The data assigned to this field is a Base64-
+encoded string that contains a set of name/value pairs representing the values of each GUI widget on the
+page at hand.</p>
+<p>The System.Web.UI.Page base class’s Init event handler is the entity in charge of reading the
+incoming values in the __VIEWSTATE field to populate the appropriate member variables in the derived
+class. (This is why it is risky at best to access the state of a web widget within the scope of a page’s Init
+event handler.)</p>
+<p>Also, just before the outgoing response is emitted back to the requesting browser, the __VIEWSTATE
+data is used to repopulate the form’s widgets. Clearly, the best thing about this aspect of ASP.NET is that
+it just happens without any work on your part. Of course, you are always able to interact with, alter, or
+disable this default functionality if you so choose. To understand how to do this, let’s see a concrete view
+state example.</p>
+<h2>Demonstrating View State</h2>
+<p>First, create a new Empty Web Site called ViewStateApp and insert a new Web Form. On your .aspx
+page, add a single ASP.NET ListBox web control named myListBox and a single Button control named
+btnPostback. Handle the Click event for the Button to provide a way for the user to post back to the web
+server:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> _Default : System.Web.UI.Page
+{
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> Page_Load(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+    }
+
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> btnPostback_Click(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+        <span class="rem">// No-op. This is just here to allow a postback.</span>
+    }    
+}</pre>
+<p>Now, using the Visual Studio 2010 Properties window, access the Items property and add four
+ListItems to the ListBox using the associated dialog box. The resulting markup looks like this:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:ListBox</span> <span class="attr">ID</span><span class="kwrd">="myListBox"</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">asp:ListItem</span><span class="kwrd">&gt;</span>Item One<span class="kwrd">&lt;/</span><span class="html">asp:ListItem</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">asp:ListItem</span><span class="kwrd">&gt;</span>Item Two<span class="kwrd">&lt;/</span><span class="html">asp:ListItem</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">asp:ListItem</span><span class="kwrd">&gt;</span>Item Three<span class="kwrd">&lt;/</span><span class="html">asp:ListItem</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">asp:ListItem</span><span class="kwrd">&gt;</span>Item Four<span class="kwrd">&lt;/</span><span class="html">asp:ListItem</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">asp:ListBox</span><span class="kwrd">&gt;</span></pre>
+    <p>Note that you are hard-coding the items in the ListBox directly within the *.aspx file. As you already
+know, all &lt;asp:&gt; definitions in an HTML form will automatically render back their HTML representation
+before the final HTTP response (provided they have the runat="server" attribute).</p>
+<p>The &lt;%@Page%&gt; directive has an optional attribute called EnableViewState that by default is set to
+true. To disable this behavior, simply update the &lt;%@Page%&gt; directive as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="asp">&lt;%@ Page Language="C#" AutoEventWireup="true"
+    CodeFile="Default.aspx.cs" Inherits="_Default"
+    EnableViewState ="false" %&gt;</span></pre>
+ <p>So, what exactly does it mean to disable view state? The answer is, it depends. Given the previous
+definition of the term, you would think that if you disable view state for an *.aspx file, the values in your
+ListBox would not be remembered between postbacks to the web server. However, if you were to run
+this application as is, you might be surprised to find that the information in the ListBox is retained
+regardless of how many times you post back to the page.</p>
+<p>In fact, if you examine the source HTML returned to the browser (by right-clicking the page within
+the browser and selecting View Source), you may be further surprised to see that the hidden __VIEWSTATE
+field is still present:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">input</span> <span class="attr">type</span><span class="kwrd">="hidden"</span> <span class="attr">name</span><span class="kwrd">="__VIEWSTATE"</span> <span class="attr">id</span><span class="kwrd">="__VIEWSTATE"</span>
+<span class="attr">value</span><span class="kwrd">="/wEPDwUKLTM4MTM2MDM4NGRkqGC6gjEV25JnddkJiRmoIc10SIA="</span> <span class="kwrd">/&gt;</span></pre>
+<p>However, assume that your ListBox is dynamically populated within the code-behind file rather
+than within the HTML &lt;form&gt; definition. First, remove the &lt;asp:ListItem&gt; declarations from the current
+*.aspx file:</p> 
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:ListBox</span> <span class="attr">ID</span><span class="kwrd">="myListBox"</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">asp:ListBox</span><span class="kwrd">&gt;</span></pre>
+<p>Next, fill the list items within the Load event handler in your code-behind file:</p>
+<p>CODE GOES HERE</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">protected</span> <span class="kwrd">void</span> Page_Load(<span class="kwrd">object</span> sender, EventArgs e)
+{
+    <span class="kwrd">if</span> (!IsPostBack)
+    {
+        <span class="rem">// Fill ListBox dynamically!</span>
+        myListBox.Items.Add(<span class="str">"Item One"</span>);
+        myListBox.Items.Add(<span class="str">"Item Two"</span>);
+        myListBox.Items.Add(<span class="str">"Item Three"</span>);
+        myListBox.Items.Add(<span class="str">"Item Four"</span>);
+    }
+}</pre>
+<p>If you post to this updated page, you’ll find that the first time the browser requests the page, the
+values in the ListBox are present and accounted for. However, on postback, the ListBox is suddenly
+empty. The first rule of ASP.NET view state is that its effect is only realized when you have widgets whose
+values are dynamically generated through code. If you hard-code values within the *.aspx file’s &lt;form&gt;
+tags, the state of these items is always remembered across postbacks (even when you set
+EnableViewState to false for a given page).</p>
+<p>If the idea of disabling view state for the entire *.aspx file seems a bit too aggressive, know that every
+descendent of the System.Web.UI.Control base class inherits the EnableViewState property, which makes
+it very simple to disable view state on a control-by-control basis:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:GridView</span> <span class="attr">id</span><span class="kwrd">="myHugeDynamicallyFilledGridOfData"</span> <span class="attr">runat</span><span class="kwrd">="server"</span>
+    <span class="attr">EnableViewState</span><span class="kwrd">="false"</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">asp:GridView</span><span class="kwrd">&gt;</span></pre>
+<p><b>Note</b> Under .NET 4.0, large view state data values are automatically compressed, to help reduce the size of this hidden
+form field.</p>
+<h2>Adding Custom View State Data</h2>
+<p>In addition to the EnableViewState property, the System.Web.UI.Control base class provides a protected
+property named ViewState. Under the hood, this property provides access to a System.Web.UI.StateBag
+type, which represents all the data contained within the __VIEWSTATE field. Using the indexer of the
+StateBag type, you can embed custom information within the hidden __VIEWSTATE form field using a set
+of name/value pairs. Here’s a simple example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">protected</span> <span class="kwrd">void</span> btnAddToVS_Click(<span class="kwrd">object</span> sender, EventArgs e)
+{
+    ViewState[<span class="str">"CustomViewStateItem"</span>] = <span class="str">"Some user data"</span>;
+    lblVSValue.Text = (<span class="kwrd">string</span>)ViewState[<span class="str">"CustomViewStateItem"</span>];
+}</pre>
+    <p>Because the System.Web.UI.StateBag type has been designed to operate on System.Object types,
+when you wish to access the value of a given key, you should explicitly cast it into the correct underlying
+data type (in this case, a System.String). Be aware, however, that values placed within the __VIEWSTATE
+field cannot literally be any object. Specifically, the only valid types are Strings, Integers, Booleans,
+ArrayLists, Hashtables, or an array of these types.</p>
+<p>So, given that .aspx pages can insert custom bits of information into the __VIEWSTATE string, the next
+logical question is when you would want to do so. Most of the time, custom view-state data is best suited
+for user-specific preferences. For example, you may establish view-state data that specifies how a user
+wishes to view the UI of a GridView (such as a sort order). However, view-state data is not well-suited for
+full-blown user data, such as items in a shopping cart or cached DataSets. When you need to store this
+sort of complex information, you must work with session or application data. Before we get to that point,
+though, you need to understand the role of the Global.asax Global.asax file.</p>
+    <p><b>Source Code</b> The ViewStateApp web site is included under the Chapter 34 subdirectory.</p>
+    </body></html>
+   
+      
+   

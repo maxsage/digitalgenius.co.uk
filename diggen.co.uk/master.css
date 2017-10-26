@@ -1,0 +1,68 @@
+/* CSS Document */
+html
+{
+   font-size: 100% !important;
+   color: #000 !important;
+   font-family: verdana, arial, sans-serif;
+}
+
+h1
+{
+    color: #333;
+    /*font-size: 14px;*/
+}
+h2
+{
+    color: #333;
+}
+
+.cmdline {
+	font-family: "Lucida Console", Monaco, monospace;
+	color: #CCC;
+	background-color: #333;
+}
+
+.note {
+	background-color:#F8FAFC;
+	background-position: 15px 50%;
+	text-align: left;
+	padding: 5px 20px 5px 5px;
+    margin: 0px 45px 0px 45px;
+	border: 2px solid #B5D4FE;
+}
+
+/* USE strong instead .noteHeading {
+    font-weight: bold;
+    font-size: 80%;
+    font-family: verdana, arial, sans-serif;
+    margin:0;
+    padding:0;
+}*/
+
+.note strong {
+    font-weight: bold;
+    color: #5555BB;
+}
+
+.figure {
+	font-weight: bold;
+    text-align: left;
+}
+table.gridtable {
+	font-family: verdana, arial, sans-serif;
+	color:#333333;
+	border-bottom: 2px solid #B5D4FE;	
+}
+table.gridtable th {
+	border-top: 2px solid #B5D4FE;
+	border-bottom: 2px solid #B5D4FE;
+	border-right-width: 0px;
+	border-left-width: 0px;
+	padding: 5px 8px 5px 8px;
+	text-align: left;
+	background-color:#F8FAFC;
+}
+table.gridtable td {
+	background-color: #ffffff;
+    padding: 5px 8px 5px 8px;
+}

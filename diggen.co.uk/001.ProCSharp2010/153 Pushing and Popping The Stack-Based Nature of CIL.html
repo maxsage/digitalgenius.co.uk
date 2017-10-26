@@ -1,0 +1,76 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Pushing and Popping: The Stack-Based Nature of CIL</h1>
+    <p>Higher-level .NET languages (such as C#) attempt to hide low-level CIL grunge from view as much as
+possible. One aspect of .NET development that is particularly well hidden is the fact that CIL is a stackbased
+programming language. Recall from the examination of the collection namespaces (see Chapter
+10) that the Stack&lt;T&gt; class can be used to push a value onto a stack as well as pop the topmost value off
+of the stack for use. Of course, CIL developers do not literally use an object of type Stack&lt;T&gt; to load and
+unload the values to be evaluated; however, the same pushing and popping mind-set still applies.</p>
+<p>Formally speaking, the entity used to hold a set of values to be evaluated is termed the virtual
+execution stack. As you will see, CIL provides a number of opcodes that are used to push a value onto the
+stack; this process is termed loading. As well, CIL defines a number of additional opcodes that transfer
+the topmost value on the stack into memory (such as a local variable) using a process termed storing.</p>
+<p>In the world of CIL, it is impossible to access a point of data directly, including locally defined
+variables, incoming method arguments, or field data of a type. Rather, you are required to explicitly load
+the item onto the stack, only to then pop it off for later use (keep this point in mind, as it will help explain
+why a given block of CIL code can look a bit redundant).</p>
+<p><b>Note</b> Recall that CIL is not directly executed, but compiled on demand. During the compilation of CIL code,
+many of these implementation redundancies are optimized away. Furthermore, if you enable the code optimization
+option for your current project (using the Build tab of the Visual Studio Project Properties window), the compiler will
+also remove various CIL redundancies.</p>
+<p>To understand how CIL leverages a stack-based processing model, consider a simple C# method,
+PrintMessage(), which takes no arguments and returns void. Within the implementation of this method,
+you will simply print out the value of a local string variable to the standard output stream:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">void</span> PrintMessage()
+{
+    <span class="kwrd">string</span> myMessage = <span class="str">"Hello."</span>;
+    Console.WriteLine(myMessage);
+}</pre>
+<p>If you were to examine how the C# compiler translates this method in terms of CIL, you would first
+find that the PrintMessage() method defines a storage slot for a local variable using the .locals
+directive. The local string is then loaded and stored in this local variable using the ldstr (load string) and
+stloc.0 opcodes (which can be read as “store the current value in a local variable at storage slot zero”).</p>
+<p>The value (again, at index 0) is then loaded into memory using the ldloc.0 (“load the local argument
+at index 0”) opcode for use by the System.Console.WriteLine() method invocation (specified using the
+call opcode). Finally, the function returns via the ret opcode. Here is the (annotated) CIL code for the
+PrintMessage() method:</p>
+<pre class="csharpcode">
+.method public hidebysig instance void PrintMessage() cil managed
+{
+	.maxstack 1
+	// Define a local string variable (at index 0).
+	.locals init ([0] string myMessage)
+
+	// Load a string on to the stack with the value "Hello."
+	ldstr " Hello."
+
+	// Store string value on the stack in the local variable.
+	stloc.0
+
+	// Load the value at index 0.
+	ldloc.0
+
+	// Call method with current value.
+	call void [mscorlib]System.Console::WriteLine(string)
+	ret
+}
+</pre>
+<p><b>Note</b> As you can see, CIL supports code comments using the double-slash syntax (as well as the /*...*/ syntax,
+for that matter). As in C#, code comments are completely ignored by the CIL compiler.</p>
+<p>Now that you have the basics of CIL directives, attributes, and opcodes, let’s see a practical use of
+CIL programming, beginning with the topic of round-trip engineering.</p>
+    </body>
+    </html>
+     
+      
+   

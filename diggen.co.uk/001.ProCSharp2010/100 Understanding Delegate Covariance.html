@@ -1,0 +1,127 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Understanding Delegate Covariance</h1>
+  <p>As you may have noticed, each of the delegates created thus far point to methods returning simple
+numerical data types (or void). However, assume you have a new Console Application named
+DelegateCovariance that defines a delegate type that can point to methods returning a custom class type
+(be sure to include your Car class definition in this new project):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Define a delegate type pointing to methods that return Car objects.</span>
+<span class="kwrd">public</span> <span class="kwrd">delegate</span> Car ObtainCarDelegate();</pre>
+    <p>Of course, you would be able to define a target for the delegate as expected:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">namespace</span> DelegateCovariance
+{
+    <span class="kwrd">class</span> Program
+    {
+        <span class="rem">// Define a delegate type pointing to methods that return Car object.</span>
+        <span class="kwrd">public</span> <span class="kwrd">delegate</span> Car ObtainCarDelegate();
+
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            Console.WriteLine(<span class="str">"***** Delegate Covariance *****\n"</span>);
+
+            ObtainCarDelegate targetA = <span class="kwrd">new</span> ObtainCarDelegate(GetBasicCar);
+            Car c = targetA();
+            Console.WriteLine(<span class="str">"Obtained a {0}"</span>, c);
+            Console.ReadLine();
+        }
+
+        <span class="kwrd">public</span> <span class="kwrd">static</span> Car GetBasicCar()
+        {
+            <span class="kwrd">return</span> <span class="kwrd">new</span> Car(<span class="str">"Zippy"</span>, 100, 55);
+        }
+    }
+}</pre>
+<p>Now, what if you were to derive a new class from the Car type named SportsCar and you wanted to
+create a delegate type that can point to methods returning this class type? Prior to .NET 2.0, you would
+be required to define an entirely new delegate to do so, given that delegates were so type-safe that they
+did not honor the basic laws of inheritance:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Define a new delegate type pointing to</span>
+<span class="rem">// methods that return a SportsCar object.</span>
+<span class="kwrd">public</span> <span class="kwrd">delegate</span> SportsCar ObtainSportsCarDelegate();</pre>
+<p>As we now have two delegate types, we must create an instance of each to obtain Car and SportsCar
+types:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">public</span> <span class="kwrd">delegate</span> Car ObtainCarDelegate();
+    <span class="kwrd">public</span> <span class="kwrd">delegate</span> SportsCar ObtainSportsCarDelegate();
+
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Car GetBasicCar()
+    { <span class="kwrd">return</span> <span class="kwrd">new</span> Car(); }
+
+    <span class="kwrd">public</span> <span class="kwrd">static</span> SportsCar GetSportsCar()
+    { <span class="kwrd">return</span> <span class="kwrd">new</span> SportsCar(); }
+
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Delegate Covariance *****\n"</span>);
+        
+        ObtainCarDelegate targetA = <span class="kwrd">new</span> ObtainCarDelegate(GetBasicCar);
+        Car c = targetA();
+        Console.WriteLine(<span class="str">"Obtained a {0}"</span>, c);
+
+        ObtainSportsCarDelegate targetB =
+            <span class="kwrd">new</span> ObtainSportsCarDelegate(GetSportsCar);
+        SportsCar sc = targetB();
+        Console.WriteLine(<span class="str">"Obtained a {0}"</span>, sc);
+        Console.ReadLine();
+    }
+}</pre>
+<p>Given the laws of classic inheritance, it would be ideal to build a single delegate type that can point
+to methods returning either Car or SportsCar objects (after all, a SportsCar “is-a” Car). Covariance (which
+also goes by the term relaxed delegates) allows for this very possibility. Simply put, covariance allows you
+to build a single delegate that can point to methods returning class types related by classical inheritance.</p>
+<p><b>Note </b>In a similar vein, contravariance allows you to create a single delegate that can point to numerous
+methods that receive objects related by classical inheritance. Consult the .NET Framework 4.0 SDK documentation
+for further details.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="rem">// Define a single delegate type that can point to</span>
+    <span class="rem">// methods that return a Car or SportsCar.</span>
+    <span class="kwrd">public</span> <span class="kwrd">delegate</span> Car ObtainVehicleDelegate();
+    
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Car GetBasicCar()
+    { <span class="kwrd">return</span> <span class="kwrd">new</span> Car(); }
+
+    <span class="kwrd">public</span> <span class="kwrd">static</span> SportsCar GetSportsCar()
+    { <span class="kwrd">return</span> <span class="kwrd">new</span> SportsCar(); }
+
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Delegate Covariance *****\n"</span>);
+        ObtainVehicleDelegate targetA = <span class="kwrd">new</span> ObtainVehicleDelegate(GetBasicCar);
+        Car c = targetA();
+        Console.WriteLine(<span class="str">"Obtained a {0}"</span>, c);
+
+        <span class="rem">// Covariance allows this target assignment.</span>
+        ObtainVehicleDelegate targetB = <span class="kwrd">new</span> ObtainVehicleDelegate(GetSportsCar);
+        SportsCar sc = (SportsCar)targetB();
+        Console.WriteLine(<span class="str">"Obtained a {0}"</span>, sc);
+        Console.ReadLine();
+    }
+}</pre>
+<p>Notice that the ObtainVehicleDelegate delegate type has been defined to point to methods
+returning a strongly typed Car type. Given covariance, however, we can point to methods returning
+derived types as well. To obtain access to the members of the derived type, simply perform an explicit
+cast.</p>
+    <p><b>Source Code</b> The DelegateCovariance project is located under the Chapter 11 subdirectory.</p>
+    </body></html>
+ 
+   
+

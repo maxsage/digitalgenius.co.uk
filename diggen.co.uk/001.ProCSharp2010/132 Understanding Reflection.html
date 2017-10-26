@@ -1,0 +1,257 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Understanding Reflection</h1>
+    <p>In the .NET universe, reflection is the process of runtime type discovery. Using reflection services, you
+are able to programmatically obtain the same metadata information displayed by ildasm.exe using a
+friendly object model. For example, through reflection, you can obtain a list of all types contained within
+a given *.dll or *.exe assembly (or even within a *.netmodule file, if you have a multi-file assembly),
+including the methods, fields, properties, and events defined by a given type. You can also dynamically
+discover the set of interfaces supported by a given type, the parameters of a method, and other related
+details (base classes, namespace information, manifest data, and so forth).</p>
+<p>Like any namespace, System.Reflection (which is defined in mscorlib.dll) contains a number of
+related types. Table 15-1 lists some of the core items you should be familiar with.</p>
+<p><b>Table 15-1.</b> A Sampling of Members of the System.Reflection Namespace</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Type
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Assembly
+   </td>
+   <td>
+    This abstract class contains a number of static methods that allow you to
+load, investigate, and manipulate an assembly.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    AssemblyName
+   </td>
+   <td>
+    This class allows you to discover numerous details behind an assembly’s
+identity (version information, culture information, and so forth).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    EventInfo
+   </td>
+   <td>
+    This abstract class holds information for a given event.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    FieldInfo
+   </td>
+   <td>
+    This abstract class holds information for a given field.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    MemberInfo
+   </td>
+   <td>
+    This is the abstract base class that defines common behaviors for the
+EventInfo, FieldInfo, MethodInfo, and PropertyInfo types.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    MethodInfo
+   </td>
+   <td>
+    This abstract class contains information for a given method.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Module
+   </td>
+   <td>
+    This abstract class allows you to access a given module within a multi-file
+assembly.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ParameterInfo
+   </td>
+   <td>
+    This class holds information for a given parameter.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    PropertyInfo
+   </td>
+   <td>
+    This abstract class holds information for a given property.
+   </td>
+  </tr>
+</table>
+<p>To understand how to leverage the System.Reflection namespace to programmatically read .NET
+metadata, you need to first come to terms with the System.Type class.</p>
+<h2>The System.Type Class</h2>
+<p>The System.Type class defines a number of members that can be used to examine a type’s metadata, a
+great number of which return types from the System.Reflection namespace. For example,
+Type.GetMethods() returns an array of MethodInfo objects, Type.GetFields() returns an array of
+FieldInfo objects, and so on. The complete set of members exposed by System.Type is quite expansive;
+however, Table 15-2 offers a partial snapshot of the members supported by System.Type (see the .NET
+Framework 4.0 SDK documentation for full details).</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Type
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+    <td>
+        IsAbstract<br /> 
+        IsArray<br />
+        IsClass<br />
+        IsCOMObject<br />
+        IsEnum<br />
+        IsGenericTypeDefinition<br />
+        IsGenericParameter<br />
+        IsInterface<br /> 
+        IsPrimitive<br /> 
+        IsNestedPrivate<br />
+        IsNestedPublic<br />
+        IsSealed<br />
+        IsValueType
+   </td>
+   <td>
+    These properties (among others) allow you to discover a number
+of basic traits about the Type you are referring to (e.g., if it is an
+abstract entity, an array, a nested class, and so forth).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    GetConstructors()<br />
+       GetEvents()<br />
+        GetFields()<br /> 
+       GetInterfaces()<br />
+       GetMembers()<br />
+       GetMethods()<br />
+       GetNestedTypes()<br />
+       GetProperties()  
+ </td>
+ <td>
+  These methods (among others) allow you to obtain an array
+representing the items (interface, method, property, etc.) you are
+interested in. Each method returns a related array (e.g.,
+GetFields() returns a FieldInfo array, GetMethods() returns a
+MethodInfo array,etc.). Be aware that each of these methods has
+a singular form (e.g.,GetMethod(), GetProperty(), etc.) that
+allows you to retrieve a specific item by name, rather than an
+array of all related items.
+ </td>
+  </tr>
+  <tr>
+   <td>
+    FindMembers()  
+ </td>
+ <td>
+  This method returns a MemberInfo array based on search criteria.
+ </td>
+  </tr>
+  <tr>
+   <td>
+    GetType()  
+ </td>
+ <td>
+  This static method returns a Type instance given a string name.
+ </td>
+  </tr>
+  <tr>
+   <td>
+    InvokeMember()  
+ </td>
+ <td>
+  This method allows “late binding” for a given item. You’ll learn
+about late binding later in this chapter.
+ </td>
+  </tr>
+</table>
+<h2>Obtaining a Type Reference Using System.Object.GetType()</h2>
+<p>You can obtain an instance of the Type class in a variety of ways. However, the one thing you cannot do is
+directly create a Type object using the new keyword, as Type is an abstract class. Regarding your first
+choice, recall that System.Object defines a method named GetType(), which returns an instance of the
+Type class that represents the metadata for the current object:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Obtain type information using a SportsCar instance.</span>
+SportsCar sc = <span class="kwrd">new</span> SportsCar();
+Type t = sc.GetType();</pre>
+<p>Obviously, this approach will only work if you have compile-time knowledge of the type you wish to
+reflect over (SportsCar in this case) and currently have an instance of the type in memory. Given this
+restriction, it should make sense that tools such as ildasm.exe do not obtain type information by directly
+calling System.Object.GetType() for each type, given the ildasm.exe was not compiled against your
+custom assemblies!</p>
+<h2>Obtaining a Type Reference Using typeof()</h2>
+<p>The next way to obtain type information is using the C# typeof operator:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Get the Type using typeof.</span>
+Type t = <span class="kwrd">typeof</span>(SportsCar);</pre>
+<p>Unlike System.Object.GetType(), the typeof operator is helpful in that you do not need to first
+create an object instance to extract type information. However, your code base must still have compiletime
+knowledge of the type you are interested in examining, as typeof expects the strongly typed name
+of the type.</p>
+<h2>Obtaining a Type Reference Using System.Type.GetType()</h2>
+<p>To obtain type information in a more flexible manner, you may call the static GetType() member of the
+System.Type class and specify the fully qualified string name of the type you are interested in examining.
+Using this approach, you do not need to have compile-time knowledge of the type you are extracting
+metadata from, given that Type.GetType() takes an instance of the omnipresent System.String.</p>
+<p><b>Note</b> When I say you do not need compile-time knowledge when calling Type.GetType(), I am referring to
+the fact that this method can take any string value whatsoever (rather than a strongly typed variable). Of course,
+you would still need to know the name of the type in a “stringified” format!</p>
+<p>The Type.GetType() method has been overloaded to allow you to specify two Boolean parameters,
+one of which controls whether an exception should be thrown if the type cannot be found, and the other
+of which establishes the case sensitivity of the string. To illustrate, ponder the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Obtain type information using the static Type.GetType() method</span>
+<span class="rem">// (don't throw an exception if SportsCar cannot be found and ignore case).</span>
+Type t = Type.GetType(<span class="str">"CarLibrary.SportsCar"</span>, <span class="kwrd">false</span>, <span class="kwrd">true</span>);</pre>
+<p>In the previous example, notice that the string you are passing into GetType() makes no mention of
+the assembly containing the type. In this case, the assumption is that the type is defined within the
+currently executing assembly. However, when you wish to obtain metadata for a type within an external
+private assembly, the string parameter is formatted using the type’s fully qualified name, followed by a
+comma, followed by the friendly name of the assembly containing the type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Obtain type information for a type within an external assembly.</span>
+Type t = Type.GetType(<span class="str">"CarLibrary.SportsCar, CarLibrary"</span>);</pre>
+<p>As well, do know that the string passed into Type.GetType() may specify a plus token (+) to denote a
+nested type. Assume you wish to obtain type information for an enumeration (SpyOptions) nested within
+a class named JamesBondCar. To do so, you would write the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Obtain type information for a nested enumeration</span>
+<span class="rem">// within the current assembly.</span>
+Type t = Type.GetType(<span class="str">"CarLibrary.JamesBondCar+SpyOptions"</span>);</pre>
+    </body>
+    </html>
+        
+      
+   

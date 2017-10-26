@@ -1,0 +1,90 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Serializing Collections of Objects</h1>
+<p>Now that you have seen how to persist a single object to a stream, you’re ready to examine how to save a
+set of objects. As you might have noticed, the Serialize() method of the IFormatter interface does not
+provide a way to specify an arbitrary number of objects as input (only a single System.Object). On a
+related note, the return value of Deserialize() is, again, a single System.Object (the same basic
+limitation holds true for XmlSerializer):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IFormatter
+{
+...
+    <span class="kwrd">object</span> Deserialize(Stream serializationStream);
+    <span class="kwrd">void</span> Serialize(Stream serializationStream, <span class="kwrd">object</span> graph);
+}</pre>
+<p>Recall that the System.Object represents a complete tree of objects. Given this, if you pass in an
+object that has been marked as [Serializable] and contains other [Serializable] objects, the entire set
+of objects is persisted in a single method call. As luck would have it, most of the types you find in the
+System.Collections and System.Collections.Generic namespaces have already been marked as
+[Serializable]. Therefore, if you wish to persist a set of objects, simply add the desired set to the
+container (such as an ArrayList or a List&lt;T&gt;) and serialize the object to your stream of choice.</p>
+<p>Now assume that you want to update the JamesBondCar class with a two-argument constructor, so
+you can set a few pieces of state data (note that you add back the default constructor as required by the
+XmlSerializer):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+[Serializable,
+    XmlRoot(Namespace = <span class="str">"http://www.MyCompany.com"</span>)]
+<span class="kwrd">public</span> <span class="kwrd">class</span> JamesBondCar : Car
+{
+    <span class="kwrd">public</span> JamesBondCar(<span class="kwrd">bool</span> skyWorthy, <span class="kwrd">bool</span> seaWorthy)
+    {
+        canFly = skyWorthy;
+        canSubmerge = seaWorthy;
+    }
+    <span class="rem">// The XmlSerializer demands a default constructor!</span>
+    <span class="kwrd">public</span> JamesBondCar(){}
+...
+}</pre>
+<p>With this, you can now persist any number of JamesBondCars:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> SaveListOfCars()
+{
+    <span class="rem">// Now persist a List&lt;T&gt; of JamesBondCars.</span>
+    List&lt;JamesBondCar&gt; myCars = <span class="kwrd">new</span> List&lt;JamesBondCar&gt;();
+    myCars.Add(<span class="kwrd">new</span> JamesBondCar(<span class="kwrd">true</span>, <span class="kwrd">true</span>));
+    myCars.Add(<span class="kwrd">new</span> JamesBondCar(<span class="kwrd">true</span>, <span class="kwrd">false</span>));
+    myCars.Add(<span class="kwrd">new</span> JamesBondCar(<span class="kwrd">false</span>, <span class="kwrd">true</span>));
+    myCars.Add(<span class="kwrd">new</span> JamesBondCar(<span class="kwrd">false</span>, <span class="kwrd">false</span>));
+
+    <span class="kwrd">using</span>(Stream fStream = <span class="kwrd">new</span> FileStream(<span class="str">"CarCollection.xml"</span>,
+        FileMode.Create, FileAccess.Write, FileShare.None))
+    {
+        XmlSerializer xmlFormat = <span class="kwrd">new</span> XmlSerializer(<span class="kwrd">typeof</span>(List&lt;JamesBondCar&gt;));
+        xmlFormat.Serialize(fStream, myCars);
+    }
+    Console.WriteLine(<span class="str">"=&gt; Saved list of cars!"</span>);
+}</pre>
+<p>You use XmlSerializer here, so you are required to specify type information for each of the subobjects
+within the root object (List&lt;JamesBondCar&gt;, in this case). However, the logic would be even more
+straightforward if you were to use the BinaryFormatter or SoapFormatter type, instead:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> SaveListOfCarsAsBinary()
+{
+    <span class="rem">// Save ArrayList object (myCars) as binary.</span>
+    List&lt;JamesBondCar&gt; myCars = <span class="kwrd">new</span> List&lt;JamesBondCar&gt;();
+
+    BinaryFormatter binFormat = <span class="kwrd">new</span> BinaryFormatter();
+    <span class="kwrd">using</span>(Stream fStream = <span class="kwrd">new</span> FileStream(<span class="str">"AllMyCars.dat"</span>,
+        FileMode.Create, FileAccess.Write, FileShare.None))
+    {
+        binFormat.Serialize(fStream, myCars);
+    }
+    Console.WriteLine(<span class="str">"=&gt; Saved list of cars in binary!"</span>);
+}</pre>
+    </body>
+    </html>
+      
+      
+   

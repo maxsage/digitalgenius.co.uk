@@ -1,0 +1,255 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+    <h1>The System.Threading.Thread Class</h1>
+<p>The most primitive of all types in the System.Threading namespace is Thread. This class represents an
+object-oriented wrapper around a given path of execution within a particular AppDomain. This type also
+defines a number of methods (both static and instance level) that allow you to create new threads within
+the current AppDomain, as well as to suspend, stop, and destroy a particular thread. Consider the list of
+core static members in Table 19-2.</p>
+<p><b>Table 19-2.</b> Key Static Members of the Thread Type</p>
+<table class="gridtable">
+   <tr>
+   <th>
+    <p>Static Member</p>
+   </th>
+   <th>
+    <p>Meaning in Life</p>
+   </th>
+  </tr>
+  <tr>
+   <td>
+    <p>CurrentContext</p>
+   </td>
+   <td>
+    <p>This read-only property returns the context in which the thread is
+currently running.</p>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <p>CurrentThread</p>
+   </td>
+   <td>
+    <p>This read-only property returns a reference to the currently running
+thread.</p>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <p>GetDomain()
+GetDomainID()</p>
+   </td>
+   <td>
+    <p>These methods return a reference to the current AppDomain or the
+ID of this domain in which the current thread is running.</p>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <p>Sleep()</p>
+   </td>
+   <td>
+    <p>This method suspends the current thread for a specified time.</p>
+   </td>
+  </tr>
+</table>
+<p>The Thread class also supports several instance-level members, some of which are shown in Table 19-3.</p>
+<p><b>Table 19-3.</b> Select Instance-Level Members of the Thread Type</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Instance-Level Member
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    IsAlive
+   </td>
+   <td>
+    Returns a Boolean that indicates whether this thread has been started
+(and has not yet terminated or aborted).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IsBackground
+   </td>
+   <td>
+    Gets or sets a value indicating whether or not this thread is a
+“background thread” (more details in just a moment).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Name
+   </td>
+   <td>
+    Allows you to establish a friendly text name of the thread.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Priority
+   </td>
+   <td>
+    Gets or sets the priority of a thread, which may be assigned a value
+from the ThreadPriority enumeration.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ThreadState
+   </td>
+   <td>
+    Gets the state of this thread, which may be assigned a value from the
+ThreadState enumeration.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Abort()
+   </td>
+   <td>
+    Instructs the CLR to terminate the thread as soon as possible.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Interrupt()
+   </td>
+   <td>
+    Interrupts (e.g., wakes) the current thread from a suitable wait period.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Join()
+   </td>
+   <td>
+    Blocks the calling thread until the specified thread (the one on which
+Join() is called) exits.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Resume()
+   </td>
+   <td>
+    Resumes a thread that has been previously suspended.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Start()
+   </td>
+   <td>
+    Instructs the CLR to execute the thread ASAP.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Suspend()
+   </td>
+   <td>
+    Suspends the thread. If the thread is already suspended, a call to
+Suspend() has no effect.
+   </td>
+  </tr>
+ </table>
+<p><b>Note</b> Aborting or suspending an active thread is generally considered a bad idea. When you do so, there is a
+chance (however small) that a thread could “leak” its workload when disturbed or terminated.</p>
+<h2>Obtaining Statistics About the Current Thread</h2>
+<p>Recall that the entry point of an executable assembly (i.e., the Main() method) runs on the primary
+thread of execution. To illustrate the basic use of the Thread type, assume you have a new Console
+Application named ThreadStats. As you know, the static Thread.CurrentThread property retrieves a
+Thread object that represents the currently executing thread. Once you have obtained the current thread,
+you are able to print out various statistics:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Be sure to import the System.Threading namespace.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Primary Thread stats *****\n"</span>);
+
+    <span class="rem">// Obtain and name the current thread.</span>
+    Thread primaryThread = Thread.CurrentThread;
+    primaryThread.Name = <span class="str">"ThePrimaryThread"</span>;
+
+    <span class="rem">// Show details of hosting AppDomain/Context.</span>
+    Console.WriteLine(<span class="str">"Name of current AppDomain: {0}"</span>,
+        Thread.GetDomain().FriendlyName);
+    Console.WriteLine(<span class="str">"ID of current Context: {0}"</span>,
+        Thread.CurrentContext.ContextID);
+    
+    <span class="rem">// Print out some stats about this thread.</span>
+    Console.WriteLine(<span class="str">"Thread Name: {0}"</span>,
+        primaryThread.Name);
+    Console.WriteLine(<span class="str">"Has thread started?: {0}"</span>,
+        primaryThread.IsAlive);
+    Console.WriteLine(<span class="str">"Priority Level: {0}"</span>,
+        primaryThread.Priority);
+    Console.WriteLine(<span class="str">"Thread State: {0}"</span>,
+        primaryThread.ThreadState);
+    Console.ReadLine();
+}</pre>
+<pre class="csharpcode">
+***** Primary Thread stats *****
+
+Name of current AppDomain: ThreadStats.exe
+ID of current Context: 0
+Thread Name: ThePrimaryThread
+Has thread started?: True
+Priority Level: Normal
+Thread State: Running</pre>
+<h2>The Name Property</h2>
+<p>While this code is more or less self-explanatory, do notice that the Thread class supports a property
+called Name. If you do not set this value, Name will return an empty string. However, once you assign a
+friendly string moniker to a given Thread object, you can greatly simplify your debugging endeavors. If
+you are making use of Visual Studio 2010, you may access the Threads window during a debugging
+session (select Debug &gt; Windows &gt; Threads). As you can see from Figure 19-1, you can quickly identify
+the thread you wish to diagnose.</p>
+<img src="http://www.diggen.co.uk/Images/Figure19_01.png" alt="Figure 19-1" />
+<p><b>Figure 19-1</b> </p>
+<h2>The Priority Property</h2>
+<p>Next, notice that the Thread type defines a property named Priority. By default, all threads have a
+priority level of Normal. However, you can change this at any point in the thread’s lifetime using the
+ThreadPriority property and the related System.Threading.ThreadPriority enumeration:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">enum</span> ThreadPriority
+{
+    Lowest,
+    BelowNormal,
+    Normal, <span class="rem">// Default value.</span>
+    AboveNormal,
+    Highest
+}</pre>
+<p>If you were to assign a thread’s priority level to a value other than the default
+(ThreadPriority.Normal), understand that you would have no direct control over when the thread
+scheduler switches between threads. In reality, a thread’s priority level offers a hint to the CLR regarding
+the importance of the thread’s activity. Thus, a thread with the value ThreadPriority.Highest is not
+necessarily guaranteed to be given the highest precedence.</p>
+<p>Again, if the thread scheduler is preoccupied with a given task (e.g., synchronizing an object,
+switching threads, or moving threads), the priority level will most likely be altered accordingly. However,
+all things being equal, the CLR will read these values and instruct the thread scheduler how to best
+allocate time slices. Threads with an identical thread priority should each receive the same amount of
+time to perform their work.</p>
+<p>In most cases, you will seldom (if ever) need to directly alter a thread’s priority level. In theory, it is
+possible to jack up the priority level on a set of threads, thereby preventing lower-priority threads from
+executing at their required levels (so use caution).</p>
+    <p><b>Source Code</b> The ThreadStats project is included under the Chapter 19 subdirectory.</p>
+    </body>
+    </html>
+     
+      
+   

@@ -1,0 +1,75 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Understanding Publisher Policy Assemblies</h1>
+    <p>The next configuration issue we’ll examine is the role of publisher policy assemblies. As you’ve just seen,
+*.config files can be constructed to bind to a specific version of a shared assembly, thereby bypassing
+the version recorded in the client manifest. While this is all well and good, imagine you’re an
+administrator who now needs to reconfigure all client applications on a given machine to rebind to
+version 2.0.0.0 of the CarLibrary.dll assembly. Given the strict naming convention of a configuration
+file, you would need to duplicate the same XML content in numerous locations (assuming you are, in
+fact, aware of the locations of the executables using CarLibrary!). Clearly this would be a maintenance
+nightmare.</p>
+<p>Publisher policy allows the publisher of a given assembly (you, your department, your company, or
+what have you) to ship a binary version of a *.config file that is installed into the GAC along with the
+newest version of the associated assembly. The benefit of this approach is that client application
+directories do not need to contain specific *.config files. Rather, the CLR will read the current manifest
+and attempt to find the requested version in the GAC. However, if the CLR finds a publisher policy assembly,
+it will read the embedded XML data and perform the requested redirection at the level of the GAC.</p>
+<p>Publisher policy assemblies are created at the command line using a .NET utility named al.exe (the
+assembly linker). Though this tool provides many options, building a publisher policy assembly requires
+passing in only the following input parameters:</p>
+<ul>
+ <li>The location of the *.config or *.xml file containing the redirecting instructions</li>
+  <li>The name of the resulting publisher policy assembly</li>
+ <li>The location of the *.snk file used to sign the publisher policy assembly</li>
+ <li>The version numbers to assign the publisher policy assembly being constructed</li>
+</ul>
+<p>If you wish to build a publisher policy assembly that controls CarLibrary.dll, the command set is as
+follows (which must be entered on a single line within the command window):</p>
+<pre class="csharpcode">
+al /link: CarLibraryPolicy.xml /out:policy.1.0.CarLibrary.dll
+/keyf:C:\MyKey\myKey.snk /v:1.0.0.0
+</pre>
+<p>Here, the XML content is contained within a file named CarLibraryPolicy.xml. The name of the
+output file (which must be in the format policy.&lt;major&gt;.&lt;minor&gt;.assemblyToConfigure) is specified
+using the obvious /out flag. In addition, note that the name of the file containing the public/private key
+pair will also need to be supplied via the /keyf option. Remember, publisher policy files are shared, and
+therefore must have strong names!</p>
+<p>Once the al.exe tool has executed, the result is a new assembly that can be placed into the GAC to
+force all clients to bind to version 2.0.0.0 of CarLibrary.dll, without the use of a specific client
+application configuration file. Using this technique, you can design a machinewide redirection for all
+applications using a specific version (or range of versions) of an existing assembly.</p>
+<h2>Disabling Publisher Policy</h2>
+<p>Now, assume you (as a system administrator) have deployed a publisher policy assembly (and the latest
+version of the related assembly) to the GAC of a client machine. As luck would have it, nine of the ten
+affected applications rebind to version 2.0.0.0 without error. However, the remaining client application
+(for whatever reason) blows up when accessing CarLibrary.dll 2.0.0.0. (As we all know, it is next to
+impossible to build backward-compatible software that works 100 percent of the time.)</p>
+<p>In such a case, it is possible to build a configuration file for a specific troubled client that instructs
+the CLR to ignore the presence of any publisher policy files installed in the GAC. The remaining client
+applications that are happy to consume the newest .NET assembly will simply be redirected via the
+installed publisher policy assembly. To disable publisher policy on a client-by-client basis, author a
+(properly named) *.config file that makes use of the &lt;publisherPolicy&gt; element and set the apply
+attribute to no. When you do so, the CLR will load the version of the assembly originally listed in the
+client’s manifest.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+&lt;configuration&gt;
+    &lt;runtime&gt;
+        &lt;assemblyBinding xmlns=<span class="str">"urn:schemas-microsoft-com:asm.v1"</span>&gt;
+            &lt;publisherPolicy apply=<span class="str">"no"</span> /&gt;
+        &lt;/assemblyBinding&gt;
+    &lt;/runtime&gt;
+&lt;/configuration&gt;</pre>
+</body>
+</html>
+        
+      
+   

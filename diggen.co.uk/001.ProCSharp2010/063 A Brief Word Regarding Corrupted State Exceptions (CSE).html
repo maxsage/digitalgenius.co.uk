@@ -1,0 +1,75 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>A Brief Word Regarding Corrupted State Exceptions (CSE)</h1>
+  <p>To wrap up our examination of C#’s structured exception handling support, allow me to mention a
+brand-new .NET 4.0 namespace called System.Runtime.ExceptionServices (which is a member of the
+mscorlib.dll assembly). This namespace is quite small, defining only two class types that can be used if
+you wish to equip various methods within your application (such as the Main() method) with the ability
+to intercept and process “corrupted state exceptions,” otherwise known as CSEs.</p>
+<p>As you learned back in Chapter 1, the .NET platform sits on top of the hosting operating system
+(such as Microsoft Windows). Now, based on your background in Windows programming, you may
+recall that the low-level Windows API has a very unique set of rules regarding the treatment of runtime
+errors, which look little like .NET’s structured exception handling techniques.</p>
+<p>Within the Windows API, it is possible to trap extremely low-level errors that represent “corrupted
+state” errors. Simply put, if the Windows OS sends out a corrupted state error, your program is in very
+bad shape. So much so, that there is no hope of recovery and the only corrective course of action is to
+terminate the program.</p>
+<p><b>Note</b> As a .NET programmer, the only times you may accidentally trigger a CSE error is if your C# code is using
+platform invocation services (to talk directly to the Windows API) or using C# pointer syntax</p>
+<p>Before the release of .NET 4.0, the CLR would allow these very low-level, OS-specific errors to be
+trapped using a general System.Exception catch block. The problem, however, was that if a CSE
+exception was somehow encountered and trapped within such a catch block, the .NET platform did not
+(and still does not) provide much by way of elegant recovery code.</p>
+<p>Now, with the release of .NET 4.0, the CLR will not allow CSEs to be automatically caught
+within your .NET applications. Most of the time, this is exactly what you would want. However, if
+you did still wish to receive notifications of these OS-level errors (which would typically be only if
+you had some legacy code that required such notifications), you can make use of the
+[HandledProcessCorruptedStateExceptions] attribute.</p>
+<p>While we have not yet examined the role of .NET attributes (see Chapter 15), for now just
+understand that this attribute can be applied on any method of your application, and when you do this,
+the method in question will have a chance to deal with these low-level OS errors. By way of a simple
+example, assuming you have imported the System.Runtime.ExceptionServices namespace into your C#
+code file, you could build the following Main() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+[HandledProcessCorruptedStateExceptions]
+<span class="kwrd">static</span> <span class="kwrd">int</span> Main(<span class="kwrd">string</span>[] args)
+{
+    <span class="kwrd">try</span>
+    {
+        <span class="rem">// Assume Main() is invoking a method which</span>
+        <span class="rem">// runs the entire program.</span>
+        RunMyApplication();
+    }
+    <span class="kwrd">catch</span> (Exception ex)
+    {
+        <span class="rem">// If we get here, we know something really bad happended.</span>
+        <span class="rem">// Just print out the message and exit the program...we are</span>
+        <span class="rem">// doomed!</span>
+        Console.WriteLine(<span class="str">"Ack! Huge problem: {0}"</span>, ex.Message);
+        <span class="kwrd">return</span> -1;
+    }
+    <span class="kwrd">return</span> 0;
+}</pre>
+<p>Here we have a Main() method that does little more than call a second method that deals with the
+entire running of the application. For this example, we will assume that RunMyApplication() makes
+liberal use of try/catch logic to deal with any expected error. However, since Main() has been marked
+with the [HandledProcessCorruptedStateExceptions] attribute, if a CSE error is encountered, the
+catching of the System.Exception is our last chance to do something before the program is terminated.</p>
+<p>Here, the Main() method returns an int, rather than void. As explained in Chapter 3, by convention,
+returning zero to the OS indicates the application exits without error, while any other value (typically a
+negative number) signifies an error.</p>
+<p>This text will not deal with the processing of these low-level Windows OS errors, and therefore, I
+won’t comment on the role of System.Runtime.ExceptionServices beyond this point. If you are in need
+of further details, consult the .NET 4.0 Framework SDK documentation.</p>
+ </body>
+    </html>
+   
+

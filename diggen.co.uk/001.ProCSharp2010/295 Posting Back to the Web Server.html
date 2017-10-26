@@ -1,0 +1,59 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Posting Back to the Web Server</h1>
+    <p>This simple HTML page is executing all functionality within the hosting browser. A real web page needs
+to post back to a resource on the web server, passing all of the input data at the same time. Once the
+server side resource receives this data, it can use it to build a proper HTTP response.</p>
+<p>The action attribute on the opening &lt;form&gt; tag specifies the recipient of the incoming form data.
+Possible receivers include mail servers, other HTML files on the web server, a classic (COM-based) Active
+Server Pages (ASP) file, an ASP.NET web page, and so forth.</p>
+<p>Beyond the action attribute, you will also likely have a submit button, which when clicked, will
+transmit the form data to the web application via an HTTP request. You have no need to do so for this
+example; however, here is an update to the default.htm file, specifying the following attribute in the
+opening &lt;form&gt; tag:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">form</span> <span class="attr">id</span><span class="kwrd">="defaultPage"</span>
+    <span class="attr">action</span><span class="kwrd">="http://localhost/Cars/ClassicAspPage.asp"</span> <span class="attr">method</span><span class="kwrd">="GET"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">input</span> <span class="attr">id</span><span class="kwrd">="btnPostBack"</span> <span class="attr">type</span><span class="kwrd">="submit"</span> <span class="attr">value</span><span class="kwrd">="Post to Server!"</span><span class="kwrd">/&gt;</span>
+...
+<span class="kwrd">&lt;/</span><span class="html">form</span><span class="kwrd">&gt;</span></pre>
+<p>When the submit button for this form is clicked, the form data is sent to the ClassicAspPage.asp at
+the specified URL. When you specify method="GET" as the mode of transmission, the form data is
+appended to the query string as a set of name/value pairs separated by ampersands. You may have seen
+this sort of data in your browser before, for example:</p>
+<pre>
+ http://www.google.com/search?hl=en&source=hp&q=vikings&cts=1264370773666&aq=f&aql=&aqi=g1g-z1g1g-z1g1g-z1g4&oq=
+</pre>
+<p>The other method of transmitting form data to the web server is to specify method="POST":</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">form</span> <span class="attr">id</span><span class="kwrd">="defaultPage"</span>
+    <span class="attr">action</span><span class="kwrd">="http://localhost/Cars/ClassicAspPage.asp"</span> <span class="attr">method</span> = <span class="kwrd">"POST"</span><span class="kwrd">&gt;</span>
+...
+<span class="kwrd">&lt;/</span><span class="html">form</span><span class="kwrd">&gt;</span></pre>
+<p>In this case, the form data is not appended to the query string. Using POST, the form data is not
+directly visible to the outside world. More important, POST data does not have a character-length
+limitation; many browsers have a limit for GET queries.</p>
+<h2>Postbacks under ASP.NET</h2>
+<p>When you are building ASP.NET based web sites, the framework will take care of the posting mechanics
+on your behalf. One of the many benefits of building a web site using ASP.NET is that the programming
+model layers on top of standard HTTP Request/Response an event driven system. Thus, rather than
+manually setting an action attribute and defining an HTML submit button, you can simply handle events
+on the ASP.NET web controls using standard C# syntax.</p>
+<p>Using this event driven model, you can very easily post back to the web server using a large number
+of controls. If you require, you can post back to the web server if the user clicks on a radio button, an
+item in a list box, a day on a calendar control, and so on. In each case, you simply handle the correct
+event, and the ASP.NET runtime will automatically emit back the correct HTML posting data.</p>
+    <p><b>Source Code</b> The SimpleWebPage website is included under the Chapter 32 subdirectory.</p>
+    </body></html>
+   
+      
+   

@@ -1,0 +1,219 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Working with the DirectoryInfo Type</h1>
+    <p>The first creatable I/O-centric type you will examine is the DirectoryInfo class. This class contains a set
+of members used for creating, moving, deleting, and enumerating over directories and subdirectories. In
+addition to the functionality provided by its base class (FileSystemInfo), DirectoryInfo offers the key
+members in Table 20-3.</p>
+<p><b>Table 20-3.</b> Key Members of the DirectoryInfo Type</p>
+<table class="gridtable">
+    <tr>
+        <th>Member</th>
+        <th>Meaning in Life</th>
+    </tr>
+  <tr>
+   <td>
+    Create() CreateSubdirectory()
+   </td>
+   <td>
+    Create a directory (or set of subdirectories) when given a path name.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Delete()
+   </td>
+   <td>
+    Deletes a directory and all its contents.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    GetDirectories()
+   </td>
+   <td>
+    Returns an array of DirectoryInfo objects that represent all subdirectories
+in the current directory.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    GetFiles()
+   </td>
+   <td>
+    Retrieves an array of FileInfo objects that represent a set of files in the
+given directory.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    MoveTo()
+   </td>
+   <td>
+    Moves a directory and its contents to a new path.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Parent
+   </td>
+   <td>
+    Retrieves the parent directory of this directory.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Root
+   </td>
+   <td>
+    Gets the root portion of a path.
+   </td>
+  </tr>
+</table>
+<p>You begin working with the DirectoryInfo type by specifying a particular directory path as a
+constructor parameter. Use the "." notation if you want to obtain access to the current working
+directory (the directory of the executing application). Here are some examples:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Bind to the current working directory.</span>
+DirectoryInfo dir1 = <span class="kwrd">new</span> DirectoryInfo(<span class="str">"."</span>);
+
+<span class="rem">// Bind to C:\Windows,</span>
+<span class="rem">// using a verbatim string.</span>
+DirectoryInfo dir2 = <span class="kwrd">new</span> DirectoryInfo(<span class="str">@"C:\Windows"</span>);</pre>
+<p>In the second example, you make the assumption that the path passed into the constructor
+(C:\Windows) already exists on the physical machine. However, if you attempt to interact with a
+nonexistent directory, a System.IO.DirectoryNotFoundException is thrown. Thus, if you specify a
+directory that is not yet created, you need to call the Create() method before proceeding:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Bind to a nonexistent directory, then create it.</span>
+DirectoryInfo dir3 = <span class="kwrd">new</span> DirectoryInfo(<span class="str">@"C:\MyCode\Testing"</span>);
+dir3.Create();</pre>
+<p>Once you create a DirectoryInfo object, you can investigate the underlying directory contents using
+any of the properties inherited from FileSystemInfo. To see this in action, create a new Console
+Application named DirectoryApp and update your C# file to import System.IO.</p>
+<p>Update your Program class with a new static method that creates a new DirectoryInfo object
+mapped to C:\Windows (adjust your path if need be) that displays a number of interesting statistics:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Fun with Directory(Info) *****\n"</span>);
+        ShowWindowsDirectoryInfo();
+        Console.ReadLine();
+    }
+
+    <span class="kwrd">static</span> <span class="kwrd">void</span> ShowWindowsDirectoryInfo()
+    {
+        <span class="rem">// Dump directory information.</span>
+        DirectoryInfo dir = <span class="kwrd">new</span> DirectoryInfo(<span class="str">@"C:\Windows"</span>);
+        Console.WriteLine(<span class="str">"***** Directory Info *****"</span>);
+        Console.WriteLine(<span class="str">"FullName: {0}"</span>, dir.FullName);
+        Console.WriteLine(<span class="str">"Name: {0}"</span>, dir.Name);
+        Console.WriteLine(<span class="str">"Parent: {0}"</span>, dir.Parent);
+        Console.WriteLine(<span class="str">"Creation: {0}"</span>, dir.CreationTime);
+        Console.WriteLine(<span class="str">"Attributes: {0}"</span>, dir.Attributes);
+        Console.WriteLine(<span class="str">"Root: {0}"</span>, dir.Root);
+        Console.WriteLine(<span class="str">"**************************\n"</span>);
+    }
+}</pre>
+<p>While your output might differ, you should see something similar to the following:</p>
+<pre class="csharpcode">
+***** Fun with Directory(Info) *****
+
+***** Directory Info *****
+FullName: C:\Windows
+Name: Windows
+Parent:
+Creation: 7/13/2009 10:20:08 PM
+Attributes: Directory
+Root: C:\
+**************************</pre>
+<h2>Enumerating Files with the DirectoryInfo Type</h2>
+<p>In addition to obtaining basic details of an existing directory, you can extend the current example to use
+some methods of the DirectoryInfo type. First, you can leverage the GetFiles() method to obtain
+information about all *.jpg files located under the C:\Windows\Web\Wallpaper directory.</p>
+<p><b>Note</b> If your machine does not have a C:\Windows\Web\Wallpaper directory, retrofit this code to read files
+of a directory on your machine (e.g., to read all *.bmp files from the C:\Windows directory).</p>
+<p>The GetFiles() method returns an array of FileInfo objects, each of which exposes details of a
+particular file (you will learn the full details of the FileInfo type later in this chapter). Assume that you
+have the following static method of the Program class, which you call from Main():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> DisplayImageFiles()
+{
+    DirectoryInfo dir = <span class="kwrd">new</span> DirectoryInfo(<span class="str">@"C:\Windows\Web\Wallpaper"</span>);
+    
+    <span class="rem">// Get all files with a *.jpg extension.</span>
+    FileInfo[] imageFiles = dir.GetFiles(<span class="str">"*.jpg"</span>, SearchOption.AllDirectories);
+
+    <span class="rem">// How many were found?</span>
+    Console.WriteLine(<span class="str">"Found {0} *.jpg files\n"</span>, imageFiles.Length);
+
+    <span class="rem">// Now print out info for each file.</span>
+    <span class="kwrd">foreach</span> (FileInfo f <span class="kwrd">in</span> imageFiles)
+    {
+        Console.WriteLine(<span class="str">"***************************"</span>);
+        Console.WriteLine(<span class="str">"File name: {0}"</span>, f.Name);
+        Console.WriteLine(<span class="str">"File size: {0}"</span>, f.Length);
+        Console.WriteLine(<span class="str">"Creation: {0}"</span>, f.CreationTime);
+        Console.WriteLine(<span class="str">"Attributes: {0}"</span>, f.Attributes);
+        Console.WriteLine(<span class="str">"***************************\n"</span>);
+    }
+}</pre>
+<p>Notice you specify a search option when you call GetFiles(); you do this to look within all
+subdirectories of the root. Once you run the application, you see a listing of all files that match the
+search pattern.</p>
+<h2>Creating Subdirectories with the DirectoryInfo Type</h2>
+<p>You can programmatically extend a directory structure using the DirectoryInfo.CreateSubdirectory()
+method. This method can create a single subdirectory, as well as multiple nested subdirectories, in a
+single function call. This method illustrates how to do so, extending the directory structure of the C:
+drive with some custom subdirectories:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ModifyAppDirectory()
+{
+    DirectoryInfo dir = <span class="kwrd">new</span> DirectoryInfo(<span class="str">@"C:\");
+
+    // Create \MyFolder off application directory.
+    dir.CreateSubdirectory("</span>MyFolder<span class="str">");
+
+    // Create \MyFolder2\Data off application directory.
+    dir.CreateSubdirectory(@"</span>MyFolder2\Data");
+}</pre>
+<p>If you call this method from within Main() and examine your Windows directory using Windows
+Explorer, you will see that the new subdirectories are present and accounted for (see Figure 20-2).</p>
+<img src="http://www.diggen.co.uk/Images/Figure20_02.png" alt="Figure 20-2" />
+<p><b>Figure 20-2</b> Creating subdirectories</p>
+<p>You are not required to capture the return value of the CreateSubdirectory() method, but you
+should be aware that a DirectoryInfo object representing the newly created item is passed back on
+successful execution. Consider the following update to the previous method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ModifyAppDirectory()
+{
+    DirectoryInfo dir = <span class="kwrd">new</span> DirectoryInfo(<span class="str">"."</span>);
+
+    <span class="rem">// Create \MyFolder off initial directory.</span>
+    dir.CreateSubdirectory(<span class="str">"MyFolder"</span>);
+
+    <span class="rem">// Capture returned DirectoryInfo object.</span>
+    DirectoryInfo myDataFolder = dir.CreateSubdirectory(<span class="str">@"MyFolder2\Data"</span>);
+    
+    <span class="rem">// Prints path to ..\MyFolder2\Data.</span>
+    Console.WriteLine(<span class="str">"New Folder is: {0}"</span>, myDataFolder);
+}</pre>
+    </body>
+    </html>
+      
+   

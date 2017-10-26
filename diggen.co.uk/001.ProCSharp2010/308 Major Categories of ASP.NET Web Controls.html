@@ -1,0 +1,72 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Major Categories of ASP.NET Web Controls</h1>
+    <p>The ASP.NET web control library can be broken down into several broad categories, all of which can be
+viewed within the Visual Studio 2010 Toolbox (provided you have an *.aspx page open for design!). See
+Figure 33-3.</p>
+<img src="http://www.diggen.co.uk/Images/Figure33_03.png" alt="Figure 33-03" />
+<p><b>Figure 33-3</b> The categories of ASP.NET web controls</p>
+<p>Under the Standard area of the Toolbox, you will find the most frequently used controls, including
+Button, Label, TextBox and ListBox. In addition to these vanilla-flavored UI elements, the Standard area
+also lists more exotic web controls such as Calendar, Wizard, and AdRotator (Figure 33-4).</p>
+<img src="http://www.diggen.co.uk/Images/Figure33_04.png" alt="Figure 33-04" />
+    <p><b>Figure 33-4</b> The Standard ASP.NET web controls</p>
+<p>The Data section is where you can find a set of controls used for data binding operations, including
+the new ASP.NET Chart control, which allows you to render out graphical chart data (pie charts, line
+charts) typically as the result of a data binding operation (see Figure 33-5).</p>
+<img src="http://www.diggen.co.uk/Images/Figure33_05.png" alt="Figure 33-05" />
+    <p><b>Figure 33-5</b> Data centric ASP.NET web controls</p>
+<p>The ASP.NET validation controls (found in the Validation area of the toolbox) are very interesting in
+that they can be configured to emit back blocks of client side JavaScript that will test input fields for valid
+data. If a validation error occurs, the user will see an error message and will not be allowed to post back
+to the web server until the error is corrected.</p>
+<p>The Navigation node of the Toolbox is where you will find a small set of controls (Menu, SiteMapPath and
+TreeView) which typically work in conjunction with a *.sitemap file. As briefly mentioned earlier in this chapter,
+these navigation controls allow you to describe the structure of a multi-paged site using XML descriptions.</p>
+<p>The really exotic set of ASP.NET web controls would have to be the Login controls (Figure 33-6).</p>
+<img src="http://www.diggen.co.uk/Images/Figure33_06.png" alt="Figure 33-06" />
+    <p><b>Figure 33-6</b> Security ASP.NET web controls</p>
+<p>These controls can radically simplify how to incorporate basic security features (password recovery,
+login screens, etc.) into your web applications. In fact, these controls are so powerful, they will even
+dynamically create a dedicated database to store credentials (saved under the App_Data folder of your
+website) if you do not already have a specific security database.</p>
+<p><b>Note</b> The remaining categories of web controls shown in the Visual Studio toolbox (such as WebParts, AJAX
+Extensions and Dynamic Data) are for more specialized programming needs and will not be examined here.</p>
+<h2>A Brief Word Regarding System.Web.UI.HtmlControls</h2>
+<p>Truth be told, there are two distinct web control toolkits that ship with ASP.NET. In addition to the
+ASP.NET web controls (within the System.Web.UI.WebControls namespace), the base class libraries also
+provides the System.Web.UI.HtmlControls control library.</p>
+<p>The HTML controls are a collection of types that allow you to make use of traditional HTML controls
+on a web forms page. However, unlike simple HTML tags, HTML controls are object-oriented entities
+that can be configured to run on the server and thus support server-side event handling. Unlike ASP.NET
+web controls, HTML controls are quite simplistic in nature and offer little functionality beyond standard
+HTML tags (HtmlButton, HtmlInputControl, HtmlTable, etc.).</p>
+<p>The HTML controls can be useful if your team has a clear division between those who build HTML
+UIs and .NET developers. HTML folks can make use of their web editor of choice using familiar markup
+tags and pass the HTML files to the development team. At this point, developers can configure these
+HTML controls to run as server controls (by right-clicking an HTML widget within Visual Studio 2010).
+This will allow developers to handle server-side events and work with the HTML widget
+programmatically.</p>
+<p>The HTML controls provide a public interface that mimics standard HTML attributes. For example,
+to obtain the information within an input area, you make use of the Value property rather than the web
+control–centric Text property. Given that the HTML controls are not as feature-rich as the ASP.NET web
+controls, I won’t make further mention of them in this text.</p>
+<h2>Web Control Documentation</h2>
+<p>You will get a chance to work with a number of ASP.NET web controls during the remainder of this book;
+however, you should certainly take a moment to search the .NET Framework 4.0 SDK documentation for
+the System.Web.UI.WebControls Namespace. Here you will find explanations and code examples for each
+member of the namespace (Figure 33-7).</p>
+<img src="http://www.diggen.co.uk/Images/Figure33_07.png" alt="Figure 33-07" />
+<p><b>Figure 33-7</b> All ASP.NET web controls are documented in the .NET Framework 4.0 SDK documentation</p>
+    </body>
+    </html>
+   
+      
+   

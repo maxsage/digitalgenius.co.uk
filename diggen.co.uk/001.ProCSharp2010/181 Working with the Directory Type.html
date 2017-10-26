@@ -1,0 +1,51 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Working with the Directory Type</h1>
+<p>You have seen the DirectoryInfo type in action; now you’re ready to learn about the Directory type. For
+the most part, the static members of Directory mimic the functionality provided by the instance-level
+members defined by DirectoryInfo. Recall, however, that the members of Directory typically return
+string data rather than strongly typed FileInfo/DirectoryInfo objects.</p>
+<p>Now let’s look at some functionality of the Directory type; this final helper function displays the
+names of all drives mapped to the current computer (using the Directory.GetLogicalDrives() method)
+and uses the static Directory.Delete() method to remove the \MyFolder and \MyFolder2\Data
+subdirectories created previously:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> FunWithDirectoryType()
+{
+    <span class="rem">// List all drives on current computer.</span>
+    <span class="kwrd">string</span>[] drives = Directory.GetLogicalDrives();
+    Console.WriteLine(<span class="str">"Here are your drives:"</span>);
+    <span class="kwrd">foreach</span> (<span class="kwrd">string</span> s <span class="kwrd">in</span> drives)
+        Console.WriteLine(<span class="str">"--&gt; {0} "</span>, s);
+
+    <span class="rem">// Delete what was created.</span>
+    Console.WriteLine(<span class="str">"Press Enter to delete directories"</span>);
+    Console.ReadLine();
+    <span class="kwrd">try</span>
+    {
+        Directory.Delete(<span class="str">@"C:\MyFolder"</span>);
+
+        <span class="rem">// The second parameter specifies whether you</span>
+        <span class="rem">// wish to destroy any subdirectories.</span>
+        Directory.Delete(<span class="str">@"C:\MyFolder2"</span>, <span class="kwrd">true</span>);
+    }
+    <span class="kwrd">catch</span> (IOException e)
+    {
+        Console.WriteLine(e.Message);
+    }
+}</pre>
+    <p><b>Source Code</b> You can find the DirectoryApp project under the Chapter 20 subdirectory.</p>
+    </body>
+    </html>
+
+     
+      
+   

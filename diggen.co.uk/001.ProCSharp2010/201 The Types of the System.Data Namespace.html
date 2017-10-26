@@ -1,0 +1,322 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>The Types of the System.Data Namespace</h1>
+<p>Of all the ADO.NET namespaces, System.Data is the lowest common denominator. You cannot build
+ADO.NET applications without specifying this namespace in your data access applications. This
+namespace contains types that are shared among all ADO.NET data providers, regardless of the
+underlying data store. In addition to a number of database-centric exceptions (e.g.,
+NoNullAllowedException, RowNotInTableException, and MissingPrimaryKeyException), System.Data
+contains types that represent various database primitives (e.g., tables, rows, columns, and constraints),
+as well as the common interfaces implemented by data provider objects. Table 21-4 lists some of the
+core types you should be aware of.</p>
+<p><b>Table 21-4.</b> Core Members of the System.Data Namespace</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Type
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Constraint
+   </td>
+   <td>
+    Represents a constraint for a given DataColumn object.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DataColumn
+   </td>
+   <td>
+    Represents a single column within a DataTable object.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DataRelation
+   </td>
+   <td>
+    Represents a parent/child relationship between two DataTable objects.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DataRow
+   </td>
+   <td>
+    Represents a single row within a DataTable object.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DataSet
+   </td>
+   <td>
+    Represents an in-memory cache of data consisting of any number of
+interrelated DataTable objects.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DataTable
+   </td>
+   <td>
+    Represents a tabular block of in-memory data.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DataTableReader
+   </td>
+   <td>
+    Allows you to treat a DataTable as a fire-hose cursor (forward only, readonly
+data access).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DataView
+   </td>
+   <td>
+    Represents a customized view of a DataTable for sorting, filtering,
+searching, editing, and navigation.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IDataAdapter
+   </td>
+   <td>
+    Defines the core behavior of a data adapter object.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IDataParameter
+   </td>
+   <td>
+    Defines the core behavior of a parameter object.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IDataReader
+   </td>
+   <td>
+    Defines the core behavior of a data reader object.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IDbCommand
+   </td>
+   <td>
+    Defines the core behavior of a command object.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IDbDataAdapter
+   </td>
+   <td>
+    Extends IDataAdapter to provide additional functionality of a data adapter
+object.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IDbTransaction
+   </td>
+   <td>
+    Defines the core behavior of a transaction object.
+   </td>
+  </tr>
+</table>
+<p>You use the vast majority of the classes within System.Data when programming against the
+disconnected layer of ADO.NET. In the next chapter, you will get to know the details of the DataSet and
+its related cohorts (e.g., DataTable, DataRelation, and DataRow) and how to use them (and a related data
+adapter) to represent and manipulate client-side copies of remote data.</p>
+<p>However, your next task is to examine the core interfaces of System.Data at a high level; this can help
+you understand the common functionality offered by any data provider. You will also learn specific
+details throughout this chapter; however, for now it’s best to focus on the overall behavior of each
+interface type.</p>
+<h2>The Role of the IDbConnection Interface</h2>
+<p>The IDbConnection type is implemented by a data provider’s connection object. This interface defines a
+set of members used to configure a connection to a specific data store. It also allows you to obtain the
+data provider’s transaction object. Here is the formal definition of IDbConnection:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IDbConnection : IDisposable
+{
+    <span class="kwrd">string</span> ConnectionString { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">int</span> ConnectionTimeout { <span class="kwrd">get</span>; }
+    <span class="kwrd">string</span> Database { <span class="kwrd">get</span>; }
+    ConnectionState State { <span class="kwrd">get</span>; }
+
+    IDbTransaction BeginTransaction();
+    IDbTransaction BeginTransaction(IsolationLevel il);
+    <span class="kwrd">void</span> ChangeDatabase(<span class="kwrd">string</span> databaseName);
+    <span class="kwrd">void</span> Close();
+    IDbCommand CreateCommand();
+    <span class="kwrd">void</span> Open();
+}</pre>
+<p><b>Note</b> Like many other types in the .NET base class libraries, the Close() method is functionally equivalent to
+calling the Dispose() method directly or indirectly within C# by using scope (see Chapter 8).</p>
+<h2>The Role of the IDbTransaction Interface</h2>
+<p>The overloaded BeginTransaction() method defined by IDbConnection provides access to the provider’s
+transaction object. You can use the members defined by IDbTransaction to interact programmatically
+with a transactional session and the underlying data store:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IDbTransaction : IDisposable
+{
+    IDbConnection Connection { <span class="kwrd">get</span>; }
+    IsolationLevel IsolationLevel { <span class="kwrd">get</span>; }
+    
+    <span class="kwrd">void</span> Commit();
+    <span class="kwrd">void</span> Rollback();
+}</pre>
+<h2>The Role of the IDbCommand Interface</h2>
+<p>Next up is the IDbCommand interface, which will be implemented by a data provider’s command object.
+Like other data access object models, command objects allow programmatic manipulation of SQL
+statements, stored procedures, and parameterized queries. Command objects also provide access to the
+data provider’s data reader type through the overloaded ExecuteReader() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IDbCommand : IDisposable
+{
+    <span class="kwrd">string</span> CommandText { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">int</span> CommandTimeout { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    CommandType CommandType { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    IDbConnection Connection { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    IDataParameterCollection Parameters { <span class="kwrd">get</span>; }
+    IDbTransaction Transaction { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    UpdateRowSource UpdatedRowSource { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+
+    <span class="kwrd">void</span> Cancel();
+    IDbDataParameter CreateParameter();
+    <span class="kwrd">int</span> ExecuteNonQuery();
+    IDataReader ExecuteReader();
+    IDataReader ExecuteReader(CommandBehavior behavior);
+    <span class="kwrd">object</span> ExecuteScalar();
+    <span class="kwrd">void</span> Prepare();
+}</pre>
+<h2>The Role of the IDbDataParameter and IDataParameter Interfaces</h2>
+<p>Notice that the Parameters property of IDbCommand returns a strongly typed collection that implements
+IDataParameterCollection. This interface provides access to a set of IDbDataParameter-compliant class
+types (e.g., parameter objects):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IDbDataParameter : IDataParameter
+{
+    <span class="kwrd">byte</span> Precision { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">byte</span> Scale { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">int</span> Size { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+}</pre>
+<p>IDbDataParameter extends the IDataParameter interface to obtain the following additional behaviors:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IDataParameter
+{
+    DbType DbType { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    ParameterDirection Direction { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">bool</span> IsNullable { <span class="kwrd">get</span>; }
+    <span class="kwrd">string</span> ParameterName { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">string</span> SourceColumn { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    DataRowVersion SourceVersion { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">object</span> Value { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+}</pre>
+<p>As you will see, the functionality of the IDbDataParameter and IDataParameter interfaces allows you
+to represent parameters within a SQL command (including stored procedures) through specific
+ADO.NET parameter objects, rather than through hard-coded string literals.</p>
+<h2>The Role of the IDbDataAdapter and IDataAdapter Interfaces</h2>
+<p>You use data adapters to push and pull DataSets to and from a given data store. The IDbDataAdapter
+interface defines a set of properties that you can use to maintain the SQL statements for the related
+select, insert, update, and delete operations:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IDbDataAdapter : IDataAdapter
+{
+    IDbCommand DeleteCommand { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    IDbCommand InsertCommand { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    IDbCommand SelectCommand { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    IDbCommand UpdateCommand { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+}</pre>
+<p>In addition to these four properties, an ADO.NET data adapter also picks up the behavior defined in
+the base interface, IDataAdapter. This interface defines the key function of a data adapter type: the
+ability to transfer DataSets between the caller and underlying data store using the Fill() and Update()
+methods. The IDataAdapter interface also allows you to map database column names to more userfriendly
+display names with the TableMappings property:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IDataAdapter
+{
+    MissingMappingAction MissingMappingAction { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    MissingSchemaAction MissingSchemaAction { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    ITableMappingCollection TableMappings { <span class="kwrd">get</span>; }
+    
+    <span class="kwrd">int</span> Fill(DataSet dataSet);
+    DataTable[] FillSchema(DataSet dataSet, SchemaType schemaType);
+    IDataParameter[] GetFillParameters();
+    <span class="kwrd">int</span> Update(DataSet dataSet);
+}</pre>
+<h2>The Role of the IDataReader and IDataRecord Interfaces</h2>
+<p>The next key interface to be aware of is IDataReader, which represents the common behaviors supported
+by a given data reader object. When you obtain an IDataReader-compatible type from an ADO.NET data
+provider, you can iterate over the result set in a forward-only, read-only manner:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IDataReader : IDisposable, IDataRecord
+{
+    <span class="kwrd">int</span> Depth { <span class="kwrd">get</span>; }
+    <span class="kwrd">bool</span> IsClosed { <span class="kwrd">get</span>; }
+    <span class="kwrd">int</span> RecordsAffected { <span class="kwrd">get</span>; }
+    
+    <span class="kwrd">void</span> Close();
+    DataTable GetSchemaTable();
+    <span class="kwrd">bool</span> NextResult();
+    <span class="kwrd">bool</span> Read();
+}</pre>
+<p>Finally, IDataReader extends IDataRecord, which defines many members that allow you to extract a
+strongly typed value from the stream, rather than casting the generic System.Object retrieved from the
+data reader’s overloaded indexer method. Here is a partial listing of the various GetXXX() methods
+defined by IDataRecord (see the .NET Framework 4.0 SDK documentation for a complete listing):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IDataRecord
+{
+    <span class="kwrd">int</span> FieldCount { <span class="kwrd">get</span>; }
+    <span class="kwrd">object</span> <span class="kwrd">this</span>[ <span class="kwrd">string</span> name ] { <span class="kwrd">get</span>; }
+    <span class="kwrd">object</span> <span class="kwrd">this</span>[ <span class="kwrd">int</span> i ] { <span class="kwrd">get</span>; }
+    <span class="kwrd">bool</span> GetBoolean(<span class="kwrd">int</span> i);
+    <span class="kwrd">byte</span> GetByte(<span class="kwrd">int</span> i);
+    <span class="kwrd">char</span> GetChar(<span class="kwrd">int</span> i);
+    DateTime GetDateTime(<span class="kwrd">int</span> i);
+    <span class="kwrd">decimal</span> GetDecimal(<span class="kwrd">int</span> i);
+    <span class="kwrd">float</span> GetFloat(<span class="kwrd">int</span> i);
+    <span class="kwrd">short</span> GetInt16(<span class="kwrd">int</span> i);
+    <span class="kwrd">int</span> GetInt32(<span class="kwrd">int</span> i);
+    <span class="kwrd">long</span> GetInt64(<span class="kwrd">int</span> i);
+...
+    <span class="kwrd">bool</span> IsDBNull(<span class="kwrd">int</span> i);
+}</pre>
+<p><b>Note</b> You can use the IDataReader.IsDBNull() method to discover programmatically whether a specified
+field is set to null before obtaining a value from the data reader (to avoid triggering a runtime exception). Also
+recall that C# supports nullable data types (see Chapter 4), which are ideal for interacting with data columns that
+could be NULL in the database table.</p>
+    </body>
+    </html>
+      
+      
+   

@@ -1,0 +1,215 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Multitabled DataSet Objects and Data Relationships</h1>
+<p>So far, all of this chapter’s examples have operated on a single DataTable object. However, the power of
+the disconnected layer shines through when a DataSet object contains numerous interrelated
+DataTables. In this case, you can define any number of DataRelation objects in the DataSet’s
+DataRelation collection to account for the interdependencies of the tables. The client tier can use these
+objects to navigate between the table data without incurring network roundtrips.</p>
+<p><b>Note</b> Rather than updating AutoLotDAL.dll to account for the Customers and Orders tables, this example
+isolates all of the data access logic within a new Windows Forms project. However, intermixing UI and data logic in
+a production-level application is not recommended. The final examples of this chapter leverage various database
+design tools to decouple the UI logic from the data logic code.</p>
+<p>Begin this example by creating a new Windows Forms application named MultitabledDataSetApp.
+The GUI is simple enough. In Figure 22-11, you can see three DataGridView widgets
+(dataGridViewInventory, dataGridViewCustomers, and dataGridViewOrders) that hold the data retrieved
+from the Inventory, Orders, and Customers tables of the AutoLot database. In addition, the initial Button
+(named btnUpdateDatabase) submits any and all changes entered within the grids back to the database
+for processing using data adapter objects.</p>
+<img src="http://www.diggen.co.uk/Images/Figure22_11.png" alt="Figure 22-11" />
+<p><b>Figure 22-11</b> The initial UI will display data from each table of the AutoLot database</p>
+<h2>Prepping the Data Adapters</h2>
+<p>To keep the data access code as simple as possible, the MainForm will make use of command builder
+objects to autogenerate the SQL commands for each of the three SqlDataAdapters (one for each table).
+Here is the initial update to the Form-derived type (don’t forget to import the System.Data.SqlClient
+namespace):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> MainForm : Form
+{
+    <span class="rem">// Form wide DataSet.</span>
+    <span class="kwrd">private</span> DataSet autoLotDS = <span class="kwrd">new</span> DataSet(<span class="str">"AutoLot"</span>);
+
+    <span class="rem">// Make use of command builders to simplify data adapter configuration.</span>
+    <span class="kwrd">private</span> SqlCommandBuilder sqlCBInventory;
+    <span class="kwrd">private</span> SqlCommandBuilder sqlCBCustomers;
+    <span class="kwrd">private</span> SqlCommandBuilder sqlCBOrders;
+
+    <span class="rem">// Our data adapters (for each table).</span>
+    <span class="kwrd">private</span> SqlDataAdapter invTableAdapter;
+    <span class="kwrd">private</span> SqlDataAdapter custTableAdapter;
+    <span class="kwrd">private</span> SqlDataAdapter ordersTableAdapter;
+
+    <span class="rem">// Form wide connection string.</span>
+    <span class="kwrd">private</span> <span class="kwrd">string</span> cnStr = <span class="kwrd">string</span>.Empty;
+...
+}</pre>
+<p>The constructor does the grunt work of creating your data-centric member variables and filling the
+DataSet. This example assumes you have authored an App.config file that contains the correct
+connection string data (and that you have referenced System.Configuration.dll and imported the
+System.Configuration namespace), as in this example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">configuration</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">connectionStrings</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">name</span> <span class="kwrd">="AutoLotSqlProvider"</span> <span class="attr">connectionString</span> =
+            <span class="kwrd">"Data Source=(local)\SQLEXPRESS;
+            Integrated Security=SSPI;Initial Catalog=AutoLot"</span>
+        <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">connectionStrings</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">configuration</span><span class="kwrd">&gt;</span></pre>
+<p>Also note that you include a call to a private helper function, BuildTableRelationship():</p>
+
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> MainForm()
+{
+    InitializeComponent();
+
+    <span class="rem">// Get connection string from *.config file.</span>
+    cnStr =
+        ConfigurationManager.ConnectionStrings[
+        <span class="str">"AutoLotSqlProvider"</span>].ConnectionString;
+
+    <span class="rem">// Create adapters.</span>
+    invTableAdapter = <span class="kwrd">new</span> SqlDataAdapter(<span class="str">"Select * from Inventory"</span>, cnStr);
+    custTableAdapter = <span class="kwrd">new</span> SqlDataAdapter(<span class="str">"Select * from Customers"</span>, cnStr);
+    ordersTableAdapter = <span class="kwrd">new</span> SqlDataAdapter(<span class="str">"Select * from Orders"</span>, cnStr);
+
+    <span class="rem">// Autogenerate commands.</span>
+    sqlCBInventory = <span class="kwrd">new</span> SqlCommandBuilder(invTableAdapter);
+    sqlCBOrders = <span class="kwrd">new</span> SqlCommandBuilder(ordersTableAdapter);
+    sqlCBCustomers = <span class="kwrd">new</span> SqlCommandBuilder(custTableAdapter);
+
+    <span class="rem">// Fill tables in DS.</span>
+    invTableAdapter.Fill(autoLotDS, <span class="str">"Inventory"</span>);
+    custTableAdapter.Fill(autoLotDS, <span class="str">"Customers"</span>);
+    ordersTableAdapter.Fill(autoLotDS, <span class="str">"Orders"</span>);
+
+    <span class="rem">// Build relations between tables.</span>
+    BuildTableRelationship();
+    
+    <span class="rem">// Bind to grids</span>
+    dataGridViewInventory.DataSource = autoLotDS.Tables[<span class="str">"Inventory"</span>];
+    dataGridViewCustomers.DataSource = autoLotDS.Tables[<span class="str">"Customers"</span>];
+    dataGridViewOrders.DataSource = autoLotDS.Tables[<span class="str">"Orders"</span>];
+}</pre>
+<h2>Building the Table Relationships</h2>
+<p>The BuildTableRelationship() helper function does the grunt work to add two DataRelation objects into
+the autoLotDS object. Recall from Chapter 21 that the AutoLot database expresses a number of
+parent/child relationships, which you can account for with the following code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> BuildTableRelationship()
+{
+    <span class="rem">// Create CustomerOrder data relation object.</span>
+    DataRelation dr = <span class="kwrd">new</span> DataRelation(<span class="str">"CustomerOrder"</span>,
+        autoLotDS.Tables[<span class="str">"Customers"</span>].Columns[<span class="str">"CustID"</span>],
+        autoLotDS.Tables[<span class="str">"Orders"</span>].Columns[<span class="str">"CustID"</span>]);
+    autoLotDS.Relations.Add(dr);
+    
+    <span class="rem">// Create InventoryOrder data relation object.</span>
+    dr = <span class="kwrd">new</span> DataRelation(<span class="str">"InventoryOrder"</span>,
+        autoLotDS.Tables[<span class="str">"Inventory"</span>].Columns[<span class="str">"CarID"</span>],
+        autoLotDS.Tables[<span class="str">"Orders"</span>].Columns[<span class="str">"CarID"</span>]);
+    autoLotDS.Relations.Add(dr);
+}</pre>
+<p>Note that you establish a friendly string moniker with the first parameter when you create a
+DataRelation object (you’ll see the usefulness of doing so in just a minute). You also establish the keys
+used to build the relationship itself. Notice that the parent table (the second constructor parameter) is
+specified before the child table (the third constructor parameter).</p>
+<h2>Updating the Database Tables</h2>
+<p>Now that the DataSet has been filled with data from the data source, you can manipulate each DataTable
+locally. To do so, run the application and insert, update, or delete values from any of the three
+DataGridViews. When you are ready to submit the data back for processing, click the Update button. You
+should find it easy to follow along with the code behind the related Click event at this point:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> btnUpdateDatabase_Click(<span class="kwrd">object</span> sender, EventArgs e)
+{
+    <span class="kwrd">try</span>
+    {
+        invTableAdapter.Update(autoLotDS, <span class="str">"Inventory"</span>);
+        custTableAdapter.Update(autoLotDS, <span class="str">"Customers"</span>);
+        ordersTableAdapter.Update(autoLotDS, <span class="str">"Orders"</span>);
+    }
+    <span class="kwrd">catch</span> (Exception ex)
+    {
+        MessageBox.Show(ex.Message);
+    }
+}</pre>
+<p>Now run your application and perform various updates. When you rerun the application, you
+should find that your grids are populated with the recent changes.</p>
+<h2>Navigating Between Related Tables</h2>
+<p>Now let’s look at how a DataRelation allows you to move between related tables programmatically.
+Extend your UI to include a new Button (named btnGetOrderInfo), a related TextBox (named txtCustID),
+and a descriptive Label (you can group these controls within a GroupBox for more visual appeal).
+Figure 22-12 shows one possible UI of the application.</p>
+<img src="http://www.diggen.co.uk/Images/Figure22_12.png" alt="Figure 22-12" />
+<p><b>Figure 22-12</b> The updated UI allows the user to look up customer order information</p>
+<p>This updated UI lets the user enter the ID of a customer and retrieve all the relevant information
+about that customer’s order (e.g., name, order ID, and car order). This information will be formatted into
+a string type that is eventually displayed within a message box. Consider the code behind the new
+Button’s Click event handler:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> btnGetOrderInfo_Click(<span class="kwrd">object</span> sender, System.EventArgs e)
+{
+    <span class="kwrd">string</span> strOrderInfo = <span class="kwrd">string</span>.Empty;
+    DataRow[] drsCust = <span class="kwrd">null</span>;
+    DataRow[] drsOrder = <span class="kwrd">null</span>;
+
+    <span class="rem">// Get the customer ID in the text box.</span>
+    <span class="kwrd">int</span> custID = <span class="kwrd">int</span>.Parse(<span class="kwrd">this</span>.txtCustID.Text);
+
+    <span class="rem">// Now based on custID, get the correct row in Customers table.</span>
+    drsCust = autoLotDS.Tables[<span class="str">"Customers"</span>].Select(
+        <span class="kwrd">string</span>.Format(<span class="str">"CustID = {0}"</span>, custID));
+    strOrderInfo += <span class="kwrd">string</span>.Format(<span class="str">"Customer {0}: {1} {2}\n"</span>,
+        drsCust[0][<span class="str">"CustID"</span>].ToString(),
+        drsCust[0][<span class="str">"FirstName"</span>].ToString(),
+        drsCust[0][<span class="str">"LastName"</span>].ToString());
+
+    <span class="rem">// Navigate from Customers table to Orders table.</span>
+    drsOrder = drsCust[0].GetChildRows(autoLotDS.Relations[<span class="str">"CustomerOrder"</span>]);
+
+    <span class="rem">// Loop through all orders for this customer.</span>
+    <span class="kwrd">foreach</span> (DataRow order <span class="kwrd">in</span> drsOrder)
+    {
+        strOrderInfo += <span class="kwrd">string</span>.Format(<span class="str">"----\nOrder Number:
+            {0}\n"</span>, order[<span class="str">"OrderID"</span>]);
+        
+        <span class="rem">// Get the car referenced by this order.</span>
+        DataRow[] drsInv = order.GetParentRows(autoLotDS.Relations[
+            <span class="str">"InventoryOrder"</span>]);
+
+        <span class="rem">// Get info for (SINGLE) car info for this order.</span>
+        DataRow car = drsInv[0];
+        strOrderInfo += <span class="kwrd">string</span>.Format(<span class="str">"Make: {0}\n"</span>, car[<span class="str">"Make"</span>]);
+        strOrderInfo += <span class="kwrd">string</span>.Format(<span class="str">"Color: {0}\n"</span>, car[<span class="str">"Color"</span>]);
+        strOrderInfo += <span class="kwrd">string</span>.Format(<span class="str">"Pet Name: {0}\n"</span>, car[<span class="str">"PetName"</span>]);
+    }
+    MessageBox.Show(strOrderInfo, <span class="str">"Order Details"</span>);
+}</pre>
+<p>Figure 22-13 shows one possible output when specifying a customer ID with the value of 3 (this is
+Steve Hagen in my copy of the AutoLot database, who currently has two orders pending).</p>
+<img src="http://www.diggen.co.uk/Images/Figure22_13.png" alt="Figure 22-13" />
+<p><b>Figure 22-13</b> Navigating data relations</p>
+<p>This last example should probably convince you of the usefulness of the DataSet class. Given that a
+DataSet is completely disconnected from the underlying data source, you can work with an in-memory
+copy of data and navigate around each table to make any necessary updates, deletes, or inserts without
+incurring any roundtrips to the database. Once you finish this, you can submit your changes to the data
+store for processing. The end result is a scalable and robust application.</p>
+    <p><b>Source Code</b> You can find the MultitabledDataSetApp project under the Chapter 22 subdirectory.</p>
+    </body>
+    </html>
+   
+      
+   

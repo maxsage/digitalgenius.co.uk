@@ -1,0 +1,286 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Building WPF Applications Using Visual Studio 2010</h1>
+    <p>Over the course of this chapter you created examples using no-frills text editors, the command-line
+compiler, and kaxaml.exe. The reason for doing so, of course, was to focus on the core syntax of WPF
+applications without getting distracted by the bells and whistles of a graphical designer. Now that you
+have seen how to build WPF applications in the raw, let’s examine how Visual Studio 2010 can simplify
+the construction of WPF applications.</p>
+<p><b>Note</b> While Visual Studio 2010 does have some support for authoring complex XAML using the integrated
+designers, Expression Blend is a far better alternative to build the UI of your WPF applications. You will begin to
+examine Expression Blend in Chapter 28.</p>
+<h2>The WPF Project Templates</h2>
+<p>The New Project dialog box of Visual Studio 2010 defines a set of WPF project workspaces, all of which
+are contained under the Window node of the Visual C# root. Here, you can choose from a WPF
+Application, WPF User Control Library, WPF Custom Control Library, and WPF Browser Application (i.e.,
+XBAP). To begin, create a new WPF Application named MyXamlPad (Figure 27-16).</p>
+<img src="http://www.diggen.co.uk/Images/Figure27_16.png" alt="Figure 27-16" />
+<p><b>Figure 27-16</b> The WPF project templates of Visual Studio 2010</p>
+<p>Beyond setting references to each of the WPF assemblies (PresentationCore.dll,
+PresentationFramework.dll, and WindowsBase.dll), you will also be provided with initial Window and
+Application derived classes, making use of code files and a related XAML file. Consider Figure 27-17,
+which shows the Solution Explorer for this new WPF project.</p>
+<img src="http://www.diggen.co.uk/Images/Figure27_17.png" alt="Figure 27-17" />
+<p><b>Figure 27-17</b> The initial files of a WPF Application project</p>
+<h2>Exploring the WPF Designer Tools</h2>
+<p>Visual Studio 2010 provides a Toolbox (which you can open via the View menu) that contains numerous
+WPF controls (Figure 27-18).</p>
+<img src="http://www.diggen.co.uk/Images/Figure27_18.png" alt="Figure 27-18" />
+<p><b>Figure 27-18</b> The Toolbox contains the WPF controls that can be placed on the designer surface</p>
+<p>Using a standard mouse drag and drop, you can place any of these controls onto the Window's
+designer surface. As you do, the underlying XAML will be authored on your behalf. However, you can
+also manually type in your markup using the integrated XAML editor. As you can see in Figure 29-19,
+you do get IntelliSense support, which can help simplify the authoring of the markup.</p>
+<img src="http://www.diggen.co.uk/Images/Figure27_19.png" alt="Figure 27-19" />
+<p><b>Figure 27-19</b> The WPF Window designer</p>
+<p><b>Note</b> You can reposition the display panes of the visual designer using the buttons embedded within the splitter
+window, such as the Swap Panes button (indicated by the up/down arrows), the Horizontal and Vertical split
+buttons, and so on. Take a moment to find a configuration you are comfortable with.</p>
+<p>Once you have placed controls onto your designer (which you will do in a moment), you can then
+make use of the Properties window to set property values for the selected control, as well as rig up event
+handlers for the selected control. By way of a simple test, drag a button control anywhere on your visual
+designer. Once you do, you will see that Visual Studio authored XAML similar to the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">Content</span><span class="kwrd">="Button"</span> <span class="attr">Height</span><span class="kwrd">="23"</span> <span class="attr">HorizontalAlignment</span><span class="kwrd">="Left"</span>
+    <span class="attr">Margin</span><span class="kwrd">="12,12,0,0"</span> <span class="attr">Name</span><span class="kwrd">="button1"</span> <span class="attr">VerticalAlignment</span><span class="kwrd">="Top"</span> <span class="attr">Width</span><span class="kwrd">="75"</span> <span class="kwrd">/&gt;</span></pre>
+     <p>Now, use the Properties window to change the Background color of the Button using the integrated
+brush editor (Figure 27-20).</p>
+<p><b>Note</b> The Brush Editor of Expression Blend is very similar to the Visual Studio brush editor and will be examined
+in detail in Chapter 29.</p>
+<img src="http://www.diggen.co.uk/Images/Figure27_20.png" alt="Figure 27-20" />
+<p><b>Figure 27-20</b> The Properties window can be used to configure the UI of a WPF control</p>
+<p>Once you have finished tinkering with the brush editor, check out the generated markup. It might
+look something like this:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">Content</span><span class="kwrd">="Button"</span> <span class="attr">Height</span><span class="kwrd">="23"</span> <span class="attr">HorizontalAlignment</span><span class="kwrd">="Left"</span> <span class="attr">Margin</span><span class="kwrd">="12,12,0,0"</span>
+        <span class="attr">Name</span><span class="kwrd">="button1"</span> <span class="attr">VerticalAlignment</span><span class="kwrd">="Top"</span> <span class="attr">Width</span><span class="kwrd">="75"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Button.Background</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">LinearGradientBrush</span> <span class="attr">EndPoint</span><span class="kwrd">="1,0.5"</span> <span class="attr">StartPoint</span><span class="kwrd">="0,0.5"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">GradientStop</span> <span class="attr">Color</span><span class="kwrd">="#FF7488CE"</span> <span class="attr">Offset</span><span class="kwrd">="0"</span> <span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">GradientStop</span> <span class="attr">Color</span><span class="kwrd">="#FFC11E1E"</span> <span class="attr">Offset</span><span class="kwrd">="0.837"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">LinearGradientBrush</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Button.Background</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Button</span><span class="kwrd">&gt;</span></pre>
+    <p>If you wish to handle events for a given control, you can also make use of the Properties window, but
+this time you need to click on the Events tab. Ensure that the button is selected on your designer, click
+on the Events tab, and locate the Click event. Once you do, double click directly on the Click event entry.
+This will cause Visual Studio 2010 to automatically build an event handler that takes the form:</p>
+<pre>
+NameOfControl_NameOfEvent</pre>
+<p>Since you did not rename your button, the Properties window shows it generated an event handler
+named button1_Click (see Figure 27-21).</p>
+<img src="http://www.diggen.co.uk/Images/Figure27_20.png" alt="Figure 27-20" />
+<p><b>Figure 27-20</b> Handling events using the visual designer</p>
+<p>As well, Visual Studio 2010 generated the corresponding C# code in your window's code file. Here,
+you can add any sort of code that must execute when the button is clicked:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> MainWindow : Window
+{
+    <span class="kwrd">public</span> MainWindow()
+    {
+        InitializeComponent();
+    }
+    
+    <span class="kwrd">private</span> <span class="kwrd">void</span> button1_Click(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+    {
+    }
+}</pre>
+<p>You can also handle events directly in the XAML editor. By way of an example, place your mouse
+within the &lt;Button&gt; element and type in the MouseEnter event, followed by the equals sign. Once you
+do, you will see Visual Studio displays any compatible handlers in your code file, as well as the &lt;New
+Event Handler&gt; option. If you double click &lt;New Event Handler&gt;, the IDE will generate a fitting handler
+in your C# code file.</p>
+<p>Now that you have seen the basic tools used within Visual Studio 2010 to create WPF applications,
+let’s leverage this IDE to build an example program that illustrates the process of parsing XAML at
+runtime.</p>
+<p>Before you start, completely delete the markup describing the Button you just created and also
+delete the C# event handler code.</p>
+<h2>Designing the GUI of our Window</h2>
+<p>The WPF API supports the ability to load, parse, and save XAML descriptions programmatically. Doing
+so can be quite useful in a variety of situations. For example, assume you have five different XAML files
+that describe the look and feel of a Window type. As long as the names of each control (and any necessary
+event handlers) are identical within each file, it would be possible to dynamically apply “skins” to the
+window (perhaps based on a startup argument passed into the application).</p>
+<p>Interacting with XAML at runtime revolves around the XamlReader and XamlWriter types, both of
+which are defined within the System.Windows.Markup namespace. To illustrate how to programmatically
+hydrate a Window object from an external *.xaml file, you will build an application that mimics the basic
+functionality of the kaxaml.</p>
+<p>While your application will certainly not be as feature-rich as kaxaml.exe, it will provide the ability
+to enter XAML markup, view the results, and save the XAML to an external file. To begin, update the
+initial XAML definition of your &lt;Window&gt; as:</p>
+<p><b>Note</b> The next chapter will dive into the details of working with controls and panels, so don’t fret over the
+details of the control declarations.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span> <span class="attr">x:Class</span><span class="kwrd">="MyXamlPad.MainWindow"</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">Title</span><span class="kwrd">="My Custom XAML Editor"</span>
+    <span class="attr">Height</span><span class="kwrd">="338"</span> <span class="attr">Width</span><span class="kwrd">="1041"</span>
+    <span class="attr">Loaded</span><span class="kwrd">="Window_Loaded"</span> <span class="attr">Closed</span><span class="kwrd">="Window_Closed"</span>
+    <span class="attr">WindowStartupLocation</span><span class="kwrd">="CenterScreen"</span><span class="kwrd">&gt;</span>
+
+    <span class="rem">&lt;!-- You will use a DockPanel, not a Grid --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">DockPanel</span> <span class="attr">LastChildFill</span><span class="kwrd">="True"</span> <span class="kwrd">&gt;</span>
+    
+        <span class="rem">&lt;!-- This button will launch a window with defined XAML --&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">DockPanel</span>.<span class="attr">Dock</span><span class="kwrd">="Top"</span> <span class="attr">Name</span> = <span class="kwrd">"btnViewXaml"</span> <span class="attr">Width</span><span class="kwrd">="100"</span> <span class="attr">Height</span><span class="kwrd">="40"</span>
+            <span class="attr">Content</span> <span class="kwrd">="View Xaml"</span> <span class="attr">Click</span><span class="kwrd">="btnViewXaml_Click"</span> <span class="kwrd">/&gt;</span>
+
+        <span class="rem">&lt;!-- This will be the area to type within --&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">AcceptsReturn</span> <span class="kwrd">="True"</span> <span class="attr">Name</span> <span class="kwrd">="txtXamlData"</span>
+            <span class="attr">FontSize</span> <span class="kwrd">="14"</span> <span class="attr">Background</span><span class="kwrd">="Black"</span> <span class="attr">Foreground</span><span class="kwrd">="Yellow"</span>
+            <span class="attr">BorderBrush</span> <span class="kwrd">="Blue"</span> <span class="attr">VerticalScrollBarVisibility</span><span class="kwrd">="Auto"</span>
+            <span class="attr">AcceptsTab</span><span class="kwrd">="True"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">DockPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+    <p>First of all, notice that you have replaced the initial &lt;Grid&gt; with a &lt;DockPanel&gt; type that contains a
+Button (named btnViewXaml) and a TextBox (named txtXamlData), and that the Click event of the Button
+type has been handled. Also notice that the Loaded and Closed events of the Window itself have been
+handled within the opening &lt;Window&gt; element. If you have used the designer to handle your events, you
+should find the following code in your MainWindow.xaml.cs file:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> MainWindow : Window
+{
+    <span class="kwrd">public</span> MainWindow()
+    {
+        InitializeComponent();
+    }
+
+    <span class="kwrd">private</span> <span class="kwrd">void</span> btnViewXaml_Click(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+    {
+    }
+
+    <span class="kwrd">private</span> <span class="kwrd">void</span> Window_Closed(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+    }
+
+    <span class="kwrd">private</span> <span class="kwrd">void</span> Window_Loaded(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+    {
+    }
+}</pre>
+<p>Before continuing, be sure to import the following namespaces into your MainWindow.xaml.cs
+fMainWindow.xaml.cs file:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System.IO;
+<span class="kwrd">using</span> System.Windows.Markup;</pre>
+<h2>Implementing the Loaded Event</h2>
+<p>The Loaded event of your main window is in charge of determining if there is currently a file named
+YourXaml.xaml in the folder containing the application. If this file does exist, you will read in the data and
+place it into the TextBox on the main window. If not, you will fill the TextBox with an initial default XAML
+description of an empty window (this description is the exact same markup as an initial window
+definition, except that you are using a &lt;StackPanel&gt; rather than a &lt;Grid&gt;).</p>
+<p><b>Note</b> The string you are building to represent the key XML namespaces is a bit cumbersome to type, given the
+escape characters required for the embedded quotations, so type carefully.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> Window_Loaded(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+{
+    <span class="rem">// When the main window of the app loads,</span>
+    <span class="rem">// place some basic XAML text into the text block.</span>
+    <span class="kwrd">if</span> (File.Exists(System.Environment.CurrentDirectory + <span class="str">"\\YourXaml.xaml"</span>))
+    {
+        txtXamlData.Text = File.ReadAllText(<span class="str">"YourXaml.xaml"</span>);
+    }
+    <span class="kwrd">else</span>
+    {
+        txtXamlData.Text =
+        <span class="str">"&lt;Window xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"\n"</span>
+        +<span class="str">"xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"\n"</span>
+        +<span class="str">"Height =\"400\" Width =\"500\" WindowStartupLocation=\"CenterScreen\"&gt;\n"</span>
+        +<span class="str">"&lt;StackPanel&gt;\n"</span>
+        +<span class="str">"&lt;/StackPanel&gt;\n"</span>
+        +<span class="str">"&lt;/Window&gt;"</span>;
+    }
+}</pre>
+<p>Using this approach, your application will be able to load the XAML entered in a previous session or
+supply a default block of markup if necessary. At this point, you should be able to run your program and
+find the display shown in Figure 27-22 within the TextBox type.</p>
+<img src="http://www.diggen.co.uk/Images/Figure27_22.png" alt="Figure 27-22" />
+<p><b>Figure 27-22</b> The first run of MyXamlPad.exe</p>
+<h2>Implementing the Button’s Click Event</h2>
+<p>When you click the Button, you will first save the current data in the TextBox into the YourXaml.xaml file.
+At this point, you will read in the persisted data via File.Open() to obtain a Stream-derived type. This is
+necessary, as the XamlReader.Load() method requires a Stream-derived type (rather than a simple
+System.String) to represent the XAML to be parsed.</p>
+<p>Once you have loaded the XAML description of the &lt;Window&gt; you wish to construct, create an
+instance of System.Windows.Window based on the in-memory XAML and display the Window as a modal
+dialog:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> btnViewXaml_Click(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+{
+    <span class="rem">// Write out the data in the text block to a local *.xaml file.</span>
+    File.WriteAllText(<span class="str">"YourXaml.xaml"</span>, txtXamlData.Text);
+
+    <span class="rem">// This is the window that will be dynamically XAML-ed.</span>
+    Window myWindow = <span class="kwrd">null</span>;
+
+    <span class="rem">// Open local *.xaml file.</span>
+    <span class="kwrd">try</span>
+    {
+        <span class="kwrd">using</span> (Stream sr = File.Open(<span class="str">"YourXaml.xaml"</span>, FileMode.Open))
+        {
+            <span class="rem">// Connect the XAML to the Window object.</span>
+            myWindow = (Window)XamlReader.Load(sr);
+
+            <span class="rem">// Show window as a dialog and clean up.</span>
+            myWindow.ShowDialog();
+            myWindow.Close();
+            myWindow = <span class="kwrd">null</span>;
+        }
+    }
+    <span class="kwrd">catch</span> (Exception ex)
+    {
+        MessageBox.Show(ex.Message);
+    }
+}</pre>
+<p>Note that you are wrapping much of our logic within a try/catch block. In this way, if the
+YourXaml.xaml file contains ill-formed markup, you can see the error of your ways within the resulting
+message box. For example, run your program, and purposely misspell &lt;StackPanel&gt; by adding an extra
+letter P in the opening element or whatnot. If you click the button, you will see an error similar to
+Figure 27-23:</p>
+<img src="http://www.diggen.co.uk/Images/Figure27_23.png" alt="Figure 27-23" />
+<p><b>Figure 27-23</b> Catching markup errors</p>
+<h2>Implementing the Closed Event</h2>
+<p>Finally, the Closed event of your Window type will ensure that the latest and greatest data in the TextBox is
+persisted to the YourXaml.xaml file:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> Window_Closed(<span class="kwrd">object</span> sender, EventArgs e)
+{
+    <span class="rem">// Write out the data in the text block to a local *.xaml file.</span>
+    File.WriteAllText(<span class="str">"YourXaml.xaml"</span>, txtXamlData.Text);
+}</pre>
+<h2>Testing the Application</h2>
+<p>Now fire up your program and enter some XAML into your text area. Do be aware that (like kaxaml.exe)
+this program does not allow you to specify any code generation–centric XAML attributes (such as Class
+or any event handlers). As a test, enter the following XAML within your &lt;Window&gt; scope:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Rectangle</span> <span class="attr">Fill</span> = <span class="kwrd">"Green"</span> <span class="attr">Height</span> = <span class="kwrd">"40"</span> <span class="attr">Width</span> = <span class="kwrd">"200"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">Content</span> = <span class="kwrd">"OK!"</span> <span class="attr">Height</span> = <span class="kwrd">"40"</span> <span class="attr">Width</span> = <span class="kwrd">"100"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">Content</span> <span class="kwrd">="{x:Type Label}"</span> <span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span></pre>
+    <p>Once you click the button, you will see a window appear that renders your XAML definitions (or
+possibly you’ll see a parsing error in the message box—watch your typing!). Figure 27-24 shows possible
+output.</p>
+<img src="http://www.diggen.co.uk/Images/Figure27_24.png" alt="Figure 27-24" />
+<p><b>Figure 27-24</b> MyXamlPad.exe in action</p>
+<p>Great! I am sure you can think of many possible enhancements to this application, but to do so you
+need to be aware of how to work with WPF controls and the panels that contain them. You will do so
+starting in the next chapter.</p>
+   </body></html>

@@ -1,0 +1,95 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Programming with Timer Callbacks</h1>
+<p>Many applications have the need to call a specific method during regular intervals of time. For example,
+you may have an application that needs to display the current time on a status bar via a given helper
+function. As another example, you may wish to have your application call a helper function every so
+often to perform noncritical background tasks such as checking for new e-mail messages. For situations
+such as these, you can use the System.Threading.Timer type in conjunction with a related delegate
+named TimerCallback.</p>
+<p>To illustrate, assume you have a Console Application (TimerApp) that will print the current time
+every second until the user presses a key to terminate the application. The first obvious step is to write
+the method that will be called by the Timer type (be sure to import System.Threading into your code file):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> PrintTime(<span class="kwrd">object</span> state)
+    {
+        Console.WriteLine(<span class="str">"Time is: {0}"</span>,
+            DateTime.Now.ToLongTimeString());
+    }
+    
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+    }
+}</pre>
+<p>Notice how this method has a single parameter of type System.Object and returns void. This is not
+optional, given that the TimerCallback delegate can only call methods that match this signature. The value
+passed into the target of your TimerCallback delegate can be any bit of information whatsoever (in the
+case of the e-mail example, this parameter might represent the name of the Microsoft Exchange server to
+interact with during the process). Also note that given that this parameter is indeed a System.Object, you
+are able to pass in multiple arguments using a System.Array or custom class/structure.</p>
+<p>The next step is to configure an instance of the TimerCallback delegate and pass it into the Timer
+object. In addition to configuring a TimerCallback delegate, the Timer constructor allows you to specify
+the optional parameter information to pass into the delegate target (defined as a System.Object), the
+interval to poll the method, and the amount of time to wait (in milliseconds) before making the first call,
+for example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Working with Timer type *****\n"</span>);
+
+    <span class="rem">// Create the delegate for the Timer type.</span>
+    TimerCallback timeCB = <span class="kwrd">new</span> TimerCallback(PrintTime);
+
+    <span class="rem">// Establish timer settings.</span>
+    Timer t = <span class="kwrd">new</span> Timer(
+        timeCB, <span class="rem">// The TimerCallback delegate object.</span>
+        <span class="kwrd">null</span>, <span class="rem">// Any info to pass into the called method (null for no info).</span>
+        0, <span class="rem">// Amount of time to wait before starting (in milliseconds).</span>
+        1000); <span class="rem">// Interval of time between calls (in milliseconds).</span>
+
+    Console.WriteLine(<span class="str">"Hit key to terminate..."</span>);
+    Console.ReadLine();
+}</pre>
+<p>In this case, the PrintTime() method will be called roughly every second and will pass in no
+additional information to said method. Here is the output:</p>
+<pre class="csharpcode">
+***** Working with Timer type *****
+Hit key to terminate...
+Time is: 6:51:48 PM
+Time is: 6:51:49 PM
+Time is: 6:51:50 PM
+Time is: 6:51:51 PM
+Time is: 6:51:52 PM
+Press any key to continue . . .</pre>
+<p>If you did wish to send in some information for use by the delegate target, simply substitute the null
+value of the second constructor parameter with the appropriate information:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Establish timer settings.</span>
+Timer t = <span class="kwrd">new</span> Timer(timeCB, <span class="str">"Hello From Main"</span>, 0, 1000);</pre>
+<p>You can then obtain the incoming data as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> PrintTime(<span class="kwrd">object</span> state)
+{
+    Console.WriteLine(<span class="str">"Time is: {0}, Param is: {1}"</span>,
+        DateTime.Now.ToLongTimeString(), state.ToString());
+}</pre>
+    <p><b>Source Code</b> The TimerApp project is included under the Chapter 19 subdirectory.</p>
+    </body>
+    </html>
+
+     
+      
+   

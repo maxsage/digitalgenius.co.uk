@@ -1,0 +1,212 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Working with Themes</h1>
+    <p>At this point, you have had the chance to work with numerous ASP.NET web controls. As you
+have seen, each control exposes a set of properties (many of which are inherited by
+System.Web.UI.WebControls.WebControl) that allow you to establish a given UI look and feel (background
+color, font size, border style, and whatnot). Of course, on a multipaged website, it is quite common for
+the site as a whole to define a common look and feel for various types of widgets. For example, all
+TextBoxes might be configured to support a given font, all Buttons have a custom image, and all
+Calendars have a light blue border.</p>
+<p>Obviously, it would be very labor intensive (and error prone) to establish the same property settings
+for every widget on every page within your website. Even if you were able to manually update the
+properties of each UI widget on each page, imagine how painful it would be when you now need to
+change the background color for each TextBox yet again. Clearly, there must be a better way to apply
+sitewide UI settings.</p>
+<p>One approach to simplifying the application of a common UI look and feel is to define style sheets. If
+you have a background in web development, you are aware that style sheets define a common set of UIcentric
+settings that are applied on the browser. As you would hope, ASP.NET web controls can be
+assigned a given style by assigning the CssStyle property.</p>
+<p>However, ASP.NET ships with a complementary technology to define a common UI termed themes.
+Unlike a style sheet, themes are applied on the web server (rather than the browser) and can be done so
+programmatically or declaratively. Given that a theme is applied on the web server, it has access to all
+the server-side resources on the website. Furthermore, themes are defined by authoring the same
+markup you would find within any *.aspx file (as you may agree, the syntax of a style sheet is a bit on the
+terse side).</p>
+<p>Recall from Chapter 32 that ASP.NET web applications may define any number of special
+subdirectories, one of which is App_Themes. This single subdirectory may be further partitioned with
+additional subdirectories, each of which represents a possible theme on your site. For example, consider
+Figure 33-22, which illustrates a single App_Themes folder containing three subdirectories, each of
+which has a set of files that make up the theme itself.</p>
+<img src="http://www.diggen.co.uk/Images/Figure33_22.png" alt="Figure 33-22" />
+<p><b>Figure 33-22</b> A single App_Theme folder may define numerous themes</p>
+<h2>Understanding *.skin Files</h2>
+<p>The one file that every theme subdirectory is sure to have is a *.skin file. These files define the look and
+feel for various web controls. To illustrate, create a new website named FunWithThemes. Next, insert a
+new *.skin file (using the Website &gt; Add New Item menu option) named BasicGreen.skin, as shown in
+Figure 33-23.</p>
+<img src="http://www.diggen.co.uk/Images/Figure33_23.png" alt="Figure 33-23" />
+    <p><b>Figure 33-23</b> Inserting *.skin files</p>
+<p>Visual Studio 2010 will prompt you to confirm this file can be added into an App_Themes folder
+(which is exactly what we want). If you were now to look in your Solution Explorer, you would
+indeed find your App_Themes folder has a subfolder named BasicGreen containing your new
+BasicGreen.skin file.</p>
+<p>A *.skin file is where you are able to define the look and feel for various widgets using ASP.NET
+control declaration syntax. Sadly, the IDE does not provide designer support for *.skin files. One way to
+reduce the amount of typing time is to insert a temporary *.aspx file into your program (temp.aspx, for
+example) that can be used to build up the UI of the widgets using the Visual Studio 2010 page designer.</p>
+<p>The resulting markup can then be copied and pasted into your *.skin file. When you do so,
+however, you must delete the ID attribute for each web control! This should make sense, given that we
+are not trying to define a UI look and feel for a particular Button (for example) but all Buttons.</p>
+<p>This being said, here is the markup for BasicGreen.skin that defines a default look and feel for the
+Button, TextBox, and Calendar types:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:Button</span> <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">BackColor</span><span class="kwrd">="#80FF80"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">asp:TextBox</span> <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">BackColor</span><span class="kwrd">="#80FF80"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">asp:Calendar</span> <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">BackColor</span><span class="kwrd">="#80FF80"</span><span class="kwrd">/&gt;</span></pre>
+    <p>Notice that each widget still has the runat="server" attribute (which is mandatory), and none of the
+widgets have been assigned an ID attribute.</p>
+<p>Now, let’s define a second theme named CrazyOrange. Using the Solution Explorer, right-click your
+App_Themes folder and add a new theme named CrazyOrange. This will create a new subdirectory
+under your site’s App_Themes folder.</p>
+<p>Next, right-click the new CrazyOrange folder within the Solution Explorer and select Add New Item.
+From the resulting dialog box, add a new *.skin file. Update the CrazyOrange.skin file to define a unique
+UI look and feel for the same web controls. For example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:Button</span> <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">BackColor</span><span class="kwrd">="#FF8000"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">asp:TextBox</span> <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">BackColor</span><span class="kwrd">="#FF8000"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">asp:Calendar</span> <span class="attr">BackColor</span><span class="kwrd">="White"</span> <span class="attr">BorderColor</span><span class="kwrd">="Black"</span>
+    <span class="attr">BorderStyle</span><span class="kwrd">="Solid"</span> <span class="attr">CellSpacing</span><span class="kwrd">="1"</span>
+    <span class="attr">Font-Names</span><span class="kwrd">="Verdana"</span> <span class="attr">Font-Size</span><span class="kwrd">="9pt"</span> <span class="attr">ForeColor</span><span class="kwrd">="Black"</span> <span class="attr">Height</span><span class="kwrd">="250px"</span>
+    <span class="attr">NextPrevFormat</span><span class="kwrd">="ShortMonth"</span> <span class="attr">Width</span><span class="kwrd">="330px"</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">SelectedDayStyle</span> <span class="attr">BackColor</span><span class="kwrd">="#333399"</span> <span class="attr">ForeColor</span><span class="kwrd">="White"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">OtherMonthDayStyle</span> <span class="attr">ForeColor</span><span class="kwrd">="#999999"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">TodayDayStyle</span> <span class="attr">BackColor</span><span class="kwrd">="#999999"</span> <span class="attr">ForeColor</span><span class="kwrd">="White"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">DayStyle</span> <span class="attr">BackColor</span><span class="kwrd">="#CCCCCC"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">NextPrevStyle</span> <span class="attr">Font-Bold</span><span class="kwrd">="True"</span> <span class="attr">Font-Size</span><span class="kwrd">="8pt"</span> <span class="attr">ForeColor</span><span class="kwrd">="White"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">DayHeaderStyle</span> <span class="attr">Font-Bold</span><span class="kwrd">="True"</span> <span class="attr">Font-Size</span><span class="kwrd">="8pt"</span>
+        <span class="attr">ForeColor</span><span class="kwrd">="#333333"</span> <span class="attr">Height</span><span class="kwrd">="8pt"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">TitleStyle</span> <span class="attr">BackColor</span><span class="kwrd">="#333399"</span> <span class="attr">BorderStyle</span><span class="kwrd">="Solid"</span>
+        <span class="attr">Font-Bold</span><span class="kwrd">="True"</span> <span class="attr">Font-Size</span><span class="kwrd">="12pt"</span>
+        <span class="attr">ForeColor</span><span class="kwrd">="White"</span> <span class="attr">Height</span><span class="kwrd">="12pt"</span> <span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">asp:Calendar</span><span class="kwrd">&gt;</span></pre>
+    <p>At this point, your Solution Explorer should like Figure 33-24.</p>
+<img src="http://www.diggen.co.uk/Images/Figure33_24.png" alt="Figure 33-24" />
+<p><b>Figure 33-24</b> A single website with multiple themes</p>
+<p>Now that your site has a few themes defined, the next logical question is how to apply them to your
+pages? As you might guess, there are many ways to do so.</p>
+<p><b>Note</b> To be sure, these example themes are quite bland by design (in order to reduce the amount of markup on
+the printed page). Feel free to spruce things up to your liking.</p>
+<h2>Applying Sitewide Themes</h2>
+<p>If you wish to make sure that every page in your site adheres to the same theme, the simplest way to do
+so is to update your web.config file. Open your current web.config file and define a &lt;pages&gt; element
+within the scope of your &lt;system.web&gt; root element. If you add a theme attribute to the &lt;pages&gt; element,
+this will ensure that every page in your website is assigned the selected theme (which is, of course, the
+name of one of the subdirectories under App_Theme). Here is the core update:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">configuration</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">system.web</span><span class="kwrd">&gt;</span>
+        ...
+    <span class="kwrd">&lt;</span><span class="html">pages</span> <span class="attr">theme</span><span class="kwrd">="BasicGreen"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">pages</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">system.web</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">configuration</span><span class="kwrd">&gt;</span></pre>
+    <p>If you were to now place various Buttons, Calendars, and TextBoxes onto your Default.aspx file and
+run the application, you would find each widget has the UI of BasicGreen. If you were to update the
+theme attribute to CrazyOrange and run the page again, you would find the UI defined by this theme is
+used instead.</p>
+<h2>Applying Themes at the Page Level</h2>
+<p>It is also possible to assign themes on a page-by-page level. This can be helpful in a variety of
+circumstances. For example, perhaps your web.config file defines a sitewide theme (as described in the
+previous section); however, you wish to assign a different theme to a specific page. To do so, you can
+simply update the &lt;%@Page%&gt; directive. If you are using Visual Studio 2010 to do so, you will be happy to
+find that IntelliSense will display each defined theme within your App_Theme folder.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="asp">&lt;%@ Page Language="C#" AutoEventWireup="true"
+    CodeFile="Default.aspx.cs" Inherits="_Default" Theme ="CrazyOrange" %&gt;</span></pre>
+    <p>Because you assigned the CrazyOrange theme to this page, but the Web.config file specified the
+BasicGreen theme, all pages but this page will be rendered using BasicGreen.</p> 
+<h2>The SkinID Property</h2>
+<p>Sometimes you wish to define a set of possible UI look and feel scenarios for a single widget. For
+example, assume you want to define two possible UIs for the Button type within the CrazyOrange theme.
+When you wish do so, you may differentiate each look and feel using the SkinID property of a control
+within the *.skin file:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:Button</span> <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">BackColor</span><span class="kwrd">="#FF8000"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">asp:Button</span> <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">SkinID</span> = <span class="kwrd">"BigFontButton"</span>
+    <span class="attr">Font-Size</span><span class="kwrd">="30pt"</span> <span class="attr">BackColor</span><span class="kwrd">="#FF8000"</span><span class="kwrd">/&gt;</span></pre>
+    <p>Now, if you have a page that makes use of the CrazyOrange theme, each Button will, by default, be
+assigned the unnamed Button skin. If you wish to have various buttons within the *.aspx file make use of
+the BigFontButton skin, simply specify the SkinID property within the markup:</p>
+ <!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:Button</span> <span class="attr">ID</span><span class="kwrd">="Button2"</span> <span class="attr">runat</span><span class="kwrd">="server"</span>
+    <span class="attr">SkinID</span><span class="kwrd">="BigFontButton"</span> <span class="attr">Text</span><span class="kwrd">="Button"</span> <span class="kwrd">/&gt;&lt;</span><span class="html">br</span> <span class="kwrd">/&gt;</span></pre>
+ <h2>Assigning Themes Programmatically</h2>
+ <p>Last but not least, it is possible to assign a theme in code. This can be helpful when you wish to provide a
+way for end users to select a theme for their current session. Of course, we have not yet showed you how
+to build stateful web applications, so the current theme selection will be forgotten between postbacks. In
+a production-level site, you may wish to store the user’s current theme selection within a session
+variable, or persist the theme selection to a database.</p>
+<p>To illustrate how to assign a theme programmatically, update the UI of your Default.aspx file with
+three new Button controls as shown in Figure 33-25. Once you have done so, handle the Click event
+for each Button type.</p>
+<img src="http://www.diggen.co.uk/Images/Figure33_25.png" alt="Figure 33-25" />
+<p><b>Figure 33-25</b> The updated UI of the themes example</p>
+<p>Now be aware that you can only assign a theme programmatically during specific phases of your
+page’s life cycle. Typically, this will be done within the Page_PreInit event. This being said, update your
+code file as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">partial</span> <span class="kwrd">class</span> _Default : System.Web.UI.Page
+{
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> btnNoTheme_Click(<span class="kwrd">object</span> sender, System.EventArgs e)
+    {
+        <span class="rem">// Empty strings result in no theme being applied.</span>
+        Session[<span class="str">"UserTheme"</span>] = <span class="str">""</span>;
+
+        <span class="rem">// Triggers the PreInit event again.</span>
+        Server.Transfer(Request.FilePath);
+    }
+
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> btnGreenTheme_Click(<span class="kwrd">object</span> sender, System.EventArgs e)
+    {
+        Session[<span class="str">"UserTheme"</span>] = <span class="str">"BasicGreen"</span>;
+
+        <span class="rem">// Triggers the PreInit event again.</span>
+        Server.Transfer(Request.FilePath);
+    }
+
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> btnOrangeTheme_Click(<span class="kwrd">object</span> sender, System.EventArgs e)
+    {
+        Session[<span class="str">"UserTheme"</span>] = <span class="str">"CrazyOrange"</span>;
+        
+        <span class="rem">// Triggers the PreInit event again.</span>
+        Server.Transfer(Request.FilePath);
+    }
+
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> Page_PreInit(<span class="kwrd">object</span> sender, System.EventArgs e)
+    {
+        <span class="kwrd">try</span>
+        {
+            Theme = Session[<span class="str">"UserTheme"</span>].ToString();
+        }
+        <span class="kwrd">catch</span>
+        {
+            Theme = <span class="str">""</span>;
+        }
+    }
+}</pre>
+<p>Notice that we are storing the selected theme within a session variable (see Chapter 33 for details)
+named UserTheme, which is formally assigned within the Page_PreInit() event handler. Also note that
+when the user clicks a given Button, we programmatically force the PreInit event to fire by calling
+Server.Transfer() and requesting the current page once again. If you were to run this page, you would
+now find that you can establish your theme via various Button clicks.</p>
+    <p><b>Source Code</b> The FunWithThemes web site is included under the Chapter 33 subdirectory.</p>
+    </body>
+    </html>
+   
+      
+   

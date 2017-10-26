@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Understanding the Previous State of Affairs</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />	
+</head>
+<body>
+    <h1>Understanding the Previous State of Affairs</h1>
+    <p>Before examining the specifics of the .NET universe, it's helpful to consider some of the issues that
+    motivated the genesis of Microsoft's current platform. To get in the proper mind-set, let's begin this
+    chapter with a brief and painless history lesson to remember our roots and understand the limitations of
+    the previous state of affairs (after all, admitting you have a problem is the first step toward finding a
+    solution). After completing this quick tour of life as we knew it, we turn our attention to the numerous
+    benefits provided by C# 2010 and the .NET 4.0 platform.</p>
+    <h2>Life As a C/Windows API Programmer</h2>
+    <p>Traditionally speaking, developing software for the Windows family of operating systems involved using
+    the C programming language in conjunction with the Windows application programming interface
+    (API). While it is true that numerous applications have been successfully created using this timehonored
+    approach, few of us would disagree that building applications using the raw API is a complex
+    undertaking.</p>
+    <p>The first obvious problem is that C is a very terse language. C developers are forced to contend with
+    manual memory management, ugly pointer arithmetic, and ugly syntactical constructs. Furthermore,
+    given that C is a structured language, it lacks the benefits provided by the object-oriented approach (can
+    anyone say spaghetti code?). When you combine the thousands of global functions and data types
+    defined by the Windows API to an already formidable language, it is little wonder that there are so many
+    buggy applications floating around today.</p>
+    <h2>Life As a C++/MFC Programmer</h2>
+    <p>One vast improvement over raw C/API development is the use of the C++ programming language. In
+    many ways, C++ can be thought of as an object-oriented layer on top of C. Thus, even though C++
+    programmers benefit from the famed pillars of OOP (encapsulation, inheritance, and polymorphism),
+    they are still at the mercy of the painful aspects of the C language (e.g., manual memory management,
+    ugly pointer arithmetic, and ugly syntactical constructs).</p>
+    <p>Despite its complexity, many C++ frameworks exist today. For example, the Microsoft Foundation
+    Classes (MFC) provides the developer with a set of C++ classes that facilitate the construction of
+    Windows applications. The main role of MFC is to wrap a sane subset of the underlying Windows API
+    behind a number of classes, magic macros, and numerous code-generation tools (aka wizards).
+    Regardless of the helpful assistance offered by the MFC framework (as well as many other C++-based
+    windowing toolkits), the fact of the matter is that C++ programming remains a difficult and error-prone
+    experience, given its historical roots in C.</p>
+    <h2>Life As a Visual Basic 6.0 Programmer</h2>
+    <p>Due to a heartfelt desire to enjoy a simpler lifestyle, many programmers shifted away from the world of
+    C(++)-based frameworks to kinder, gentler languages such as Visual Basic 6.0 (VB6). VB6 became
+    popular due to its ability to build complex user interfaces, code libraries (e.g., COM servers), and
+    database access logic with minimal fuss and bother. Much more than MFC, VB6 hid the complexities of
+    the raw Windows API from view using a number of integrated code wizards, intrinsic VB data types,
+    classes, and VB-specific functions.</p>
+    <p>The major downfall of VB6 (which has been rectified given the advent of the .NET platform) is that it
+    is not a fully object-oriented language; rather, it is object based. For example, VB6 does not allow the
+    programmer to establish is-a relationships between classes (i.e., no classical inheritance) and has no
+    intrinsic support for parameterized object construction. Moreover, VB6 doesn't provide the ability to
+    build multithreaded applications unless you are willing to drop down to low-level API calls (which is
+    complex at best and dangerous at worst).</p>
+    <p><b>Note</b> The Visual Basic language used within the .NET platform (which is often referred to as VB.NET), has very
+    little relationship to VB6. For example, modern day VB supports operator overloading, classical inheritance, type
+    constructors and generics.</p>
+    <h2>Life As a Java Programmer</h2>
+    <p>Enter Java. Java is an object-oriented programming (OOP) language with its syntactic roots in C++. As
+    many of you are aware, Java's strengths are far greater than its support for platform independence. As a
+    language, Java cleans up many unsavory syntactical aspects of C++. As a platform, Java provides
+    programmers with a large number of predefined packages that contain various type definitions. Using
+    these types, Java programmers are able to build "100% Pure Java" applications complete with database
+    connectivity, messaging support, web-enabled front ends, and a rich desktop user interface (among
+    other services).</p>
+    <p>Although Java is a very elegant language, one potential problem is that using Java typically means
+    that you must use Java front to back during the development cycle. In effect, Java offers little hope of
+    language integration, as this goes against the grain of Java's primary goal—a single programming
+    language for every need. In reality, however, there are millions of lines of existing code out there in the
+    world that would ideally like to commingle with newer Java code. Sadly, Java makes this task
+    problematic. While Java does provide a limited ability to access non-Java APIs, there is little support for
+    true cross-language integration.</p>
+    <h2>Life As a COM Programmer</h2>
+    <p>The Component Object Model (COM) was Microsoft's previous application development framework,
+    which first appeared on the programming landscape circa 1991 (or 1993, if you regard COM's
+    introduction with the birth of OLE 1.0). COM is an architecture that says, in effect, "If you build your
+    types in accordance with the rules of COM, you end up with a block of reusable binary code." These
+    binary blobs of COM code are often called "COM servers".</p>
+    <p>One benefit of a binary COM server is that it can be accessed in a language-independent manner.
+    Thus, C++ programmers can build COM classes that can be used by VB6; Delphi programmers can use
+    COM classes built using C, and so forth. However, as you may be aware, COM's language independence
+    is somewhat limited. For example, there is no way to derive a new COM class using an existing COM
+    class (as COM has no support for classical inheritance). Rather, are limited to reuse via the has-a
+    relationship.</p>
+    <p>Another benefit of COM is its location-transparent nature. Using constructs such as the system
+    registry, application identifiers (AppIDs), stubs, proxies, and the COM runtime environment,
+    programmers can avoid the need to work with raw sockets, RPC calls, and other low-level details when
+    building a distributed application. For example, consider the following VB6 COM client code:</p>
+    <pre>
+     ' The MyCOMClass class could have be written in
+    ' any COM-aware language, and may be located anywhere
+    ' on the network (including your local machine).
+    Dim obj as MyCOMClass
+    Set obj = New MyCOMClass ' Location resolved using AppID.
+    obj.DoSomeWork
+    </pre>
+    <p>Although COM can be considered a very successful object model, it is extremely complex under the
+    hood (at least until you have spent many months exploring its plumbing—especially if you happen to be
+    a C++ programmer). To help simplify the development of COM binaries, programmers can make use of
+    numerous COM-aware frameworks. For example, the Active Template Library (ATL) provides a set of
+    C++ classes, templates, and macros to ease the creation of COM servers.</p>
+    <p>Many other languages also hide a good part of the COM infrastructure from view. However,
+    language support alone is not enough to hide the complexity of COM. Even when you choose a relatively
+    simple COM-aware language such as VB6, you are still forced to contend with fragile registration entries
+    and numerous deployment-related issues (collectively, and somewhat comically, termed DLL hell).</p>
+    <h2>The Complexity of COM Data Type Representation</h2>
+	<p>Although COM certainly facilitates the construction of software applications using a variety of different
+	programming languages, the language-independent nature of COM was not as straightforward as one
+	would hope.</p>
+    <p>Some of the complexity is due to the simple fact that applications that are woven together using
+    diverse languages are completely unrelated from a syntactic point of view. For example, JScript has a
+    syntax much like C, while VBScript is a subset of VB6. The COM servers that are created to run under the
+    COM+ runtime (a Windows OS feature which provides common services to custom code libraries
+    [transactions, object lifetime, security, etc]) have an entirely different look and feel from the web-centric
+    ASP pages that invoke them. The result was a rather confused mishmash of technologies.</p>
+	<p>Furthermore, and perhaps more important, each language and/or technology has its own type
+    system (that may look nothing like another’s type system). Beyond the fact that each API ships with its
+    own collection of prefabricated code, even basic data types cannot always be treated identically. A
+    CComBSTR in ATL is not quite the same as a String in VB6, both of which have nothing to do with a char*
+    in C.</p>
+    <p>Given that each language has its own unique type system, COM programmers typically needed to be
+    very careful with building public methods on public COM classes. For example, if a C++ developer
+    needed to create a method that returned an array of integers to a VB6 application, they would be up to
+    their eyeballs in complex COM API calls to construct a SAFEARRAY structure, which could easily require
+    dozens of line of code. In the COM world, the SAFEARRAY data type is the only way to build an array that
+    all COM frameworks understand. If the C++ developer simply returned a native C++ array, VB6 would
+    have no clue what to do with it.</p>
+	<p>Similar complexities could be found when building methods that manipulate simple string data,
+    references to other COM objects, or even a trivial BOOLEAN value! To put it politely, COM programming
+    is a very asymmetrical discipline.</p>
+</body>
+</html>

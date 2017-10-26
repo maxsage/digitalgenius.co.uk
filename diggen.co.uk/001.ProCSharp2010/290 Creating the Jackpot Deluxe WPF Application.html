@@ -1,0 +1,334 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Creating the Jackpot Deluxe WPF Application</h1>
+<p>Create a brand new WPF Application project named JackpotDeluxe using Expression Blend, and set a
+reference to MyCustomControl.dll using the Project | Add Reference… menu option. Because your
+control is defined in an external assembly, update the opening element of the Window to define a new
+XML namespace named custom that maps to your MyCustomControl namespace:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">xmlns:custom</span><span class="kwrd">="clr-namespace:MyCustomControl;assembly=MyCustomControl"</span>
+    <span class="attr">x:Class</span><span class="kwrd">="JackpotDeluxe.MainWindow"</span>
+    <span class="attr">x:Name</span><span class="kwrd">="Window"</span>
+    <span class="attr">Title</span><span class="kwrd">="MainWindow"</span>
+    <span class="attr">Width</span><span class="kwrd">="640"</span> <span class="attr">Height</span><span class="kwrd">="438"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Grid</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+    <p>You will build your complete UI of this window in just a few moments; however, before you do, you
+will make one additional custom control.</p>
+<h2>Extracting a  from a Drawing Geometry</h2>
+<p>Expression Blend has a number of very useful shortcuts that can make the process of building custom
+controls very simple. When you stop to think about it, the chances are very good that many custom
+controls begin life as a simple graphic created by a graphic artist. To illustrate, select your Grid in the
+Objects and Timeline editor, and then pick the Pencil tool in your Toolbox (which can be seen if you
+click and hold the Pen button). Use this tool to draw an interesting image of your liking. In Figure 31-24,
+you can see my (somewhat sad) attempt at rendering a star shaped image, with the Fill property set to
+an orange colored brush and the Stroke property set to a blue brush.</p>
+<img src="http://www.diggen.co.uk/Images/Figure31_24.png" alt="Figure 31-24" />
+<p><b>Figure 31-24</b> Using the Pencil control to render a unique shape</p>
+<p>Now, if you look at the XAML which was generated on your behalf, you will see that Expression
+Blend defined a Path object. So let’s say that you would like to use this geometry as the starting point for
+a custom control. To so do, simply right click on the Path object on the designer, and select the Make
+Into … option (Figure 31-25).</p>
+<img src="http://www.diggen.co.uk/Images/Figure31_25.png" alt="Figure 31-25" />
+<p><b>Figure 31-25</b> Transforming a geometry into a new </p>
+<p>As soon as you select this option, you will be asked to name your control, which I will assume is
+StarButton (you can leave all other settings of this dialog to their default values). Expression Blend will
+then create a brand new  derived class with a corresponding XAML and C# code file! As well,
+the original Path object on the Window has been replaced with an instance of the new control, which is
+mapped to a new XML namespace in the MainWindow.xaml file:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">xmlns:custom</span><span class="kwrd">="clr-namespace:MyCustomControl;assembly=MyCustomControl"</span>
+    <span class="attr">xmlns:local</span><span class="kwrd">="clr-namespace:JackpotDeluxe"</span>
+    <span class="attr">x:Class</span><span class="kwrd">="JackpotDeluxe.MainWindow"</span>
+    <span class="attr">x:Name</span><span class="kwrd">="Window"</span>
+    <span class="attr">Title</span><span class="kwrd">="MainWindow"</span>
+    <span class="attr">Width</span><span class="kwrd">="640"</span> <span class="attr">Height</span><span class="kwrd">="438"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Grid</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">local:StarButton</span> <span class="attr">HorizontalAlignment</span><span class="kwrd">="Left"</span>
+            <span class="attr">Margin</span><span class="kwrd">="102,41,0,0"</span> <span class="attr">VerticalAlignment</span><span class="kwrd">="Top"</span>
+            <span class="attr">Width</span><span class="kwrd">="136"</span> <span class="attr">Height</span><span class="kwrd">="131"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Grid</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+    <p>You will build the real UI of your Window in just a moment, but leave this control in place for the time
+being.</p>
+<h2>The Role of .NET 4.0 Visual States</h2>
+<p>Recall that one of the important tasks of custom control development is adding in visual cues for the end
+user. In an earlier example of this chapter, you added a few visual cues to a custom Button template by
+using WPF triggers. You could certainly use triggers for StarButton as well; however, as of .NET 4.0, WPF
+supports an alternative way to do so via visual state groups.</p>
+<p><b>Note</b> The concept of visual states was first introduced in the Silverlight API. Many felt that the use of visual
+states (and the related Visual State Manager) was a simpler alternative to WPF triggers, and therefore WPF
+incorporated this alternative approach into the API beginning with .NET 4.0.</p>
+<p>Using WPF visual states, you are able to define a group of related states that your control could be in
+at any given time. Think of a visual state group as little more than a named container for related UI cues.
+Ultimately, the names of the groups you define are completely up to you; however, some common group
+names might include MouseStateGroup, FocusedStateGroup, or EnabledStateGroup.</p>
+<p>Once you have defined a set of visual state groups, you then define the individual states for a specific
+group. For example, MouseStateGroup could define three possible mouse-centric states named
+MouseEnterStar, MouseExitStar, and MouseDownStar. The FocusedStateGroup might define two states
+named GainFocusStar and LoseFocusStar.</p>
+<p>After you have defined the states for a group, you will then define storyboards that represent the UI
+cues that will occur when your control transitions into a given state. For example, you could create a
+storyboard for the MouseEnterStar state which causes the control to change color. Maybe you have a
+second storyboard for the MouseDownStar state, which causes the control to shrink (or grow) in size.
+You can use the integrated animation editor of Blend to quickly define each storyboard.</p>
+<p>Once you have all of your states defined, you can then force your control to move into any given
+state using two approaches. If you wish to move between states in code, you can call the static
+GoToState() method of the VisualStateManager class. Simply specify the name of a state and the related
+storyboard will execute.</p>
+<p><b>Note</b> If you wish to transition between states using only markup, you can define triggers which will move
+between states using the GoToStateAction XAML element.</p>
+<h2>Defining Visual States for the StarButton Control</h2>
+<p>To add visual states to theS tarButton control, first ensure that the visual editor for your StarButton
+ is the active window in the Blend IDE. Now, locate the States tab (which can be opened via
+the Windows menu of Expression Blend) and click the Add State Group button (Figure 31-26).</p>
+<img src="http://www.diggen.co.uk/Images/Figure31_26.png" alt="Figure 31-26" />
+    <p><b>Figure 31-26</b> Adding a new visual state group</p>
+<p>Now, change the name of the generated group (currently named VisualStateGroup) to the more
+fitting name, MouseStateGroup. Once you do, notice the Add State button (Figure 31-27).</p>
+<img src="http://www.diggen.co.uk/Images/Figure31_27.png" alt="Figure 31-27" />
+<p><b>Figure 31-27</b> The MouseStateGroup</p>
+<p>Using the Add State button, add three states to the MouseStateGroup, named MouseEnterStar,
+MouseExitStar and MouseDownStar (Figure 31-28).</p>
+<img src="http://www.diggen.co.uk/Images/Figure31_28.png" alt="Figure 31-28" />
+<p><b>Figure 31-28</b> The states of the MouseStateGroup</p>
+<p>Each one of your states can now be defined in terms of a storyboard. First, select the
+MouseEnterStar state. Now, using the Properties window, pick a new color for the Fill property (I made
+mine a darker shade of orange). Feel free to change properties of other aspects of your control if you
+wish, such as changing the shape of your control by moving the control points on the visual editor or
+changing the StrokeThickness property.</p>
+<p>Next, select the MouseExitStar state, and notice it will set the Fill color back to the original value,
+which is perfect for this example. Pick the MouseDownStar state, and use the Properties window to
+apply a simple transformation to the control (I elected to apply a slight skew to the control).</p>
+<h2>Defining State Transition Timings</h2>
+<p>At this point, you have successfully defined a single visual state group with three states. By default, when
+you transition between states, it will happen immediately because the Default transition value is set to
+zero seconds (you’ll see this listed directly under the name of each state group within the States tab). If
+you wish, you can define custom amounts of time that should transpire as a control moves between
+states.</p>
+<p>Let’s configure the MouseDownStar state in such a way that it will execute the storyboard over a
+period of 2 seconds. To do so, first click the Add Transition button. Here, you will see a listing of all the
+possible transitions for the current state. Pick the first listing, which represents the act of moving from
+the current state into the MouseDownStar state (Figure 31-29).</p>
+<img src="http://www.diggen.co.uk/Images/Figure31_29.png" alt="Figure 31-29" />
+    <p><b>Figure 31-29</b> Changing the timing for this state transition</p>
+<p>Once you pick this option, define a 1 second amount of time for this transition (Figure 31-30).</p>
+<img src="http://www.diggen.co.uk/Images/Figure31_30.png" alt="Figure 31-30" />
+    <p><b>Figure 31-30</b> Defining a one second amount of time for this transition to occur</p>
+<h2>Viewing the Generated XAML</h2>
+<p>That is all you need to do for your visual state group. If you click on the XAML tab for your control, you
+will see the markup which was created by the IDE. Based on how many properties you changed, you
+could be looking at a good amount of XAML. However, the basic skeleton will look something like so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">VisualStateManager.VisualStateGroups</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">VisualStateGroup</span> <span class="attr">x:Name</span><span class="kwrd">="MouseStateGroup"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">VisualStateGroup.Transitions</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">VisualTransition</span> <span class="attr">GeneratedDuration</span><span class="kwrd">="00:00:01"</span> <span class="attr">To</span><span class="kwrd">="MouseDownStar"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">VisualStateGroup.Transitions</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">VisualState</span> <span class="attr">x:Name</span><span class="kwrd">="MouseEnterStar"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Storyboard</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span> !-- Storyboard for MouseEnterStar --<span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">Storyboard</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">VisualState</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">VisualState</span> <span class="attr">x:Name</span><span class="kwrd">="MouseExitStar"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">VisualState</span> <span class="attr">x:Name</span><span class="kwrd">="MouseDownStar"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Storyboard</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span> !-- Storyboard for MouseDownStar --<span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">Storyboard</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">VisualState</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">VisualStateGroup</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">VisualStateManager.VisualStateGroups</span><span class="kwrd">&gt;</span></pre>
+    <p>Now that you have all of your states in place, all you need to do is to move between them when
+appropriate.</p>
+<h2>Changing Visual States in Code using the VisualStateManager Class</h2>
+<p>To complete your StarButton, you will use the VisualStateManager class to move between your states.
+Using the Events tab of the Properties window, handle the MouseDown, MouseEnter and MouseLeave events
+on your custom . Implement each handler to move into the related state as so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> StarButton : UserControl
+{
+...
+    <span class="kwrd">private</span> <span class="kwrd">void</span> StarControl_MouseDown(<span class="kwrd">object</span> sender,
+        System.Windows.Input.MouseButtonEventArgs e)
+    {
+        <span class="rem">// Parameter 1 : Which control am I working with?</span>
+        <span class="rem">// Parameter 2 : Which state do I want to transition to?</span>
+        <span class="rem">// Parameter 3 : Do I want to use transition times?</span>
+        VisualStateManager.GoToState(<span class="kwrd">this</span>, <span class="str">"MouseDownStar"</span>, <span class="kwrd">true</span>);
+    }
+
+    <span class="kwrd">private</span> <span class="kwrd">void</span> StarControl_MouseEnter(<span class="kwrd">object</span> sender,
+        System.Windows.Input.MouseEventArgs e)
+    {
+        VisualStateManager.GoToState(<span class="kwrd">this</span>, <span class="str">"MouseEnterStar"</span>, <span class="kwrd">true</span>);
+    }
+
+    <span class="kwrd">private</span> <span class="kwrd">void</span> StarControl_MouseLeave(<span class="kwrd">object</span> sender,
+        System.Windows.Input.MouseEventArgs e)
+    {
+        VisualStateManager.GoToState(<span class="kwrd">this</span>, <span class="str">"MouseExitStar"</span>, <span class="kwrd">true</span>);
+    }
+}</pre>
+<p>That completes the construction of your second custom control for this project! If you run your
+project, you should be able to test that your visual states are working correctly by interacting with the
+StarButton on your initial window.</p>
+<h2>Finalizing the Jackpot Deluxe Application</h2>
+<p>Now that you have your custom controls in place, you can wrap things up quite rapidly. Delete the
+current StarControl that is on your Window, and redefine the layout root to be a StackPanel rather than
+the current Grid. Here is one possible layout for your window (Figure 31-31).</p>
+<img src="http://www.diggen.co.uk/Images/Figure31_31.png" alt="Figure 31-31" />
+<p><b>Figure 31-31</b> The layout of the Jackpot Deluxe window</p>
+<p>The key aspects of this markup are the definition of three custom SpinControl objects (named
+imgFirst, imgSecond, and imgThird) and an instance of the StarButton control (named btnSpin), which
+has handled the MouseDown event.</p>
+<p>In addition, you will make use of three TextBlock controls (named txtInstructions, txtScore and
+txtAttempts) which will be used to inform the user about their current score, current number of
+attempts, and a general text message. Here is the full markup for the root StackPanel, which maintains a
+few nested StackPanel objects to boot:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">StackPanel</span> <span class="attr">x:Name</span><span class="kwrd">="LayoutRoot"</span> <span class="attr">Background</span><span class="kwrd">="#FF0F0202"</span> <span class="attr">Orientation</span><span class="kwrd">="Vertical"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">TextBlock</span> <span class="attr">x:Name</span><span class="kwrd">="txtInstructions"</span> <span class="attr">Width</span><span class="kwrd">="639"</span> <span class="attr">Height</span><span class="kwrd">="96"</span> <span class="attr">Foreground</span><span class="kwrd">="Yellow"</span>
+            <span class="attr">HorizontalAlignment</span><span class="kwrd">="Left"</span> <span class="attr">FontSize</span><span class="kwrd">="24"</span>
+            <span class="attr">TextAlignment</span><span class="kwrd">="Center"</span> <span class="attr">Text</span><span class="kwrd">="Try to Score 100 Points in 20 Attempts!"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">StackPanel</span> <span class="attr">Height</span><span class="kwrd">="184"</span> <span class="attr">Width</span><span class="kwrd">="639"</span> <span class="attr">Orientation</span><span class="kwrd">="Horizontal"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">StackPanel.Background</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">LinearGradientBrush</span> <span class="attr">EndPoint</span><span class="kwrd">="0.5,1"</span> <span class="attr">StartPoint</span><span class="kwrd">="0.5,0"</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">GradientStop</span> <span class="attr">Color</span><span class="kwrd">="#FF000000"</span><span class="kwrd">/&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">GradientStop</span> <span class="attr">Color</span><span class="kwrd">="#FFB08282"</span> <span class="attr">Offset</span><span class="kwrd">="1"</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">LinearGradientBrush</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">StackPanel.Background</span><span class="kwrd">&gt;</span>
+    
+        <span class="rem">&lt;!-- The SpinControls --&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">custom:SpinControl</span> <span class="attr">x:Name</span><span class="kwrd">="imgFirst"</span> <span class="attr">Height</span><span class="kwrd">="125"</span> <span class="attr">Margin</span><span class="kwrd">="70,0,0,0"</span> <span class="attr">Width</span><span class="kwrd">="125"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">custom:SpinControl</span> <span class="attr">x:Name</span><span class="kwrd">="imgSecond"</span> <span class="attr">Height</span><span class="kwrd">="125"</span> <span class="attr">Margin</span><span class="kwrd">="70,0,0,0"</span> <span class="attr">Width</span><span class="kwrd">="125"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">custom:SpinControl</span> <span class="attr">x:Name</span><span class="kwrd">="imgThird"</span> <span class="attr">Height</span><span class="kwrd">="125"</span> <span class="attr">Margin</span><span class="kwrd">="70,0,0,0"</span> <span class="attr">Width</span><span class="kwrd">="125"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+
+    <span class="kwrd">&lt;</span><span class="html">StackPanel</span> <span class="attr">Height</span><span class="kwrd">="120"</span> <span class="attr">Orientation</span><span class="kwrd">="Horizontal"</span><span class="kwrd">&gt;</span>
+        <span class="rem">&lt;!-- The StarButton --&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">local:StarButton</span> <span class="attr">x:Name</span><span class="kwrd">="btnSpin"</span> <span class="attr">HorizontalAlignment</span><span class="kwrd">="Left"</span> <span class="attr">Margin</span><span class="kwrd">="102,8,0,0"</span>
+            <span class="attr">VerticalAlignment</span><span class="kwrd">="Top"</span> <span class="attr">Width</span><span class="kwrd">="100"</span> <span class="attr">Height</span><span class="kwrd">="108"</span> <span class="attr">MouseDown</span><span class="kwrd">="btnSpin_MouseDown"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">TextBlock</span> <span class="attr">x:Name</span><span class="kwrd">="txtScore"</span> <span class="attr">Text</span><span class="kwrd">="Score: 0"</span> <span class="attr">FontFamily</span><span class="kwrd">="Comic Sans MS"</span> <span class="attr">Width</span><span class="kwrd">="140"</span>
+            <span class="attr">Height</span><span class="kwrd">="50"</span> <span class="attr">FontWeight</span><span class="kwrd">="Bold"</span> <span class="attr">FontSize</span><span class="kwrd">="24"</span>
+            <span class="attr">Foreground</span><span class="kwrd">="#FF6F0269"</span> <span class="attr">Margin</span><span class="kwrd">="80,0,0,0"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">TextBlock</span> <span class="attr">x:Name</span><span class="kwrd">="txtAttempts"</span> <span class="attr">Text</span><span class="kwrd">="Attempts: 0"</span> <span class="attr">Height</span><span class="kwrd">="19"</span> <span class="attr">Width</span><span class="kwrd">="82"</span>
+            <span class="attr">Foreground</span><span class="kwrd">="#FF28EA16"</span> <span class="attr">Margin</span><span class="kwrd">="70,0,0,0"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span></pre>
+    <p>Within the C# code file, define three private member variables to keep track of the player’s point
+total, the current number of attempts, and the maximum number of allowed spins:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> MainWindow : Window
+{
+    <span class="kwrd">private</span> <span class="kwrd">int</span> totalPoints = 0;
+    <span class="kwrd">private</span> <span class="kwrd">int</span> totalAttempts = 0;
+    <span class="kwrd">private</span> <span class="kwrd">int</span> MaxAttempts = 20;
+...
+}</pre>
+<p>Now, define two private helper methods, which will be called if the user wins (defined as getting 100
+points in 20 tries or less) or loses:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> DoLosingCondition()
+{
+    <span class="rem">// Change text for losing!</span>
+    <span class="kwrd">this</span>.txtInstructions.Text = <span class="str">"YOU LOSE!"</span>;
+    <span class="kwrd">this</span>.txtInstructions.FontSize = 80;
+    <span class="kwrd">this</span>.txtInstructions.Foreground = <span class="kwrd">new</span> SolidColorBrush(Colors.Gray);
+
+    <span class="rem">// Disable button, game over dude!</span>
+    <span class="kwrd">this</span>.btnSpin.IsEnabled = <span class="kwrd">false</span>;
+}
+
+<span class="kwrd">private</span> <span class="kwrd">void</span> DoWinningCondition()
+{
+    <span class="rem">// Change text for winning!</span>
+    <span class="kwrd">this</span>.txtInstructions.Text = <span class="str">"YOU WIN!"</span>;
+    <span class="kwrd">this</span>.txtInstructions.FontSize = 80;
+    <span class="kwrd">this</span>.txtInstructions.Foreground = <span class="kwrd">new</span> SolidColorBrush(Colors.Orange);
+
+    <span class="rem">// Disable button, game over dude!</span>
+    <span class="kwrd">this</span>.btnSpin.IsEnabled = <span class="kwrd">false</span>;
+}
+</pre>
+<p>As you can see, both of these methods will change the Text property of txtInstructions to a fitting
+message and disable your spin button.</p>
+<p>The remaining bit of code is the logic behind the clicking of your StarButton. Consider the following
+implementation of the MouseDown event handler:</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> btnSpin_MouseDown(<span class="kwrd">object</span> sender,
+    System.Windows.Input.MouseButtonEventArgs e)
+{
+    <span class="rem">// Add 1 to number of tries.</span>
+    <span class="kwrd">this</span>.txtAttempts.Text = <span class="kwrd">string</span>.Format(<span class="str">"Attempts: {0}"</span>,
+        (++totalAttempts).ToString());
+
+    <span class="rem">// Last attempt??</span>
+    <span class="kwrd">if</span> (totalAttempts &gt;= MaxAttempts)
+    {
+        DoLosingCondition();
+    }
+
+    <span class="rem">// Spin each control.</span>
+    <span class="kwrd">int</span> randomOne = <span class="kwrd">this</span>.imgFirst.Spin();
+    <span class="kwrd">int</span> randomTwo = <span class="kwrd">this</span>.imgSecond.Spin();
+    <span class="kwrd">int</span> randomThree = <span class="kwrd">this</span>.imgThird.Spin();
+
+    <span class="rem">// Caluculate the new score. To make things simple, players only get</span>
+    <span class="rem">// points if all three images are identical.</span>
+    <span class="kwrd">if</span> (randomOne == randomTwo &amp;&amp; randomTwo == randomThree)
+    {
+        <span class="rem">// Adjust points.</span>
+        totalPoints += 10;
+        <span class="kwrd">this</span>.txtScore.Text = <span class="kwrd">string</span>.Format(<span class="str">"Score: {0}"</span>, totalPoints.ToString());
+
+        <span class="rem">// Did they get 100 or more points?</span>
+        <span class="kwrd">if</span> (totalPoints &gt;= 100)
+        {
+            DoWinningCondition();
+        }
+    }
+}</pre>
+<p>This logic is very simple. Each time they click the custom StarButton, you check if they have reached
+the maximum number of attempts, and if so, display the losing condition. If they still have some
+attempts remaining, you spin each SpinConrol object and check if each image is identical. If so, you add
+some points to the player total and check for the winning condition. Figure 31-32 shows the final end
+result:</p>
+<img src="http://www.diggen.co.uk/Images/Figure31_32.png" alt="Figure 31-32" />
+<p><b>Figure 31-32</b> The completed Jackpot Deluxe application!</p>
+<p>That concludes the examination of building desktop applications using the Windows Presentation
+Foundation API. Over these last five chapters, you have learned quite a bit about this aspect of .NET
+development; however, there is much more to learn. As well, you have used Expression Blend to build a
+number of example applications.</p>
+<p>Just like Visual Studio 2010, Expression Blend has a dedicated documentation system. If you are
+serious about learning the ins-and-outs of Expression Blend, be sure to consult the integrated help
+system. (If Expression Blend is loaded on your desktop, just press the F1 key.) Here, you will find dozens
+of excellent tutorials which will deepen your understanding of this key aspect of WPF (and Silverlight)
+application development (Figure 31-33).</p>
+<img src="http://www.diggen.co.uk/Images/Figure31_33.png" alt="Figure 31-33" />
+<p><b>Figure 31-33</b> Be kind to yourself and be sure to examing the help system of Expression Blend</p>
+    </body></html>
+
+   
+      
+   

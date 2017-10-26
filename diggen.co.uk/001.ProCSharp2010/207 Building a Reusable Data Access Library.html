@@ -1,0 +1,491 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Building a Reusable Data Access Library</h1>
+<p>The ExecuteReader() method extracts a data reader object that allows you to examine the results of a
+SQL Select statement using a forward-only, read-only flow of information. However, when you wish to
+submit SQL statements that result in the modification of a given table (or any other non-query SQL
+statement, such as creating tables or granting permissions), you call the ExecuteNonQuery() method of
+your command object. This single method performs inserts, updates, and deletes based on the format of
+your command text.</p>
+<p><b>Note</b> Technically speaking, a nonquery is a SQL statement that does not return a result set. Thus, Select
+statements are queries, while Insert, Update, and Delete statements are not. Given this,
+ExecuteNonQuery() returns an int that represents the number of rows affected, not a new set of records.</p>
+<p>Next, you will learn how to modify an existing database using nothing more than a call to
+ExecuteNonQuery(); your next goal is to build a custom data access library that can encapsulate the
+process of operating upon the AutoLot database. In a production-level environment, your ADO.NET
+logic will almost always be isolated to a .NET *.dll assembly for one simple reason: code reuse! The first
+examples of this chapter have not done, simply so you can keep focused on the task at hand; however, it
+would be a waste of time to author the same connection logic, the same data reading logic, and the same
+command logic for every application that needs to interact with the AutoLot database.</p>
+<p>Isolating data access logic to a .NET code library means that multiple applications using any sort of
+front end (e.g., console-based, desktop-based, and web based) can reference the library at hand in a
+language-independent manner. Thus, if you author your data library using C#, other .NET programmers
+can build a UI in the language of their choice (e.g., VB or C++/CLI).</p>
+<p>In this chapter, your data library (AutoLotDAL.dll) will contain a single namespace
+(AutoLotConnectedLayer) that interacts with AutoLot using the connected types of ADO.NET. In the next
+chapter, you will add a new namespace (AutoLotDisconnectionLayer) to this same *.dll that contains
+types to communicate with AutoLot using the disconnected layer. Multiple applications will take
+advantage of this library throughout the remainder of this book.</p>
+<p>Begin by creating a new C# Class Library project named AutoLotDAL (short for AutoLot Data Access
+Layer) and renaming your initial C# code file to AutoLotConnDAL.cs. Next, rename your namespace scope
+to AutoLotConnectedLayer and change the name of your initial class to InventoryDAL; this class will define
+various members to interact with the Inventory table of the AutoLot database. Finally, import the
+following .NET namespaces:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System;
+<span class="kwrd">using</span> System.Collections.Generic;
+<span class="kwrd">using</span> System.Text;
+
+<span class="rem">// You will use the SQL server</span>
+<span class="rem">// provider; however, it would also be</span>
+<span class="rem">// permissible to use the ADO.NET</span>
+<span class="rem">// factory pattern for greater flexibility.</span>
+<span class="kwrd">using</span> System.Data;
+<span class="kwrd">using</span> System.Data.SqlClient;
+
+<span class="kwrd">namespace</span> AutoLotConnectedLayer
+{
+    <span class="kwrd">public</span> <span class="kwrd">class</span> InventoryDAL
+    {
+    }
+}</pre>
+<p><b>Note</b> You might recall from Chapter 8 that when objects use types that manage raw resources (e.g., a database
+connection), it is a good practice to implement IDisposable and author a proper finalizer. In a production
+environment, classes such as InventoryDAL would do the same; however, you won’t do that here, so you can
+stay focused on the particulars of ADO.NET.</p>
+<h2>Adding the Connection Logic</h2>
+<p>The first task you must attend to is to define some methods that allow the caller to connect to and
+disconnect from the data source using a valid connection string. You will hard-code your AutoLotDAL.dll
+assembly to use of the types of System.Data.SqlClient, so you need to define a private member variable
+of SqlConnection that is allocated at the time the InventoryDAL object is created. Also, define a method
+named OpenConnection() and another named CloseConnection() to interact with this member variable:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> InventoryDAL
+{
+    <span class="rem">// This member will be used by all methods.</span>
+    <span class="kwrd">private</span> SqlConnection = <span class="kwrd">null</span>;
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> OpenConnection(<span class="kwrd">string</span> connectionString)
+    {
+        sqlCn = <span class="kwrd">new</span> SqlConnection();
+        sqlCn.ConnectionString = connectionString;
+        sqlCn.Open();
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> CloseConnection()
+    {
+        sqlCn.Close();
+    }
+}</pre>
+<p>For the sake of brevity, your InventoryDAL type will not test for possible exceptions, nor will it throw
+custom exceptions under various circumstances (e.g., a malformed connection string). If you were to
+build an industrial-strength data access library, you would absolutely want to use structured exception
+handling techniques to account for any runtime anomalies.</p>
+<h2>Adding the Insertion Logic</h2>
+<p>Inserting a new record into the Inventory table is as simple as formatting the SQL Insert statement
+(based on user input) and calling the ExecuteNonQuery() using your command object. You can see this in
+action by adding a public method to your InventoryDAL type named InsertAuto() that takes four
+parameters that map to the four columns of the Inventory table (CarID, Color, Make, and PetName). You
+use these arguments to format a string type to insert the new record. Finally, use your SqlConnection
+object to execute the SQL statement:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">void</span> InsertAuto(<span class="kwrd">int</span> id, <span class="kwrd">string</span> color, <span class="kwrd">string</span> make, <span class="kwrd">string</span> petName)
+{
+    <span class="rem">// Format and execute SQL statement.</span>
+    <span class="kwrd">string</span> sql = <span class="kwrd">string</span>.Format(<span class="str">"Insert Into Inventory"</span> +
+        <span class="str">"(CarID, Make, Color, PetName) Values"</span> +
+        <span class="str">"('{0}', '{1}', '{2}', '{3}')"</span>, id, make, color, petName);
+
+    <span class="rem">// Execute using our connection.</span>
+    <span class="kwrd">using</span>(SqlCommand cmd = <span class="kwrd">new</span> SqlCommand(sql, <span class="kwrd">this</span>.sqlCn))
+    {
+        cmd.ExecuteNonQuery();
+    }
+}</pre>
+<p>This method is syntactically fine, but you could supply an overloaded version that allows the caller
+to pass in a strongly typed class that represents the data for the new row. Define a new NewCar class,
+which represents a new row in the Inventory table:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> NewCar
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> CarID { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">string</span> Color { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">string</span> Make { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">string</span> PetName { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+}</pre>
+<p>Now add the following version of InsertAuto() to your InventoryDAL class:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">void</span> InsertAuto(NewCar car)
+{
+    <span class="rem">// Format and execute SQL statement.</span>
+    <span class="kwrd">string</span> sql = <span class="kwrd">string</span>.Format(<span class="str">"Insert Into Inventory"</span> +
+        <span class="str">"(CarID, Make, Color, PetName) Values"</span> +
+        <span class="str">"('{0}', '{1}', '{2}', '{3}')"</span>, car.CarID, car.Make, car.Color, car.PetName);
+
+    <span class="rem">// Execute using our connection.</span>
+    <span class="kwrd">using</span> (SqlCommand cmd = <span class="kwrd">new</span> SqlCommand(sql, <span class="kwrd">this</span>.sqlCn))
+    {
+        cmd.ExecuteNonQuery();
+    }
+}</pre>
+<p>Defining classes that represent records in a relational database is a common way to build a data
+access library. In fact, as you will see in Chapter 23, the ADO.NET Entity Framework automatically
+generates strongly typed classes that allow you to interact with database data. On a related note, the
+disconnected layer of ADO.NET (see Chapter 22) generates strongly typed DataSet objects to represent
+data from a given table in a relational database.</p>
+<p><b>Note</b> As you might know, building a SQL statement using string concatenation can be risky from a security point
+of view (think: SQL injection attacks). The preferred way to build command text is to use a parameterized query,
+which you will learn about shortly.</p>
+<h2>Adding the Deletion Logic</h2>
+<p>Deleting an existing record is as simple as inserting a new record. Unlike when you created the code
+listing for InsertAuto(), this time you will learn about an important try/catch scope that handles the
+possibility of attempting to delete a car that is currently on order for an individual in the Customers table.
+Add the following method to the InventoryDAL class type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">void</span> DeleteCar(<span class="kwrd">int</span> id)
+{
+    <span class="rem">// Get ID of car to delete, then do so.</span>
+    <span class="kwrd">string</span> sql = <span class="kwrd">string</span>.Format(<span class="str">"Delete from Inventory where CarID = '{0}'"</span>,
+        id);
+    <span class="kwrd">using</span>(SqlCommand cmd = <span class="kwrd">new</span> SqlCommand(sql, <span class="kwrd">this</span>.sqlCn))
+    {
+        <span class="kwrd">try</span>
+        {
+            cmd.ExecuteNonQuery();
+        }
+        <span class="kwrd">catch</span>(SqlException ex)
+        {
+            Exception error = <span class="kwrd">new</span> Exception(<span class="str">"Sorry! That car is on order!"</span>, ex);
+                <span class="kwrd">throw</span> error;
+        }
+    }
+}</pre>
+<h2>Adding the Update Logic</h2>
+<p>When it comes to the act of updating an existing record in the Inventory table, the first thing you must
+decide is what you want to allow the caller to change, whether it’s the car’s color, the pet name, the
+make, or all of the above. One way to give the caller complete flexibility is to define a method that takes a
+string type to represent any sort of SQL statement, but that is risky at best.</p>
+<p>Ideally, you want to have a set of methods that allow the caller to update a record in a variety of
+ways. However, for this simple data access library, you will define a single method that allows the caller
+to update the pet name of a given automobile:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">void</span> UpdateCarPetName(<span class="kwrd">int</span> id, <span class="kwrd">string</span> newPetName)
+{
+    <span class="rem">// Get ID of car to modify and new pet name.</span>
+    <span class="kwrd">string</span> sql = <span class="kwrd">string</span>.Format(<span class="str">"Update Inventory Set PetName = '{0}' Where CarID = '{1}'"</span>,
+        newPetName, id);
+
+    <span class="kwrd">using</span>(SqlCommand cmd = <span class="kwrd">new</span> SqlCommand(sql, <span class="kwrd">this</span>.sqlCn))
+    {
+        cmd.ExecuteNonQuery();
+    }
+}</pre>
+<h2>Adding the Selection Logic</h2>
+<p>Next, you need to add a selection method. As you saw earlier in this chapter, a data provider’s data
+reader object allows for a selection of records using a read-only, forward-only server-side cursor. As you
+call the Read() method, you can process each record in a fitting manner. While this is all well and good,
+you need to contend with the issue of how to return these records to the calling tier of your application.</p>
+<p>One approach would be to populate and return a multidimensional array (or other such return
+value, such as a generic List&lt;NewCar&gt; object) with the data obtained by the Read() method. Here is a
+second way to obtain data from the Inventory table that uses the latter approach:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> List&lt;NewCar&gt; GetAllInventoryAsList()
+{
+    <span class="rem">// This will hold the records.</span>
+    List&lt;NewCar&gt; inv = <span class="kwrd">new</span> List&lt;NewCar&gt;();
+
+    <span class="rem">// Prep command object.</span>
+    <span class="kwrd">string</span> sql = <span class="str">"Select * From Inventory"</span>;
+    <span class="kwrd">using</span> (SqlCommand cmd = <span class="kwrd">new</span> SqlCommand(sql, <span class="kwrd">this</span>.sqlCn))
+    {
+        SqlDataReader dr = cmd.ExecuteReader();
+        while (dr.Read())
+        {
+            inv.Add(<span class="kwrd">new</span> NewCar
+            {
+                CarID = (<span class="kwrd">int</span>)dr[<span class="str">"CarID"</span>],
+                Color = (<span class="kwrd">string</span>)dr[<span class="str">"Color"</span>],
+                Make = (<span class="kwrd">string</span>)dr[<span class="str">"Make"</span>],
+                PetName = (<span class="kwrd">string</span>)dr[<span class="str">"PetName"</span>]
+            });
+        }
+        dr.Close();
+    }
+    <span class="kwrd">return</span> inv;
+}</pre>
+<p>Still another approach is to return a System.Data.DataTable object, which is actually part of the
+disconnected layer of ADO.NET. You will find complete coverage of the disconnected layer in the next
+chapter; however, for the time being, you should understand that a DataTable is a class type that
+represents a tabular block of data (e.g., a grid on a spreadsheet).</p>
+<p>Internally, the DataTable class represents data as a collection of rows and columns. While you can
+fill these collections programmatically, the DataTable type provides a method named Load() that
+automatically populates these collections using a data reader object! Consider the following methods,
+which return data from Inventory as a DataTable:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> DataTable GetAllInventoryAsDataTable()
+{
+    <span class="rem">// This will hold the records.</span>
+    DataTable inv = <span class="kwrd">new</span> DataTable();
+
+    <span class="rem">// Prep command object.</span>
+    <span class="kwrd">string</span> sql = <span class="str">"Select * From Inventory"</span>;
+    <span class="kwrd">using</span>(SqlCommand cmd = <span class="kwrd">new</span> SqlCommand(sql, <span class="kwrd">this</span>.sqlCn))
+    {
+        SqlDataReader dr = cmd.ExecuteReader();
+        <span class="rem">// Fill the DataTable with data from the reader and clean up.</span>
+        inv.Load(dr);
+        dr.Close();
+    }
+    <span class="kwrd">return</span> inv;
+}</pre>
+<h2>Working with Parameterized Command Objects</h2>
+<p>Currently, the insert, update, and delete logic for the InventoryDAL type uses hard-coded string-literals
+for each SQL query. As you might know, you can use a parameterized query to treat SQL parameters as
+objects, rather than as a simple blob of text. Treating SQL queries in a more object-oriented manner
+helps reduce the number of typos (given strongly typed properties); plus, parameterized queries
+typically execute much faster than a literal SQL string because they are parsed exactly once (rather than
+each time the SQL string is assigned to the CommandText property). Parameterized queries also help
+protect against SQL injection attacks (a well-known data access security issue).</p>
+<p>To support parameterized queries, ADO.NET command objects maintain a collection of individual
+parameter objects. By default, this collection is empty, but you can insert any number of parameter
+objects that map to a placeholder parameter in the SQL query. When you wish to associate a parameter
+within a SQL query to a member in the command object’s parameters collection, you can prefix the SQL
+text parameter with the @ symbol (at least when using Microsoft SQL Server; not all DBMSs support this
+notation).</p>
+<h2>Specifying Parameters Using the DbParameter Type</h2>
+<p>Before you build a parameterized query, you need to familiarize yourself with the DbParameter type
+(which is the base class to a provider’s specific parameter object). This class maintains a number of
+properties that allow you to configure the name, size, and data type of the parameter, as well as other
+characteristics, including the parameter’s direction of travel. Table 21-7 describes some key properties of
+the DbParameter type.</p>
+<p><b>Table 21-7.</b> Key Members of the DbParameter Type</p>
+<table class="gridtable">
+   <tr>
+   <th>
+    Property
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    DbType
+   </td>
+   <td>
+    Gets or sets the native data type of the parameter, represented as a CLR data type.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Direction
+   </td>
+   <td>
+    Gets or sets whether the parameter is input-only, output-only, bidirectional, or a
+return value parameter.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IsNullable
+   </td>
+   <td>
+    Gets or sets whether the parameter accepts null values.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ParameterName
+   </td>
+   <td>
+    Gets or sets the name of the DbParameter.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Size
+   </td>
+   <td>
+    Gets or sets the maximum parameter size of the data in bytes; this is only useful
+for textual data.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Value
+   </td>
+   <td>
+    Gets or sets the value of the parameter.
+   </td>
+  </tr>
+</table>
+<p>Now let’s look at how to populate a command object’s collection of DBParameter-compatible objects
+by reworking the following version of the InsertAuto() method to leverage parameter objects (you could
+perform a similar reworking for your remaining methods; however, that’s not necessary for this
+example):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">void</span> InsertAuto(<span class="kwrd">int</span> id, <span class="kwrd">string</span> color, <span class="kwrd">string</span> make, <span class="kwrd">string</span> petName)
+{
+    <span class="rem">// Note the "placeholders" in the SQL query.</span>
+    <span class="kwrd">string</span> sql = <span class="kwrd">string</span>.Format(<span class="str">"Insert Into Inventory"</span> +
+        <span class="str">"(CarID, Make, Color, PetName) Values"</span> +
+        <span class="str">"(@CarID, @Make, @Color, @PetName)"</span>);
+
+    <span class="rem">// This command will have internal parameters.</span>
+    <span class="kwrd">using</span>(SqlCommand cmd = <span class="kwrd">new</span> SqlCommand(sql, <span class="kwrd">this</span>.sqlCn))
+    {
+        <span class="rem">// Fill params collection.</span>
+        SqlParameter param = <span class="kwrd">new</span> SqlParameter();
+        param.ParameterName = <span class="str">"@CarID"</span>;
+        param.Value = id;
+        param.SqlDbType = SqlDbType.Int;
+        cmd.Parameters.Add(param);
+
+        param = <span class="kwrd">new</span> SqlParameter();
+        param.ParameterName = <span class="str">"@Make"</span>;
+        param.Value = make;
+        param.SqlDbType = SqlDbType.Char;
+        param.Size = 10;
+        cmd.Parameters.Add(param);
+
+        param = <span class="kwrd">new</span> SqlParameter();
+        param.ParameterName = <span class="str">"@Color"</span>;
+        param.Value = color;
+        param.SqlDbType = SqlDbType.Char;
+        param.Size = 10;
+        cmd.Parameters.Add(param);
+        
+        param = <span class="kwrd">new</span> SqlParameter();
+        param.ParameterName = <span class="str">"@PetName"</span>;
+        param.Value = petName;
+        param.SqlDbType = SqlDbType.Char;
+        param.Size = 10;
+        cmd.Parameters.Add(param);
+        cmd.ExecuteNonQuery();
+    }
+}</pre>
+<p>Again, notice that your SQL query consists of four embedded placeholder symbols, each of which is
+prefixed with the @ token. You can use the SqlParameter type to map each placeholder using the
+ParameterName property and specify various details (e.g., its value, data type, and size) in a strongly typed
+matter. Once each parameter object is hydrated, it is added to the command object’s collection through
+a call to Add().</p>
+<p><b>Note</b> This example uses various properties to establish a parameter object. Note, however, that parameter
+objects support a number of overloaded constructors that allow you to set the values of various properties (which
+will result in a more compact code base). Also be aware that Visual Studio 2010 provides many graphical
+designers that will generate a good deal of this grungy parameter-centric code on your behalf (see Chapters 22
+and 23).</p>
+<p>While building a parameterized query often requires more code, the end result is a more convenient
+way to tweak SQL statements programmatically, as well as to achieve better overall performance. While
+you are free to use this technique whenever a SQL query is involved, parameterized queries prove most
+helpful when you wish to trigger a stored procedure.</p>
+<h2>Executing a Stored Procedure</h2>
+<p>Recall that a stored procedure is a named block of SQL code stored in the database. You can construct
+stored procedures so they return a set of rows or scalar data types or do anything else that makes sense
+(e.g., insert, update, or delete); you can also have them take any number of optional parameters. The end
+result is a unit of work that behaves like a typical function, except that it is located on a data store rather
+than a binary business object. Currently, your AutoLot database defines a single stored procedure named
+GetPetName, which you formatted as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+GetPetName
+@carID <span class="kwrd">int</span>,
+@petName <span class="kwrd">char</span>(10) <span class="kwrd">output</span>
+<span class="kwrd">AS</span>
+<span class="kwrd">SELECT</span> @petName = PetName <span class="kwrd">from</span> Inventory <span class="kwrd">where</span> CarID = @carID</pre>
+<p>Now consider the following final method of the InventoryDAL type, which invokes your stored
+procedure:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">string</span> LookUpPetName(<span class="kwrd">int</span> carID)
+{
+    <span class="kwrd">string</span> carPetName = <span class="kwrd">string</span>.Empty;
+    
+    <span class="rem">// Establish name of stored proc.</span>
+    <span class="kwrd">using</span> (SqlCommand cmd = <span class="kwrd">new</span> SqlCommand(<span class="str">"GetPetName"</span>, <span class="kwrd">this</span>.sqlCn))
+    {
+        cmd.CommandType = CommandType.StoredProcedure;
+
+        <span class="rem">// Input param.</span>
+        SqlParameter param = <span class="kwrd">new</span> SqlParameter();
+        param.ParameterName = <span class="str">"@carID"</span>;
+        param.SqlDbType = SqlDbType.Int;
+        param.Value = carID;
+
+        <span class="rem">// The default direction is in fact Input, but to be clear:</span>
+        param.Direction = ParameterDirection.Input;
+        cmd.Parameters.Add(param);
+
+        <span class="rem">// Output param.</span>
+        param = <span class="kwrd">new</span> SqlParameter();
+        param.ParameterName = <span class="str">"@petName"</span>;
+        param.SqlDbType = SqlDbType.Char;
+        param.Size = 10;
+        param.Direction = ParameterDirection.Output;
+        cmd.Parameters.Add(param);
+    
+        <span class="rem">// Execute the stored proc.</span>
+        cmd.ExecuteNonQuery();
+
+        <span class="rem">// Return output param.</span>
+        carPetName = (<span class="kwrd">string</span>)cmd.Parameters[<span class="str">"@petName"</span>].Value;
+    }
+    <span class="kwrd">return</span> carPetName;
+}</pre>
+<p>One important aspect of invoking a stored procedure is to keep in mind that a command object can
+represent a SQL statement (the default) or the name of a stored procedure. When you wish to inform a
+command object that it will be invoking a stored procedure, you pass in the name of the procedure (as a
+constructor argument or by using the CommandText property) and must set the CommandType property to
+the value CommandType.StoredProcedure (if you fail to do this, you will receive a runtime exception
+because the command object is expecting a SQL statement by default):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+SqlCommand cmd = <span class="kwrd">new</span> SqlCommand(<span class="str">"GetPetName"</span>, <span class="kwrd">this</span>.sqlCn);
+cmd.CommandType = CommandType.StoredProcedure;</pre>
+<p>Next, notice that the Direction property of a parameter object allows you to specify the direction of
+travel for each parameter passed to the stored procedure (e.g., input parameter, output parameter,
+in/out parameter, or return value). As before, you add each parameter object to the command object’s
+parameters collection:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Input param.</span>
+SqlParameter param = <span class="kwrd">new</span> SqlParameter();
+param.ParameterName = <span class="str">"@carID"</span>;
+param.SqlDbType = SqlDbType.Int;
+param.Value = carID;
+param.Direction = ParameterDirection.Input;
+cmd.Parameters.Add(param);</pre>
+<p>After the stored procedure completes with a call to ExecuteNonQuery(), you can obtain the value of
+the output parameter by investigating the command object’s parameter collection and casting
+accordingly:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Return output param.</span>
+carPetName = (<span class="kwrd">string</span>)cmd.Parameters[<span class="str">"@petName"</span>].Value;</pre>
+<p>At this point, your initial iteration of the AutoLotDAL.dll data access library is complete! You can use
+this assembly to build any sort of front end to display and edit your data you want (e.g., console based,
+Windows Forms based, Windows Presentation Foundation based, or an HTML-based web application).
+You have not yet examined how to build graphical user interfaces, so next you will test your data library
+from a new console application.</p>
+    <p><b>Source Code</b> You can find the AutoLotDAL project under the Chapter 21 subdirectory.</p>
+    </body>
+    </html>
+      
+      
+   

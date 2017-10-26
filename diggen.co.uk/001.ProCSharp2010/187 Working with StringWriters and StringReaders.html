@@ -1,0 +1,75 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Working with StringWriters and StringReaders</h1>
+<p>You can use the StringWriter and StringReader types to treat textual information as a stream of inmemory
+characters. This can prove helpful when you wish to append character-based information to an
+underlying buffer. The following Console Application (named StringReaderWriterApp) illustrates this by
+writing a block of string data to a StringWriter object, rather than to a file on the local hard drive:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with StringWriter / StringReader *****\n"</span>);
+
+    <span class="rem">// Create a StringWriter and emit character data to memory.</span>
+    <span class="kwrd">using</span>(StringWriter strWriter = <span class="kwrd">new</span> StringWriter())
+    {
+        strWriter.WriteLine(<span class="str">"Don't forget Mother's Day this year..."</span>);
+        
+        <span class="rem">// Get a copy of the contents (stored in a string) and pump</span>
+        <span class="rem">// to console.</span>
+
+        Console.WriteLine(<span class="str">"Contents of StringWriter:\n{0}"</span>, strWriter);
+    }
+    Console.ReadLine();
+}</pre>
+<p>StringWriter and StreamWriter both derive from the same base class (TextWriter), so the writing
+logic is more or less identical. However, given the nature of StringWriter, you should also be aware that
+this class allows you to use the GetStringBuilder() method to extract a System.Text.StringBuilder
+object:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> (StringWriter strWriter = <span class="kwrd">new</span> StringWriter())
+{
+    strWriter.WriteLine(<span class="str">"Don't forget Mother's Day this year..."</span>);
+    Console.WriteLine(<span class="str">"Contents of StringWriter:\n{0}"</span>, strWriter);
+    
+    <span class="rem">// Get the internal StringBuilder.</span>
+    StringBuilder sb = strWriter.GetStringBuilder();
+    sb.Insert(0, <span class="str">"Hey!! "</span>);
+    Console.WriteLine(<span class="str">"-&gt; {0}"</span>, sb.ToString());
+    sb.Remove(0, <span class="str">"Hey!! "</span>.Length);
+    Console.WriteLine(<span class="str">"-&gt; {0}"</span>, sb.ToString());
+}</pre>
+<p>When you wish to read from a stream of character data, you can use the corresponding
+StringReader type, which (as you would expect) functions identically to the related StreamReader class.
+In fact, the StringReader class does nothing more than override the inherited members to read from a
+block of character data, rather than from a file, as shown here:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> (StringWriter strWriter = <span class="kwrd">new</span> StringWriter())
+{
+    strWriter.WriteLine(<span class="str">"Don't forget Mother's Day this year..."</span>);
+    Console.WriteLine(<span class="str">"Contents of StringWriter:\n{0}"</span>, strWriter);
+
+    <span class="rem">// Read data from the StringWriter.</span>
+    <span class="kwrd">using</span> (StringReader strReader = <span class="kwrd">new</span> StringReader(strWriter.ToString()))
+    {
+        <span class="kwrd">string</span> input = <span class="kwrd">null</span>;
+        while ((input = strReader.ReadLine()) != <span class="kwrd">null</span>)
+        {    
+            Console.WriteLine(input);
+        }
+    }
+}</pre>
+<p><b>Source Code</b> You can find the StringReaderWriterApp under the Chapter 20 subdirectory.</p>     
+    </body></html>
+      
+   

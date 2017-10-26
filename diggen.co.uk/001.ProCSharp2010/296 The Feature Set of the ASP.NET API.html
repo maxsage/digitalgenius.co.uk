@@ -1,0 +1,157 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>The Feature Set of the ASP.NET API</h1>
+    <p>At this point, your whirlwind review of classic web application development is complete, and you are
+ready to dive into ASP.NET itself. Before you create your first web application, let me set the stage
+regarding the major features of .NET’s web development API, as seen from the major versions of the
+framework.</p>
+<h2>Major Features of ASP.NET 1.0-1.1</h2>
+<p>The first release of ASP.NET (version 1.x) contained a number of features that allow developers to build
+web applications in a strongly typed and object oriented matter. Here are some key features which are
+supported in all versions of the .NET platform:</p>
+<ul>
+ <li>ASP.NET provides a model termed code-behind, which allows you to separate
+presentation logic (HTML) from business logic (C# code).</li>
+ <li>ASP.NET pages are coded using .NET programming languages, rather than server
+side scripting languages. The code files are compiled into valid .NET *.dll
+assemblies (which translates into much faster execution).</li>
+ <li>Web controls allow programmers to build the GUI of a web application in a
+manner similar to building a Windows Forms/WPF application.</li>
+ <li>By default, ASP.NET web controls automatically maintain their state during
+postbacks using a hidden form field named __VIEWSTATE.</li>
+ <li>ASP.NET web applications can make use of any of the assemblies within the .NET
+base class libraries (of course, it makes little sense to make use of desktop GUI
+APIs such as Windows Forms within the context of a web app).</li>
+ <li>ASP.NET web applications can be easily configured using standard IIS settings or
+using a web application configuration file (Web.config).</li>
+</ul>
+<p>The first point I want to elaborate on here is the fact that the UI of an ASP.NET web page is built
+using any number of web controls. Unlike a typical HTML control, web controls are executed on the web
+server and will emit back to the HTTP response their correct HTML tags. This alone is a huge benefit of
+ASP.NET in that the amount of HTML you must manually author by hand diminishes greatly. By way of a
+quick example, assume you have defined the following ASP.NET web control in an ASP.NET web page:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:Button</span> <span class="attr">ID</span><span class="kwrd">="btnMyButton"</span> <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">Text</span><span class="kwrd">="Button"</span> <span class="attr">BorderColor</span><span class="kwrd">="Blue"</span>
+    <span class="attr">BorderStyle</span><span class="kwrd">="Solid"</span> <span class="attr">BorderWidth</span><span class="kwrd">="5px"</span> <span class="kwrd">/&gt;</span></pre>
+     <p>You’ll learn the details of declaring ASP.NET web controls soon enough, but for right now, notice
+that many attributes of the &lt;asp:Button&gt; control look very similar to the properties you have
+encountered in the Windows Forms and WPF examples (BorderColor, Text, BorderStyle, etc.). The same
+is true for all ASP.NET web controls because when Microsoft built the web control toolkit, these widgets
+were purposely designed to look and feel like their desktop counterparts.</p>
+<p>Now, if a browser makes a call to the *.aspx file containing this control, the control responds by
+emitting into the output stream the following HTML declaration:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">input</span> <span class="attr">type</span><span class="kwrd">="submit"</span> <span class="attr">name</span><span class="kwrd">="btnMyButton"</span> <span class="attr">value</span><span class="kwrd">="Button"</span> <span class="attr">id</span><span class="kwrd">="btnMyButton"</span>
+    <span class="attr">style</span><span class="kwrd">="border-color:Blue;border-width:5px;border-style:Solid;"</span> <span class="kwrd">/&gt;</span></pre>
+<p>Notice how the web control emits back standard HTML (or XHTML, based on your settings) that can
+be rendered in any browser. Given this, understand that using ASP.NET web controls in no way ties you
+to the Microsoft family of operating systems or to Microsoft Internet Explorer. Any operating system or
+browser (including those on handheld devices such as the Apple iPhone or BlackBerry devices) can view
+an ASP.NET web page.</p> 
+<p>Next, note from the previous list of features that an ASP.NET web application will be compiled into a
+.NET assembly. Thus, your web projects are no different than any .NET *.dll built during this book. The
+compiled web application will be composed of CIL code, an assembly MANIFEST, and type metadata.
+This has a number of huge benefits, most notably performance gains, strong typing, and the ability to be
+micromanaged by the CLR (e.g., garbage collection, etc.).</p>
+<p>Finally, ASP.NET web applications provide a programming model whereby you can partition your
+page’s markup from its related C# code base using code files. You’ll learn about this topic in just a bit, but
+know that this feature addresses a common complaint found when building classic (COM-based) ASP
+pages, where a typical *.asp file was a confused mismatch of HTML and script code. Using code files, the
+markup you type will map to a full-blown object model that is merged with your C# code file via partial
+class declarations.</p>
+<h2>Major Features of ASP.NET 2.0</h2>
+<p>ASP.NET 1.x was a major step in the right direction, and ASP.NET 2.0 provided many additional bells and
+whistles that helped ASP.NET move from a way to build dynamic web pages to a way to build feature rich
+web sites. Consider this partial list of key features:</p>
+<ul>
+ <li>Introduction of the ASP.NET Development web server (which means developers
+no longer need IIS installed on their development computers).</li>
+ <li>A large number of new web controls that handle many complex situations
+(navigation controls, security controls, new data binding controls, etc.).</li>
+ <li>The introduction of master pages, which allow developers to attach a common UI
+frame to a set of related pages.</li>
+ <li>Support for themes, which offer a declarative manner to change the look and feel
+of the entire web application on the web server.</li>
+ <li>Support for Web Parts, which allow end users to customize the look and feel of a
+web page and store their settings for later use (a la portals).</li>
+ <li>Introduction of a web-based configuration and management utility that maintains
+the various Web.config files.</li>
+</ul>
+<p>Beyond the ASP.NET Development web server, one of the biggest additions brought forth with
+ASP.NET 2.0 was the introduction of master pages. As you are aware, most web sites have a look and feel
+which is common to all pages on the site. Consider a commercial web site such as www.amazon.com.
+Every page has the same elements, such as a common header, common footer, common navigation
+menus and so on.</p>
+<p>Using a master page, you can model this common functionality and define placeholders that other
+*.aspx files can plug into. This makes it very easy to quickly reshape the overall look and feel of your site
+(reposition the navigation bar, change the header logo, and so on) by simply changing the master page,
+leaving the other *.aspx files unmodified.</p>
+<p><b>Note</b> Master pages are so useful that as of Visual Studio 2010, all new ASP.NET web projects will include a
+master page by default.</p>
+<p>ASP.NET 2.0 also added many new web controls into the mix, including controls that automatically
+incorporate common security features (log in controls, password recovery controls, etc), controls that
+allow you to layer a navigational structure on top of a set of related *.aspx files, and even more controls
+for performing complex data binding operations, where the necessary SQL queries could be generated
+using a set of ASP.NET web controls.</p>
+<h2>Major Features of ASP.NET 3.5 (and .NET 3.5 SP1)</h2>
+<p>.NET 3.5 added the ability for ASP.NET web applications to make use of the LINQ programming model
+(also introduced in .NET 3.5) and the following web-centric features:</p>
+<ul>
+ <li>New controls to support Silverlight development (recall that this is a WPF-based
+API for designing rich media content for a website).</li>
+ <li>Support for data binding against ADO.NET entity classes (see Chapter 23).</li>
+ <li>Support for ASP.NET Dynamic Data. This is a Ruby on Rails-inspired web
+framework that can be used to build data driven web applications. It exposes
+tables in a database by encoding it in the URI of the ASP.NET web service, and the
+data in the table is automatically rendered to HTML.</li>
+ <li>Integrated support for Ajax-style development, which essentially allows for micropostbacks
+to refresh part of a web page as quickly as possible.</li>
+</ul>
+<p>One of the most welcomed features in ASP.NET 3.5 was a new set of controls that allow for Ajax
+development. This web-centric API makes it possible to refresh a small portion of a larger web page in
+the most efficient manner possible. While Ajax can be used by any web development API, doing so
+within an ASP.NET site is very simple because the Ajax controls do all of the heavy lifting by emitting
+back the necessary client side JavaScript code on your behalf.</p>
+<p>The ASP.NET Dynamic Data project templates, introduced with .NET 3.5 Service Pack 1, provide a
+new model to build sites that are driven heavily by a relational database. Of course, most web sites will
+need to communicate with databases to some extent, but the ASP.NET Dynamic Data projects are tightly
+connected to the ADO.NET Entity Framework and are squarely focused on the rapid development of
+data-driven sites (similar to what one might build when using Ruby).</p>
+<h2>Major Features of ASP.NET 4.0</h2>
+<p>And this brings me to the web features that ship with the current version of the framework, .NET 4.0.
+Beyond allowing you to leverage the overall .NET 4.0 features, here is a hit list of some of the key webcentric
+features:</p>
+<ul>
+ <li>The ability to compress “view state” data using the GZIP standard.</li>
+ <li>Updated browser definitions to ensure that ASP.NET pages render correctly on
+new browsers and devices (Google Chrome, Apple IPhone, BlackBerry devices,
+etc.).</li>
+ <li>Ability to customize the output of validation controls using a cascading style sheet
+(CSS). </li>
+ <li>Inclusion of the ASP.NET Chart control, which allows for building ASP.NET pages
+that include intuitive charts for complex statistical or financial analysis.</li>
+ <li>Official support for the ASP.NET Model View Controller project template, which
+decreases the dependency among application layers by using the Model-View-
+Controller (MVC) pattern.
+ </li></ul>
+<p>Note that this list of ASP.NET 1.0-4.0 features is in no way all inclusive, but it does accentuate just
+how feature-rich this web API truly is. Truth be told, if I were to cover every possible feature of ASP.NET,
+this book would easily double in size (triple, perhaps). Since this is not realistic, the goal for the
+remainder of text is to examine the core features of ASP.NET that you will likely use on a day-to-day
+basis. Be sure to make use of the .NET Framework 4.0 SDK documentation to check out the features not
+covered here.</p>
+<p><b>Note</b> If you require a comprehensive treatment of building web applications using ASP.NET, I suggest picking
+up a copy of Pro ASP.NET 4.0 in C# 2010, Third Edition by Matthew MacDonald (Apress, 2010).</p>
+</body>
+    </html>   
+      
+   

@@ -1,0 +1,190 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Understanding Late Binding</h1>
+<p>Simply put, late binding is a technique in which you are able to create an instance of a given type and
+invoke its members at runtime without having hard-coded compile-time knowledge of its existence.
+When you are building an application that binds late to a type in an external assembly, you have no
+reason to set a reference to the assembly; therefore, the caller’s manifest has no direct listing of the
+assembly.</p>
+<p>At first glance, it is not easy to see the value of late binding. It is true that if you can “bind early” to
+an object (e.g., set an assembly reference and allocate the type using the C# new keyword), you should
+opt to do so. For one reason, early binding allows you to determine errors at compile time, rather than at
+runtime. Nevertheless, late binding does have a critical role in any extendable application you may be
+building. You will have a chance to build such an “extendable” program at the end of this chapter in the
+section “Building an Extendable Application”; until then, let’s examine the role of the Activator class.</p>
+<h2>The System.Activator Class</h2>
+<p>The System.Activator class (defined in mscorlib.dll) is the key to the .NET late binding process. For the
+current example, you are only interested in the Activator.CreateInstance() method, which is used to
+create an instance of a type à la late binding. This method has been overloaded numerous times to
+provide a good deal of flexibility. The simplest variation of the CreateInstance() member takes a valid
+Type object that describes the entity you wish to allocate into memory on the fly.</p>
+<p>Create a new Console Application named LateBindingApp, and import the System.IO and
+System.Reflection namespace via the C# using keyword. Now, update the Program class as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This program will load an external library,</span>
+<span class="rem">// and create an object using late binding.</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Fun with Late Binding *****"</span>);
+        <span class="rem">// Try to load a local copy of CarLibrary.</span>
+        Assembly a = <span class="kwrd">null</span>;
+        <span class="kwrd">try</span>
+        {
+            a = Assembly.Load(<span class="str">"CarLibrary"</span>);
+        }
+        <span class="kwrd">catch</span>(FileNotFoundException ex)
+        {
+            Console.WriteLine(ex.Message);
+            <span class="kwrd">return</span>;
+        }
+        <span class="kwrd">if</span>(a != <span class="kwrd">null</span>)
+            CreateUsingLateBinding(a);
+
+        Console.ReadLine();
+    }
+
+    <span class="kwrd">static</span> <span class="kwrd">void</span> CreateUsingLateBinding(Assembly asm)
+    {
+        <span class="kwrd">try</span>
+        {
+            <span class="rem">// Get metadata for the Minivan type.</span>
+            Type miniVan = asm.GetType(<span class="str">"CarLibrary.MiniVan"</span>);
+
+            <span class="rem">// Create the Minivan on the fly.</span>
+            <span class="kwrd">object</span> obj = Activator.CreateInstance(miniVan);
+            Console.WriteLine(<span class="str">"Created a {0} using late binding!"</span>, obj);
+        }
+        <span class="kwrd">catch</span>(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}</pre>
+<p>Now, before you run this application, you will need to manually place a copy of CarLibrary.dll into
+the bin\Debug folder of this new application using Windows Explorer. The reason is that you are calling
+Assembly.Load(), therefore the CLR will only probe in the client folder (if you wish, you could enter a
+path to the assembly using Assembly.LoadFrom(), however there is no need to do so) .</p>
+<p><b>Note</b> Don’t set a reference to CarLibrary.dll using Visual Studio for this example! That will record this library in
+the client’s manifest. The whole point of late binding is that you are trying to create an object which is not known
+at compile time.</p>
+<p>Notice that the Activator.CreateInstance() method returns a System.Object rather than a strongly
+typed MiniVan. Therefore, if you apply the dot operator on the obj variable, you will fail to see any
+members of the MiniVan class. At first glance, you may assume you can remedy this problem with an
+explicit cast:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Cast to get access to the members of MiniVan?</span>
+<span class="rem">// Nope! Compiler error!</span>
+<span class="kwrd">object</span> obj = (MiniVan)Activator.CreateInstance(minivan);</pre>
+<p>However, because your program has not set a reference to CarLibrary.dll, you cannot make use of
+the C# using keyword to import the CarLibrary namespace, and therefore you can’t use a MiniVan during
+the casting operation! Remember that the whole point of late binding is to create instances of objects for
+which there is no compile-time knowledge. Given this, how can you invoke the underlying methods of
+the MiniVan object stored in the System.Object reference? The answer, of course, is by using reflection.</p>
+<h2>Invoking Methods with No Parameters</h2>
+<p>Assume you wish to invoke the TurboBoost() method of the MiniVan. As you recall, this method will set
+the state of the engine to “dead” and display an informational message box. The first step is to obtain a
+MethodInfo object for the TurboBoost() method using Type.GetMethod(). From the resulting MethodInfo,
+you are then able to call MiniVan.TurboBoost using Invoke(). MethodInfo.Invoke() requires you to send
+in all parameters that are to be given to the method represented by MethodInfo. These parameters are
+represented by an array of System.Object types (as the parameters for a given method could be any
+number of various entities).</p>
+<p>Given that TurboBoost() does not require any parameters, you can simply pass null (meaning “this
+method has no parameters”). Update your CreateUsingLateBinding() method as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> CreateUsingLateBinding(Assembly asm)
+{
+    <span class="kwrd">try</span>
+    {
+        <span class="rem">// Get metadata for the Minivan type.</span>
+        Type miniVan = asm.GetType(<span class="str">"CarLibrary.MiniVan"</span>);
+
+        <span class="rem">// Create the Minivan on the fly.</span>
+        <span class="kwrd">object</span> obj = Activator.CreateInstance(miniVan);
+        Console.WriteLine(<span class="str">"Created a {0} using late binding!"</span>, obj);
+
+        <span class="rem">// Get info for TurboBoost.</span>
+        MethodInfo mi = miniVan.GetMethod(<span class="str">"TurboBoost"</span>);
+
+        <span class="rem">// Invoke method ('null' for no parameters).</span>
+        mi.Invoke(obj, <span class="kwrd">null</span>);
+    }
+    <span class="kwrd">catch</span>(Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+}</pre>
+<p>At this point, you will see the message box shown in Figure 15-2, once the TurboBoost() method is
+invoked.</p>
+<img src="http://www.diggen.co.uk/Images/Figure15_02.png" alt="Figure 15-2" />
+<p><b>Figure 15-2</b> Late-bound method invocation</p>
+<h2>Invoking Methods with Parameters</h2>
+<p>When you wish to use late binding to invoke a method requiring parameters, you will package up the
+arguments as a loosely typed array of objects. Recall that version 2.0.0.0 of CarLibrary.dll defined the
+following method in the Car class:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">void</span> TurnOnRadio(<span class="kwrd">bool</span> musicOn, MusicMedia mm)
+{
+    <span class="kwrd">if</span> (musicOn)
+        MessageBox.Show(<span class="kwrd">string</span>.Format(<span class="str">"Jamming {0}"</span>, mm));
+    <span class="kwrd">else</span>
+        MessageBox.Show(<span class="str">"Quiet time..."</span>);
+}</pre>
+<p>This method takes two parameters: a Boolean representing if the automobile’s music system should
+be turned on or off, and an enum which represents the type of music player. Recall this enum was
+structured as so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">enum</span> MusicMedia
+{
+    musicCd, <span class="rem">// 0</span>
+    musicTape, <span class="rem">// 1</span>
+    musicRadio, <span class="rem">// 2</span>
+    musicMp3 <span class="rem">// 3</span>
+}</pre>
+<p>Here is a new method of the Program class, which invokes TurnOnRadio(). Notice that you are using
+the underlying numerical values of the MusicMedia enumeration, to specify a “radio” media player.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> InvokeMethodWithArgsUsingLateBinding(Assembly asm)
+{
+    <span class="kwrd">try</span>
+    {
+        <span class="rem">// First, get a metadata description of the sports car.</span>
+        Type sport = asm.GetType(<span class="str">"CarLibrary.SportsCar"</span>);
+
+        <span class="rem">// Now, create the sports car.</span>
+        <span class="kwrd">object</span> obj = Activator.CreateInstance(sport);
+
+        <span class="rem">// Invoke TurnOnRadio() with arguments.</span>
+        MethodInfo mi = sport.GetMethod(<span class="str">"TurnOnRadio"</span>);
+        mi.Invoke(obj, <span class="kwrd">new</span> <span class="kwrd">object</span>[] { <span class="kwrd">true</span>, 2 });
+    }
+    <span class="kwrd">catch</span> (Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+}</pre>
+<p>Hopefully, at this point, you can see the relationships among reflection, dynamic loading, and late
+binding. To be sure, the reflection API provides many additional features beyond what has been covered
+here, but you should be in good shape to dig into more details if you are interested.</p>
+<p>Again, you still may wonder exactly when you might make use of these techniques in your own
+applications. The conclusion of this chapter should shed light on this question; however, the next topic
+under investigation is the role of .NET attributes.</p>
+<p><b>Source Code</b> The LateBindingApp project is included in the Chapter 15 subdirectory.</p>
+    </body>
+    </html>     
+      
+   

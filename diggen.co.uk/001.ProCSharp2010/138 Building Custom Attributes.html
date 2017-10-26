@@ -1,0 +1,124 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Building Custom Attributes</h1>
+<p>The first step in building a custom attribute is to create a new class deriving from System.Attribute.
+Keeping in step with the automobile theme used throughout this book, assume you have created a brand
+new C# Class Library project named AttributedCarLibrary. This assembly will define a handful of
+vehicles, each of which is described using a custom attribute named VehicleDescriptionAttribute:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// A custom attribute.</span>
+<span class="kwrd">public</span> <span class="kwrd">sealed</span> <span class="kwrd">class</span> VehicleDescriptionAttribute : System.Attribute
+{
+    <span class="kwrd">public</span> <span class="kwrd">string</span> Description { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+
+    <span class="kwrd">public</span> VehicleDescriptionAttribute(<span class="kwrd">string</span> vehicalDescription)
+    {
+        Description = vehicalDescription;
+    }
+    <span class="kwrd">public</span> VehicleDescriptionAttribute(){ }
+}</pre>
+<p>As you can see, VehicleDescriptionAttribute maintains a piece of string data manipulated using an
+automatic property (Description). Beyond the fact that this class derived from System.Attribute, there
+is nothing unique to this class definition.</p>
+<p><b>Note</b> For security reasons, it is considered a .NET best practice to design all custom attributes as sealed. In
+fact, Visual Studio 2010 provides a code snippet named Attribute that will dump out a new
+System.Attribute-derived class into your code window. See Chapter 2 for an explication of using code
+snippets.</p>
+<h2>Applying Custom Attributes</h2>
+<p>Given that VehicleDescriptionAttribute is derived from System.Attribute, you are now able to
+annotate your vehicles as you see fit. For testing purposes, add the following class definitions to your
+new class library:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Assign description using a "named property."</span>
+[Serializable]
+[VehicleDescription(Description = <span class="str">"My rocking Harley"</span>)]
+<span class="kwrd">public</span> <span class="kwrd">class</span> Motorcycle
+{
+}
+
+[SerializableAttribute]
+[ObsoleteAttribute(<span class="str">"Use another vehicle!"</span>)]
+[VehicleDescription(<span class="str">"The old gray mare, she ain't what she used to be..."</span>)]
+<span class="kwrd">public</span> <span class="kwrd">class</span> HorseAndBuggy
+{
+}
+
+[VehicleDescription(<span class="str">"A very long, slow, but feature-rich auto"</span>)]
+<span class="kwrd">public</span> <span class="kwrd">class</span> Winnebago
+{
+}</pre>
+<h2>Named Property Syntax</h2>
+<p>Notice that the description of the Motorcycle is assigned a description using a new bit of attributecentric
+syntax termed a named property. In the constructor of the first [VehicleDescription] attribute,
+you set the underlying string data by using the Description property. If this attribute is reflected upon
+by an external agent, the value is fed into the Description property (named property syntax is legal only
+if the attribute supplies a writable .NET property).</p>
+<p>In contrast, the HorseAndBuggy and Winnebago types are not making use of named property syntax
+and are simply passing the string data via the custom constructor. In any case, once you compile the
+AttributedCarLibrary assembly, you can make use of ildasm.exe to view the injected metadata
+descriptions for your type. For example, Figure 15-5 shows an embedded description of the Winnebago
+class, specifically the data within the beforefieldinit item in ildasm.exe.</p>
+<img src="http://www.diggen.co.uk/Images/Figure15_05.png" alt="Figure 15-5" />
+<p><b>Figure 15-5</b> Embedded vehicle description data</p>
+<h2>Restricting Attribute Usage</h2>
+<p>By default, custom attributes can be applied to just about any aspect of your code (methods, classes,
+properties, and so on). Thus, if it made sense to do so, you could use VehicleDescription to qualify
+methods, properties, or fields (among other things):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+[VehicleDescription(<span class="str">"A very long, slow, but feature-rich auto"</span>)]
+<span class="kwrd">public</span> <span class="kwrd">class</span> Winnebago
+{
+    [VehicleDescription(<span class="str">"My rocking CD player"</span>)]
+    <span class="kwrd">public</span> <span class="kwrd">void</span> PlayMusic(<span class="kwrd">bool</span> On)
+    {
+        ...
+    }
+}</pre>
+<p>In some cases, this is exactly the behavior you require. Other times, however, you may want to build
+a custom attribute that can be applied only to select code elements. If you wish to constrain the scope of
+a custom attribute, you will need to apply the [AttributeUsage] attribute on the definition of your
+custom attribute. The [AttributeUsage] attribute allows you to supply any -combination of values (via
+an OR operation) from the AttributeTargets enumeration:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This enumeration defines the possible targets of an attribute.</span>
+<span class="kwrd">public</span> <span class="kwrd">enum</span> AttributeTargets
+{
+    All, Assembly, Class, Constructor,
+    Delegate, Enum, Event, Field, GenericParameter,
+    Interface, Method, Module, Parameter,
+    Property, ReturnValue, Struct
+}</pre>
+<p>Furthermore, [AttributeUsage] also allows you to optionally set a named property (AllowMultiple)
+that specifies whether the attribute can be applied more than once on the same item (the default is
+false). As well, [AttributeUsage] allows you to establish whether the attribute should be inherited by
+derived classes using the Inherited named property (the default is true).</p>
+<p>To establish that the [VehicleDescription] attribute can be applied only once on a class or
+structure, you can update the VehicleDescriptionAttribute definition as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This time, we are using the AttributeUsage attribute</span>
+<span class="rem">// to annotate our custom attribute.</span>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct,
+    Inherited = <span class="kwrd">false</span>)]
+<span class="kwrd">public</span> <span class="kwrd">sealed</span> <span class="kwrd">class</span> VehicleDescriptionAttribute : System.Attribute
+{
+...
+}</pre>
+<p>With this, if a developer attempted to apply the [VehicleDescription] attribute on anything other
+than a class or structure, he or she is issued a compile-time error.</p>
+</body>
+    </html>
+     
+      
+   

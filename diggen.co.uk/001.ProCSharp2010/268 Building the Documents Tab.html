@@ -1,0 +1,265 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Building the Documents Tab</h1>
+<p>Click on the Documents tab of your TabItem and use the Blend editor to open this control for editing.
+You should already have a default &lt;Grid&gt; control as the direct child of the TabItem control; however,
+change it to a StackPanel here using the Objects and Timeline window. This tab will display a
+FlowDocument that allows the user to highlight selected text, as well as add annotations using the Sticky
+Notes API.</p>
+<p>Begin by defining the following ToolBar control, which has three simple (and unnamed!) Button
+controls. You will be rigging up a few new commands to these controls later on, so you do not need to
+refer to them in code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">TabItem</span> <span class="attr">x:Name</span><span class="kwrd">="tabDocuments"</span> <span class="attr">Header</span><span class="kwrd">="Documents"</span> <span class="attr">VerticalAlignment</span><span class="kwrd">="Bottom"</span>
+    <span class="attr">Height</span><span class="kwrd">="20"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">ToolBar</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">BorderBrush</span><span class="kwrd">="Green"</span> <span class="attr">Content</span><span class="kwrd">="Add Sticky Note"</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">BorderBrush</span><span class="kwrd">="Green"</span> <span class="attr">Content</span><span class="kwrd">="Delete Sticky Notes"</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">BorderBrush</span><span class="kwrd">="Green"</span> <span class="attr">Content</span><span class="kwrd">="Highlight Text"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">ToolBar</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">TabItem</span><span class="kwrd">&gt;</span></pre>
+    <p>Next, open the Assets Library and locate the FlowDocumentReader control from the All category of the
+Controls node. Place this control into your StackPanel, rename it to myDocumentReader, and stretch it out
+over the surface of your StackPanel (make sure you have clicked the Selection tool). At this point, your
+layout should look similar to what you see in Figure 28-40.</p>
+<img src="http://www.diggen.co.uk/Images/Figure28_40.png" alt="Figure 28-40" />
+<p><b>Figure 28-40</b> The layout of the Documents tab</p>
+<p>Now select your FlowDocumentReader control in the Objects and Timeline editor and locate the
+Miscellaneous category of the Properties window. Next, click the New button next to the Document
+property. Doing this updates your XAML with an empty &lt;FlowDocument&gt;:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">FlowDocumentReader</span> <span class="attr">x:Name</span><span class="kwrd">="myDocumentReader"</span> <span class="attr">Height</span><span class="kwrd">="269.4"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">FlowDocument</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">FlowDocumentReader</span><span class="kwrd">&gt;</span></pre>
+<p>At this point, you can add document classes (e.g., List, Paragraph, Section, Table, LineBreak, Figure,
+Floater, and Span) to the element.</p>
+<h2>Populating a FlowDocument using Blend</h2>
+<p>As soon as you add a new document to a document container, the Document property in the Properties
+window becomes expandable, displaying a ton of new properties that allow you to build the design of
+your document. For this example, the only property you care about is the Blocks (Collection) property
+(see Figure 28-41).</p>
+<img src="http://www.diggen.co.uk/Images/Figure28_41.png" alt="Figure 28-41" />
+<p><b>Figure 28-41</b> You can populate a FlowDocument using the Blocks (Collection) property</p>
+<p>Click the ellipse button (...) to the right of Blocks (Collection), and then use the Add another
+item button of the resulting dialog box to insert a Section, List, and Paragraph. You can edit each one of
+these further using the Blocks editor; furthermore, a given block can contain related sub-blocks. For
+example, if you select your Section, you can add a Paragraph sub-block. In my case, I configured my
+Section with a specific background color, foreground color, and font size. I also inserted a sub-
+Paragraph.</p>
+<p>Go ahead and configure your Section as you wish; however, leave the List and original Paragraph
+empty because you will drive these through code. Here is one possible way to configure the
+FlowDocument:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">FlowDocumentReader</span> <span class="attr">x:Name</span><span class="kwrd">="myDocumentReader"</span> <span class="attr">Height</span><span class="kwrd">="269.4"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">FlowDocument</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Section</span> <span class="attr">Foreground</span> = <span class="kwrd">"Yellow"</span> <span class="attr">Background</span> = <span class="kwrd">"Black"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Paragraph</span> <span class="attr">FontSize</span> = <span class="kwrd">"20"</span><span class="kwrd">&gt;</span>
+                Here are some fun facts about the WPF Document API!
+            <span class="kwrd">&lt;/</span><span class="html">Paragraph</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">Section</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">List</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Paragraph</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">FlowDocument</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">FlowDocumentReader</span><span class="kwrd">&gt;</span></pre>
+<p>If you run your program now (hit the F5 key), you should already be able to zoom your document
+(using the lower-right slider bar), search for a keyword (using the lower-left search editor) and display
+the data in one of three manners (using the layout buttons). Figure 28-42 shows a search for the text
+WPF; note too that the content shown in this figure has been zoomed in on.</p>
+<img src="http://www.diggen.co.uk/Images/Figure28_42.png" alt="Figure 28-42" />
+<p><b>Figure 28-42</b> Manipulating the FlowDocument with the FlowDocumentReader</p>
+<p>Before moving to the next step, you might want to edit your XAML to use a different FlowDocument
+container, such as the FlowDocumentScrollViewer or a RichTextBox, rather than the FlowDocumentReader.
+Once you done this, run the application again and notice the different ways the document data is
+handled. Be sure to roll back to the FlowDocumentReader type when you finish this task.</p>
+<h2>Populating a FlowDocument Using Code</h2>
+<p>Now, let’s build the List block and the remaining Paragraph block in code. This is important because
+you might need to populate a FlowDocument based on user input, external files, database information, or
+what have you. Before you do so, use the XAML editor of Blend to give the List and Paragraph elements
+proper names, so you can access them in code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">List</span> <span class="attr">x:Name</span><span class="kwrd">="listOfFunFacts"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Paragraph</span> <span class="attr">x:Name</span><span class="kwrd">="paraBodyText"</span><span class="kwrd">/&gt;</span></pre>
+    <p>In your code file, define a new private method named PopulateDocument(). This method first adds a
+set of new ListItems to the List, each of which has a Paragraph with a single Run. Also, your helper
+method dynamically builds a formatted paragraph using three separate Run objects, as in the following
+example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> PopulateDocument()
+{
+    <span class="rem">// Add some data to the List item.</span>
+    <span class="kwrd">this</span>.listOfFunFacts.FontSize = 14;
+    <span class="kwrd">this</span>.listOfFunFacts.MarkerStyle = TextMarkerStyle.Circle;
+    <span class="kwrd">this</span>.listOfFunFacts.ListItems.Add(<span class="kwrd">new</span> ListItem( <span class="kwrd">new</span>
+        Paragraph(<span class="kwrd">new</span> Run(<span class="str">"Fixed documents are for WYSIWYG print ready docs!"</span>))));
+    <span class="kwrd">this</span>.listOfFunFacts.ListItems.Add(<span class="kwrd">new</span> ListItem(
+        <span class="kwrd">new</span> Paragraph(<span class="kwrd">new</span> Run(<span class="str">"The API supports tables and embedded figures!"</span>))));
+    <span class="kwrd">this</span>.listOfFunFacts.ListItems.Add(<span class="kwrd">new</span> ListItem(
+        <span class="kwrd">new</span> Paragraph(<span class="kwrd">new</span> Run(<span class="str">"Flow documents are read only!"</span>))));
+    <span class="kwrd">this</span>.listOfFunFacts.ListItems.Add(<span class="kwrd">new</span> ListItem(<span class="kwrd">new</span> Paragraph(<span class="kwrd">new</span> Run
+        (<span class="str">"BlockUIContainer allows you to embed WPF controls in the document!"</span>)
+        )));
+
+    <span class="rem">// Now add some data to the Paragraph.</span>
+    <span class="rem">// First part of sentence.</span>
+    Run prefix = <span class="kwrd">new</span> Run(<span class="str">"This paragraph was generated "</span>);
+
+    <span class="rem">// Middle of paragraph.</span>
+    Bold b = <span class="kwrd">new</span> Bold();
+    Run infix = <span class="kwrd">new</span> Run(<span class="str">"dynamically"</span>);
+    infix.Foreground = Brushes.Red;
+    infix.FontSize = 30;
+    b.Inlines.Add(infix);
+
+    <span class="rem">// Last part of paragraph.</span>
+    Run suffix = <span class="kwrd">new</span> Run(<span class="str">" at runtime!"</span>);
+
+    <span class="rem">// Now add each piece to the collection of inline elements</span>
+    <span class="rem">// of the Paragraph.</span>
+    <span class="kwrd">this</span>.paraBodyText.Inlines.Add(prefix);
+    <span class="kwrd">this</span>.paraBodyText.Inlines.Add(infix);
+    <span class="kwrd">this</span>.paraBodyText.Inlines.Add(suffix);
+}</pre>
+<p>Make sure you call this method from your window’s constructor. Once you do this, you can run the
+application and see your new, dynamically generated document content.</p>
+<h2>Enabling Annotations and Sticky Notes</h2>
+<p>So far, so good. You can now build a document with interesting data using XAML and C# code; however,
+you still need to address the three buttons on your toolbar for the Documents tab. WPF ships with a set
+of commands that are used specifically with the Documents API. You can use these commands to allow
+the user to select a part of a document for highlighting or to add sticky note annotations. Best of all, you
+can add all of this with a few lines of code (and a tad of markup).</p>
+<p>You can find the command objects for the Documents API bundled in the
+System.Windows.Annotations namespace of PresentationFramework.dll. Thus, you need to define a
+custom XML namespace in the opening element of the &lt;Window&gt; to use such objects in XAML (notice
+that the tag prefix is a):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span>
+...
+    <span class="attr">xmlns:a</span>=
+    <span class="kwrd">"clr-namespace:System.Windows.Annotations;assembly=PresentationFramework"</span>
+    <span class="attr">x:Class</span><span class="kwrd">="WpfControlsAndAPIs.MainWindow"</span>
+    <span class="attr">x:Name</span><span class="kwrd">="Window"</span>
+    <span class="attr">Title</span><span class="kwrd">="MainWindow"</span>
+    <span class="attr">Width</span><span class="kwrd">="856"</span> <span class="attr">Height</span><span class="kwrd">="383"</span> <span class="attr">mc:Ignorable</span><span class="kwrd">="d"</span>
+    <span class="attr">WindowStartupLocation</span><span class="kwrd">="CenterScreen"</span> <span class="kwrd">&gt;</span>
+...
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+<p>Now update your three &lt;Button&gt; definitions to set the Command property to three of the supplied
+annotation commands:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">ToolBar</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">BorderBrush</span><span class="kwrd">="Green"</span> <span class="attr">Content</span><span class="kwrd">="Add Sticky Note"</span>
+        <span class="attr">Command</span><span class="kwrd">="a:AnnotationService.CreateTextStickyNoteCommand"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">BorderBrush</span><span class="kwrd">="Green"</span> <span class="attr">Content</span><span class="kwrd">="Delete Sticky Notes"</span>
+        <span class="attr">Command</span><span class="kwrd">="a:AnnotationService.DeleteStickyNotesCommand"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">BorderBrush</span><span class="kwrd">="Green"</span> <span class="attr">Content</span><span class="kwrd">="Highlight Text"</span>
+        <span class="attr">Command</span><span class="kwrd">="a:AnnotationService.CreateHighlightCommand"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">ToolBar</span><span class="kwrd">&gt;</span></pre>
+    <p>The last thing you need to do is to enable annotation services for the FlowDocumentReader object,
+which you named myDocumentReader. Add another private method in your class named
+EnableAnnotations(), which is called from the constructor of the window. Now import the following
+namespaces:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System.Windows.Annotations;
+<span class="kwrd">using</span> System.Windows.Annotations.Storage;</pre>
+<p>Next, implement this method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+{
+    <span class="rem">// Create the AnnotationService object that works</span>
+    <span class="rem">// with our FlowDocumentReader.</span>
+    AnnotationService anoService = <span class="kwrd">new</span> AnnotationService(myDocumentReader);
+
+    <span class="rem">// Create a MemoryStream which will hold the annotations.</span>
+    MemoryStream anoStream = <span class="kwrd">new</span> MemoryStream();
+
+    <span class="rem">// Now, create a XML-based store based on the MemoryStream.</span>
+    <span class="rem">// You could use this object to programmatically add, delete</span>
+    <span class="rem">// or find annotations.</span>
+    AnnotationStore store = <span class="kwrd">new</span> XmlStreamStore(anoStream);
+    
+    <span class="rem">// Enable the annotation services.</span>
+    anoService.Enable(store);
+}</pre>
+<p>The AnnotationService class allows a given document layout manger to opt in to annotation
+support. Before you call the Enable() method of this object, you need to provide a location for the object
+to store annotation data, which in this example is a chunk of memory represented by a MemoryStream
+object. Notice that you connect the AnnotationService object with the Stream using the AnnotationStore.</p>
+<p>Now, run your application. When you select some text, you can click the Add Sticky Note button and
+type in some information. Also, when you select some text, you can highlight data (the color is yellow by
+default). Finally, you can delete created notes once you select them and click the Delete Sticky Note
+button. Figure 28-43 shows a test run.</p>
+<img src="http://www.diggen.co.uk/Images/Figure28_43.png" alt="Figure 28-43" />
+<p><b>Figure 28-43</b> Sticky notes!</p>
+<h2>Saving and Loading a Flow Document</h2>
+<p>Let’s wrap up this look at the Documents API by looking at how simple it is to save a document out to a
+file, as well as read a document in from a file. Recall that, unless you wrap your FlowDocument object in a
+RichTextBox, the end user cannot edit the document; however, part of the document was created
+dynamically at runtime, so you might like to save it for later use. The ability to load an XPS style
+document could also be useful in many WPF applications because you might wish to define a blank
+document and load it all on the fly.</p>
+<p>This next snippet assumes you will add two new Buttons to the Toolbar of the Documents tab,
+which you declare like this (note that you did not handle any events in your markup):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnSaveDoc"</span> <span class="attr">HorizontalAlignment</span><span class="kwrd">="Stretch"</span>
+    <span class="attr">VerticalAlignment</span><span class="kwrd">="Stretch"</span> <span class="attr">Width</span><span class="kwrd">="75"</span> <span class="attr">Content</span><span class="kwrd">="Save Doc"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnLoadDoc"</span> <span class="attr">HorizontalAlignment</span><span class="kwrd">="Stretch"</span>
+    <span class="attr">VerticalAlignment</span><span class="kwrd">="Stretch"</span> <span class="attr">Width</span><span class="kwrd">="75"</span> <span class="attr">Content</span><span class="kwrd">="Load Doc"</span><span class="kwrd">/&gt;</span></pre>
+ <p>Now, in the constructor of your window, author the following lambda expressions to save and load
+the FlowDocument data (you’ll need to import the System.Windows.Markup namespace to gain access to the
+XamlReader and XamlWriter classes):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> MainWindow()
+{
+...
+    <span class="rem">// Rig up some Click handlers for the save / load of the flow doc.</span>
+    btnSaveDoc.Click += (o, s) =&gt;
+    {
+        <span class="kwrd">using</span>(FileStream fStream = File.Open(
+            <span class="str">"documentData.xaml"</span>, FileMode.Create))
+        {
+            XamlWriter.Save(<span class="kwrd">this</span>.myDocumentReader.Document, fStream);
+        }
+    };
+
+    btnLoadDoc.Click += (o, s) =&gt;
+    {
+        <span class="kwrd">using</span>(FileStream fStream = File.Open(<span class="str">"documentData.xaml"</span>, FileMode.Open))
+        {
+            <span class="kwrd">try</span>
+            {
+                FlowDocument doc = XamlReader.Load(fStream) <span class="kwrd">as</span> FlowDocument;
+                <span class="kwrd">this</span>.myDocumentReader.Document = doc;
+            }
+            <span class="kwrd">catch</span>(Exception ex) {MessageBox.Show(ex.Message, <span class="str">"Error Loading Doc!"</span>);}
+        }
+    };
+}</pre>
+<p>That is all you need to do to save the document (note that you did not save any annotations;
+however, you can also accomplish that using annotation services). If you click your Save button, you will
+see a new *.xaml file in your \bin\Debug folder. This file contains the current document data.</p>
+<p>That wraps up your look at the WPF Documents API. To be sure, there is more to this API than you
+have seen here; but at this point, you know a good deal about the basics. To wrap up this chapter, you
+will look at a handful of data-binding topics and complete the current application.</p>
+    </body></html>
+   
+      
+   

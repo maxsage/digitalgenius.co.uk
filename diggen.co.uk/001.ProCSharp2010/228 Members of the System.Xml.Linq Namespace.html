@@ -1,0 +1,278 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Members of the System.Xml.Linq Namespace</h1>
+<p>Somewhat surprisingly, the core LINQ to XML assembly (System.Xml.Linq.dll) defines a very small
+number of types in three distinct namespaces, specifically System.Xml.Linq, System.Xml.Schema, and
+System.Xml.XPath (see Figure 24-2).</p>
+<img src="http://www.diggen.co.uk/Images/Figure24_02.png" alt="Figure 24-2" />
+<p><b>Figure 24-2</b> The namespaces of System.Xml.Linq.dll</p>
+<p>The core namespace, System.Xml.Linq, contains a very manageable set of classes that represent
+various aspects of an XML document (its elements and their attributes, XML namespaces, XML
+comments, and processing instructions, etc.). Table 24-1 documents the core members of
+System.Xml.Linq.</p>
+<p><b>Table 24-1.</b> Select Members of the System.Xml.Linq Namespace</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Member of System.Xml.Linq
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    XAttribute
+   </td>
+   <td>
+    Represents an XML attribute on a given XML element.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    XCData
+   </td>
+   <td>
+    Represents a CDATA section in the XML document. Information in a
+CDATA section represents data in an XML document which must be
+included, but does not conform to the rules of XML grammars (for
+example, script code).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    XComment
+   </td>
+   <td>
+    Represents an XML comment.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    XDeclaration
+   </td>
+   <td>
+    Represents the opening declaration of an XML document.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    XDocument
+   </td>
+   <td>
+    Represents the entirety of an XML document.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    XElement
+   </td>
+   <td>
+    Represents a given element within an XML document, including the
+root element.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    XName
+   </td>
+   <td>
+    Represents the name of an XML element or XML attribute.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    XNamespace
+   </td>
+   <td>
+    Represents an XML namespace.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    XNode
+   </td>
+   <td>
+    Represents the abstract concept of a node (element, comment,
+document type, processing instruction, or text node) in the XML tree.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    XProcessingInstruction
+   </td>
+   <td>
+    Represents an XML processing instruction.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    XStreamingElement
+   </td>
+   <td>
+    Represents elements in an XML tree that supports deferred streaming
+output.
+   </td>
+  </tr>
+</table>
+<p>Figure 24-3 shows how the inheritance chain of the key class types.</p>
+<img src="http://www.diggen.co.uk/Images/Figure24_03.png" alt="Figure 24-3" />
+<p><b>Figure 24-3</b> The LINQ to XML core class hierarchy</p>
+<h2>The LINQ to XML Axis Methods</h2>
+<p>In addition to the X* classes, System.Xml.Linq defines a class named Extensions, which (of course)
+defines a set of extension methods which typically extend IEnumerable&lt;T&gt;, where T is some descendent
+of XNode or XContainer. Table 24-2 documents some of the important extension methods to be aware of
+(as you will see, these are very useful when you wish to work with LINQ queries).</p>
+<p><b>Table 24-2.</b> Select Members of the LINQ to XML Extensions Class</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Member of Extensions
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Ancestors&lt;T&gt;()
+   </td>
+   <td>
+    Returns a filtered collection of elements that contains the ancestors of
+every node in the source collection.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Attributes()
+   </td>
+   <td>
+    Returns a filtered collection of the attributes of every element in the
+source collection.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DescendantNodes&lt;T&gt;()
+   </td>
+   <td>
+    Returns a collection of the descendant nodes of every document and
+element in the source collection.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Descendants&lt;T&gt;
+   </td>
+   <td>
+    Returns a filtered collection of elements that contains the descendant
+elements of every element and document in the source collection.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Elements&lt;T&gt;
+   </td>
+   <td>
+    Returns a collection of the child elements of every element and
+document in the source collection.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Nodes&lt;T&gt;
+   </td>
+   <td>
+    Returns a collection of the child nodes of every document and
+element in the source collection.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Remove()
+   </td>
+   <td>
+    Removes every attribute in the source collection from its parent
+element.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Remove&lt;T&gt;()
+   </td>
+   <td>
+    Removes all occurrences of a given node from the source collection.
+   </td>
+  </tr>
+</table>
+<p>As you can tell from their names, these methods allow query a loaded XML tree to find elements,
+attributes, and their values. Collectively, these methods are termed axis methods, or simply axes. You can
+apply these methods directly to parts of a tree of nodes, or use them to build more elaborate LINQ
+queries.</p>
+<p><b>Note</b> The abstract XContainer class support a number of methods which are identically named to the members
+of Extensions. XContainer is the parent to both XElement and XDocument, and therefore they both support the
+same overall functionality.</p>
+<p>You’ll see examples of using some of these axis methods over the chapter. However, here is a quick
+example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> DeleteNodeFromDoc()
+{
+    XElement doc =
+        <span class="kwrd">new</span> XElement(<span class="str">"Inventory"</span>,
+            <span class="kwrd">new</span> XElement(<span class="str">"Car"</span>, <span class="kwrd">new</span> XAttribute(<span class="str">"ID"</span>, <span class="str">"1000"</span>),
+                <span class="kwrd">new</span> XElement(<span class="str">"PetName"</span>, <span class="str">"Jimbo"</span>),
+                <span class="kwrd">new</span> XElement(<span class="str">"Color"</span>, <span class="str">"Red"</span>),
+                <span class="kwrd">new</span> XElement(<span class="str">"Make"</span>, <span class="str">"Ford"</span>)
+            )
+        );
+
+        <span class="rem">// Delete the PetName element from the tree.</span>
+        doc.Descendants(<span class="str">"PetName"</span>).Remove();
+        Console.WriteLine(doc);
+}</pre>
+<p>If you invoke this method, you’d see the following “pruned” XML tree:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Inventory</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Car</span> <span class="attr">ID</span><span class="kwrd">="1000"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Color</span><span class="kwrd">&gt;</span>Red<span class="kwrd">&lt;/</span><span class="html">Color</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Make</span><span class="kwrd">&gt;</span>Ford<span class="kwrd">&lt;/</span><span class="html">Make</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Car</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Inventory</span><span class="kwrd">&gt;</span></pre>
+<h2>The Oddness of XName (and XNamespace)</h2>
+<p>If you examine the signatures of the LINQ to XML axis methods (or the identically named members of
+XContainer), you’ll notice that they typically require you to specify what looks to be an XName object.
+Consider the signature of the Desendants() method defined by XContainer:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> IEnumerable&lt;XElement&gt; Descendants(XName name)</pre>
+<p>XName is “odd” in that you will never really directly make use of it in your code. In fact, since this
+class has no public constructor, you cannot make an XName object:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Error! Can't make XName objects!</span>
+doc.Descendants(<span class="kwrd">new</span> XName(<span class="str">"PetName"</span>)).Remove();</pre>
+<p>If you were to view the formal definition of XName, you will see that this class defines a custom
+implicit conversion operator (see Chapter 12 for information of defining custom conversion operators),
+which will map a simple System.String to the correct XName object:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// We really make an XName in the background!</span>
+doc.Descendants(<span class="str">"PetName"</span>).Remove();</pre>
+<p><b>Note</b> The XNamespace class also supports the same flavor of implicit string conversion.</p>
+<p>The good news is that you can use textual values to represent the names of elements or attributes
+when you work with these axis methods, and allow the LINQ to XML API to map your string data to the
+necessary object types.</p>
+    <p><b>Source Code</b> The LinqToXmlFirstLook example can be found under the Chapter 24 subdirectory.</p>
+    </body>
+    </html>
+   
+

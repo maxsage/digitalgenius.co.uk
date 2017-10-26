@@ -1,0 +1,43 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>System-Level Exceptions (System.SystemException)</h1>
+  <p>The .NET base class libraries define many classes that ultimately derive from System.Exception. For
+example, the System namespace defines core exception objects such as ArgumentOutOfRangeException,
+IndexOutOfRangeException, StackOverflowException, and so forth. Other namespaces define exceptions
+that reflect the behavior of that namespace. For example, System.Drawing.Printing defines printing
+exceptions, System.IO defines input/output-based exceptions, System.Data defines database-centric
+exceptions, and so forth.</p>
+<p>Exceptions that are thrown by the .NET platform are (appropriately) called system exceptions. These
+exceptions are regarded as non-recoverable, fatal errors. System exceptions derive directly from a base
+class named System.SystemException, which in turn derives from System.Exception (which derives from
+System.Object):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> SystemException : Exception
+{
+    <span class="rem">// Various constructors.</span>
+}
+</pre>
+<p>Given that the System.SystemException type does not add any additional functionality beyond a set
+of custom constructors, you might wonder why SystemException exists in the first place. Simply put,
+when an exception type derives from System.SystemException, you are able to determine that the .NET
+runtime is the entity that has thrown the exception, rather than the code base of the executing
+application. You can verify this quite simply using the is kis keyword:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// True! NullReferenceException is-a SystemException.</span>
+NullReferenceException nullRefEx = <span class="kwrd">new</span> NullReferenceException();
+
+Console.WriteLine(<span class="str">"NullReferenceException is-a SystemException? : {0}"</span>,
+    nullRefEx <span class="kwrd">is</span> SystemException);</pre>
+ </body>
+    </html>
+   
+

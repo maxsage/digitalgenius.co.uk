@@ -1,0 +1,258 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Programming with LINQ to DataSet</h1>
+<p>You have seen in this chapter that you can manipulate the data within a DataSet in three distinct
+manners:</p>
+<ul>
+ <li>By using the Tables, Rows, and Columns collections</li>
+ <li>By using data table readers </li>
+ <li>By using strongly typed data classes</li>
+</ul>
+<p>When you use the various indexers of the DataSet and DataTable type, you can interact with the
+contained data in a straightforward but loosely typed manner. Recall that this approach requires you to
+treat the data as a tabular block of cells, as in this example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> PrintDataWithIndxers(DataTable dt)
+{
+    <span class="rem">// Print the DataTable.</span>
+    <span class="kwrd">for</span> (<span class="kwrd">int</span> curRow = 0; curRow &lt; dt.Rows.Count; curRow++)
+    {
+        <span class="kwrd">for</span> (<span class="kwrd">int</span> curCol = 0; curCol &lt; dt.Columns.Count; curCol++)
+        {
+            Console.Write(dt.Rows[curRow][curCol].ToString() + <span class="str">"\t"</span>);
+        }
+        Console.WriteLine();
+    }    
+}</pre>
+    <p>The CreateDataReader() method of the DataTable type offers a second approach, where you can
+treat the data in the DataSet as a linear set of rows to be processed in a sequential manner. This allows
+you to apply a connected data reader programming model to a disconnected DataSet:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> PrintDataWithDataTableReader(DataTable dt)
+{
+    <span class="rem">// Get the DataTableReader type.</span>
+    DataTableReader dtReader = dt.CreateDataReader();
+    while (dtReader.Read())
+    {
+        <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; dtReader.FieldCount; i++)
+        {
+            Console.Write(<span class="str">"{0}\t"</span>, dtReader.GetValue(i));
+        }
+        Console.WriteLine();
+    }
+    dtReader.Close();
+}</pre>
+<p>Finally, you can use a strongly typed DataSet to yield a code base that allows you to interact with
+data in the object using properties that map to the column names in the relational database. Using
+strongly typed objects allows you to author code such as the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> AddRowWithTypedDataSet()
+{
+    InventoryTableAdapter invDA = <span class="kwrd">new</span> InventoryTableAdapter();
+    AutoLotDataSet.InventoryDataTable inv = invDA.GetData();
+    inv.AddInventoryRow(999, <span class="str">"Ford"</span>, <span class="str">"Yellow"</span>, <span class="str">"Sal"</span>);
+    invDA.Update(inv);
+}</pre>
+<p>While all of these approaches have their place, the LINQ to DataSet API provides yet another option
+to manipulate DataSet data using LINQ query expressions.</p>
+<p><b>Note</b> You only use the LINQ to DataSet to apply LINQ queries to DataSet objects returned by a data adapter, but
+this has nothing to do with applying LINQ queries directly to the database engine itself. Chapter 23 will introduce
+you to LINQ to Entities and the ADO.NET Entity Framework, which provide a way to represent SQL queries as LINQ
+queries.</p>
+<p>Out of the box, the ADO.NET DataSet (and related types such as DataTable and DataView) do not
+have the necessary infrastructure to be a direct target for a LINQ query. For example, the following
+method (which uses types in the AutoLotDisconnectedLayer namespace) results in a compile-time error:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> LinqOverDataTable()
+{
+    <span class="rem">// Get a DataTable of data.</span>
+    InventoryDALDisLayer dal = <span class="kwrd">new</span> InventoryDALDisLayer(
+        <span class="str">@"Data Source=(local)\SQLEXPRESS;"</span> +
+        <span class="str">"Initial Catalog=AutoLot;Integrated Security=True"</span>);
+    DataTable data = dal.GetAllInventory();
+
+    <span class="rem">// Apply a LINQ query to the DataSet?</span>
+    <span class="kwrd">var</span> moreData = <span class="kwrd">from</span> c <span class="kwrd">in</span> data where (<span class="kwrd">int</span>)c[<span class="str">"CarID"</span>] &gt; 5 select c;
+}</pre>
+<p>If you were to compile the LinqOverDataTable() method, the compiler would inform you that the
+DataTable type provides a query pattern implementation. Similar to the process of applying LINQ queries
+to objects that do not implement IEnumerable&lt;T&gt;, ADO.NET objects must be transformed into a
+compatible type. To understand how to do so requires examining the types of
+System.Data.DataSetExtensions.dll.</p>
+<h2>The Role of the DataSet Extensions Library</h2>
+<p>The System.Data.DataSetExtensions.dll assembly, which is referenced by default in all Visual Studio
+2010 projects, augments the System.Data namespace with a handful of new types (see Figure 22-27).</p>
+<img src="http://www.diggen.co.uk/Images/Figure22_27.png" alt="Figure 22-7" />
+<p><b>Figure 22-27</b> The System.Data.DataSetExtensions.dll assembly</p>
+<p>The two most useful types by far are DataTableExtensions and DataRowExtensions. These classes
+extend the functionality of DataTable and DataRow by using a set of extension methods (see Chapter 12).
+The other key class is TypedTableBaseExtensions, which defines extension methods that you can apply to
+strongly typed DataSet objects to make the internal DataTable objects LINQ aware. All of the remaining
+members within the System.Data.DataSetExtensions.dll assembly are pure infrastructure, and they are
+not intended to be used directly in your code base.</p>
+<h2>Obtaining a LINQ-Compatible DataTable</h2>
+<p>Now let’s look at how you use the DataSet extensions. Assume you have a new C# Console Application
+named LinqToDataSetApp. Add a reference to the latest and greatest version (3.0.0.0) of the
+AutoLotDAL.dll assembly and update your initial code file with the following logic:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System;
+<span class="kwrd">using</span> System.Data;
+
+<span class="rem">// Location of strongly typed data containers.</span>
+<span class="kwrd">using</span> AutoLotDAL;
+
+<span class="rem">// Location of strongly typed data adapters.</span>
+<span class="kwrd">using</span> AutoLotDAL.AutoLotDataSetTableAdapters;
+
+<span class="kwrd">namespace</span> LinqToDataSetApp
+{
+    <span class="kwrd">class</span> Program
+    {
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            Console.WriteLine(<span class="str">"***** LINQ over DataSet *****\n"</span>);
+    
+            <span class="rem">// Get a strongly typed DataTable containing the current Inventory</span>
+            <span class="rem">// of the AutoLot database.</span>
+            
+            AutoLotDataSet dal = <span class="kwrd">new</span> AutoLotDataSet();
+            InventoryTableAdapter da = <span class="kwrd">new</span> InventoryTableAdapter();
+            AutoLotDataSet.InventoryDataTable data = da.GetData();
+
+            <span class="rem">// Invoke the methods that follow here!</span>
+    
+            Console.ReadLine();
+        }
+    }
+}</pre>
+<p>When you wish to transform an ADO.NET DataTable (including a strongly typed DataTable) into a
+LINQ-compatible object, you must call the AsEnumerable() extension method defined by the
+DataTableExtensions type. This returns an EnumerableRowCollection object that contains a collection of
+DataRows.</p>
+<p>You can then use the EnumerableRowCollection type to operate on each row using basic DataRow
+syntax (e.g, indexer syntax). Consider the following new method of your Program class, which takes a
+strongly typed DataTable, obtains an enumerable copy of the data, and prints out each CarID value:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> PrintAllCarIDs(DataTable data)
+{
+    <span class="rem">// Get enumerable version of DataTable.</span>
+    EnumerableRowCollection enumData = data.AsEnumerable();
+
+    <span class="rem">// Print the car ID values.</span>
+    <span class="kwrd">foreach</span> (DataRow r <span class="kwrd">in</span> enumData)
+    Console.WriteLine(<span class="str">"Car ID = {0}"</span>, r[<span class="str">"CarID"</span>]);
+}</pre>
+<p>At this point, you have not applied a LINQ query; however, the point here is that the enumData object
+can now be the target of a LINQ query expression. Again, notice that the EnumerableRowCollection
+contains a collection of DataRow objects because you are applying a type indexer against each sub-object
+to print out the value of the CarID column.</p>
+<p>In most cases, you do not need to declare a variable of type EnumerableRowCollection to hold the
+return value of AsEnumerable(). Rather, you can invoke this method from within the query expression
+itself. Here is a more interesting method of the Program class, which obtains a projection of CarID +
+Makes from all entries in the DataTable where the color is red (if you don’t have any red autos in your
+Inventory table, you update this LINQ query as necessary):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ShowRedCars(DataTable data)
+{
+    <span class="rem">// Project a new result set containing</span>
+    <span class="rem">// the ID/color for rows where Color = Red.</span>
+    <span class="kwrd">var</span> cars = <span class="kwrd">from</span> car <span class="kwrd">in</span> data.AsEnumerable()
+        where
+            (<span class="kwrd">string</span>)car[<span class="str">"Color"</span>] == <span class="str">"Red"</span>
+        select <span class="kwrd">new</span>
+        {
+            ID = (<span class="kwrd">int</span>)car[<span class="str">"CarID"</span>],
+            Make = (<span class="kwrd">string</span>)car[<span class="str">"Make"</span>]
+        };
+
+    Console.WriteLine(<span class="str">"Here are the red cars we have in stock:"</span>);
+    <span class="kwrd">foreach</span> (<span class="kwrd">var</span> item <span class="kwrd">in</span> cars)
+    {
+        Console.WriteLine(<span class="str">"-&gt; CarID = {0} is {1}"</span>, item.ID, item.Make);
+    }
+}</pre>
+<h2>The Role of the DataRowExtensions.Field&lt;T&gt;() Extension Method</h2>
+<p>One undesirable aspect of the current LINQ query expression is that you use numerous casting
+operations and DataRow indexers to gather the result set, which could result in runtime exceptions if you
+attempt to cast to an incompatible data type. To inject some strong typing into your query, you can use
+the Field&lt;T&gt;() extension method of the DataRow type. Doing so lets you increase the type safety of your
+query because the compatibility of data types is checked at compile time. Consider the following update:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+var cars = from car <span class="kwrd">in</span> data.AsEnumerable()
+    where
+        car.Field&lt;<span class="kwrd">string</span>&gt;(<span class="str">"Color"</span>) == <span class="str">"Red"</span>
+    <span class="kwrd">select</span> <span class="kwrd">new</span>
+    {
+        ID = car.Field&lt;int&gt;(<span class="str">"CarID"</span>),
+        Make = car.Field&lt;<span class="kwrd">string</span>&gt;(<span class="str">"Make"</span>)
+    };</pre>
+<p>In this case, you can invoke Field&lt;T&gt;() and specify a type parameter to represent the underlying
+data type of the column. As an argument to this method, you pass in the column name itself. Given the
+additional compile-time checking, you should consider it a best practice to use Field&lt;T&gt;() (rather than
+the DataRow indexer) when you process the roles of a EnumerableRowCollection.</p> 
+<p>Beyond the fact that you call the AsEnumerable() method, the overall format of the LINQ query is
+identical to what you have already seen in Chapter 13. Given this, there is no reason to repeat the details
+of the various LINQ operators here. If you wish to see additional examples, you can look up the topic
+“LINQ to DataSet Examples” in the .NET Framework 4.0 SDK documentation.</p>
+<h2>Hydrating New DataTables from LINQ Queries</h2>
+<p>It is also possible to populate the data of a new DataTable easily, based on the results of a LINQ query
+and provided that you are not using projections. When you have a result set where the underlying type
+can be represented as IEnumerable&lt;T&gt;, you can call the CopyToDataTable&lt;T&gt;() extension method on the
+result, as in this example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> BuildDataTableFromQuery(DataTable data)
+{
+    <span class="kwrd">var</span> cars = <span class="kwrd">from</span> car <span class="kwrd">in</span> data.AsEnumerable()
+        where
+            car.Field&lt;<span class="kwrd">int</span>&gt;(<span class="str">"CarID"</span>) &gt; 5
+        select car;
+
+    <span class="rem">// Use this result set to build a new DataTable.</span>
+    DataTable newTable = cars.CopyToDataTable();
+    
+    <span class="rem">// Print the DataTable.</span>
+    <span class="kwrd">for</span> (<span class="kwrd">int</span> curRow = 0; curRow &lt; newTable.Rows.Count; curRow++)
+    {
+        <span class="kwrd">for</span> (<span class="kwrd">int</span> curCol = 0; curCol &lt; newTable.Columns.Count; curCol++)
+        {
+            Console.Write(newTable.Rows[curRow][curCol].ToString().Trim() + <span class="str">"\t"</span>);
+        }
+        Console.WriteLine();
+    }
+}</pre>
+<p><b>Note</b> It is also possible to transform a LINQ query to a DataView type by using the AsDataView&lt;T&gt;()
+extension method.</p>
+<p>You might find this technique helpful when you wish to use the result of a LINQ query as the source
+of a data binding operation. Recall that the DataGridView of Windows Forms (as well as an ASP.NET or
+WPF grid control) supports a property named DataSource. You could bind a LINQ result to the grid as
+follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Assume myDataGrid is a GUI-based grid object.</span>
+myDataGrid.DataSource = (<span class="kwrd">from</span> car <span class="kwrd">in</span> data.AsEnumerable()
+    where
+        car.Field&lt;<span class="kwrd">int</span>&gt;(<span class="str">"CarID"</span>) &gt; 5
+    select car).CopyToDataTable();</pre>
+ <p>This wraps up the examination of the disconnected layer of ADO.NET. Using this aspect of the API,
+you can fetch data from a relational database, munch on the data, and return it for processing while
+keeping the database connection open for the shortest possible amount of time.</p> 
+   <p><b>Source Code </b>You can find the LinqOverDataSet example under the Chapter 22 subdirectory.</p>
+    </body></html>
+      
+   

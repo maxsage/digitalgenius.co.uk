@@ -1,0 +1,187 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>The Role of Generic Type Parameters</h1>
+<p>You can find generic classes, interfaces, structures, and delegates sprinkled throughout the .NET base
+class libraries, and these might be part of any .NET namespace.</p>
+<p><b>Note </b>Only classes, structures, interfaces, and delegates can be written generically; enum types cannot.</p>
+<p>When you see a generic item listed in the .NET Framework 4.0 SDK documentation or the Visual
+Studio 2010 object browser, you will notice a pair of angled brackets with a letter or other token
+sandwiched within. Figure 10-1 shows a number of generic items in the System.Collections.Generic
+namespace, including the highlighted List&lt;T&gt; class.</p>
+<img src="http://www.diggen.co.uk/Images/Figure10_01.png" alt="Figure 10-1" />
+<p><b>Figure 10-1. </b>Generic Items Supporting Type Parameters</p>
+<p>Formally speaking, you call these tokens type parameters; however, in more user friendly terms, you
+can simply call them placeholders. You can read the symbol &lt;T&gt; as of T. Thus, you can read
+IEnumerable&lt;T&gt; as IEnumerable of T; or, to say it another way, an enumeration of type T.</p>
+<p><b>Note </b>The name of a type parameter (placeholder) is irrelevant, and it is up to the individual who created the generic
+item. However, typically T is used to represent types, TKey or K is used for keys, and TValue or V is used for values.</p>
+<p>When you create a generic object, implement a generic interface, or invoke a generic member, it is
+up to you to supply a value to the type parameter. You’ll see many examples in this chapter, and
+throughout the remainder of the text. However, to set the stage, let’s see the basics of interacting with
+generic types and members.</p>
+<h2>Specifying Type Parameters for Generic Classes / Structures</h2>
+<p>When you create an instance of a generic class or structure, you specify the type parameter when you
+declare the variable and when you invoke the constructor. As you saw in the preceding code example,
+UseGenericList() defined two List&lt;&gt; objects:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This List&lt;&gt; can only hold Person objects.</span>
+List&lt;Person&gt; morePeople = <span class="kwrd">new</span> List&lt;Person&gt;();</pre>
+<p>You can read the preceding snippet as a List&lt;&gt; of T, where T is of type Person. Or, more simply, you
+can read it as a list of person objects. Once you specify the type parameter of a generic item, it cannot be
+changed (remember: generics are all about type safety). When you specify a type parameter for a generic
+class or structure, all occurrences of the placeholder(s) are now replaced with your supplied value.</p>
+<p>If you were to view the full declaration of the generic List&lt;T&gt; class using the Visual Studio 2010
+object browser, you would see that the placeholder T is used throughout the definition of the List&lt;T&gt;
+type. Here is a partial listing (note the items in bold):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// A partial listing of the List&lt;T&gt; class.</span>
+<span class="kwrd">namespace</span> System.Collections.Generic
+{
+    <span class="kwrd">public</span> <span class="kwrd">class</span> List&lt;T&gt; :
+        IList&lt;T&gt;, ICollection&lt;T&gt;, IEnumerable&lt;T&gt;,
+        IList, ICollection, IEnumerable
+    {
+...
+        <span class="kwrd">public</span> <span class="kwrd">void</span> Add(T item);
+        <span class="kwrd">public</span> ReadOnlyCollection&lt;T&gt; AsReadOnly();
+        <span class="kwrd">public</span> <span class="kwrd">int</span> BinarySearch(T item);
+        <span class="kwrd">public</span> <span class="kwrd">bool</span> Contains(T item);
+        <span class="kwrd">public</span> <span class="kwrd">void</span> CopyTo(T[] array);
+        <span class="kwrd">public</span> <span class="kwrd">int</span> FindIndex(System.Predicate&lt;T&gt; match);
+        <span class="kwrd">public</span> T FindLast(System.Predicate&lt;T&gt; match);
+        <span class="kwrd">public</span> <span class="kwrd">bool</span> Remove(T item);
+        <span class="kwrd">public</span> <span class="kwrd">int</span> RemoveAll(System.Predicate&lt;T&gt; match);
+        <span class="kwrd">public</span> T[] ToArray();
+        <span class="kwrd">public</span> <span class="kwrd">bool</span> TrueForAll(System.Predicate&lt;T&gt; match);
+        <span class="kwrd">public</span> T <span class="kwrd">this</span>[<span class="kwrd">int</span> index] { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    }
+}</pre>
+<p>When you create a List&lt;T&gt; specifying Person objects, it is as if the List&lt;T&gt; type were defined as
+follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">namespace</span> System.Collections.Generic
+{
+    <span class="kwrd">public</span> <span class="kwrd">class</span> List&lt;Person&gt; :
+        IList&lt;Person&gt;, ICollection&lt;Person&gt;, IEnumerable&lt;Person&gt;,
+        IList, ICollection, IEnumerable
+    {
+...
+        <span class="kwrd">public</span> <span class="kwrd">void</span> Add(Person item);
+        <span class="kwrd">public</span> ReadOnlyCollection&lt;Person&gt; AsReadOnly();
+        <span class="kwrd">public</span> <span class="kwrd">int</span> BinarySearch(Person item);
+        <span class="kwrd">public</span> <span class="kwrd">bool</span> Contains(Person item);
+        <span class="kwrd">public</span> <span class="kwrd">void</span> CopyTo(Person[] array);
+        <span class="kwrd">public</span> <span class="kwrd">int</span> FindIndex(System.Predicate&lt;Person&gt; match);
+        <span class="kwrd">public</span> Person FindLast(System.Predicate&lt;Person&gt; match);
+        <span class="kwrd">public</span> <span class="kwrd">bool</span> Remove(Person item);
+        <span class="kwrd">public</span> <span class="kwrd">int</span> RemoveAll(System.Predicate&lt;Person&gt; match);
+        <span class="kwrd">public</span> Person[] ToArray();
+        <span class="kwrd">public</span> <span class="kwrd">bool</span> TrueForAll(System.Predicate&lt;Person&gt; match);
+        <span class="kwrd">public</span> Person <span class="kwrd">this</span>[<span class="kwrd">int</span> index] { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    }
+}</pre>
+<p>Of course, when you create a generic List&lt;T&gt; variable, the compiler does not literally create a brand
+new implementation of the List&lt;T&gt; class. Rather, it will address only the members of the generic type
+you actually invoke.</p>
+<p><b>Note</b>  In the next chapter, you will learn about generic delegates, which will also require you to specify a type
+parameter when creating them.</p>
+<h2>Specifying Type Parameters for Generic Members</h2>
+<p>It is fine for a non-generic class or structure to support a handful of generic members (e.g., methods and
+properties). In these cases, you would also need to specify the placeholder value at the time you invoke
+the method. For example, System.Array supports a several generic methods (which were added in .NET
+2.0). Specifically, the static Sort() method now has a generic counterpart named Sort&lt;T&gt;(). Consider
+the following code snippet, where T is of type int:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">int</span>[] myInts = { 10, 4, 2, 33, 93 };
+
+<span class="rem">// Specify the placeholder to the generic</span>
+<span class="rem">// Sort&lt;&gt;() method.</span>
+Array.Sort&lt;<span class="kwrd">int</span>&gt;(myInts);
+
+<span class="kwrd">foreach</span> (<span class="kwrd">int</span> i <span class="kwrd">in</span> myInts)
+{
+    Console.WriteLine(i);
+}</pre>
+
+<h2>Specifying Type Parameters for Generic Interfaces</h2>
+<p>It is common to implement generic interfaces when you building classes or structures that need to
+support various framework behaviors (e.g., cloning, sorting, and enumeration). In Chapter 9, you
+learned about a number of non-generic interfaces, such as IComparable, IEnumerable, IEnumerator, and
+IComparer. Recall that the non-generic IComparable interface was defined like this:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IComparable
+{
+    <span class="kwrd">int</span> CompareTo(<span class="kwrd">object</span> obj);
+}</pre>
+<p>In Chapter 9, you also implemented this interface on your Car class to enable sorting in a standard
+array. However, the code required a several runtime checks and casting operations because the
+parameter was a general System.Object:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> Car : IComparable
+{
+...
+    <span class="rem">// IComparable implementation.</span>
+    <span class="kwrd">int</span> IComparable.CompareTo(<span class="kwrd">object</span> obj)
+    {
+        Car temp = obj <span class="kwrd">as</span> Car;
+        <span class="kwrd">if</span> (temp != <span class="kwrd">null</span>)
+        {
+            <span class="kwrd">if</span> (<span class="kwrd">this</span>.CarID &gt; temp.CarID)
+                <span class="kwrd">return</span> 1;
+            <span class="kwrd">if</span> (<span class="kwrd">this</span>.CarID &lt; temp.CarID)
+                <span class="kwrd">return</span> -1;
+            <span class="kwrd">else</span>
+                <span class="kwrd">return</span> 0;
+        }
+        <span class="kwrd">else</span>
+            <span class="kwrd">throw</span> <span class="kwrd">new</span> ArgumentException(<span class="str">"Parameter is not a Car!"</span>);
+    }
+}</pre>
+<p>Now assume you use the generic counterpart of this interface:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IComparable&lt;T&gt;
+{
+    <span class="kwrd">int</span> CompareTo(T obj);
+}</pre>
+<p>In this case, your implementation code will be cleaned up considerably:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> Car : IComparable&lt;Car&gt;
+{
+...
+    <span class="rem">// IComparable&lt;T&gt; implementation.</span>
+    <span class="kwrd">int</span> IComparable&lt;Car&gt;.CompareTo(Car obj)
+    {
+        <span class="kwrd">if</span> (<span class="kwrd">this</span>.CarID &gt; obj.CarID)
+            <span class="kwrd">return</span> 1;
+        <span class="kwrd">if</span> (<span class="kwrd">this</span>.CarID &lt; obj.CarID)
+            <span class="kwrd">return</span> -1;
+        <span class="kwrd">else</span>
+            <span class="kwrd">return</span> 0;
+    }
+}</pre>
+<p>Here you do not need to check whether the incoming parameter is a Car because it can only be a
+Car! If someone were to pass in an incompatible data type, you would get a compile-time error.</p>
+<p>Now that you have a better handle on how to interact with generic items, as well as the role of type
+parameters (aka placeholders), you’re ready to examine the classes and interfaces of the
+System.Collections.Generic namespace.</p>
+    </body></html>
+
+
+ 
+   
+

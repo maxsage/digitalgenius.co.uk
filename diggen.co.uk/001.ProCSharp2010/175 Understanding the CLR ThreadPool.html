@@ -1,0 +1,89 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Understanding the CLR ThreadPool</h1>
+<p>The next thread-centric topic you will examine in this chapter is the role of the CLR thread pool. When
+you invoke a method asynchronously using delegate types (via the BeginInvoke() method), the CLR does
+not literally create a brand-new thread. For purposes of efficiency, a delegate’s BeginInvoke() method
+leverages a pool of worker threads that is maintained by the runtime. To allow you to interact with this
+pool of waiting threads, the System.Threading namespace provides the ThreadPool class type.</p>
+<p>If you wish to queue a method call for processing by a worker thread in the pool, you can make use
+of the ThreadPool.QueueUserWorkItem() method. This method has been overloaded to allow you to
+specify an optional System.Object for custom state data in addition to an instance of the WaitCallback
+delegate:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">class</span> ThreadPool
+{
+    ...
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> QueueUserWorkItem(WaitCallback callBack);
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> QueueUserWorkItem(WaitCallback callBack,
+        <span class="kwrd">object</span> state);
+}</pre>
+<p>The WaitCallback delegate can point to any method that takes a System.Object as its sole parameter
+(which represents the optional state data) and returns nothing. Do note that if you do not provide a
+System.Object when calling QueueUserWorkItem(), the CLR automatically passes a null value. To
+illustrate queuing methods for use by the CLR thread pool, ponder the following program, which makes
+use of the Printer type once again. In this case, however, you are not manually creating an array of
+Thread objects; rather, you are assigning members of the pool to the PrintNumbers() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Fun with the CLR Thread Pool *****\n"</span>);
+
+        Console.WriteLine(<span class="str">"Main thread started. ThreadID = {0}"</span>,
+            Thread.CurrentThread.ManagedThreadId);
+
+        Printer p = <span class="kwrd">new</span> Printer();
+
+        WaitCallback workItem = <span class="kwrd">new</span> WaitCallback(PrintTheNumbers);
+
+        <span class="rem">// Queue the method ten times.</span>
+        <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; 10; i++)
+        {
+            ThreadPool.QueueUserWorkItem(workItem, p);
+        }
+        Console.WriteLine(<span class="str">"All tasks queued"</span>);
+        Console.ReadLine();
+    }
+
+    <span class="kwrd">static</span> <span class="kwrd">void</span> PrintTheNumbers(<span class="kwrd">object</span> state)
+    {    
+        Printer task = (Printer)state;
+        task.PrintNumbers();
+    }
+}</pre>
+<p>At this point, you may be wondering if it would be advantageous to make use of the CLR-maintained
+thread pool rather than explicitly creating Thread objects. Consider these benefits of leveraging the
+thread pool:</p>
+<ul>
+ <li>The thread pool manages threads efficiently by minimizing the number of threads
+that must be created, started, and stopped.</li>
+ <li>By using the thread pool, you can focus on your business problem rather than the
+application’s threading infrastructure.</li>
+</ul>
+<p>However, using manual thread management is preferred in some cases, for example:</p>
+<ul>
+ <li>If you require foreground threads or must set the thread priority. Pooled threads are always
+background threads with default priority (ThreadPriority.Normal).</li>
+ <li><p>If you require a thread with a fixed identity in order to abort it, suspend it, or
+discover it by name.</p>
+ </li>
+</ul>
+<p>That wraps up your investigation of the System.Threading namespace. While you can use this
+information to build some responsive applications, the remainder of this chapter will examine a new
+addition to the base class libraries brought forth with .NET 4.0- The Task Parallel Library.</p>
+    </body>
+    </html>
+     
+      
+   

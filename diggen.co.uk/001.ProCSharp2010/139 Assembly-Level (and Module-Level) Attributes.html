@@ -1,0 +1,144 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+</head>
+<body>
+<h1>Assembly-Level (and Module-Level) Attributes</h1>
+    <p>It is also possible to apply attributes on all types within a given module (for a multi-file assembly; see
+Chapter 14) or all modules within a given assembly using the [module:] and [assembly:] tags,
+respectively. For example, assume you wish to ensure that every public member of every public type
+defined within your assembly is CLS compliant.</p>
+<p><b>Note</b> Chapter 1 mentioned the role of CLS compliant assemblies. Recall that a CLS compliant assembly can be
+used by all .NET programming languages out-of-the-box. If you create public members of public types which
+expose non-CLS compliant programming constructs (such as unsigned data or pointer parameters), other .NET
+languages may not be able to use your functionality. Therefore, if you are building C# code libraries which need to
+be used by a wide variety of .NET languages, checking for CLS compliance is a must.</p>
+<p>To do so, simply add the following assembly level attribute at the very top of any C# source code file.
+Be very aware that all assembly or module-level attributes must be listed outside the scope of any
+namespace scope! If you add assembly (or module) level attributes to your project, here is a
+recommended file-layout to follow:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// List 'using' statements first.</span>
+<span class="kwrd">using</span> System;
+<span class="kwrd">using</span> System.Collections.Generic;
+<span class="kwrd">using</span> System.Linq;
+<span class="kwrd">using</span> System.Text;
+
+<span class="rem">// Now list any assembly/module level attributes.</span>
+<span class="rem">// Enforce CLS compliance for all public types in this assembly.</span>
+[assembly: CLSCompliant(<span class="kwrd">true</span>)]
+
+<span class="rem">// Now, your namespace(s) and types.</span>
+<span class="kwrd">namespace</span> AttributedCarLibrary
+{
+    <span class="rem">// Types...</span>
+}</pre>
+<p>If you now add a bit of code that falls outside the CLS specification (such as an exposed point of
+unsigned data):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Ulong types don't jibe with the CLS.</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> Winnebago
+{
+    <span class="kwrd">public</span> <span class="kwrd">ulong</span> notCompliant;
+}</pre>
+<p>you are issued a compiler warning.</p>
+<h2>The Visual Studio 2010 AssemblyInfo.cs File</h2>
+<p>By default, Visual Studio 2010 projects receive a file named AssemblyInfo.cs, which can be viewed by
+expanding the Properties icon of the Solution Explorer (see Figure 15-6).</p>
+<img src="http://www.diggen.co.uk/Images/Figure15_06.png" alt="Figure 15-6" />
+<p><b>Figure 15-6</b> Figure Text</p>
+<p>This file is a handy place to put attributes that are to be applied at the assembly level. You may recall
+from Chapter 14, during the examination of .NET assemblies, that the manifest contains assembly-level
+metadata, much of which comes from the assembly-level attributes shown in Table 15-4.</p>
+<p><b>Table 15-4. </b> Select Assembly-Level Attributes</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Attribute
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    [AssemblyCompany]
+   </td>
+   <td>
+    Holds basic company information
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [AssemblyCopyright]
+   </td>
+   <td>
+    Holds any copyright information for the product or
+assembly
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [AssemblyCulture]
+   </td>
+   <td>
+    Provides information on what cultures or languages the
+assembly supports
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [AssemblyDescription]
+   </td>
+   <td>
+    Holds a friendly description of the product or modules
+that make up the assembly
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [AssemblyKeyFile]
+   </td>
+   <td>
+    Specifies the name of the file containing the key pair used
+to sign the assembly (i.e., establish a strong name)
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [AssemblyProduct]
+   </td>
+   <td>
+    Provides product information
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [AssemblyTrademark]
+   </td>
+   <td>
+    Provides trademark information
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [AssemblyVersion]
+   </td>
+   <td>
+    Specifies the assembly’s version information, in the
+format &lt;major.minor.build.revision&gt;
+   </td>
+  </tr>
+</table>
+    <p><b>Source Code</b> The AttributedCarLibrary project is included in the Chapter 15 subdirectory.</p>
+</body>
+    </html>
+     
+      
+   
