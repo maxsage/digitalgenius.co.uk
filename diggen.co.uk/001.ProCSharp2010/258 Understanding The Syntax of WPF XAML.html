@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Understanding The Syntax of WPF XAML</h1>
@@ -51,7 +51,7 @@ news is that you can type identical markup within a &lt;Page&gt; or &lt;Window&g
     <span class="kwrd">&lt;/</span><span class="html">Grid</span><span class="kwrd">&gt;</span>
 <span class="kwrd">&lt;/</span><span class="html">Page</span><span class="kwrd">&gt;</span></pre>
     <p>You should now see your page render at the upper part of the kaxaml editor (Figure 27-13).</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_13.png" alt="Figure 27-13" />
+<img src="../Images/Figure27_13.png" alt="Figure 27-13" />
 <p><b>Figure 27-13</b> Kaxaml is a very helpful (and free) tool used to learn the grammar of XAML</p>
 <p>As you work with kaxaml, remember that this tool does not allow you to author any markup that
 entails code compilation (however, using x:Name is allowed). This includes defining a x:Class attribute
@@ -82,7 +82,7 @@ attribute. Here is one such listing, which essentially imports System.Windows:</
  <p>If you load these WPF assemblies into reflector.exe, you can view these mappings firsthand. For
 example, if you select the PresentationCore.dll assembly (see Figure 27-14), and press the Space key,
 you will see numerous instances of the [XmlnsDefinition] attribute.</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_14.png" alt="Figure 27-14" />
+<img src="../Images/Figure27_14.png" alt="Figure 27-14" />
 <p><b>Figure 27-14</b> The http://schemas.microsoft.com/winfx/2006/xaml/presentation namespace maps to the
 core WPF namespaces</p>
 <p>The second XML namespace, http://schemas.microsoft.com/winfx/2006/xaml, is used to include
@@ -454,7 +454,7 @@ allows you to specify a set of sub-items within its scope:</p>
     <p><b>Note</b> The previous XAML example is only used to illustrate a markup extension in action. As you will see in
 Chapter 28, there are much easier ways to populate ListBox controls!</p>
 <p>Figure 27-15 shows the mark up of this &lt;Page&gt; in kaxaml.</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_15.png" alt="Figure 27-15" />
+<img src="../Images/Figure27_15.png" alt="Figure 27-15" />
 <p><b>Figure 27-15</b> Markup extensions allow you to set values via the functionality of a dedicated class</p>
 <p>So! At this point, you have seen numerous examples that showcase each of the core aspects of XAML
 syntax. As you might agree, XAML is very interesting in that it allows you to describe a tree of .NET

@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Hosting the WCF Service within a Windows Service</h1>
@@ -24,7 +24,7 @@ user interactivity.</p>
 <p>Next, you will learn how to build such a host. Begin by creating a new Windows service project
 named MathWindowsServiceHost (see Figure 25-12). Once you do this, rename your initial Service1.cs
 file to MathWinService.cs using Solution Explorer.</p>
-<img src="http://www.diggen.co.uk/Images/Figure25_12.png" alt="Figure 25-12" />
+<img src="../Images/Figure25_12.png" alt="Figure 25-12" />
 <p><b>Figure 25-12</b> Creating a Windows service to host your WCF service</p>
 <h2>Specifying the ABCs in Code</h2>
 <p>Now assume you have set a reference to your MathServiceLibrary.dll and System.ServiceModel.dll
@@ -135,20 +135,20 @@ settings:</p>
 <p>To register your Windows service with the operating system, you need to add an installer to your project
 that contains the necessary code to allow you to register the service. To do so, right-click the Windows
 service designer surface and select Add Installer (see Figure 25-13).</p>
-<img src="http://www.diggen.co.uk/Images/Figure25_13.png" alt="Figure 25-13" />
+<img src="../Images/Figure25_13.png" alt="Figure 25-13" />
 <p><b>Figure 25-13</b> Adding an installer for the Windows service</p>
 <p>Once you do this, you can see two components have been added to a new designer surface
 representing the installer. The first component (named serviceProcessInstaller1 by default) represents
 an item that can install a new Windows service on the target machine. Select this item on the designer
 and use the Properties window to set the Account property to LocalSystem (see Figure 25-14).</p>
-<img src="http://www.diggen.co.uk/Images/Figure25_14.png" alt="Figure 25-14" />
+<img src="../Images/Figure25_14.png" alt="Figure 25-14" />
 <p><b>Figure 25-14</b> Be sure to run the Windows service as a local system account</p>
 <p>The second component (named serviceInstaller1) represents a type that will install your
 particular Windows service. Again, use the Properties window to change the ServiceName property to
 MathService (as you might have guessed, this represents the friendly display name of the registered
 Windows service), set the StartType property to Automatic, and add a friendly description of your
 Windows service using the Description property (see Figure 25-15).</p>
-<img src="http://www.diggen.co.uk/Images/Figure25_15.png" alt="Figure 25-15" />
+<img src="../Images/Figure25_15.png" alt="Figure 25-15" />
 <p><b>Figure 25-15</b> Configuring installer details</p>
 <p>At this point, you can compile your application.</p>
 <h2>Installing the Windows Service</h2>
@@ -162,7 +162,7 @@ installutil MathWindowsServiceHost.exe</pre>
 Administrative Tools folder of your Control Panel. You should see the friendly name of your Windows
 service listed alphabetically. Once you locate it, make sure you start the service on your local machine
 using the Start link (see Figure 25-16).</p>
-<img src="http://www.diggen.co.uk/Images/Figure25_16.png" alt="Figure 25-16" />
+<img src="../Images/Figure25_16.png" alt="Figure 25-16" />
 <p><b>Figure 25-16</b> Viewing your Windows service, which hosts your WCF service</p>
 <p>Now that the service is alive and kicking, the last step is to build a client application to consume its
 services.</p>

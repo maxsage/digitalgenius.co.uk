@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Creating the Jackpot Deluxe WPF Application</h1>
@@ -34,13 +34,13 @@ Objects and Timeline editor, and then pick the Pencil tool in your Toolbox (whic
 click and hold the Pen button). Use this tool to draw an interesting image of your liking. In Figure 31-24,
 you can see my (somewhat sad) attempt at rendering a star shaped image, with the Fill property set to
 an orange colored brush and the Stroke property set to a blue brush.</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_24.png" alt="Figure 31-24" />
+<img src="../Images/Figure31_24.png" alt="Figure 31-24" />
 <p><b>Figure 31-24</b> Using the Pencil control to render a unique shape</p>
 <p>Now, if you look at the XAML which was generated on your behalf, you will see that Expression
 Blend defined a Path object. So let’s say that you would like to use this geometry as the starting point for
 a custom control. To so do, simply right click on the Path object on the designer, and select the Make
 Into … option (Figure 31-25).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_25.png" alt="Figure 31-25" />
+<img src="../Images/Figure31_25.png" alt="Figure 31-25" />
 <p><b>Figure 31-25</b> Transforming a geometry into a new </p>
 <p>As soon as you select this option, you will be asked to name your control, which I will assume is
 StarButton (you can leave all other settings of this dialog to their default values). Expression Blend will
@@ -97,15 +97,15 @@ between states using the GoToStateAction XAML element.</p>
 <p>To add visual states to theS tarButton control, first ensure that the visual editor for your StarButton
  is the active window in the Blend IDE. Now, locate the States tab (which can be opened via
 the Windows menu of Expression Blend) and click the Add State Group button (Figure 31-26).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_26.png" alt="Figure 31-26" />
+<img src="../Images/Figure31_26.png" alt="Figure 31-26" />
     <p><b>Figure 31-26</b> Adding a new visual state group</p>
 <p>Now, change the name of the generated group (currently named VisualStateGroup) to the more
 fitting name, MouseStateGroup. Once you do, notice the Add State button (Figure 31-27).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_27.png" alt="Figure 31-27" />
+<img src="../Images/Figure31_27.png" alt="Figure 31-27" />
 <p><b>Figure 31-27</b> The MouseStateGroup</p>
 <p>Using the Add State button, add three states to the MouseStateGroup, named MouseEnterStar,
 MouseExitStar and MouseDownStar (Figure 31-28).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_28.png" alt="Figure 31-28" />
+<img src="../Images/Figure31_28.png" alt="Figure 31-28" />
 <p><b>Figure 31-28</b> The states of the MouseStateGroup</p>
 <p>Each one of your states can now be defined in terms of a storyboard. First, select the
 MouseEnterStar state. Now, using the Properties window, pick a new color for the Fill property (I made
@@ -125,10 +125,10 @@ states.</p>
 period of 2 seconds. To do so, first click the Add Transition button. Here, you will see a listing of all the
 possible transitions for the current state. Pick the first listing, which represents the act of moving from
 the current state into the MouseDownStar state (Figure 31-29).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_29.png" alt="Figure 31-29" />
+<img src="../Images/Figure31_29.png" alt="Figure 31-29" />
     <p><b>Figure 31-29</b> Changing the timing for this state transition</p>
 <p>Once you pick this option, define a 1 second amount of time for this transition (Figure 31-30).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_30.png" alt="Figure 31-30" />
+<img src="../Images/Figure31_30.png" alt="Figure 31-30" />
     <p><b>Figure 31-30</b> Defining a one second amount of time for this transition to occur</p>
 <h2>Viewing the Generated XAML</h2>
 <p>That is all you need to do for your visual state group. If you click on the XAML tab for your control, you
@@ -193,7 +193,7 @@ StarButton on your initial window.</p>
 <p>Now that you have your custom controls in place, you can wrap things up quite rapidly. Delete the
 current StarControl that is on your Window, and redefine the layout root to be a StackPanel rather than
 the current Grid. Here is one possible layout for your window (Figure 31-31).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_31.png" alt="Figure 31-31" />
+<img src="../Images/Figure31_31.png" alt="Figure 31-31" />
 <p><b>Figure 31-31</b> The layout of the Jackpot Deluxe window</p>
 <p>The key aspects of this markup are the definition of three custom SpinControl objects (named
 imgFirst, imgSecond, and imgThird) and an instance of the StarButton control (named btnSpin), which
@@ -314,7 +314,7 @@ the maximum number of attempts, and if so, display the losing condition. If they
 attempts remaining, you spin each SpinConrol object and check if each image is identical. If so, you add
 some points to the player total and check for the winning condition. Figure 31-32 shows the final end
 result:</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_32.png" alt="Figure 31-32" />
+<img src="../Images/Figure31_32.png" alt="Figure 31-32" />
 <p><b>Figure 31-32</b> The completed Jackpot Deluxe application!</p>
 <p>That concludes the examination of building desktop applications using the Windows Presentation
 Foundation API. Over these last five chapters, you have learned quite a bit about this aspect of .NET
@@ -325,7 +325,7 @@ serious about learning the ins-and-outs of Expression Blend, be sure to consult 
 system. (If Expression Blend is loaded on your desktop, just press the F1 key.) Here, you will find dozens
 of excellent tutorials which will deepen your understanding of this key aspect of WPF (and Silverlight)
 application development (Figure 31-33).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_33.png" alt="Figure 31-33" />
+<img src="../Images/Figure31_33.png" alt="Figure 31-33" />
 <p><b>Figure 31-33</b> Be kind to yourself and be sure to examing the help system of Expression Blend</p>
     </body></html>
 

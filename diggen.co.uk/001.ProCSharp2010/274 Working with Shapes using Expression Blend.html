@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Working with Shapes using Expression Blend</h1>
@@ -16,11 +16,11 @@ do much beyond trying out a few features of the IDE, so you can name this projec
 <p>Look at your tool palette and you’ll see an area that lets you select an Ellipse, Rectangle, or Line (recall,
 you click-and-hold on buttons that have a small triangle on the lower-right to pop-up any available
 choices; see Figure 29-12).</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_12.png" alt="Figure 29-12" />
+<img src="../Images/Figure29_12.png" alt="Figure 29-12" />
 <p><b>Figure 29-12</b> Rendering basic shapes with Blend</p>
 <p>Go ahead and draw a few overlapping shapes—you’ll see why in just a moment. Now, locate the
 area of the Blend tool palette where you can select the Pen and Pencil tools, as shown in Figure 29-13.</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_13.png" alt="Figure 29-13" />
+<img src="../Images/Figure29_13.png" alt="Figure 29-13" />
 <p><b>Figure 29-13</b> Working with pens and pencils</p>
 <p>The Pencil tool allows you to render completely free-form polygons, similar to a scribble program.
 The Pen tool is better suited for rendering swooping arcs or straight lines. To draw lines with the Pen,
@@ -30,7 +30,7 @@ language mentioned earlier.</p>
 <p>Play around with these tools and render some new graphics on the designer. Note that if you
 perform a Direct Select on any Path (such as the Path created by the Pencil tool) you can tweak the
 overall connecting segments, as seen in Figure 29-14.</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_14.png" alt="Figure 29-14" />
+<img src="../Images/Figure29_14.png" alt="Figure 29-14" />
 <p><b>Figure 29-14</b> Editing a Path</p>
 <h2>Converting Shapes to Paths</h2>
 <p>When you use the Ellipse, Rectangle, or Line tools, the XAML will indeed use the &lt;Ellipse&gt;, &lt;Rectangle&gt;
@@ -53,7 +53,7 @@ to combine multiple shapes into new paths.</p>
 <p>Now try this. Select two or more shapes on the designer (via a mouse click-and-drag operation) and then
 right-click on the set of selected items. You’ll see that you have a number of options under the Combine menu
 that allow you to generate new Path objects based on a set of selections and a combine operation (Figure 29-15).</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_15.png" alt="Figure 29-15" />
+<img src="../Images/Figure29_15.png" alt="Figure 29-15" />
 <p><b>Figure 29-15</b> Combining Paths to generate new Paths</p>
 <p>Essentially, the options under the Combine menu are basic Venn diagramming operations. Try a
 few and then view the generated XAML (and remember, just as in Visual Studio 2010, Ctrl + z will undo
@@ -64,7 +64,7 @@ one of your shapes), you can then go to the Brushes area of the Properties windo
 Brushes editor, you’ll find all properties on the selected object that can be assigned a Brush type. Below,
 you’ll find the same basic editing features you saw earlier in this chapter. Figure 29-16 shows one
 possible brush configuration.</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_16.png" alt="Figure 29-16" />
+<img src="../Images/Figure29_16.png" alt="Figure 29-16" />
 <p><b>Figure 29-16</b> The Blend brush editor</p>
 <p>The only major difference between the Blend and Visual Studio 2010 brush editors is that with Blend
 you can remove a gradient stop by clicking on the offending thumb marker and dragging it off the
@@ -72,12 +72,12 @@ gradient slider (literally anywhere off the gradient slider will do; right-click
 <p>Another nice feature of the Blend brush editor is that when you have selected an item that makes
 use of a gradient brush, you can press the G key on your keyboard or click the Gradient Tool icon on the
 tool palette to change the origin of the gradient (Figure 29-17).</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_17.png" alt="Figure 29-17" />
+<img src="../Images/Figure29_17.png" alt="Figure 29-17" />
     <p><b>Figure 29-17</b> Changing the origin of a gradient</p>
 <p>Finally, Blend also supports an integrated transformation editor. First, select a shape on your
 designer (of course, the transformation editor works for any item selected in the Objects and Timeline
 window). Now, on your Properties window, locate the Transform pane (Figure 29-18).</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_18.png" alt="Figure 29-18" />
+<img src="../Images/Figure29_18.png" alt="Figure 29-18" />
     <p><b>Figure 29-18</b> The Blend transformation editor</p>
 <p>As you experiment with the transformation editor, be sure to take some time to examine the
 resulting XAML. Also note that many transformations can be applied directly on the designer, by

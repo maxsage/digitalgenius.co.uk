@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />   
-	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />       
-	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />  
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />       
+	<link rel="stylesheet" type="text/css" href="../master.css" />  
 </head>
 <body>
     <h1>Working with String Data</h1>
@@ -139,7 +139,7 @@
     <p>Not too much to say here, as this method simply invokes various members, such as ToUpper() and
     Contains(), on a local string variable to yield various formats and transformations. Figure 3-9 shows the
     initial output.</p>
-    <img src="http://www.diggen.co.uk/Images/Figure03_09.png" alt="Figure 3-9" />
+    <img src="../Images/Figure03_09.png" alt="Figure 3-9" />
     <p><b>Figure 3-9</b> Basic string manipulation</p>
     <p>While this output may not seem too surprising, the output seen via calling the Replace() method is a
     tad bit misleading. In reality, the firstName variable has not changed at all; rather, we receive back a new
@@ -163,7 +163,7 @@
     the static String.Concat() method. In fact, if you were to compile the previous code and open the
     assembly within ildasm.exe (see Chapter 1), you would find the common intermediate language (CIL)
     code shown in Figure 3-10.</p>
-    <img src="http://www.diggen.co.uk/Images/Figure03_10.png" alt="Figure 3-10" />
+    <img src="../Images/Figure03_10.png" alt="Figure 3-10" />
     <p><b>Figure 3-10</b>The C# + operator results in a call to String.Concat()</p>
     <p>Given this, it is possible to perform string concatenation by calling String.Concat() directly
     (although you really have not gained anything by doing so�in fact, you have incurred additional
@@ -359,7 +359,7 @@ Console.WriteLine(<span class="str">@"Cerebus said "</span><span class="str">"Da
     <p>If you examine the relevant output in Figure 3-11, you can verify that the original string object (s1)
     is not uppercased when calling ToUpper(), rather you are returned a copy of the string in a modified
     format.</p>
-    <img src="http://www.diggen.co.uk/Images/Figure03_11.png" alt="Figure 3-11" />
+    <img src="../Images/Figure03_11.png" alt="Figure 3-11" />
     <p><b>Figure 3-11</b> Strings are immutable</p>
     <p>The same law of immutability holds true when you use the C# assignment operator. To illustrate,
     comment out (or delete) any existing code within StringsAreImmutable() (to decrease the amount of
@@ -374,7 +374,7 @@ Console.WriteLine(<span class="str">@"Cerebus said "</span><span class="str">"Da
     <p>Now, compile your application and load the assembly into ildasm.exe (again, see Chapter 1).
     Figure 3-12 shows what you would find if you were to generate CIL code for the StringsAreImmutable()
     method.</p>
-    <img src="http://www.diggen.co.uk/Images/Figure03_12.png" alt="Figure 3-12" />
+    <img src="../Images/Figure03_12.png" alt="Figure 3-12" />
     <p><b>Figure 3-12</b> Assigning a value to a string object results in a new string object</p>
     <p>Although we have yet to examine the low-level details of the CIL, note the numerous calls to the
     ldstr (load string) opcode. Simply put, the ldstr opcode of the CIL loads a new string object on the
@@ -434,7 +434,7 @@ StringBuilder sb = <span class="kwrd">new</span> StringBuilder(<span class="str"
     <p>If you append more characters than the specified limit, the StringBuilder object will copy its data
     into a new instance and grow the buffer by the specified limit. Figure 3-13 shows the output of the
     current helper function.</p>
-    <img src="http://www.diggen.co.uk/Images/Figure03_13.png" alt="Figure 3-13" />
+    <img src="../Images/Figure03_13.png" alt="Figure 3-13" />
     <p><b>Figure 3-13</b> The StringBuilder is more efficient than string</p>
     <p><b>Source Code</b> The FunWithStrings project is located under the Chapter 3 subdirectory.</p>
 </body>

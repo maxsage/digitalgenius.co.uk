@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Data Binding Entities to Windows Forms GUIs</h1>
@@ -19,25 +19,25 @@ and import the AutoLotDAL namespace into your Form’s primary code file.</p>
 <p>Now add a DataGridView object to the form designer and rename the control to gridInventory. Once
 you place this control on the designer, select the inline grid editor (the tiny arrow on the upper right of
 the widget). From the Choose Data Source dropdown box, add a project data source (see Figure 23-24).</p>
-<img src="http://www.diggen.co.uk/Images/Figure23_24.png" alt="Figure 23-24" />
+<img src="../Images/Figure23_24.png" alt="Figure 23-24" />
 <p><b>Figure 23-24</b> Designing the Windows Forms DataGridView control</p>
 <p>In this case, you do not bind directly to the database; instead, you bind to an entity class, so pick the
 Object option (see Figure 23-25).</p>
-<img src="http://www.diggen.co.uk/Images/Figure23_25.png" alt="Figure 23-25" />
+<img src="../Images/Figure23_25.png" alt="Figure 23-25" />
 <p><b>Figure 23-25</b> Binding to a strongly typed object</p>
 <p>In the final step, check off the Inventory table of AutoLotDAL.dll as shown in Figure 23-26 (if you
 don’t see it listed, you probably forgot to reference this library).</p>
-<img src="http://www.diggen.co.uk/Images/Figure23_26.png" alt="Figure 23-26" />
+<img src="../Images/Figure23_26.png" alt="Figure 23-26" />
 <p><b>Figure 23-26</b> Selecting the Inventory table</p>
 <p>Once you click the Finish button, you’ll see that the grid displays each property of the Inventory
 entity class, including the navigation properties! To remove them from the grid, activate the inline editor
 again (that tiny little arrow) and this time click the Edit Columns... link. Select the Orders column in the
 Edit Columns dialog and remove it from view (see Figure 23-27).</p>
-<img src="http://www.diggen.co.uk/Images/Figure23_27.png" alt="Figure 23-27" />
+<img src="../Images/Figure23_27.png" alt="Figure 23-27" />
 <p><b>Figure 23-27</b>  Cleaning up the grid’s UI</p>
 <p>To finish the UI, add a single Button control and rename it to btnUpdate. At this point, your designer
 should look something like what you see in Figure 23-28.</p>
-<img src="http://www.diggen.co.uk/Images/Figure23_28.png" alt="Figure 23-28" />
+<img src="../Images/Figure23_28.png" alt="Figure 23-28" />
 <p><b>Figure 23-28</b> The final UI</p>
 <h2>Adding the Data Binding Code</h2>
 <p>At this point, you have a grid that can display any number of Inventory objects; however, you need to
@@ -76,7 +76,7 @@ select a row and delete it, and modify existing rows. When you click your Update
 database is updated automatically because the object context has been kind enough to generate all the
 necessary SQL statements for selecting, updating, deleting, and inserting automatically. Figure 23-29
 shows the completed Windows Forms application.</p>
-<img src="http://www.diggen.co.uk/Images/Figure23_29.png" alt="Figure 23-29" />
+<img src="../Images/Figure23_29.png" alt="Figure 23-29" />
 <p><b>Figure 23-29</b> The completed application</p>
 <p>Here are some key takeaways from this preceding example:</p>
 <ul>

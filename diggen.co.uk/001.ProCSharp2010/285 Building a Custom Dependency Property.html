@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Building a Custom Dependency Property</h1>
@@ -15,7 +15,7 @@ property.</p>
 <p>Begin by creating a new WPF Application named CustomDepPropApp. Now, using the Project
 menu, activate the Add  menu option, and create a control named ShowNumberControl.xaml
 (Figure 31-1).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_01.png" alt="Figure 31-1" />
+<img src="../Images/Figure31_01.png" alt="Figure 31-1" />
 <p><b>Figure 31-1</b> Inserting a new custom </p>
 <p><b>Note</b> You will learn more details about the WPF  later in this chapter, so just following along as
 shown for now.</p>
@@ -76,7 +76,7 @@ Here is the required markup:</p>
 <span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
     <p>As you can see, the Visual Studio 2010 designer appears to correctly display the value that you set in
 the CurrentNumber property (Figure 31-2).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_02.png" alt="Figure 31-2" />
+<img src="../Images/Figure31_02.png" alt="Figure 31-2" />
 <p><b>Figure 31-2</b> It appears your property works as expected...</p>
 <p>However, what if you want to apply an animation object to the CurrentNumber property so that the
 value changes from 100 to 200 over the period of 10 seconds? If you wanted to do so in markup, you
@@ -101,11 +101,11 @@ ignored. The reason is that the CurrentNumber property has not been registered a
 property! To fix matters, return to the code file of your custom control, and completely comment out the
 current property logic (including the private backing field). Now, position your mouse cursor within the
 scope of the class and type in the propdp code snippet (Figure 31-3).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_03.png" alt="Figure 31-3" />
+<img src="../Images/Figure31_03.png" alt="Figure 31-3" />
 <p><b>Figure 31-3</b> The propdp code snippet provides a starting point for building a dependency property</p>
 <p>After you have typed propdp, press the Tab key twice. You will find the snippet expands to give you
 the basic skeleton of a dependency property (Figure 31-4).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_04.png" alt="Figure 31-4" />
+<img src="../Images/Figure31_04.png" alt="Figure 31-4" />
     <p><b>Figure 31-4</b> The expanded snippet</p>
 <p>The simplest version of the CurrentNumber property will look like so:</p>
 <!-- code formatted by http://manoli.net/csharpformat/ -->
@@ -193,7 +193,7 @@ Content property of the Label:</p>
 CurrentNumber dependency property can now be the target of a WPF style, an animation object, the
 target of a data binding operation, and so forth. Figure 31-5 shows your completed application (and yes,
 it really is changing the value while running).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_05.png" alt="Figure 31-5" />
+<img src="../Images/Figure31_05.png" alt="Figure 31-5" />
 <p><b>Figure 31-5</b> Animation at last!</p>
 <p>That wraps up your look at WPF dependency properties. While I hope you have a much better idea
 about what these constructs allow you to do and have a better idea of how to make your own, please be

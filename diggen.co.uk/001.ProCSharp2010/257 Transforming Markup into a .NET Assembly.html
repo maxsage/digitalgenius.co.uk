@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Transforming Markup into a .NET Assembly</h1>
@@ -95,12 +95,12 @@ Application Markup Language (BAML) is a compact, binary representation of the or
 <p>This *.baml file is embedded as a resource (via a generated *.g.resources file) into the compiled
 assembly. You can verify this for yourself by opening your assembly using reflector.exe, as shown in
 Figure 27-10.</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_10.png" alt="Figure 27-10" />
+<img src="../Images/Figure27_10.png" alt="Figure 27-10" />
 <p><b>Figure 27-10</b> Viewing the embedded *.baml resource using Reflector</p>
 <p>This BAML resource contains all of the data needed to establish the look and feel of the UI widgets
 (again, such as the Height and Width properties). In fact, if you open the *.baml file into Visual Studio
 2010, you can see traces of the initial XAML attributes (see Figure 27-11).</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_11.png" alt="Figure 27-11" />
+<img src="../Images/Figure27_11.png" alt="Figure 27-11" />
 <p><b>Figure 27-11</b> BAML is a compact, binary version of the initial XAML markup</p>
 <p>The important take-away here is to understand that a WPF application contains within itself a
 binary representation (the BAML) of the markup. At runtime, this BAML will be plucked out of the
@@ -149,7 +149,7 @@ build script. As you have seen, msbuild.exe leverages auxiliary settings defined
 to process the XAML files (and generate the *.baml) for the build process. While these gory details
 happen behind the scenes, Figure 27-12 illustrates the overall picture regarding the compile-time
 processing of *.xaml files.</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_12.png" alt="Figure 27-12" />
+<img src="../Images/Figure27_12.png" alt="Figure 27-12" />
 <p><b>Figure 27-12</b> The XAML-to-assembly compile-time process</p>
 <p>Hopefully you now have a much better idea how XAML data is used to build a .NET application. At
 this point, you are ready to take a look at the syntax and semantics of XAML itself.</p>

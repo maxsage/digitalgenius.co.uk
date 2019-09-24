@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>COM Interop using C# 4.0 Language Features</h1>
@@ -14,7 +14,7 @@ bring up a dialog box to insert a new row of data to the grid, and the other of 
 grid’s data to an Excel spreadsheet. Given the fact that the Excel application exposes a programming
 model via COM, you can hook into this object model using the interoperability layer. Figure 18-9 shows
 the completed GUI.</p>
-<img src="http://www.diggen.co.uk/Images/Figure18_09.png" alt="Figure 18-9" />
+<img src="../Images/Figure18_09.png" alt="Figure 18-9" />
 <p><b>Figure 18-9</b> The GUI of the COM interop example</p>
 <p>You will fill the grid with some initial data by handling the form’s Load event as so (the Car class used
 as the type parameter for the generic List&lt;T&gt; is a simple class in the project with Color, Make, and
@@ -146,7 +146,7 @@ file under the (hard coded) name Inventory.xlsx.</p>
 <p>At this point if you run your application, add a few new records, and export your data to Excel, you
 will then be able to open up the Inventory.xlsx file, which will be saved to the \bin\Debug folder of your
 Windows Forms application. Figure 18-10 shows a possible export.</p>
-<img src="http://www.diggen.co.uk/Images/Figure18_10.png" alt="Figure 18-10" />
+<img src="../Images/Figure18_10.png" alt="Figure 18-10" />
 <p><b>Figure 18-10</b> Exporting your data to an Excel file</p>
 <h2>COM interop without C# 4.0 Language Features</h2>
 <p>Now, if you were to select the Microsoft.Office.Interop.Excel.dll assembly (in Solution Explorer), and
@@ -203,7 +203,7 @@ be required in earlier versions of C#:</p>
 verbose. As well, since earlier versions of C# (prior to .NET 4.0, to be specific) don’t allow you to embedd
 the COM interop data, you would find that your output directory now contains local copies of a number
 of interop assemblies, which you would be required to ship to the end user’s machine (Figure 18-11).</p>
-<img src="http://www.diggen.co.uk/Images/Figure18_11.png" alt="Figure 18-11" />
+<img src="../Images/Figure18_11.png" alt="Figure 18-11" />
 <p>Figure 18-11. Not embedding interop data requires you to ship standalone interoperability assemblies
 That wraps up our look at the C# dynamic keyword and the DLR. Hopefully you can see how these
 new .NET 4.0 features can simplify complex programming tasks, and (perhaps more importantly)

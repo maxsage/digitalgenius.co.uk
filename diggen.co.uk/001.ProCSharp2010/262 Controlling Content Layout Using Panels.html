@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Controlling Content Layout Using Panels</h1>
@@ -115,7 +115,7 @@ property.</p>
 some predefined XAML data into the MyXamlPad.exe application you created in Chapter 27 (you could
 also load this data into kaxaml.exe, if you wish). You can find all these loose XAML files contained inside
 the PanelMarkup subfolder of your Chapter 28 code download folder (Figure 28-4).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_04.png" alt="Figure 28-4" />
+<img src="../Images/Figure28_04.png" alt="Figure 28-4" />
 <p><b>Figure 28-4</b> You will be loading the supplied XAML data into your MyXamlPad.exe appliction to test
 various layouts</p>
 <h2>Positioning Content Within Canvas Panels</h2>
@@ -157,7 +157,7 @@ content into MyXamlPad.exe (or kaxaml.exe). You should see the following Canvas 
     <span class="kwrd">&lt;/</span><span class="html">Canvas</span><span class="kwrd">&gt;</span>
 <span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
     <p>Clicking your View Xaml button causes the following window display on the screen (Figure 28-5).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_05.png" alt="Figure 28-5" />
+<img src="../Images/Figure28_05.png" alt="Figure 28-5" />
 <p><b>Figure 28-5</b> The Canvas layout manager allows for absolute positioning of content</p>
 <p>Note that the order you declare content within a Canvas is not used to calculate placement; instead,
 placement is based on the control’s size and the Canvas.Top, Canvas.Bottom, Canvas.Left, and
@@ -197,7 +197,7 @@ following markup (enclosed within a &lt;Window&gt; definition):</p>
 <span class="kwrd">&lt;/</span><span class="html">WrapPanel</span><span class="kwrd">&gt;</span></pre>
     <p>When you load this markup, the content looks out of sorts as you resize the width because it flows
 from left-to-right across the window (see Figure 28-6).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_06.png" alt="Figure 28-6" />
+<img src="../Images/Figure28_06.png" alt="Figure 28-6" />
 <p><b>Figure 28-6</b> Content in a WrapPanel behaves much like a traditional HTML page</p>
 <p>By default, content within a WrapPanel flows from left-to-right. However, if you change the value of
 the Orientation property to Vertical, you can have content wrap in a top-to-bottom manner:</p>
@@ -223,7 +223,7 @@ following markup:</p>
 <span class="kwrd">&lt;/</span><span class="html">WrapPanel</span><span class="kwrd">&gt;</span></pre>
     <p>When you see this code rendered, you find the output shown in Figure 28-7 (notice the size and
 position of the Button control, which has specified a unique Width value).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_07.png" alt="Figure 28-7" />
+<img src="../Images/Figure28_07.png" alt="Figure 28-7" />
 <p><b>Figure 28-7</b> A WrapPanel can establish the width and height of a given item</p>
 <p>As you might agree after looking at Figure 28-7, a WrapPanel is not typically the best choice for
 arranging content directly in a window because its elements can become scrambled as the user resizes
@@ -249,14 +249,14 @@ markup that results in the output shown in Figure 28-8:</p>
     <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtPetName"</span><span class="kwrd">/&gt;</span>
     <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnOK"</span> <span class="attr">Width</span> <span class="kwrd">="80"</span> <span class="attr">Content</span><span class="kwrd">="OK"</span><span class="kwrd">/&gt;</span>
 <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span></pre>
-<img src="http://www.diggen.co.uk/Images/Figure28_08.png" alt="Figure 28-8" />
+<img src="../Images/Figure28_08.png" alt="Figure 28-8" />
 <p><b>Figure 28-8</b> Vertical stacking of content</p>
 <p>If you assign the Orientation property to Horizontal as follows, the rendered output will match that
 shown in Figure 28-9:</p>
 <!-- code formatted by http://manoli.net/csharpformat/ -->
 <pre class="csharpcode">
 <span class="kwrd">&lt;</span><span class="html">StackPanel</span> <span class="attr">Orientation</span> <span class="kwrd">="Horizontal"</span><span class="kwrd">&gt;</span></pre>
-    <img src="http://www.diggen.co.uk/Images/Figure28_09.png" alt="Figure 28-9" />
+    <img src="../Images/Figure28_09.png" alt="Figure 28-9" />
 <p><b>Figure 28-9</b> Horizontal stacking of content</p>
 <p>Again, as is the case with the WrapPanel, you will seldom want to use a StackPanel to arrange content
 directly within a window. Instead, you’ll be better off using StackPanel as a subpanel to a master panel.</p>
@@ -315,7 +315,7 @@ connects itself to a cell in the grid using the Grid.Row and Grid.Column attache
 the ordering of cells in a grid begins at the upper left, which you specify using Grid.Column="0"
 Grid.Row="0". Given that your grid defines a total of four cells, you can identify the bottom-right cell
 using Grid.Column="1" Grid.Row="1".</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_10.png" alt="Figure 28-10" />
+<img src="../Images/Figure28_10.png" alt="Figure 28-10" />
 <p><b>Figure 28-10</b> The Grid panel in action</p>
 <h2>Grids with GridSplitter Types</h2>
 <p>Grid objects can also support splitters. As you might know, splitters allow the end user to resize rows or
@@ -349,7 +349,7 @@ Next, notice that the &lt;GridSplitter&gt; uses attached property syntax to esta
 working with. If you were to view this output, you would find a five-pixel splitter that allows you to resize
 each Label. Note that the content fills up the entire cell because you have not specified Height or Width
 properties for either Label (see Figure 28-11).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_11.png" alt="Figure 28-11" />
+<img src="../Images/Figure28_11.png" alt="Figure 28-11" />
 <p><b>Figure 28-11</b> Grid types containing splitters</p>
 <h2>Positioning Content Within DockPanel Panels</h2>
 <p>DockPanel is typically used as a master panel that contains any number of additional panels for grouping
@@ -368,7 +368,7 @@ in Figure 28-12:</p>
     <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblPetName"</span> <span class="attr">DockPanel</span>.<span class="attr">Dock</span> <span class="kwrd">="Bottom"</span> <span class="attr">Content</span><span class="kwrd">="Pet Name"</span><span class="kwrd">/&gt;</span>
     <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnOK"</span> <span class="attr">Content</span><span class="kwrd">="OK"</span><span class="kwrd">/&gt;</span>
 <span class="kwrd">&lt;/</span><span class="html">DockPanel</span><span class="kwrd">&gt;</span></pre>
-<img src="http://www.diggen.co.uk/Images/Figure28_12.png" alt="Figure 28-12" />
+<img src="../Images/Figure28_12.png" alt="Figure 28-12" />
 <p><b>Figure 28-12</b> A simple DockPanel</p>
 <p><b>Note</b> If you add multiple elements to the same side of a DockPanel, they will stack along the specified edge in
 the order that they are declared.</p>
@@ -391,7 +391,7 @@ behaviors for data within panel objects. The ScrollViewer.xaml file defines the 
     <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
 <span class="kwrd">&lt;/</span><span class="html">ScrollViewer</span><span class="kwrd">&gt;</span></pre>
     <p>You can see the result of the previous XAML definition in Figure 28-13.</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_13.png" alt="Figure 28-13" />
+<img src="../Images/Figure28_13.png" alt="Figure 28-13" />
 <p><b>Figure 28-13</b> Working with the ScrollViewer type</p>
 <p>As you would expect, each panel provides numerous members that allow you to fine-tune content
 placement. On a related note, many WPF controls support two properties of interest (Padding and

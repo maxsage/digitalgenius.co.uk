@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Using the WCF Service Library Project Template</h1>
@@ -52,7 +52,7 @@ interface as you build the WCF service; this means you don’t have to build a h
 for testing purposes, as you did previously.</p>
 <p>Figure 25-9 shows the testing environment for MathService. Notice that when you double-click an
 interface method, you can specify input parameters and invoke the member.</p>
-<img src="http://www.diggen.co.uk/Images/Figure25_09.png" alt="Figure 25-9" />
+<img src="../Images/Figure25_09.png" alt="Figure 25-9" />
 <p><b>Figure 25-9</b> Testing the WCF service using WcfTestClient.exe</p>
 <p>This utility works out of the box when you have created a WCF Service Library project; however, be
 aware that you can use this tool to test any WCF service when you start it at the command line by
@@ -66,7 +66,7 @@ wcftestclient http://localhost:8080/MagicEightBallService</pre>
 App.config file within the Solution Explorer to activate the GUI-based Service Configuration Editor,
 SvcConfigEditor.exe (see Figure 29-10). This same technique can be used from a client application that
 has referenced a WCF service.</p>
-<img src="http://www.diggen.co.uk/Images/Figure25_10.png" alt="Figure 25-10" />
+<img src="../Images/Figure25_10.png" alt="Figure 25-10" />
 <p><b>Figure 25-10</b> GUI-based *.config file editing starts here</p>
 <p>Once you activate this tool, you can change the XML-based data using a friendly user interface.
 Using a tool such as this to maintain your *.config files provides many benefits. First (and foremost),
@@ -80,7 +80,7 @@ this tool; also be aware that you can access a fairly detailed help system by pr
 <p><b>Note</b> The SvcConfigEditor.exe utility can edit (or create) configuration files, even if you do not select an
 initial WCF Service Library project. Use a Visual Studio 2010 command window to launch the tool, and then use
 the File &gt; Open menu option to load an existing *.config file for editing.</p>
-<img src="http://www.diggen.co.uk/Images/Figure25_11.png" alt="Figure 25-11" />
+<img src="../Images/Figure25_11.png" alt="Figure 25-11" />
 <p><b>Figure 25-11</b> Working with the WCF Service Configuration Editor</p>
 <p>You have no need to further configure your WCF MathService; at this point, you can move on to the
 task of building a custom host.</p>

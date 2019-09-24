@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>The WF 4.0 Runtime</h1>
@@ -66,11 +66,11 @@ the bottom of the designer there is a button named Arguments. Click this button 
 resulting UI, add an input argument of type String named MessageToShow (no need to assign a default
 value for this new argument). As well, delete your initial message from the WriteLine activity. Figure 26-5
 shows the end result.</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_05.png" alt="Figure 26-5" />
+<img src="../Images/Figure26_05.png" alt="Figure 26-5" />
 <p><b>Figure 26-5</b> Workflow arguments can be used to receive host supplied arguments</p>
 <p>Now, in the Text property of the WriteLine activity, you can simply enter MessageToShow as the
 evaluation expression. As you are typing in this token, you’ll notice IntelliSense will kick in (Figure 26-6).</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_06.png" alt="Figure 26-6" />
+<img src="../Images/Figure26_06.png" alt="Figure 26-6" />
 <p><b>Figure 26-6</b> Using a custom argument as input to an activity</p>
 <p>Now that you have the correct infrastructure in place, consider the following update to the Main()
 method of the Program class. Note that you will need to import the System.Collections.Generic

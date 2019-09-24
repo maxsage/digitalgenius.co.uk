@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Creating the AutoLot Database</h1>
@@ -29,25 +29,25 @@ Server Database menu option. In the resulting dialog box, connect to the SQL Ser
 local machine (with the (local) token) and specify AutoLot as the database name (Windows
 Authentication should be fine; see Figure 21-3).</p>
 <p><b>Note</b> If you use SQL Server Express, you will need to enter (local)\SQLEXPRESS in the Server name text box.</p>
-<img src="http://www.diggen.co.uk/Images/Figure21_03.png" alt="Figure 21-3" />
+<img src="../Images/Figure21_03.png" alt="Figure 21-3" />
 <p><b>Figure 21-3</b> Creating a new SQL Server 2008 Express database with Visual Studio 2010</p>
 <p>At this point, the AutoLot database is empty of any database objects (e.g., tables and stored
 procedures). To insert a new database table, right-click the Tables node and select Add New Table (see
 Figure 21-4).</p>
-<img src="http://www.diggen.co.uk/Images/Figure21_04.png" alt="Figure 21-4" />
+<img src="../Images/Figure21_04.png" alt="Figure 21-4" />
 <p><b>Figure 21-4</b> Adding the Inventory table</p>
 <p>Use the table editor to add four columns (CarID, Make, Color, and PetName). Ensure that the CarID
 column has been set to the Primary Key (do this by right-clicking the CarID row and selecting Set Primary
 Key). Figure 21-5 shows the final table settings (you don’t need to change anything in the Column
 Properties editor, but you should notice the data types for each column).</p>
-<img src="http://www.diggen.co.uk/Images/Figure21_05.png" alt="Figure 21-5" />
+<img src="../Images/Figure21_05.png" alt="Figure 21-5" />
 <p><b>Figure 21-5</b> Designing the Inventory table</p>
 <p>Save (and then close) your new table; also, be sure you name this new database object Inventory. At
 this point, you should see the Inventory table under the Tables node of the Server Explorer. Right-click
 the Inventory table icon and select Show Table Data. Enter a handful of new automobiles of your
 choosing (to make it interesting, be sure to include some cars that have identical colors and makes).
 Figure 21-6 shows one possible list of inventory.</p>
-<img src="http://www.diggen.co.uk/Images/Figure21_06.png" alt="Figure 21-6" />
+<img src="../Images/Figure21_06.png" alt="Figure 21-6" />
 <p><b>Figure 21-6</b> Populating the Inventory table</p>
 <h2>Authoring the GetPetName() Stored Procedure</h2>
 <p>Later in this chapter in the chapter, you will learn how to use ADO.NET to invoke stored procedures. As
@@ -70,7 +70,7 @@ procedure within the Server Explorer (see Figure 21-7).</p>
 <p><b>Note</b> Stored procedures do not have to return data using output parameters, as shown here; however, doing
 things this way sets the stage for talking about the Direction property of the SqlParameter later in this
 chapter</p>
-<img src="http://www.diggen.co.uk/Images/Figure21_07.png" alt="Figure 21-7" />
+<img src="../Images/Figure21_07.png" alt="Figure 21-7" />
 <p><b>Figure 21-7</b> The GetPetName stored procedure</p>
 <h2>Creating the Customers and Orders Tables</h2>
 <p>Your testing database will have two additional tables: Customers and Orders. The Customers table (as the
@@ -78,18 +78,18 @@ name suggests) will contain a list of customers; these which will be represented
 CustID (which should be set as the primary key), FirstName, and LastName. You can create the Customers
 table by following the same steps you used to create the Inventory table; be sure to create the Customers
 table using the schema shown in Figure 21-8.</p>
-<img src="http://www.diggen.co.uk/Images/Figure21_08.png" alt="Figure 21-8" />
+<img src="../Images/Figure21_08.png" alt="Figure 21-8" />
 <p><b>Figure 21-8</b> Designing the Customers table</p>
 <p>After you save your table, add a handful of customer records (see Figure 21-9).</p>
 <p><b>Figure 21-9</b> Populating the Customers table</p>
 <p>You will use your final table, Orders, to represent the automobile a given customer is interested in
 purchasing. Do this by mapping OrderID values to CarID/CustID values. Figure 21-10 shows the
 structure of your final table (again, note that OrderID is the primary key).</p>
-<img src="http://www.diggen.co.uk/Images/Figure21_10.png" alt="Figure 21-10" />
+<img src="../Images/Figure21_10.png" alt="Figure 21-10" />
 <p><b>Figure 21-10</b> </p>
 <p>Now add data to your Orders table. Assuming that the OrderID value begins at 1000, select a unique
 CarID for each CustID value (see Figure 21-11).</p>
-<img src="http://www.diggen.co.uk/Images/Figure21_11.png" alt="Figure 21-11" />
+<img src="../Images/Figure21_11.png" alt="Figure 21-11" />
 <p><b>Figure 21-11</b> Populating the Orders table</p>
 <p>For example, the entries used in this text indicate that Dave Brenner (CustID = 1) is interested in the
 black BMW (CarID = 1000), while Pat Walton (CustID = 4) has her eye on the pink Saab (CarID = 1992).</p>
@@ -100,7 +100,7 @@ database diagram at design time. Using the Server Explorer, right-click the Data
 the AutoLot database and select the Add New Diagram menu option. This brings up a dialog box that lets
 you pick which tables to add to the diagram. Be sure to select each of the tables from the AutoLot
 database (Figure 21-12).</p>
-<img src="http://www.diggen.co.uk/Images/Figure21_12.png" alt="Figure 21-12" />
+<img src="../Images/Figure21_12.png" alt="Figure 21-12" />
 <p><b>Figure 21-12</b> Selecting tables for your diagram</p>
 <p>You can begin establishing the relationships between the tables by clicking the CarID key of the
 Inventory table and (while holding down the mouse button) drag it to the CarID field of the Orders table.
@@ -109,7 +109,7 @@ Once you release the mouse, accept all defaults from the resulting dialog boxes.
 Orders table. Once you do this , you should see the class dialog box shown in Figure 21-13 (note that you
 enable the display of the table relationship labels by right-clicking the designer and selecting Show
 Relationship Labels).</p>
-<img src="http://www.diggen.co.uk/Images/Figure21_13.png" alt="Figure 21-13" />
+<img src="../Images/Figure21_13.png" alt="Figure 21-13" />
 <p><b>Figure 21-13</b> The interconnected Orders, Inventory, and Customers tables</p>
 <p>With this, the AutoLot database is complete! This is a far cry from a real-world corporate database,
 but it will serve your needs over the remainder of this book. Now that you have a database to test with,

@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>The Role of a Windows Process</h1>
@@ -26,7 +26,7 @@ keystroke combination) allows you to view various statistics regarding the proce
 machine, including its PID and image name (see Figure 16-1).</p>
 <p><b>Note</b> By default, the PID column of the Process tab will not be shown. To enable this feature, activate the View |
 Select Columns… menu option, and then check the PID (Process Identifier) checkbox.</p>
-<img src="http://www.diggen.co.uk/Images/Figure16_01.png" alt="Figure 15-7" />
+<img src="../Images/Figure16_01.png" alt="Figure 15-7" />
 <p><b>Figure 16-1</b> The Windows Task Manager</p>
 <h2>The Role of Threads</h2>
 <p>Every Windows process contains an initial “thread” that functions as the entry point for the application.
@@ -62,7 +62,7 @@ based in part on the thread’s priority level. When a thread’s time slice is 
 suspended to allow another thread to perform its business. For a thread to remember what was
 happening before it was kicked out of the way, each thread is given the ability to write to Thread Local
 Storage (TLS) and is provided with a separate call stack, as illustrated in Figure 16-2.</p>
-<img src="http://www.diggen.co.uk/Images/Figure16_02.png" alt="Figure 16-2" />
+<img src="../Images/Figure16_02.png" alt="Figure 16-2" />
 <p><b>Figure 16-2</b> The Windows process/thread relationship</p>
 <p>If the subject of threads is new to you, don’t sweat the details. At this point, just remember that a
 thread is a unique path of execution within a Windows process. Every process has a primary thread

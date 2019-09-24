@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Logical Trees, Visual Trees and Default Templates</h1>
@@ -89,7 +89,7 @@ GetChildren() method of LogicalTreeHelper. Here is the code:</p>
 }</pre>
     <p>If you run your application and click this first button, you will see a tree print out in the text area,
 which is just about an exact replica of the original XAML (Figure 31-7).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_07.png" alt="Figure 31-7" />
+<img src="../Images/Figure31_07.png" alt="Figure 31-7" />
 <p><b>Figure 31-7</b> Viewing a logical tree at runtime</p>
 <h2>Programmatically Inspecting a Visual Tree</h2>
 <p>A Window's visual tree can also be inspected at runtime using the VisualTreeHelper class of
@@ -115,7 +115,7 @@ visual tree:</p>
 }</pre>
 <p>As you can see in Figure 31-8, the visual tree exposes a number of lower-level rendering agents such
 as ContentPresenter, AdornerDecorator, TextBoxLineDrawingVisual, and so forth.</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_08.png" alt="Figure 31-8" />
+<img src="../Images/Figure31_08.png" alt="Figure 31-8" />
 <p><b>Figure 31-8</b> Viewing a visual tree at runtime</p>
 <h2>Programmatically Inspecting a Control’s Default Template</h2>
 <p>Recall that a visual tree is used by WPF to understand how to render a Window and all contained
@@ -165,7 +165,7 @@ StackPanel of controls docked to the left side of the master DockPanel, defined 
 <span class="kwrd">&lt;/</span><span class="html">Border</span><span class="kwrd">&gt;</span></pre>
     <p>Do take note of the empty StackPanel, stackTemplatePanel, as you will refer to it in code. Anyway,
 your window should now look something like Figure 31-9.</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_09.png" alt="Figure 31-9" />
+<img src="../Images/Figure31_09.png" alt="Figure 31-9" />
 <p><b>Figure 31-9</b> The updated UI of your window</p>
 <p>The upper left text area allows you to enter in the fully qualified name of a WPF control located the
 PresentationFramework.dll assembly. Once the library is loaded, you will dynamically create an
@@ -228,7 +228,7 @@ System.Windows.Markup namespaces:</p>
 <p>The bulk of the work is just tinkering with the compiled BAML resource to map it into a XAML
 string. Figure 31-10 shows your final application in action, displaying the default template of the
 DatePicker control.</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_10.png" alt="Figure 31-10" />
+<img src="../Images/Figure31_10.png" alt="Figure 31-10" />
 <p><b>Figure 31-10</b> Investigating a ControlTemplate at runtime</p>
 <p>Great! Hopefully you have a better idea about how logical trees, visual trees, and control templates
 work together. Now you can spend the remainder of this chapter learning how to build custom

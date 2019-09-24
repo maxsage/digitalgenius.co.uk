@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Introducing the WPF Data-Binding Model</h1>
@@ -57,13 +57,13 @@ wish to establish a binding between controls using Blend, you can do so easily. 
 the Content property of the Label object (in the Common Properties area of the Properties window) and
 click the (very) small white square next to the property to open the Advanced Property options. From
 here, select Data Binding (see Figure 28-44).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_44.png" alt="Figure 28-44" />
+<img src="../Images/Figure28_44.png" alt="Figure 28-44" />
 <p><b>Figure 28-44</b> </p>
 <p>You are interested in the Element Property tab here because this will give you a list of all items in
 your XAML file, which you can select as the source of the data-binding operation. Select this tab, and in
 the Scene elements list box, find your ScrollBar object (named mySB). In the Properties list box, find the
 Value property (see Figure 28-45). Click the OK button once you do this.</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_45.png" alt="Figure 28-45" />
+<img src="../Images/Figure28_45.png" alt="Figure 28-45" />
 <p><b>Figure 28-45</b> Selecting the source object and the property on the object</p>
 <p>If you run your program again, you will find that the content of the label updates as you move the
 thumb! Now look at the XAML the data binding tool generated on your behalf:</p>
@@ -126,7 +126,7 @@ modified markup manually using the XAML editor:</p>
     <p>Here, you set the DataContext property on the &lt;StackPanel&gt; directly. Therefore, as you move the
 thumb, you see not only the current value on the Label, but also see the font size of the Button grow and
 shrink accordingly, based on the same value (see Figure 28-46 shows for one possible output).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_46.png" alt="Figure 28-46" />
+<img src="../Images/Figure28_46.png" alt="Figure 28-46" />
 <p><b>Figure 28-46</b> Binding the ScrollBar value to a Label and a Button</p>
 <h2>Data Conversion Using IValueConverter</h2>
 <p>The ScrollBar type uses a double to represent the value of the thumb, rather than an expected whole
@@ -255,10 +255,10 @@ of an eye sore, use the Visual Studio 2010 Properties window to edit the Rows ca
 At a minimum, set the AlternationCount property to 2 and pick a custom brush using the integrated
 editor for the AlternatingRowBackground and RowBackground properties (see Figure 28-47 for some
 possible values).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_47.png" alt="Figure 28-47" />
+<img src="../Images/Figure28_47.png" alt="Figure 28-47" />
 <p><b>Figure 28-47</b> Applying some eye candy to the grid</p>
 <p>You can see the final tab for this example in Figure 28-48.</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_48.png" alt="Figure 28-48" />
+<img src="../Images/Figure28_48.png" alt="Figure 28-48" />
 <p><b>Figure 28-48</b> The final tab of your project</p>
 <p>To be sure, you can configure the WPF DataGrid in a huge number of ways, so you’ll want to consult
 the .NET Framework 4.0 SDK for details. For example, you can build custom data templates for the

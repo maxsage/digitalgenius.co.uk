@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
@@ -12,8 +12,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Isolating Workflows into Dedicated Libraries</h1>
@@ -31,7 +31,7 @@ memo to the head of the sales division requesting that they find a car of the co
 <h2>Defining the Initial Project</h2>
 <p>Create a new Activity Library project named CheckInventoryWorkflowLib (Figure 26-18). Once the
 project is created, rename the initial Activity1.xaml file to CheckInventory.xaml.</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_18.png" alt="Figure 26-18" />
+<img src="../Images/Figure26_18.png" alt="Figure 26-18" />
 <p><b>Figure 26-18</b> Building an Activity Library</p>
 <p>Now, before you continue, close down the visual workflow designer, and view the underlying XAML
 definition by right clicking on your XAML file and selecting the View Code menu option. Make sure that
@@ -66,7 +66,7 @@ top of the Imports editor. For convenience, import AutoLotDisconnectedLayer and
 System.Data.DataSetExtensions. By doing so, you can reference the contained types without needing to
 use fully qualified names. Figure 26-19 shows some new listings of the Imports area once you are
 finished.</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_19.png" alt="Figure 26-19" />
+<img src="../Images/Figure26_19.png" alt="Figure 26-19" />
 <p><b>Figure 26-19</b> Similar to the C# using keyword, the Imports area allows you to include .NET namespaces</p>
 <h2>Defining the Workflow Arguments</h2>
 <p>Next, define two new workflow wide input arguments, named RequestedMake and RequestedColor, both
@@ -78,7 +78,7 @@ values to perform the database query.</p>
 FormattedResponse of type String. When you need to return data from the workflow back to the host, you
 can create any number of output arguments which can be enumerated by the host when the workflow
 has completed. Figure 26-20 shows the current workflow designer.</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_20.png" alt="Figure 26-20" />
+<img src="../Images/Figure26_20.png" alt="Figure 26-20" />
 <p><b>Figure 26-20</b> Recall that workflow arguments provide a way send data to and return data from the
 workflow</p>
 <h2>Defining Workflow Variables</h2>
@@ -88,7 +88,7 @@ to get all data from the Inventory returned as a DataTable. Select your Sequence
 and using the Variables button, create a variable named AutoLotInventory. In the Variable Type
 dropdown list box, pick the Browse For Types... menu option, and type in InventoryDALDisLayer
 (Figure 26-21).</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_21.png" alt="Figure 26-21" />
+<img src="../Images/Figure26_21.png" alt="Figure 26-21" />
 <p><b>Figure 26-21</b> Recall that workflow variables provide a way to declarativly define variables within a scope</p>
 <p>Now, making sure your new variable is selected, go to the Visual Studio 2010 Properties window and
 click on the ellipse button of the Default property. This will open up a code editor which you can resize
@@ -147,7 +147,7 @@ the FormattedResponse argument to the following code statement:</p>
 String.Format(<span class="str">"Yes, we have a {0} {1} you can purchase"</span>,
     RequestedColor, RequestedMake)</pre>
  <p>At this point, your Switch editor will look like this (Figure 26-22).</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_22.png" alt="Figure 26-22" />
+<img src="../Images/Figure26_22.png" alt="Figure 26-22" />
 <p><b>Figure 26-22</b> Defining the default task for a Switch activity</p> 
 <p>Now, click on the “Add New Case” link and enter BMW (without any double quotes) for the first case,
 and once again for a final case of Yugo (again, no double quotes). Within each of these case areas, drop
@@ -163,7 +163,7 @@ String.Format(<span class="str">"Yes sir! We can send you {0} {1} as soon as {2}
 String.Format(<span class="str">"Please, we will pay you to get this {0} off our lot!"</span>, _
     RequestedMake)</pre>
 <p>The Switch activity will now look something like the following (Figure 26-23).</p> 
-<img src="http://www.diggen.co.uk/Images/Figure26_23.png" alt="Figure 26-23" />
+<img src="../Images/Figure26_23.png" alt="Figure 26-23" />
 <p><b>Figure 26-23</b> The final Switch activity</p>
 <h2>Building a Custom Code Activity</h2>
 <p>As expressive as the workflow designer experience is with its ability to embed complex code statements
@@ -175,7 +175,7 @@ is to create a class extending CodeActivity, or if your activity needs to return
 sales staff that a request has come in for a car that is currently not in the inventory system. First, activate
 the Project | Add New Item menu option and insert a new Code Activity named
 CreateSalesMemoActivity.cs (Figure 26-24).</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_24.png" alt="Figure 26-24" />
+<img src="../Images/Figure26_24.png" alt="Figure 26-24" />
 <p><b>Figure 26-24</b> Inserting a new Code Activity</p>
 <p>If your custom activity requires inputs to process, they will each be represented by a property
 encapsulating an InArgument&lt;T&gt; object. The InArgument&lt;T&gt; class type is a WF API specific entity, which
@@ -217,18 +217,18 @@ about WPF in the next chapter, so for now I’ll show you a simpler approach.</p
 <p>First, compile your workflow assembly. Ensuring your workflow designer is the active window
 within the Visual Studio 2010 IDE, examine the top area of your toolbox. You should see your custom
 activity is present and accounted for (Figure 26-25).</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_25.png" alt="Figure 26-25" />
+<img src="../Images/Figure26_25.png" alt="Figure 26-25" />
 <p><b>Figure 26-25</b> Custom code activities appear in the Visual Studio 2010 toolbox</p>
 <p>First, drag a new Sequence activity into the Else branch of your If activity. Next, drag your custom
 activity into the Sequence. At this point, you can assign values to each of the exposed properties using the
 Properties window. Using your RequestedMake and RequestedMake variables, set the Make and Color
 properties of your activity as shown in Figure 26-26.</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_26.png" alt="Figure 26-26" />
+<img src="../Images/Figure26_26.png" alt="Figure 26-26" />
 <p><b>Figure 26-26</b> Setting the properties of your custom code activity</p>
 <p>To complete this workflow, drag a final Assign activity into the Sequence activity of the Else branch,
 and set the FormattedResponse to the string value “Sorry, out of stock”. Figure 26-27 shows the final
 workflow design.</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_27.png" alt="Figure 26-27" />
+<img src="../Images/Figure26_27.png" alt="Figure 26-27" />
 <p><b>Figure 26-27</b> The completed sequential workflow</p>
 <p>Compile your project and move onto the final part of this chapter, where you will build a client host
 to make use of the workflow.</p>

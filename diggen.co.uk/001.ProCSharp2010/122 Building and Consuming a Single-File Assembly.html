@@ -3,15 +3,15 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Building and Consuming a Single-File Assembly</h2>
     <p>To begin exploring the world of .NET assemblies, you’ll first create a single-file *.dll assembly (named
 CarLibrary) that contains a small set of public types. To build a code library using Visual Studio 2010,
 select the Class Library project workspace via the File &gt; New Project… menu option (see Figure 14-4).</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_04.png" alt="Figure 14-4" />
+<img src="../Images/Figure14_04.png" alt="Figure 14-4" />
 <p><b>Figure 14-4.</b> Creating a C# code library</p>
 <p>The design of your automobile library begins with an abstract base class named Car that defines
 various state data via automatic property syntax. This class also has a single abstract method named
@@ -93,7 +93,7 @@ which is defined in the System.Windows.Forms.dll assembly. For your assembly to 
 defined within this external assembly, the CarLibrary project must set a reference to this binary via the
 Add Reference dialog box (see Figure 14-5), which you can access through the Visual Studio Project &gt;
 Add Reference menu selection.</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_05.png" alt="Figure 14-5" />
+<img src="../Images/Figure14_05.png" alt="Figure 14-5" />
 <p><b>Figure 14-5.</b> Referencing external .NET assemblies using the Add Reference dialog box</p>
 <p>It is really important to understand that the assemblies displayed in the .NET tab of the Add
 Reference dialog box do not represent each and every assembly on your machine. The Add Reference
@@ -109,7 +109,7 @@ libraries.</p>
 <p>Before using CarLibrary.dll from a client application, let’s check out how the code library is composed
 under the hood. Assuming you have compiled this project, load CarLibrary.dll into ildasm.exe (see
 Figure 14-6).</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_06.png" alt="Figure 14-6" />
+<img src="../Images/Figure14_06.png" alt="Figure 14-6" />
 <p><b>Figure 14-6. </b> CarLibrary.dll loaded into ildasm.exe</p>
 <p>Now, open the manifest of CarLibrary.dll by double-clicking the MANIFEST icon. The first code
 block in a manifest specifies all external assemblies required by the current assembly to function
@@ -154,12 +154,12 @@ of this chunk of MANIFEST data:</p>
 Now, switching back to Visual Studio 2010, if you double-click on the Properties icon within the Solution
 Explorer, you can click on the “Assembly Information...” button located on the (automatically selected)
 Application tab. This will bring up the GUI editor shown in Figure 14-7.</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_07.png" alt="Figure 14-7" />
+<img src="../Images/Figure14_07.png" alt="Figure 14-7" />
 <p><b>Figure 14-7.</b> Editing assembly information using Visual Studio’s Properties editor</p>
 <p>When you save your changes, the GUI editor updates your project’s AssemblyInfo.cs file, which is
 maintained by Visual Studio 2010 and can be viewed by expanding the Properties node of the Solution
 Explorer; see Figure 14-8).</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_08.png" alt="Figure 14-8" />
+<img src="../Images/Figure14_08.png" alt="Figure 14-8" />
  <p><b>Figure 14-8</b> The AssemblyInfo.cs file is updated as you use the GUI Properties editor</p>
  <p>If you view the contents of this C# file, you’ll see a number of .NET attributes sandwiched between
 square brackets, for example:</p>
@@ -206,7 +206,7 @@ that require advanced services, such as runtime construction of assemblies (agai
 <p>Before we build some applications that make use of our custom .NET library, if you press the Ctrl+M
 keystroke combination, ildasm.exe displays the metadata for each type within the CarLibrary.dll
 assembly (see Figure 14-9).</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_09.png" alt="Figure 14-9" />
+<img src="../Images/Figure14_09.png" alt="Figure 14-9" />
 <p><b>Figure 14-9</b> Type metadata for the types within CarLibrary.dll</p>
 <p>As explained in the next chapter, an assembly’s metadata is a very important element of the .NET
 platform, and serves as the backbone for numerous technologies (object serialization, late binding,
@@ -261,7 +261,7 @@ results in the display of various message boxes.</p>
 <p>It is important to point out that Visual Studio 2010 placed a copy of CarLibrary.dll into the
 \bin\Debug folder of the CSharpCarClient project folder. This can be verified by clicking the Show All
 Files button of the Solution Explorer (see Figure 14-10).</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_10.png" alt="Figure 14-10" />
+<img src="../Images/Figure14_10.png" alt="Figure 14-10" />
 <p><b>Figure 14-10</b> Visual Studio 2010 copies private assemblies to the client’s directory</p>
 <p>As explained later in this chapter, CarLibrary.dll has been configured as a “private” assembly
 (which is the automatic behavior for all Visual Studio 2010 Class Library projects). When you reference
@@ -272,7 +272,7 @@ copy of the library in the client application’s output directory.</p>
 Application (VisualBasicCarClient), this time using Visual Basic (see Figure 14-11). Once you have
 created the project, set a reference to CarLibrary.dll using the Add Reference dialog box, which can be
 activated by the Project &gt; Add Reference menu option.</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_11.png" alt="Figure 14-11" />
+<img src="../Images/Figure14_11.png" alt="Figure 14-11" />
 <p><b>Figure 14-11</b> Creating a Visual Basic Console Application</p>
 <p>Like C#, Visual Basic requires you to list each namespace used within the current file. However,
 Visual Basic offers the Imports keyword rather than the C# using keyword, so add the following Imports

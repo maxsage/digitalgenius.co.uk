@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Understanding Shared Assemblies</h1>
@@ -26,7 +26,7 @@ that they can be updated to new versions very easily (as you will see).</p>
 directory as the application that uses it. Rather, shared assemblies are installed into the Global Assembly
 Cache (GAC). The GAC is located in a subdirectory of your Windows directory named Assembly (e.g.,
 C:\Windows\assembly), as shown in Figure 14-16.</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_16.png" alt="Figure 14-16" />
+<img src="../Images/Figure14_16.png" alt="Figure 14-16" />
 <p><b>Figure 14-16</b> The global assembly cache</p>
 <p><b>Note</b> You cannot install executable assemblies (*.exe) into the GAC. Only assemblies that take the *.dll file
 extension can be deployed as a shared assembly.</p>
@@ -65,7 +65,7 @@ statistically unique for a fixed input. Thus, if you modify any aspect of a .NET
 character in a string literal) the compiler yields a different hash code. This hash code is combined with
 the private key data within the *.snk file to yield a digital signature embedded within the assembly’s CLR
 header data. The process of strongly naming an assembly is illustrated in Figure 14-17.</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_17.png" alt="Figure 14-17" />
+<img src="../Images/Figure14_17.png" alt="Figure 14-17" />
 <p><b>Figure 14-17</b> At compile time, a digital signature is generated and embedded into the assembly based in
 part on public and private key data</p>
 <p>Understand that the actual private key data is not listed anywhere within the manifest, but is used
@@ -123,7 +123,7 @@ your current machine, which in my case would be US English).</p>
 <p>Compile your CarLibrary code library, open your assembly into ildasm.exe, and check the manifest.
 You will now see that a new .publickey tag is used to document the full public key information, while
 the .ver token records the version specified via the [AssemblyVersion] attribute (see Figure 14-18).</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_18.png" alt="Figure 14-18" />
+<img src="../Images/Figure14_18.png" alt="Figure 14-18" />
 <p><b>Figure 14-18</b> A strongly named assembly records the public key in the manifest</p>
 <p>Great! At this point we could deploy our shared CarLibrary.dll assembly to the GAC. However,
 remember that these days, .NET developers can use Visual Studio to create strongly named assemblies
@@ -138,16 +138,16 @@ so, be sure you delete (or comment out) the following line of code from your Ass
 Properties page, as well as generate a new *.snk file. To do so for the CarLibrary project, first doubleclick
 on the Properties icon of the Solution Explorer, and select the Signing tab. Next, select the Sign the
 assembly check box, and choose the New… option (see Figure 14-19).</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_19.png" alt="Figure 14-19" />
+<img src="../Images/Figure14_19.png" alt="Figure 14-19" />
 <p><b>Figure 14-19</b> Creating a new *.snk file using Visual Studio 2010</p>
 <p>Once you have done so, you will be asked to provide a name for your new *.snk file (such as
 myKeyFile.snk) and you’ll have the option to password-protect your file (which is not required for this
 example); see Figure 14-20.</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_20.png" alt="Figure 14-20" />
+<img src="../Images/Figure14_20.png" alt="Figure 14-20" />
 <p><b>Figure 14-20</b> Naming the new *.snk file using Visual Studio 2010</p>
 <p>At this point, you will see your *.snk file within the Solution Explorer (Figure 14-21). Every time you
 build your application, this data will be used to assign a proper strong name to the assembly.</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_21.png" alt="Figure 14-21" />
+<img src="../Images/Figure14_21.png" alt="Figure 14-21" />
 <p><b>Figure 14-21</b> Visual Studio 2010 will now strongly sign your assembly with each compilation</p>
 <p><b>Note</b> Recall that the Application tab of the Properties editor provides a button named Assembly Information.
 When clicked, the button displays a dialog box that allows you to establish numerous assembly-level attributes,
@@ -236,7 +236,7 @@ by a single underbar, then the version of the library in question, which in this
 of CarLibrary.dll. After a pair of underbars, you’ll see the publickeytoken value based on your strong
 name. Figure 14-22 shows the directory structure of my version of CarLibrary.dll on my Windows 7
 operating system.</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_22.png" alt="Figure 14-22" />
+<img src="../Images/Figure14_22.png" alt="Figure 14-22" />
 <p><b>Figure 14-22</b> The strongly named, shared CarLibrary (version 1.0.0.0)</p>
     </body>
     </html>

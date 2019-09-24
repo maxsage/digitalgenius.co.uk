@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Configuring Shared Assemblies</h1>
@@ -36,7 +36,7 @@ file without needing to recompile and redeploy the client application.</p>
 and copy the current version of the compiled CarLibrary.dll assembly (1.0.0.0) into a distinct
 subdirectory (I called mine “CarLibrary Version 1.0.0.0”) to symbolize the freezing of this version (see
 Figure 14-24).</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_24.png" alt="Figure 14-24" />
+<img src="../Images/Figure14_24.png" alt="Figure 14-24" />
 <p><b>Figure 14-24</b>Freezing the current version of CarLibrary.dll</p>
 <h2>Building Shared Assembly Version 2.0.0.0</h2>
 <p>Now, open your existing CarLibrary project and update your code base with a new enum type named
@@ -90,13 +90,13 @@ CarLibrary 2.0.0.0:</p>
 you can do so in a visual manner by double-clicking on the Properties icon of the Solution Explorer and
 clicking on the Assembly Information... button on the Application tab. Once you do, simply update the
 Assembly Version number (Figure 14-25).</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_25.png" alt="Figure 14-25" />
+<img src="../Images/Figure14_25.png" alt="Figure 14-25" />
 <p><b>Figure 14-25</b> Figure Text</p>
 <p>If you look in your project’s \bin\Debug folder, you’ll see that you have a new version of this
 assembly (2.0.0.0), while version 1.0.0.0 is safe in storage in the CarLibrary Version 1.0.0.0 directory.
 Install this new assembly into the 4.0 GAC using gacutil.exe as described earlier in this chapter. Notice
 that you now have two versions of the same assembly (see Figure 14-26).</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_26.png" alt="Figure 14-26" />
+<img src="../Images/Figure14_26.png" alt="Figure 14-26" />
 <p><b>Figure 14-26</b> Figure Text</p>
 <p>If you run the current SharedCarLibClient.exe program by double-clicking the icon in Windows
 Explorer, you should not see the “CarLibrary Version 2.0!” message box appear, as the manifest is

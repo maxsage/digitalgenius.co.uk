@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Understanding Operator Overloading</h1>
@@ -377,7 +377,7 @@ is trivial. Here is the updated class definition:</p>
 begin examining what takes place behind the scenes, open the OverloadedOps.exe assembly using
 ildasm.exe. As you can see from Figure 12-1, the overloaded operators are internally expressed via
 hidden methods (such as op_Addition(), op_Subtraction(), op_Equality(), and so on).</p>
-<img src="http://www.diggen.co.uk/Images/Figure12_01.png" alt="Figure 12-1" />
+<img src="../Images/Figure12_01.png" alt="Figure 12-1" />
 <p><b>Figure 12-1. </b>In terms of CIL, overloaded operators map to hidden methods</p>
 <p>Now, if you were to examine the specific CIL instructions for the op_Addition method (the one that
 takes two Point parameters), you would find that the specialname method decoration has also been
@@ -536,7 +536,7 @@ harder for the user to understand a type’s functionality, don’t do it. Use t
 numerous types in the base class libraries have already done so. For example, the System.Drawing.dll
 assembly provides a Windows Forms-centric Point definition that overloads numerous operators.
 Notice the operator icon from the Visual Studio 2010 Object Browser shown in Figure 12-2.</p>
-<img src="http://www.diggen.co.uk/Images/Figure12_02.png" alt="Figure 12-2" />
+<img src="../Images/Figure12_02.png" alt="Figure 12-2" />
 <p><b>Figure 12-2.</b> Numerous types in the base class libraries have already overloaded operators</p>
 <p><b>Source Code</b> The OverloadedOps project is located under the Chapter 12 subdirectory.</p>
     </body>

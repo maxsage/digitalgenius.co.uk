@@ -3,8 +3,8 @@
 <head>
     <title>DG</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />	
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />	
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="../master.css" />	
 </head>
 <body>
 <h1>The Role of Application Roots</h1>
@@ -44,7 +44,7 @@ programming.</p>
  C and F) are marked as garbage. Figure 8-3 diagrams a possible object graph for the scenario just described 
  (you can read the directional arrows using the phrase depends on or requires, for example, E depends on G 
  and B, A depends on nothing, and so on).</p>
-    <img src="http://www.diggen.co.uk/Images/Figure08_03.png" alt="Figure 8-3" />
+    <img src="../Images/Figure08_03.png" alt="Figure 8-3" />
  <p><b>Figure 8-3.</b> Object graphs are constructed to determine which objects are reachable by application roots</p>
  <p>Once an object has been marked for termination (C and F in this case—as they are not accounted
 for in the object graph), they are swept from memory. At this point, the remaining space on the heap is
@@ -52,7 +52,7 @@ compacted, which in turn causes the CLR to modify the set of active application 
 underlying pointers) to refer to the correct memory location (this is done automatically and
 transparently). Last but not least, the next object pointer is readjusted to point to the next available slot.
 Figure 8-4 illustrates the resulting readjustment.</p>
-   <img src="http://www.diggen.co.uk/Images/Figure08_04.png" alt="Figure 8-4" />
+   <img src="../Images/Figure08_04.png" alt="Figure 8-4" />
  <p><b>Figure 8-4.</b> A clean and compacted heap</p>
  <p>Strictly speaking, the garbage collector makes use of two distinct heaps, one of which is specifically used
 to store very large objects. This heap is less frequently consulted during the collection cycle, given possible

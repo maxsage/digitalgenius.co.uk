@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Building a Single File ASP.NET Web Page</h1>
@@ -32,7 +32,7 @@ place). Nevertheless, you’ll begin your journey of ASP.NET by examining the si
 in Chapter 21) using the connected layer (but, as you would guess, you could also use the disconnected
 layer or the Entity Framework). To begin, launch Visual Studio 2010 and create a new Web Form using
 the File &gt; New &gt; File menu option (see Figure 32-8).</p>
-<img src="http://www.diggen.co.uk/Images/Figure32_08.png" alt="Figure 32-8" />
+<img src="../Images/Figure32_08.png" alt="Figure 32-8" />
 <p><b>Figure 32-8</b> Creating a new single file ASP.NET page</p>
 <p>Once you have done so, save this file as Default.aspx under a new directory on your hard drive that
 you can easily find later (for example, C:\MyCode\SinglePageModel).</p>
@@ -51,7 +51,7 @@ designer between the opening and closing form elements. Feel free to make use of
 to set various visual properties settings as you choose. Also, be sure to give each web widget a proper name
 via the ID attribute. Figure 32-9 shows one possible design. (I kept the example’s look and feel intentionally
 bland to minimize the amount of control markup, but feel free to spruce things up to your liking.)</p>
-<img src="http://www.diggen.co.uk/Images/Figure32_09.png" alt="Figure 32-9" />
+<img src="../Images/Figure32_09.png" alt="Figure 32-9" />
 <p><b>Figure 32-9</b> The Defau&gt;t.aspx GUI</p>
 <p>Now, locate the &lt;form&gt; section of your page. Notice how each web control has been defined using
 an &lt;asp:> tag. After this tag prefix, you will find the name of an ASP.NET web control (Label, GridView
@@ -135,12 +135,12 @@ option, which will launch the ASP .NET Development web server, which, in turn, h
 <p>When the page is served, you will initially see your Label and Button controls. However, when you
 click your button control, a postback occurs to the web server, at which point the web controls render
 back their corresponding HTML tags. Figure 32-10 shows the output once you click the Fill Grid button.</p>
-<img src="http://www.diggen.co.uk/Images/Figure32_10.png" alt="Figure 32-10" />
+<img src="../Images/Figure32_10.png" alt="Figure 32-10" />
 <p><b>Figure 32-10</b> ASP.NET provides a declarative data binding model</p>
 <p>Given, the current UI is quite bland. To spice up the current example, select the GridView control on
 the designer, and using the context menu (that tiny arrow on the upper left of the control), select the
 Auto Format option (Figure 32-11).</p>
-<img src="http://www.diggen.co.uk/Images/Figure32_11.png" alt="Figure 32-11" />
+<img src="../Images/Figure32_11.png" alt="Figure 32-11" />
     <p><b>Figure 32-11</b> A richer GridView control!</p>
 <p>From the resulting dialog box, pick a template that suits your fancy (I picked “Slate”). Once you click
 OK, view the generated control declaration, which is quite a bit richer than before:</p>
@@ -162,7 +162,7 @@ OK, view the generated control declaration, which is quite a bit richer than bef
 <span class="kwrd">&lt;/</span><span class="html">asp:GridView</span><span class="kwrd">&gt;</span></pre>
 <p>If you view your application again and click on your button, you will now see a more interesting UI
 (Figure 32-12), shown via Apple Safari on my Windows 7 install.</p>
-<img src="http://www.diggen.co.uk/Images/Figure32_12.png" alt="Figure 32-12" />
+<img src="../Images/Figure32_12.png" alt="Figure 32-12" />
 <p><b>Figure 32-12</b> Your simple web page in Apple Safari</p>
 <p>That was simple, yes? Of course, as they say, the devil is in the details, so let’s dig a bit deeper into
 the composition of this *.aspx file, beginning with examining the role of the &lt;%@Page… %&gt; directive. Do be
@@ -330,7 +330,7 @@ libraries. Here you find:</p>
     <p>The System.Web.UI.WebControls namespace of the System.Web.dll assembly contains a majority of
 the ASP.NET web controls. If you were to open the Visual Studio 2010 Object Browser, you could, for
 example, locate the Label control (Figure 32-13).</p>
-<img src="http://www.diggen.co.uk/Images/Figure32_13.png" alt="Figure 32-13" />
+<img src="../Images/Figure32_13.png" alt="Figure 32-13" />
 <p><b>Figure 32-13</b> All ASP.NET control declarations map to a .NET class type</p>
 <p>As you can see, an ASP.NET web control has an inheritance chain with System.Object at the very
 top. The WebControl parent class is a common base to all ASP.NET controls and defines all the common
@@ -343,14 +343,14 @@ web control definitions are dynamically compiled into a class type deriving from
 when the first request is made. The name of this class is based on the name of the *.aspx file and takes
 an _aspx suffix (e.g., a page named MyPage.aspx becomes a class named MyPage_aspx). Figure 32-14
 illustrates the basic process.</p>
-<img src="http://www.diggen.co.uk/Images/Figure32_14.png" alt="Figure 32-14" />
+<img src="../Images/Figure32_14.png" alt="Figure 32-14" />
     <p><b>Figure 32-14</b> The compilation model for single-file pages</p>
 <p>This dynamically compiled assembly is deployed to a runtime-defined subdirectory under the
 C:\Windows\Microsoft.NET\Framework\v4.0\Temporary ASP.NET Files root directory. The path
 beneath this root will differ based on a number of factors (hash codes, etc.), but if you are determined,
 eventually you will find the *.dll (and supporting files) in question. Figure 32-15 shows the generated
 assembly for the SinglePageModel example shown earlier in this chapter.</p>
-<img src="http://www.diggen.co.uk/Images/Figure32_15.png" alt="Figure 32-15" />
+<img src="../Images/Figure32_15.png" alt="Figure 32-15" />
     <p><b>Figure 32-15</b> The ASP.NET autogenerated assembly</p>
 <p>If you were to open this assembly into a tool such as ildasm.exe or reflector.exe, sure enough you
 will find a class extending Page, which each web control defined as a member of the class. Now, do be

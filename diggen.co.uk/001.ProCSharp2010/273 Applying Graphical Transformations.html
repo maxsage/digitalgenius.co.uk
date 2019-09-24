@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Applying Graphical Transformations</h1>
@@ -136,7 +136,7 @@ transformation objects applied to it.</p>
 calculations to correctly respond to hit-testing, input focus, or whatnot. The WPF graphics engine
 handles such tasks on your behalf. For example, in Figure 29-10, you can see that the TextBox is still
 responsive to keyboard input.</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_10.png" alt="Figure 29-10" />
+<img src="../Images/Figure29_10.png" alt="Figure 29-10" />
 <p><b>Figure 29-10</b> The results of graphical transformation objects</p>
 <h2>Transforming our Canvas Data</h2>
 <p>Now, let’s see how we can incorporate some transformational logic into our RenderingWithShapes
@@ -177,7 +177,7 @@ clicked, you remove the transformation by setting the same property to null:</p>
 <p>Run your application and add a bunch of graphics throughout the canvas area. If you click your new
 button, you will find that the shape data flows outside of the boundaries of the canvas! This is because
 we have not defined a clipping region (see Figure 29-11).</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_11.png" alt="Figure 29-11" />
+<img src="../Images/Figure29_11.png" alt="Figure 29-11" />
 <p><b>Figure 29-11</b> Oops! Our data is flowing outside of the canvas after the transformation!</p>
 <p>Fixing this is trivial. Rather than manually authoring complex clipping-logic code, simply set the
 ClipToBounds property of the &lt;Canvas&gt; to true, which prevents child elements from being rendered

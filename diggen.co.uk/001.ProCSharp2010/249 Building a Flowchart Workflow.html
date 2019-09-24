@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Building a Flowchart Workflow</h1>
@@ -22,7 +22,7 @@ Next, using the Properties window, change the DisplayName property to something 
 such as Show Machine Data Flowchart (as I am sure you can guess, the DisplayName property controls
 how the item is named on the designer). At this point, your workflow designer should look something
 like Figure 26-7.</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_07.png" alt="Figure 26-7" />
+<img src="../Images/Figure26_07.png" alt="Figure 26-7" />
 <p><b>Figure 26-7</b> The initial Flowchart activity</p>
 <p>Be aware that there is a grab-handle on the lower right of the Flowchart activity, which can be used
 to increase or decrease the size of the flowchart designer space. You’ll need to increase the size as you
@@ -55,7 +55,7 @@ than C# statements (strange but true).</p>
 define a hard coded string value of "Do you want me to list all machine drives?" for the Text
 property, and change the DisplayName property to Ask User. Figure 26-8 shows the connections between
 current workflow activities.</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_08.png" alt="Figure 26-8" />
+<img src="../Images/Figure26_08.png" alt="Figure 26-8" />
 <p><b>Figure 26-8</b> Flowchart workflows connect activities together</p>
 <h2>Working with the InvokeMethod Activity</h2>
 <p>Because the majority of a workflow is defined in a declarative manner using XAML, you are sure to make
@@ -65,7 +65,7 @@ Get Y or N, and make a connection between it and the Ask User WriteLine activity
 <p>The first property to configure for an InvokeMethod activity is the TargetType property, which
 represents the name of the class that defines a static member you wish to invoke. Using the dropdown
 list box for the TargetType of the InvokeMethod activity, pick the Browse for Types... option (Figure 26-9).</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_09.png" alt="Figure 26-9" />
+<img src="../Images/Figure26_09.png" alt="Figure 26-9" />
 <p><b>Figure 26-9</b> Specifying a target for InvokeMethod</p>
 <p>From the resulting dialog box, pick the System.Console class of mscorlib.dll (if you enter the name
 of the type within the Type Name edit area, the dialog will automatically find the type). Once you have
@@ -86,7 +86,7 @@ you have multiple parent containers in your workflow (for example, a Flowchart c
 Sequence), you can pick the scope of the variable. Here, your only choice is the root Flowchart. Next,
 select the InvokeMethod activity on the designer, and using the Properties window of Visual Studio 2010,
 set the Result property to your new variable (Figure 26-10).</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_10.png" alt="Figure 26-10" />
+<img src="../Images/Figure26_10.png" alt="Figure 26-10" />
 <p><b>Figure 26-10</b> The fully configured InvokeMethod</p>
 <p>Now that you can grab a piece of data from an external method call, you can use it to make a
 runtime decision in your flow chart using the FlowDecision activity.</p>
@@ -94,7 +94,7 @@ runtime decision in your flow chart using the FlowDecision activity.</p>
 <p>A FlowDecision activity is used to take two possible courses of action, based on the truth or falsity of a
 Boolean variable, or a statement which resolves to a Boolean value. Drag one of these activities onto
 your designer, and connect it to the InvokeMethod activity (Figure 26-11).</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_11.png" alt="Figure 26-11" />
+<img src="../Images/Figure26_11.png" alt="Figure 26-11" />
 <p><b>Figure 26-11</b> A FlowDecision can branch two directions</p>
 <p><b>Note</b>If you need to respond to multiple branching conditions within a flowchart, make use of the
 FlowSwitch&lt;T&gt; activity. This allows you to define any number of paths, which will be entered based on the value
@@ -111,7 +111,7 @@ the VB equality operator (=).</p>
 <p>You now need to build the activities which will occur on each side of the FlowDecision activity. On the
 “false” side, connect a final WriteLine activity which prints out a hard coded message of your choosing,
 followed by a TerminateWorkflow activity (Figure 26-12).</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_12.png" alt="Figure 26-12" />
+<img src="../Images/Figure26_12.png" alt="Figure 26-12" />
 <p><b>Figure 26-12</b> The "false" branch</p>
 <p>Strictly speaking, you don’t need to use the TerminateWorkflow activity, as this workflow would
 simply end once you reach the end of the false branch. However, by using this activity type, you can
@@ -121,7 +121,7 @@ exception can be configured in the Properties window.</p>
 window, and click on the ellipse button for the Exception property. This will open up an editor which
 allows you to throw back an exception, just like if you were doing so in code (VB code that is; see
 Figure 26-13).</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_13.png" alt="Figure 26-13" />
+<img src="../Images/Figure26_13.png" alt="Figure 26-13" />
 <p><b>Figure 26-13</b> Configuring an exception to throw when the TerminateWorkflow activity is encountered</p>
 <p>Complete the configuration of this activity by setting the Reason property to “YesOrNo was false”.</p>
 <h2>Building the “True” Condition</h2>
@@ -134,7 +134,7 @@ GetLogicalDrives.</p>
 named DriveNames of type string[]. To specify you want an array of strings, pick Array of [T] from the
 Variable Type drop down list, and pick string from the resulting dialog box. Figure 26-14 shows the first
 part of the “true” condition.</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_14.png" alt="Figure 26-14" />
+<img src="../Images/Figure26_14.png" alt="Figure 26-14" />
 <p><b>Figure 26-14</b> Configuring an exception to throw when the TerminateWorkflow activity is encountered</p>
 <p>Now, set the Result property of this new InvokeMethod activity to your DriveNames variable.</p>
 <h2>Working with the ForEach&lt;T&gt; Activity</h2>
@@ -146,20 +146,20 @@ keyword, and it is configured in a very similar manner (at least conceptually).<
 You will configure the ForEach&lt;T&gt; activity in just a minute, but to complete the true condition branch,
 place one final WriteLine activity on your designer to close things off. Here is the final top-level look at
 your workflow (Figure 26-15).</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_15.png" alt="Figure 26-15" />
+<img src="../Images/Figure26_15.png" alt="Figure 26-15" />
 <p><b>Figure 26-15</b> The completed top-level workflow</p>
 <p>To get rid of the current designer error, you need to finish the configuration of the ForEach&lt;T&gt;
 activity. First, use the Properties window to specify the type parameter to the generic, which in this
 example will be a string type. The Values property is where the data is coming from, which will be your
 DriveNames variable (Figure 26-16).</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_16.png" alt="Figure 26-16" />
+<img src="../Images/Figure26_16.png" alt="Figure 26-16" />
 <p><b>Figure 26-16</b> Setting the type of for-each enumeration</p>
 <p>This particular activity needs to be further edited by double clicking on the designer in order to
 open a brand new mini designer just for this activity. Not all WF 4.0 activities can be double clicked on to
 yield a new designer, but you can easily tell if this is an option on the activity itself (it will literally say
 “Double-click to view”). Double click on your ForEach&lt;T&gt; activity, and add a single WriteLine activity,
 which will print out each string value (Figure 26-17).</p>
-<img src="http://www.diggen.co.uk/Images/Figure26_17.png" alt="Figure 26-17" />
+<img src="../Images/Figure26_17.png" alt="Figure 26-17" />
 <p><b>Figure 26-17</b> The final configuration step of the ForEach&lt;T&gt; activity</p>
 <p><b>Note</b> You can add as many activities to the ForEach&lt;T&gt; mini designer as you require. The collective whole of
 these activities will execute with each iteration of the loop.</p>

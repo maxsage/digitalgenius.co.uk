@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Invoking a Service Asynchronously from the Client</h1>
@@ -13,13 +13,13 @@ service (that is current hosted by the Windows service running in the background
 Reference option of Visual Studio (you’ll need to type the URL in the Addresses box). Don’t click the OK
 button yet, however! Notice that the Add Service Reference dialog box has an Advanced button in the
 lower-left corner (see Figure 25-17).</p>
-<img src="http://www.diggen.co.uk/Images/Figure25_17.png" alt="Figure 25-17" />
+<img src="../Images/Figure25_17.png" alt="Figure 25-17" />
 <p><b>Figure 25-17</b> Referencing your MathService and getting ready to configure advanced settings</p>
 <p>Click this button now to view the additional proxy configuration settings (see Figure 25-18). You can
 use this dialog box to generate code that allows you to call the remote methods in an asynchronous
 manner, provided you check the Generate Asynchronous Operators check box. Go ahead and check this
 option for the time being.</p>
-<img src="http://www.diggen.co.uk/Images/Figure25_18.png" alt="Figure 25-18" />
+<img src="../Images/Figure25_18.png" alt="Figure 25-18" />
 <p><b>Figure 25-18</b> Advanced client-side proxy configuration options</p>
 <p>At this point, the proxy code contains additional methods that allow you to invoke each member of
 the service contract using the expected Begin/End asynchronous invocation pattern described in Chapter

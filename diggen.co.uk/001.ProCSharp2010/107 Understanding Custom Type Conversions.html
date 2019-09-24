@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Understanding Custom Type Conversions</h1>
@@ -167,7 +167,7 @@ into a Square as follows:</p>
     Console.ReadLine();
 }</pre>
 <p>The output can be seen in Figure 12-3.</p>
-<img src="http://www.diggen.co.uk/Images/Figure12_03.png" alt="Figure 12-3" />
+<img src="../Images/Figure12_03.png" alt="Figure 12-3" />
 <p><b>Figure 12-3.</b> Converting a Rectangle structure to a Square structure</p>
 <p>While it may not be all that helpful to convert a Rectangle into a Square within the same scope,
 assume you have a function that has been designed to take Square parameters.</p>
@@ -297,7 +297,7 @@ Rectangle is computed by multiplying the side of the Square by 2):</p>
 <h2>The Internal Representation of Custom Conversion Routines</h2>
   <p>Like overloaded operators, methods that are qualified with the implicit or explicit keywords have
 "special" names in terms of CIL: op_Implicit and op_Explicit, respectively (see Figure 12-4).</p>
-<img src="http://www.diggen.co.uk/Images/Figure12_04.png" alt="Figure 12-4" />
+<img src="../Images/Figure12_04.png" alt="Figure 12-4" />
 <p><b>Figure 12-4.</b> CIL representation of user-defined conversion routines</p>
 <p><b>Note </b> The Visual Studio 2010 Object Browser shows custom conversion operators using the “explicit operator”
 and "implicit operator" icons.</p>

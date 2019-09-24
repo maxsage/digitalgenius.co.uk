@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Understanding the Role of Entity Framework</h1>
@@ -104,14 +104,14 @@ conventions go. You are free to restructure your entity classes to fit your need
 map your unique names to the correct database schema.</p>
 <p>For example, you might recall that you created the simple Inventory table in the AutoLot database
 using the database schema shown in Figure 23-1.</p>
-<img src="http://www.diggen.co.uk/Images/Figure23_01.png" alt="Figure 23-1" />
+<img src="../Images/Figure23_01.png" alt="Figure 23-1" />
 <p><b>Figure 23-1</b> Structure of the Inventory table of the AutoLot database</p>
 <p>If you were to generate an EDM for the Inventory table of the AutoLot database (you’ll see how to do
 so momentarily), the entity will be called Inventory by default. However, you could rename this class to
 Car and define uniquely named properties of your choosing, which will be mapped to the columns of the
 Inventory table. This loose coupling means that you can shape the entities so they closely model your
 business domain. Figure 23-2 shows such an entity class.</p>
-<img src="http://www.diggen.co.uk/Images/Figure23_02.png" alt="Figure 23-2" />
+<img src="../Images/Figure23_02.png" alt="Figure 23-2" />
 <p><b>Figure 23-2</b> The Car entity is a client-side reshaping of the Inventory schema</p>
 <p><b>Note</b> In many cases, the client-side entity class will be identically named to the related database table.
 However, remember that you can always reshape the entity to match your business situation.</p>
@@ -144,7 +144,7 @@ of any sort of SQL INSERT statement; you simply add a new Car object to the coll
 the aptly named Cars property of the context object and save your changes. Sure enough, if you view the
 table data using the Server Explorer of Visual Studio 2010, you will see a brand new record (see
 Figure 23-3).</p>
-<img src="http://www.diggen.co.uk/Images/Figure23_03.png" alt="Figure 23-3" />
+<img src="../Images/Figure23_03.png" alt="Figure 23-3" />
 <p><b>Figure 23-3</b> The result of saving the context</p>
 <p>There is no magic in the preceding example. Under the covers, a connection to the database is
 made, a proper SQL statement is generated, and so forth. The benefit of EF is that these details are
@@ -173,7 +173,7 @@ ways to persist the state of an entity with XML and binary serialization service
 EntityObject base class. As you might suspect, EntityObject is in the inheritance chain for all entity
 classes in the EF programming model. For example, if you look at the inheritance chain of the Car entity
 class used in the previous example, you see that Car Is-A EntityObject (see Figure 23-4).</p>
-<img src="http://www.diggen.co.uk/Images/Figure23_04.png" alt="Figure 23-4" />
+<img src="../Images/Figure23_04.png" alt="Figure 23-4" />
 <p><b>Figure 23-4</b> EF’s object service layer can manage any class that extends EntityObject</p>
 <h2>The Role of the Entity Client</h2>
 <p>Another major aspect of the EF API is the entity client layer. This part of the EF API is in charge of
@@ -187,7 +187,7 @@ underlying ADO.NET data provider. These classes (e.g., EntityCommand and EntityC
 similar to the classes you find in an ADO.NET data provider; for example, Figure 23-5 illustrates how the
 classes of the entity client layer extend the same abstract base classes of any other provider (e.g.,
 DbCommand and DbConnection; you can also see Chapter 22 for more details on this subject).</p>
-<img src="http://www.diggen.co.uk/Images/Figure23_05.png" alt="Figure 23-5" />
+<img src="../Images/Figure23_05.png" alt="Figure 23-5" />
 <p><b>Figure 23-5</b> The entity client layer maps entity commands to the underlying ADO.NET data provider</p>
 <p>The entity client layer typically works behind the scenes, but it is entirely possible to work directly
 with an entity client if you require full control over how it performs its duties (most notably, how it
@@ -398,7 +398,7 @@ typed LINQ (or Entity SQL) query.</p>
 <h2>All Together Now!</h2>
 <p>Before you build your first Entity Framework example, take a moment to ponder Figure 23-6, which
 shows you how the EF API is organized.</p>
-<img src="http://www.diggen.co.uk/Images/Figure23_06.png" alt="Figure 23-6" />
+<img src="../Images/Figure23_06.png" alt="Figure 23-6" />
 <p><b>Figure 23-6</b> The major components of the ADO.NET Entity Framework</p>
 <p>The moving parts illustrated by Figure 23-6 are not as complex as they might seem at first glance.
 For example, consider this common scenario. You author some C# code that applies a LINQ query to an

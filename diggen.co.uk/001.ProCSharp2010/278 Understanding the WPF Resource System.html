@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Understanding the WPF Resource System</h1>
@@ -72,7 +72,7 @@ and select the Add &gt; New Folder menu option to create such a subdirectory, wh
 copy the image files into the new subdirectory. In the downloadable source code for this project, you will
 find three image files named Welcome.jpg, Dogs.jpg and Deer.jpg that you can include in this project, or
 simply add three image files of your choice. Figure 30-1 shows the current setup.</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_01.png" alt="Figure 30-1" />
+<img src="../Images/Figure30_01.png" alt="Figure 30-1" />
 <p><b>Figure 30-1</b> A new subdirectory in our WPF project containing image data</p>
 <h2>Configuring the Loose Resources</h2>
 <p>When you want Visual Studio 2010 to copy project content to your output directory, you need to adjust a
@@ -80,12 +80,12 @@ few settings using the Properties window. To ensure that the content of your \Im
 the \bin\Debug folder, begin by selecting each image in the Solution Explorer. Now, with these images
 still selected, use the Properties window to set the Build Action property to Content, and the Copy to
 Output Directory property to Copy always (see Figure 30-2).</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_02.png" alt="Figure 30-2" />
+<img src="../Images/Figure30_02.png" alt="Figure 30-2" />
 <p><b>Figure 30-2</b> Configuring the image data to be copied to our output directory</p>
 <p>If you recompile your program, you can now click on the Show all Files button of the Solution
 Explorer and view the copied Image folder under your \bin\Debug directory (you might need to click the
 refresh button). See Figure 30-3.</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_03.png" alt="Figure 30-3" />
+<img src="../Images/Figure30_03.png" alt="Figure 30-3" />
 <p><b>Figure 30-3</b> The copied data</p>
 <h2>Programmatically Loading an Image</h2>
 <p>WPF provides a class named BitmapImage, which is part of the System.Windows.Media.Imaging
@@ -150,7 +150,7 @@ over the list. Here are the Click handlers that do exactly this:</p>
 resources, select the image files in Solution Explorer (in the \Images folder, not in the
 \bin\Debug\Images folder). Then change the Build Action property to Resource and the Copy to Output
 Directory property to Do not copy (Figure 30-4).</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_04.png" alt="Figure 30-4" />
+<img src="../Images/Figure30_04.png" alt="Figure 30-4" />
 <p><b>Figure 30-4</b> Configuring the images to be embedded resources</p>
 <p>Now, using Visual Studio 2010’s Build menu, select the Clean Solution option to wipe out the
 current contents of \bin\Debug\Images, then rebuild your project. Refresh the Solution Explorer, and
@@ -158,7 +158,7 @@ observe the absence of \bin\Debug\Images in your \bin\Debug directory</p>
 <p>With the current build options, your graphical data is no longer copied to the output folder and is
 now embedded within the assembly itself. Assuming you have recompiled your project, you can open
 the assembly into reflector.exe, and see the embedded image data (Figure 30-5).</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_05.png" alt="Figure 30-5" />
+<img src="../Images/Figure30_05.png" alt="Figure 30-5" />
 <p><b>Figure 30-5</b> The embedded image data</p>
 <p>With this adjustment, we will now need to modify our code to load these images by extracting them
 from the compiled assembly:</p>
@@ -182,7 +182,7 @@ resources by name, which takes into account the name of the original subdirector
 we create our Uri objects, we specify a UriKind value of Relative. In any case, at this point our
 executable is a standalone entity that can be run from any location on the machine, as all compiled data
 is within the binary. Figure 30-6 shows the completed application.</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_06.png" alt="Figure 30-6" />
+<img src="../Images/Figure30_06.png" alt="Figure 30-6" />
 <p><b>Figure 30-6</b> Our simple picture viewer</p>
     </body>
     </html>

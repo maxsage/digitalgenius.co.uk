@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>WPF Brushes and Pens</h1>
@@ -89,7 +89,7 @@ capture their values using simple string literals. To spice things up a tad, we 
 brush editor. Ensure that the XAML editor of your initial window is the open window within the IDE, and
 select the Ellipse element. Now, locate the Fill property in the Properties window, and click the dropdown
 list. You should now see the following brush editor (Figure 29-7).</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_07.png" alt="Figure 29-7" />
+<img src="../Images/Figure29_07.png" alt="Figure 29-7" />
 <p><b>Figure 29-7</b> Any property that requires a brush can be configured with the integrated brush editor</p>
 <p>As you can see, this editor contains four slider controls, which allow you to set the ARGB (alpha, red,
 green and blue, where “alpha” controls transparency) of the current brush. Using these sliders and the
@@ -113,7 +113,7 @@ gradient stops.</p>
 <p>Take a few minutes to play around this editor to build a radial gradient brush containing three
 gradient stops, set to your colors of choice. Figure 29-8 shows the brush I just constructed, using three
 different shades of green.</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_08.png" alt="Figure 29-8" />
+<img src="../Images/Figure29_08.png" alt="Figure 29-8" />
 <p><b>Figure 29-8</b> The Visual Studio brush editor allows you to build basic gradient brushes</p>
 <p>Once you are done, the IDE will update your XAML with a custom brush set to a brush-compatible
 property (the Fill property of the Ellipse in our example) using property-element syntax. For example:</p>
@@ -151,7 +151,7 @@ output):</p>
     
     shapeToRender.Fill = brush;
     <span class="kwrd">break</span>;</pre>
-<img src="http://www.diggen.co.uk/Images/Figure29_09.png" alt="Figure 29-9" />
+<img src="../Images/Figure29_09.png" alt="Figure 29-9" />
 <p><b>Figure 29-9</b> Drawing circles with a bit more pizzazz!</p>
 <p>By the way, you can build GradientStop objects by specifying a simple color as the first constructor
 parameter using the Colors enumeration, which returns a configured Color object:</p>

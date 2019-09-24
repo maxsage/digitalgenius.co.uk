@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Building an ASP.NET Web Page using Code Files</h1>
@@ -29,7 +29,7 @@ ASP.NET web applications will benefit from building sites that make use of both 
 Studio 2010 Web Site template (note that Visual Studio 2010 is not required to build pages using codebehind).
 Activate the File &gt; New &gt; Web Site menu option and select the Empty Web Site template, as
 shown in Figure 32-16.</p>
-<img src="http://www.diggen.co.uk/Images/Figure32_16.png" alt="Figure 32-16" />
+<img src="../Images/Figure32_16.png" alt="Figure 32-16" />
 <p><b>Figure 32-16</b> The Empty Web Site template</p>
 <p>Notice in Figure 32-16 that you are able to select the location of your new site. If you select
 File System, your content files will be placed within a local directory and pages will be served via the
@@ -42,7 +42,7 @@ App.config file for a desktop executable. You’ll learn about the format of thi
 <p>Now, using Website &gt; Add New Item... menu option, insert a new Web Form item named
 Default.aspx. You’ll notice that, by default, the Place code in separate file checkbox is checked
 automatically, which is exactly what you want (Figure 32-17).</p>
-<img src="http://www.diggen.co.uk/Images/Figure32_17.png" alt="Figure 32-17" />
+<img src="../Images/Figure32_17.png" alt="Figure 32-17" />
 <p><b>Figure 32-17</b> Inserting a new Web Form with code separation</p>
 <p>Once again, make use of the designer to build a UI consisting of a Label, Button, and GridView, and
 make use of the Properties window to build a UI of your liking.</p>
@@ -55,7 +55,7 @@ make use of the Properties window to build a UI of your liking.</p>
 logic. By default, these code-behind files are named by adding the suffix .cs to the name of the *.aspx
 file (Default.aspx.cs in this example). If you examine Solution Explorer, you will see this code-behind
 file is visible via a subnode on the Web Form icon (see Figure 32-18).</p>
-<img src="http://www.diggen.co.uk/Images/Figure32_18.png" alt="Figure 32-18" />
+<img src="../Images/Figure32_18.png" alt="Figure 32-18" />
     <p><b>Figure 32-18</b> The associated code-behind file for a given *.aspx file</p>
 <p>If you were to open your code-behind file, you would find a partial class deriving from
 System.Web.UI.Page with support for handling the Load event. Notice that the name of this class
@@ -73,7 +73,7 @@ System.Web.UI.Page with support for handling the Load event. Notice that the nam
 need to manually build a \bin subdirectory and copy private assemblies by hand. For this example,
 activate the Add Reference dialog box using the Website menu option and reference AutoLotDAL.dll.
 When you do so, you will see the new \bin folder within Solution Explorer, as shown in Figure 32-19.</p>
-<img src="http://www.diggen.co.uk/Images/Figure32_19.png" alt="Figure 32-19" />
+<img src="../Images/Figure32_19.png" alt="Figure 32-19" />
 <p><b>Figure 32-19</b> Visual Studio typically maintains special ASP.NET folders</p>
 <h2>Updating the Code File</h2>
 <p>Handle the Click event for the Button type by double-clicking the Button placed on the designer. As
@@ -156,7 +156,7 @@ the following code statement:</p>
 <p>Run your project once again and click the button. You will find your custom category and custom
 message are present and accounted for. In Figure 32-20, take note of the highlighted message that
 displays the trace information.</p>
-<img src="http://www.diggen.co.uk/Images/Figure32_20.png" alt="Figure 32-20" />
+<img src="../Images/Figure32_20.png" alt="Figure 32-20" />
 <p><b>Figure 32-20</b> Logging custom trace messages</p>
 <p>At this point, you have seen how to build a single ASP.NET web page using the single-file and codefile
 approach. The remaining topics of this chapter will take a deeper look into the composition of an

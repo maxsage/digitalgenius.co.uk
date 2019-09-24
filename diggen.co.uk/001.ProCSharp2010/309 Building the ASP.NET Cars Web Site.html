@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Building the ASP.NET Cars Web Site</h1>
@@ -42,7 +42,7 @@ server, the related *.master file and any related *.aspx content pages are blend
 HTML page declaration.</p>
 <p>To illustrate the use of master pages and content pages, begin by inserting a new master page into
 your website via the Website &gt; Add New Item menu selection (Figure 33-8 shows the resulting dialog box).</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_08.png" alt="Figure 33-08" />
+<img src="../Images/Figure33_08.png" alt="Figure 33-08" />
 <p><b>Figure 33-8</b> Inserting a new *.master file</p>
 <p>The initial markup of the MasterPage.master file looks like the following:</p>
 <!-- code formatted by http://manoli.net/csharpformat/ -->
@@ -124,7 +124,7 @@ control (to allow the user to navigate to other areas of the site). Here is some
 <span class="kwrd">&lt;/</span><span class="html">body</span><span class="kwrd">&gt;</span>
 <span class="kwrd">&lt;/</span><span class="html">html</span><span class="kwrd">&gt;</span></pre>
     <p>Figure 33-9 shows the design time view of the current master page.</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_09.png" alt="Figure 33-09" />
+<img src="../Images/Figure33_09.png" alt="Figure 33-09" />
 <p><b>Figure 33-9</b> The *.master file’s shared UI</p>
 <p>Feel free to enhance the look of your TreeView control by using the inline editor of the control and
 selecting the Auto Format... link. For my example, I selected the Arrow theme from the resulting dialog
@@ -151,7 +151,7 @@ approach is that we can define the overall structure of our website in an extern
 TreeView (or Menu) control on the fly. This way, if the navigational structure of your website changes, we
 simply need to modify the *.sitemap file and reload the page. To begin, insert a new Web.sitemap file into your
 project using the Website &gt; Add New Item menu option to bring up the dialog box shown in Figure 33-10.</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_10.png" alt="Figure 33-10" />
+<img src="../Images/Figure33_10.png" alt="Figure 33-10" />
 <p><b>Figure 33-10</b> Inserting a new Web.sitemap file</p>
 <p>As you can see, the initial Web.sitemap file defines a topmost item with two subnodes:</p>
 <!-- code formatted by http://manoli.net/csharpformat/ -->
@@ -204,7 +204,7 @@ TreeView types then set their DataSourceID property to point to the SiteMapDataS
 property, you can make use of the Visual Studio 2010 designer. Activate the inline editor of the TreeView
 control (i.e., click the tiny arrow in the top-right corner of the TreeView) and select New Data Source, as
 shown in Figure 33-11.</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_11.png" alt="Figure 33-11" />
+<img src="../Images/Figure33_11.png" alt="Figure 33-11" />
 <p><b>Figure 33-11</b> Adding a new SiteMapDataSource</p>
 <p>From the resulting dialog box, select the SiteMap icon. This will set the DataSourceID property of the
 Menu item as well as add a new SiteMapDataSource component to your page. This is all you need to do to
@@ -287,13 +287,13 @@ master’s content is displayed in a read-only nature on the content page. There
 complex UI for your Default.aspx content area. For this example, simply add some literal text that
 provides some basic site instructions, as you see in Figure 33-12 (also notice on the upper right of the
 content page that there is a link to switch to the related master file).</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_12.png" alt="Figure 33-12" />
+<img src="../Images/Figure33_12.png" alt="Figure 33-12" />
 <p><b>Figure 33-12</b> Authoring the first content page</p>
 <p>Now, if you run your project, you will find that the UI content of the *.master and Default.aspx files
 have been merged into a single stream of HTML. As you can see from Figure 33-13, the end user is
 unaware that the master page even exists. Also, as you refresh the page (via the F5 key), you should see
 the AdRotator randomly displaying one of two images.</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_13.png" alt="Figure 33-13" />
+<img src="../Images/Figure33_13.png" alt="Figure 33-13" />
     <p><b>Figure 33-13</b> At runtime, master files and content pages render back a single form</p>
 <p><b>Note</b> Do be aware that a Page object’s master page can be assigned programmatically within the PreInit
 event of a Page derived type using the inherited Master property.</p>
@@ -380,13 +380,13 @@ web.config:</p>
 <p>At this point, you are able to run your web program, click the View Inventory menu item, and view
 your data, as shown in Figure 33-14. (Note that I updated my DataView grid with a unique look and feel
 using the inline designer.)</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_14.png" alt="Figure 33-14" />
+<img src="../Images/Figure33_14.png" alt="Figure 33-14" />
 <p><b>Figure 33-14</b> The zero-code model of the SqlDataSource component</p>
 <h2>Enabling Sorting and Paging</h2>
 <p>The GridView control can easily be configured for sorting (via column name hyperlinks) and paging (via
 numeric or next/previous hyperlinks). To do so, activate the inline editor and check the appropriate
 options, as shown in Figure 33-15.</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_15.png" alt="Figure 33-15" />
+<img src="../Images/Figure33_15.png" alt="Figure 33-15" />
     <p><b>Figure 33-15</b> Enabling sorting and paging</p>
 <p>When you run your page again, you will be able to sort your data by clicking the column names and
 scrolling through your data via the paging links (provided you have enough records in the Inventory
@@ -397,7 +397,7 @@ your SqlDataSource already has the necessary Delete and Update logic, all you ne
 Enable Deleting and Enable Editing check boxes of the GridView (see Figure 33-15 for a reference point).
 Sure enough, when you navigate back to the Inventory.aspx page, you are able to edit and delete records
 (as shown in Figure 33-16) and update the underlying Inventory table of the AutoLot database.</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_16.png" alt="Figure 33-16" />
+<img src="../Images/Figure33_16.png" alt="Figure 33-16" />
     <p><b>Figure 33-16</b> Editing and deleting functionality</p>
 <p><b>Note</b> Editing and deleting functionality</p>
 <p><b>Note</b> Enabling in-place editing for a GridView requires that the database table be assigned a primary key. If
@@ -411,7 +411,7 @@ related steps. Here, the steps in question will simulate the act of building an 
 <p>Place a descriptive Label and Wizard control onto the content area. Next, activate the inline editor
 for the Wizard and click the Add/Remove WizardSteps link. Add a total of four steps, as shown in Figure
 33-17.</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_17.png" alt="Figure 33-17" />
+<img src="../Images/Figure33_17.png" alt="Figure 33-17" />
     <p><b>Figure 33-17</b> Configuring our wizard</p>
 <p>Once you have defined these steps, you will notice that the Wizard defines an empty content area
 where you can now drag and drop controls for the currently selected step. For this example, update each
@@ -467,7 +467,7 @@ additional Label type named lblOrder:</p>
 }</pre>
 <p>At this point, your AspNetCarsSite web application is complete! Figure 33-18 shows the Wizard in
 action.</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_18.png" alt="Figure 33-18" />
+<img src="../Images/Figure33_18.png" alt="Figure 33-18" />
     <p><b>Figure 33-18</b> The Wizard control in action</p>
 <p>That wraps up your first look of various ASP.NET web controls, master pages, content pages and site
 map navigation. Next up, let’s look at the functionality of the ASP.NET validation controls.</p>

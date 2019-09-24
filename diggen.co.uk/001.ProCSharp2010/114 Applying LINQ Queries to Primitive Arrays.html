@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Applying LINQ Queries to Primitive Arrays</h1>
@@ -224,7 +224,7 @@ System.Linq.Enumerable class type.</p>
 First&lt;T&gt;(), Max&lt;T&gt;(), etc.), which System.Array (and other types) acquire in the background. Thus, if
 you apply the dot operator on the currentVideoGames local variable, you will find a good number of
 members not found within the formal definition of System.Array (see Figure 13-1).</p>
-<img src="http://www.diggen.co.uk/Images/Figure13_01.png" alt="Figure 13-1" />
+<img src="../Images/Figure13_01.png" alt="Figure 13-1" />
 <p><b>Figure 13-1. </b>The System.Array type has been extended with members of System.Linq.Enumerable</p>
 <h2>The Role of Deferred Execution</h2>
   <p>Another important point regarding LINQ query expressions is that they are not actually evaluated until
@@ -274,7 +274,7 @@ item in the array to be a value less than ten:</p>
 LINQ query, you are able to view the contents during a debugging session. Simply locate your mouse
 cursor above the LINQ result set variable (subset in Figure 13-2). When you do, you will be given the
 option of evaluating the query at that time by expanding the Results View option.</p>
-<img src="http://www.diggen.co.uk/Images/Figure13_02.png" alt="Figure 13-2" />
+<img src="../Images/Figure13_02.png" alt="Figure 13-2" />
 <p><b>Figure 13-2. </b>Debugging LINQ expressions</p>
 <h2>The Role of Immediate Execution</h2>
   <p>When you wish to evaluate a LINQ expression from outside the confines of foreach logic, you are able to

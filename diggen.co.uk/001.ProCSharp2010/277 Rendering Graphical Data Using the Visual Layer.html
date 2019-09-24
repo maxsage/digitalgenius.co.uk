@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Rendering Graphical Data Using the Visual Layer</h1>
@@ -23,7 +23,7 @@ let’s build a small sample program that illustrates the basics.</p>
 testing, transformations) to render graphics, but it does not provide support for additional non-visual
 services, which can lead to code bloat (input events, layout services, styles, and data binding). Notice the
 simple inheritance chain of the Visual type, as shown in Figure 29-21.</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_21.png" alt="Figure 29-21" />
+<img src="../Images/Figure29_21.png" alt="Figure 29-21" />
 <p><b>Figure 29-21</b> The Visual type provides basic hit testing, coordinate transformation, and bounding box
 calculations</p>
 <p>Given that Visual is an abstract base class, we need to use one of the derived types to perform actual
@@ -115,7 +115,7 @@ should look very similar.</p>
 member of the System.Windows.Media.Imaging namespace. This class will take a visual object, and
 transform it into an in-memory bitmap image. After this point, we set the Source property of the Image
 control, and sure enough, we see the output in Figure 29-22.</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_22.png" alt="Figure 29-22" />
+<img src="../Images/Figure29_22.png" alt="Figure 29-22" />
 <p><b>Figure 29-22</b> Using the visual layer to render an in-memory bitmap</p>
 <p><b>Note</b> The System.Windows.Media.Imaging namespace contains a number of additional encoding classes that
 let you save the in-memory RenderTargetBitmap object to a physical file in a variety of formats. Check out the
@@ -216,7 +216,7 @@ Chapter 28):</p>
         <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
 <span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
 <p>If all is well, you should see something similar to Figure 29-23 when you run your program.</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_23.png" alt="Figure 29-23" />
+<img src="../Images/Figure29_23.png" alt="Figure 29-23" />
 <p><b>Figure 29-23</b> Using the visual layer to render data to a custom FrameworkElement</p>
 <h2>Responding to Hit Test Operations</h2>
 <p>Because DrawingVisual does not have any of the infrastructure of UIElement or FrameworkElement, you

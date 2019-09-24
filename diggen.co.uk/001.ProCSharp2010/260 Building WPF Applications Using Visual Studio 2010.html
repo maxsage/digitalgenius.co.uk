@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Building WPF Applications Using Visual Studio 2010</h1>
@@ -21,24 +21,24 @@ examine Expression Blend in Chapter 28.</p>
 are contained under the Window node of the Visual C# root. Here, you can choose from a WPF
 Application, WPF User Control Library, WPF Custom Control Library, and WPF Browser Application (i.e.,
 XBAP). To begin, create a new WPF Application named MyXamlPad (Figure 27-16).</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_16.png" alt="Figure 27-16" />
+<img src="../Images/Figure27_16.png" alt="Figure 27-16" />
 <p><b>Figure 27-16</b> The WPF project templates of Visual Studio 2010</p>
 <p>Beyond setting references to each of the WPF assemblies (PresentationCore.dll,
 PresentationFramework.dll, and WindowsBase.dll), you will also be provided with initial Window and
 Application derived classes, making use of code files and a related XAML file. Consider Figure 27-17,
 which shows the Solution Explorer for this new WPF project.</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_17.png" alt="Figure 27-17" />
+<img src="../Images/Figure27_17.png" alt="Figure 27-17" />
 <p><b>Figure 27-17</b> The initial files of a WPF Application project</p>
 <h2>Exploring the WPF Designer Tools</h2>
 <p>Visual Studio 2010 provides a Toolbox (which you can open via the View menu) that contains numerous
 WPF controls (Figure 27-18).</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_18.png" alt="Figure 27-18" />
+<img src="../Images/Figure27_18.png" alt="Figure 27-18" />
 <p><b>Figure 27-18</b> The Toolbox contains the WPF controls that can be placed on the designer surface</p>
 <p>Using a standard mouse drag and drop, you can place any of these controls onto the Window's
 designer surface. As you do, the underlying XAML will be authored on your behalf. However, you can
 also manually type in your markup using the integrated XAML editor. As you can see in Figure 29-19,
 you do get IntelliSense support, which can help simplify the authoring of the markup.</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_19.png" alt="Figure 27-19" />
+<img src="../Images/Figure27_19.png" alt="Figure 27-19" />
 <p><b>Figure 27-19</b> The WPF Window designer</p>
 <p><b>Note</b> You can reposition the display panes of the visual designer using the buttons embedded within the splitter
 window, such as the Swap Panes button (indicated by the up/down arrows), the Horizontal and Vertical split
@@ -55,7 +55,7 @@ designer. Once you do, you will see that Visual Studio authored XAML similar to 
 brush editor (Figure 27-20).</p>
 <p><b>Note</b> The Brush Editor of Expression Blend is very similar to the Visual Studio brush editor and will be examined
 in detail in Chapter 29.</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_20.png" alt="Figure 27-20" />
+<img src="../Images/Figure27_20.png" alt="Figure 27-20" />
 <p><b>Figure 27-20</b> The Properties window can be used to configure the UI of a WPF control</p>
 <p>Once you have finished tinkering with the brush editor, check out the generated markup. It might
 look something like this:</p>
@@ -78,7 +78,7 @@ This will cause Visual Studio 2010 to automatically build an event handler that 
 NameOfControl_NameOfEvent</pre>
 <p>Since you did not rename your button, the Properties window shows it generated an event handler
 named button1_Click (see Figure 27-21).</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_20.png" alt="Figure 27-20" />
+<img src="../Images/Figure27_20.png" alt="Figure 27-20" />
 <p><b>Figure 27-20</b> Handling events using the visual designer</p>
 <p>As well, Visual Studio 2010 generated the corresponding C# code in your window's code file. Here,
 you can add any sort of code that must execute when the button is clicked:</p>
@@ -208,7 +208,7 @@ escape characters required for the embedded quotations, so type carefully.</p>
 <p>Using this approach, your application will be able to load the XAML entered in a previous session or
 supply a default block of markup if necessary. At this point, you should be able to run your program and
 find the display shown in Figure 27-22 within the TextBox type.</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_22.png" alt="Figure 27-22" />
+<img src="../Images/Figure27_22.png" alt="Figure 27-22" />
 <p><b>Figure 27-22</b> The first run of MyXamlPad.exe</p>
 <h2>Implementing the Button’s Click Event</h2>
 <p>When you click the Button, you will first save the current data in the TextBox into the YourXaml.xaml file.
@@ -252,7 +252,7 @@ YourXaml.xaml file contains ill-formed markup, you can see the error of your way
 message box. For example, run your program, and purposely misspell &lt;StackPanel&gt; by adding an extra
 letter P in the opening element or whatnot. If you click the button, you will see an error similar to
 Figure 27-23:</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_23.png" alt="Figure 27-23" />
+<img src="../Images/Figure27_23.png" alt="Figure 27-23" />
 <p><b>Figure 27-23</b> Catching markup errors</p>
 <h2>Implementing the Closed Event</h2>
 <p>Finally, the Closed event of your Window type will ensure that the latest and greatest data in the TextBox is
@@ -278,7 +278,7 @@ or any event handlers). As a test, enter the following XAML within your &lt;Wind
     <p>Once you click the button, you will see a window appear that renders your XAML definitions (or
 possibly you’ll see a parsing error in the message box—watch your typing!). Figure 27-24 shows possible
 output.</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_24.png" alt="Figure 27-24" />
+<img src="../Images/Figure27_24.png" alt="Figure 27-24" />
 <p><b>Figure 27-24</b> MyXamlPad.exe in action</p>
 <p>Great! I am sure you can think of many possible enhancements to this application, but to do so you
 need to be aware of how to work with WPF controls and the panels that contain them. You will do so

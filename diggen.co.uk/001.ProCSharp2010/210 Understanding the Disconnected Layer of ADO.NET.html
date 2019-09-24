@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Understanding the Disconnected Layer of ADO.NET</h1>
@@ -35,7 +35,7 @@ database and left with a local copy of the remote data. The caller is free to in
 from a given DataTable, but the physical database is not updated until the caller explicitly passes the
 DataSet to the data adapter for updating. In a nutshell, DataSets allow the clients to pretend they are
 always connected; however, they actually operate on an in-memory database (see Figure 22-1).</p>
-<img src="http://www.diggen.co.uk/Images/Figure22_01.png" alt="Figure 22-1" />
+<img src="../Images/Figure22_01.png" alt="Figure 22-1" />
 <p><b>Figure 22-1</b> Data adapter objects move DataSets to and from the client tier</p>
 <p>Given that the centerpiece of the disconnected layer is the DataSet class, the first task of this chapter
 is to learn how to manipulate a DataSet manually. Once you can do this, you will have no problem

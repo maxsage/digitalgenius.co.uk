@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Understanding the ASP.NET Profile API</h1>
@@ -203,7 +203,7 @@ how to access this data programmatically from within our pages.</p>
 Default.aspx file with a set of TextBoxes (and descriptive Labels) to gather the street address, city, and
 state of the user. As well, add a Button (named btnSubmit) and a final Label (named lblUserData) that will
 be used to display the persisted data, as shown in Figure 34-10.</p>
-<img src="http://www.diggen.co.uk/Images/Figure34_10.png" alt="Figure 34-10" />
+<img src="../Images/Figure34_10.png" alt="Figure 34-10" />
 <p><b>Figure 34-10</b> The UI of the FunWithProfiles Default.aspx page</p>
 <p>Now, within the Click event handler of the button, make use of the inherited Profile property to
 persist each point of profile data based on what the user has entered in the related TextBox. Once you
@@ -241,7 +241,7 @@ they can see their current settings. Here is the complete code file:</p>
 <p>Now if you run this page, you will notice a lengthy delay the first time Default.aspx is requested.
 The reason is that the ASPNETDB.mdf file is being created on the fly and placed within your App_Data
 folder. You can verify this for yourself by refreshing Solution Explorer (see Figure 34-11).</p>
-<img src="http://www.diggen.co.uk/Images/Figure34_11.png" alt="Figure 34-11" />
+<img src="../Images/Figure34_11.png" alt="Figure 34-11" />
 <p><b>Figure 34-11</b> Behold ASPNETDB.mdf!</p>
 <p>You will also find that the first time you come to this page, the lblUserData Label does not display
 any profile data, as you have not yet entered your data into the correct table of ASPNETDB.mdf. Once you

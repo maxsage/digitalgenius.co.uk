@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Building a Custom Control Template with Visual Studio 2010</h1>
@@ -68,11 +68,11 @@ template between projects, or at minimum, move it into the application resource 
 within this project. Let’s move the local Button resource to the application level using Visual Studio
 2010. First, locate the Template property for your Button in the Properties editor. Now, click on the
 small black diamond icon and select “Extract Value to Resource…” (see Figure 31-11).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_11.png" alt="Figure 31-11" />
+<img src="../Images/Figure31_11.png" alt="Figure 31-11" />
 <p><b>Figure 31-11</b> Extracting a local resource</p>
 <p>From the resulting dialog box, define a new template named RoundButtonTemplate, which is stored
 in App.xaml (Figure 31-12).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_12.png" alt="Figure 31-12" />
+<img src="../Images/Figure31_12.png" alt="Figure 31-12" />
 <p><b>Figure 31-12</b> Placing your resource into App.xaml</p>
 <p>At this point, you will find the following data in your Application object’s markup:</p>
 <!-- code formatted by http://manoli.net/csharpformat/ -->
@@ -207,7 +207,7 @@ Label:</p>
     <span class="kwrd">&lt;/</span><span class="html">ControlTemplate.Triggers</span><span class="kwrd">&gt;</span>
 <span class="kwrd">&lt;/</span><span class="html">ControlTemplate</span><span class="kwrd">&gt;</span></pre>
 <p>With this update, you can now create buttons of various colors and textual values (Figure 31-13).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_13.png" alt="Figure 31-13" />
+<img src="../Images/Figure31_13.png" alt="Figure 31-13" />
 <p><b>Figure 31-13</b> Template bindings allow values to pass through to the internal controls</p>
 <h2>The Role of ContentPresenter</h2>
 <p>When you designed your template, you used a Label to display the textual value of the control. Like the

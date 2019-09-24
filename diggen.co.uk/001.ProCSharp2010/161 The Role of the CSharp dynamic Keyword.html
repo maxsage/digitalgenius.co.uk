@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>The Role of the C# dynamic Keyword</h1>
@@ -136,7 +136,7 @@ Unhandled Exception: Microsoft.CSharp.RuntimeBinder.RuntimeBinderException:
 <p>Another very big distinction between calling members on dynamic data and strongly typed data is
 that when you apply the dot operator to a piece of dynamic data, you will not see the expected Visual
 Studio 2010 IntelliSense. Instead, you will find the following general message (see Figure 18-1).</p>
-<img src="http://www.diggen.co.uk/Images/Figure18_01.png" alt="Figure 18-1" />
+<img src="../Images/Figure18_01.png" alt="Figure 18-1" />
 <p><b>Figure 18-1.</b> Dynamic data will not activate IntelliSense</p>
 <p>It should make sense that IntelliSense is not possible with dynamic data. However remember that
 this means you need to be extremely careful when you are typing C# code on such data points! Any
@@ -147,7 +147,7 @@ the RuntimeBinderException class.</p>
 new .NET 4.0 assembly named Microsoft.CSharp.dll (you can see this for yourself by looking in the
 References folder of the Solution Explorer). This library is very small, and only defines a single
 namespace (Microsoft.CSharp.RuntimeBinder) with two classes (see Figure 18-2).</p>
-<img src="http://www.diggen.co.uk/Images/Figure18_02.png" alt="Figure 18-2" />
+<img src="../Images/Figure18_02.png" alt="Figure 18-2" />
 <p><b>Figure 18-2</b> The Microsoft.CSharp.dll Assembly</p>
 <p>As you can tell by their names, both of these classes are strongly typed exceptions. The most
 common class, RuntimeBinderException, represents an error which will be thrown if you attempt to

@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Understanding the Format of a .NET Assembly</h1>
@@ -150,7 +150,7 @@ and the underlying (physical) binary (hence the term single-file assembly).</p>
 <p>Single-file assemblies contain all of the necessary elements (header information, CIL code, type
 metadata, manifest, and required resources) in a single *.exe or *.dll package. Figure 14-2 illustrates
 the composition of a single-file assembly.</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_02.png" alt="Figure 14-2" />
+<img src="../Images/Figure14_02.png" alt="Figure 14-2" />
 <p><b>Figure 14-2</b> A single-file assembly</p>
 <p>A multifile assembly, on the other hand, is a set of .NET modules that are deployed and versioned as
 a single logical unit. Formally speaking, one of these modules is termed the primary module and
@@ -176,7 +176,7 @@ compiler.</p>
 linked together into a single (larger) file. Rather, multifile assemblies are only logically related by
 information contained in the primary module’s manifest. Figure 14-3 illustrates a multifile assembly
 composed of three modules, each authored using a unique .NET programming language.</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_03.png" alt="Figure 14-3" />
+<img src="../Images/Figure14_03.png" alt="Figure 14-3" />
 <p><b>Figure 14-3</b> The primary module records secondary modules in the assembly manifest</p>
 <p>At this point you should have a better understanding of the internal composition of a .NET binary
 file. With that out of the way, we are ready to look at the building and configuring a variety of code

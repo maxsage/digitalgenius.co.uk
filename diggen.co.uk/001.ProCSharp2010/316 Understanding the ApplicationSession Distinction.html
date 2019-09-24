@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Understanding the Application/Session Distinction</h1>
@@ -23,7 +23,7 @@ Figure 34-4.</p>
 represented using distinct COM objects (e.g., Application and Session). Under ASP.NET, Page-derived
 types as well as the HttpApplication type use identically named properties (i.e., Application and
 Session), which expose the underlying HttpApplicationState and HttpSessionState types.</p>
-<img src="http://www.diggen.co.uk/Images/Figure34_04.png" alt="Figure 34-4" />
+<img src="../Images/Figure34_04.png" alt="Figure 34-4" />
 <p><b>Figure 34-4</b> The application/session state distinction</p> 
 <h2>Maintaining Application-Level State Data</h2>
 <p>The HttpApplicationState type enables developers to share global information across multiple users in
@@ -212,7 +212,7 @@ Furthermore, given that application variables are accessible by any user on any 
 application, if you launched three or four instances of your web browser, you’d find that if one instance
 changes the current hotshot salesperson, each of the other browsers displays the new value on postback.
 Figure 34-5 shows some possible output.</p>
-<img src="http://www.diggen.co.uk/Images/Figure34_05.png" alt="Figure 34-5" />
+<img src="../Images/Figure34_05.png" alt="Figure 34-5" />
 <p><b>Figure 34-5</b> Displaying application data</p>
 <p>Understand that if you have a situation where a set of application-level variables must be updated
 as a unit, you risk the possibility of data corruption (since it is technically possible that an applicationlevel

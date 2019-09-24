@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Binding DataTable Objects to Windows Forms GUIs</h1>
@@ -33,7 +33,7 @@ Notice that when you do this, you activate a context menu that allows you to con
 source. For the time being, ignore this aspect of the designer because you will be binding your DataTable
 object programmatically. Finally, add a descriptive Label to your designer for information purposes.
 Figure 22-5 shows one possible look-and-feel.</p>
-<img src="http://www.diggen.co.uk/Images/Figure15_07.png" alt="Figure 22-5" />
+<img src="../Images/Figure15_07.png" alt="Figure 22-5" />
 <p><b>Figure 22-5</b> The initial GUI of your Windows Forms application</p>
 <h2>Hydrating a DataTable from a Generic List&lt;T&gt;</h2>
 <p>Similar to the previous SimpleDataSet example, the WindowsFormsDataBinding application will
@@ -130,7 +130,7 @@ need to set to bind a DataTable to a Windows Forms DataGridView object. Under th
 control reads the row and column collections internally, much like what happens with the
 PrintDataSet() method of the SimpleDataSet example. At this point, you should be able to run your
 application and see the DataTable within the DataGridView control, as shown in Figure 22-6.</p>
-<img src="http://www.diggen.co.uk/Images/Figure22_06.png" alt="Figure 22-6" />
+<img src="../Images/Figure22_06.png" alt="Figure 22-6" />
 <p><b>Figure 22-6</b> Binding a DataTable to a Windows Forms DataGridView</p>
 <h2>Deleting Rows from a DataTable</h2>
 <p>Now, assume you wish to update your graphical interface to allow the user to delete a row from the inmemory
@@ -140,7 +140,7 @@ object) representing the row to remove. To allow the user to specify which row t
 (named txtCarToRemove) and a Button control (named btnRemoveCar) to the current designer. Figure 22-7
 shows one possible UI update (note this example wraps the two controls in a GroupBox control,
 illustrating how they are related).</p>
-<img src="http://www.diggen.co.uk/Images/Figure22_07.png" alt="Figure 22-7" />
+<img src="../Images/Figure22_07.png" alt="Figure 22-7" />
 <p><b>Figure 22-7</b> Updating the UI to enable removal of rows from the underlying DataTable</p>
 <p>The following logic behind the new Button’s Click event handler removes the user-specified row,
 based on the ID of a car, from your in-memory DataTable. The Select() method of the DataTable class
@@ -178,7 +178,7 @@ of records for display purposes.</p>
 <p>To see this in action, update your UI again, this time allowing users to specify a string that
 represents the make of the automobile they want to see (see Figure 22-8) using a new TextBox (named
 txtMakeToView) and a new Button (named btnDisplayMakes).</p>
-<img src="http://www.diggen.co.uk/Images/Figure22_08.png" alt="Figure 22-8" />
+<img src="../Images/Figure22_08.png" alt="Figure 22-8" />
 <p><b>Figure 22-8</b> Updating the UI to enable row filtering</p>
 <p>The Select() method has been overloaded a number of times to provide different selection
 semantics. At its most basic level, the parameter sent to Select() is a string that contains some
@@ -220,7 +220,7 @@ specify BMW, your filter looks like this:</p>
 Make = <span class="str">'BMW'</span></pre>
 <p>When you send this filter to the Select() method, you get back an array of DataRow types that
 represent each row that matches the filter (see Figure 22-9).</p>
-<img src="http://www.diggen.co.uk/Images/Figure22_09.png" alt="Figure 22-9" />
+<img src="../Images/Figure22_09.png" alt="Figure 22-9" />
 <p><b>Figure 22-9</b> Displaying filtered data</p>
 <p>Again, the filtering logic is based on standard SQL syntax. For example, assume you wish to obtain
 the results of the previous Select() invocation alphabetically, based on the pet name. In terms of SQL,
@@ -339,7 +339,7 @@ DataView has been passed the DataTable that you will use to build the custom set
 representing the filtering criteria used to extract matching rows. Once you establish your view, set the
 grid’s DataSource property accordingly. Figure 22-10 shows the completed Windows Forms data-binding
 application in action.</p>
-<img src="http://www.diggen.co.uk/Images/Figure22_10.png" alt="Figure 22-10" />
+<img src="../Images/Figure22_10.png" alt="Figure 22-10" />
 <p><b>Figure 22-10</b> Displaying a unique view of your data</p>
     <p><b>Source Code</b> You can find the WindowsFormsDataBinding project under the Chapter 22 subdirectory.</p>
     </body>

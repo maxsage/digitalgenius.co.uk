@@ -3,8 +3,8 @@
 <head>
     <title>Exploring an Assembly Using ildasm.exe</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />	
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />	
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="../master.css" />	
 </head>
 <body>
     <h1>Exploring an Assembly Using ildasm.exe</h1>
@@ -25,24 +25,24 @@
     wish to explore. By way of illustration, here is the Calc.exe assembly generated based on the Calc.cs file
     shown earlier in this chapter (see Figure 1-7). ildasm.exe presents the structure of an assembly using a
     familiar tree-view format.</p>
-    <img src="http://www.diggen.co.uk/Images/Figure01_07.png" alt="Figure 1-7" />
+    <img src="../Images/Figure01_07.png" alt="Figure 1-7" />
     <p><b>Figure 1-7</b> ildasm.exe allows you to see the CIL code, manifest, and metadata within a .NET assembly</p>
     <h2>Viewing CIL Code</h2>
     <p>In addition to showing the namespaces, types, and members contained in a given assembly, ildasm.exe
     also allows you to view the CIL instructions for a given member. For example, if you were to double-click
     the Main() method of the Program class, a separate window would display the underlying CIL (see
     Figure 1-8).</p>
-    <img src="http://www.diggen.co.uk/Images/Figure01_08.png" alt="Figure 1-8" />
+    <img src="../Images/Figure01_08.png" alt="Figure 1-8" />
     <p><b>Figure 1-8</b> Viewing the underlying CIL</p>
     <h2>Viewing Type Metadata</h2>
     <p>If you wish to view the type metadata for the currently loaded assembly, press Ctrl+M. Figure 1-9 shows
     the metadata for the Calc.Add() method.</p>
-    <img src="http://www.diggen.co.uk/Images/Figure01_09.png" alt="Figure 1-9" />
+    <img src="../Images/Figure01_09.png" alt="Figure 1-9" />
     <p><b>Figure 1-9</b> Viewing type metadata via ildasm.exe</p>
     <h2>Viewing Assembly Metadata (aka the Manifest)</h2>
     <p>Finally, if you are interested in viewing the contents of the assembly’s manifest, simply double-click the
     MANIFEST icon (see Figure 1-10).</p>
-    <img src="http://www.diggen.co.uk/Images/Figure01_10.png" alt="Figure 1-10" />
+    <img src="../Images/Figure01_10.png" alt="Figure 1-10" />
     <p><b>Figure 1-10</b> Viewing manifest data via ildasm.exe</p>
     <p>To be sure, ildasm.exe has more options than shown here, and I will illustrate additional features of
     the tool where appropriate in the text.</p>

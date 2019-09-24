@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />   
-	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />       
-	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />  
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />       
+	<link rel="stylesheet" type="text/css" href="../master.css" />  
 </head>
 <body>
     <h1>Building .NET Applications Using Visual Studio 2010</h1>
@@ -47,12 +47,12 @@
     select which version of the .NET Framework you wish to build against (2.0, 3.x, or 4.0) using the dropdown
     list box on the top center of the New Project dialog box. For each project in this text, you can
     simply leave the default selection of .NET Framework 4.0.</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_09.png" alt="Figure 2-9" />
+    <img src="../Images/Figure02_09.png" alt="Figure 2-9" />
     <p><b>Figure 2-9</b> Visual Studio 2010 allows you to target a particular version of the .NET Framework</p>
     <h2>Using the Solution Explorer Utility</h2>
     <p>The Solution Explorer utility (accessible from the View menu) allows you to view the set of all content
     files and referenced assemblies that comprise the current project (see Figure 2-10).</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_10.png" alt="Figure 2-10" />
+    <img src="../Images/Figure02_10.png" alt="Figure 2-10" />
     <p><b>Figure 2-10</b> The Solution Explorer utility</p>
     <p>Notice that the References folder of Solution Explorer displays a list of each assembly you have
     currently referenced, which will differ based on the type of project you select and the version of the
@@ -64,12 +64,12 @@
     .NET tab (see Figure 2-11) displays a number of commonly used .NET assemblies; however, the Browse
     tab allows you to navigate to any .NET assembly on your hard drive. Also, the very useful Recent tab
     keeps a running tally of frequently referenced assemblies you have used in other projects.</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_11.png" alt="Figure 2-11" />
+    <img src="../Images/Figure02_11.png" alt="Figure 2-11" />
     <p><b>Figure 2-11</b> The Add Reference dialog box</p>
     <h2>Viewing Project Properties</h2>
     <p>Finally, notice an icon named Properties within Solution Explorer. When you double-click this item, you
     are presented with a sophisticated project configuration editor (see Figure 2-12).</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_12.png" alt="Figure 2-12" />
+    <img src="../Images/Figure02_12.png" alt="Figure 2-12" />
     <p><b>Figure 2-12</b> The Project Properties window</p>
     <p>You will see various aspects of the Project Properties window as you progress through this book.
     However, if you take some time to poke around, you will see that you can establish various security
@@ -80,19 +80,19 @@
     of this utility is to show all of the types in your current project from an object-oriented perspective
     (rather than a file-based view of Solution Explorer). The top pane displays the set of namespaces and
     their types, while the bottom pane displays the currently selected type's members (see Figure 2-13).</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_13.png" alt="Figure 2-13" />
+    <img src="../Images/Figure02_13.png" alt="Figure 2-13" />
     <p><b>Figure 2-13</b> The Class View utility</p>
     <p>When you double click on a type or type member using the Class View tool, Visual Studio will
     automatically open the correct C# code file, and place your mouse cursor at the correct location.
     Another nice feature of the Visual Studio 2010 Class View tool is that you are able to open up any
     referenced assembly and drill into the contained namespaces, types, and members (Figure 2-14).</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_14.png" alt="Figure 2-14" />
+    <img src="../Images/Figure02_14.png" alt="Figure 2-14" />
     <p><b>Figure 2-14</b> The Class View utility can also be used to view referenced assemblies</p>
     <h2>The Object Browser Utility</h2>
     <p>Visual Studio 2010 also provides a second utility to investigate the set of referenced assemblies within
     your current project. Activate the Object Browser using the View menu, and then select the assembly you
     wish to investigate (see Figure 2-15).</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_15.png" alt="Figure 2-15" />
+    <img src="../Images/Figure02_15.png" alt="Figure 2-15" />
     <p><b>Figure 2-15</b> The Object Browser utility</p>
     <h2>Integrated Support for Code Refactoring</h2>
     <p>One major feature that ships with Visual Studio 2010 is support to refactor existing code. Simply put,
@@ -158,7 +158,7 @@
      <p>First, select each code statement within Main() (except the final call to Console.ReadLine()) using
     the editor. Then right-click the selected text and select the Extract Method option within the Refactor
     context menu (see Figure 2-16).</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_16.png" alt="Figure 2-16" />
+    <img src="../Images/Figure02_16.png" alt="Figure 2-16" />
     <p><b>Figure 2-16</b> Activating a code refactoring</p>
     <p>Name your new method ConfigureCUI using the resulting dialog box. When you have finished, you
     will find that your Main() method calls the newly generated ConfigureCUI() method, which now
@@ -208,7 +208,7 @@
     the pop-up menu). As a shortcut, however, you can simply type in the name of the code snippet,
     foreach in this case. In Figure 2-17, notice how the icon for a code snippet looks a bit like a torn piece of
     paper.</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_17.png" alt="Figure 2-17" />
+    <img src="../Images/Figure02_17.png" alt="Figure 2-17" />
     <p><b>Figure 2-17</b> Activating a code snippet</p>
     <p>Once you find the snippet you want to activate, press the Tab key twice. This will autocomplete the
     entire snippet and leave a set of placeholders that you can fill in to complete the snippet. If you press the
@@ -233,30 +233,30 @@
     There are many ways to do so, one of which is to click the View Class Diagram button located on
     Solution Explorer's right side (see Figure 2-18; be sure your project - not the solution - is the selected
     item in the window).</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_18.png" alt="Figure 2-18" />
+    <img src="../Images/Figure02_18.png" alt="Figure 2-18" />
     <p><b>Figure 2-18</b> Inserting a class diagram file</p>
     <p>Once you do, you will find class icons that represent the classes in your current project. If you click
     the arrow icon for a given type, you can show or hide the type's members (see Figure 2-19).</p>
     <p><b>Note</b> Using the Class Designer toolbar, you can fine-tune the display options of the designer surface.</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_19.png" alt="Figure 1.1" />
+    <img src="../Images/Figure02_19.png" alt="Figure 1.1" />
     <p><b>Figure 2-19</b> The Class Diagram viewer</p>
     <p>This utility works in conjunction with two other aspects of Visual Studio 2010: the Class Details
     window (activated using the View ? Other Windows menu) and the Class Designer Toolbox (activated
     using the View ? Toolbox menu item). The Class Details window not only shows you the details of the
     currently selected item in the diagram, but also allows you to modify existing members and insert new
     members on the fly (see Figure 2-20).</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_20.png" alt="Figure 2-20" />
+    <img src="../Images/Figure02_20.png" alt="Figure 2-20" />
     <p><b>Figure 2-20</b> The Class Details window</p>
     <p>The Class Designer Toolbox, which can be activated using the View menu, allows you to insert new
     types into your project (and create relationships between these types) visually (see Figure 2-21). (Be
     aware you must have a class diagram as the active window to view this toolbox.) As you do so, the IDE
     automatically creates new C# type definitions in the background.</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_21.png" alt="Figure 2-21" />
+    <img src="../Images/Figure02_21.png" alt="Figure 2-21" />
     <p><b>Figure 2-21</b> The Class Designer Toolbox</p>
     <p>By way of example, drag a new Class from the Class Designer Toolbox onto your Class Designer.
     Name this class Car in the resulting dialog box. Now, using the Class Details window, add a public string
     field named petName (see Figure 2-22).</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_22.png" alt="Figure 2-22" />
+    <img src="../Images/Figure02_22.png" alt="Figure 2-22" />
     <p><b>Figure 2-22</b> Adding a field with the Class Details window</p>
     <p>If you now look at the C# definition of the Car class, you will see it has been updated accordingly
     (minus the additional code comments).</p>
@@ -272,7 +272,7 @@
     SportsCar. Now, select the Inheritance icon from the Class Designer Toolbox and click the top of the
     SportsCar icon. Next, click the mouse on top of the Car class icon. If you performed these steps correctly,
     you have just derived the SportsCar class from Car (see Figure 2-23).</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_23.png" alt="Figure 2-23" />
+    <img src="../Images/Figure02_23.png" alt="Figure 2-23" />
     <p><b>Figure 2-23</b> Visually deriving from an existing class</p>
     <p>To complete this example, update the generated SportsCar class with a public method named
     GetPetName() authored as follows:</p>
@@ -305,7 +305,7 @@
     Windows Start button, and select the Manage Help Settings tool. Once you have done so, you can then
     elect to add the help documentation you are interested in, as seen in Figure 2-24 (if hard drive space
     allows, I'd recommend adding all possible documentation).</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_24.png" alt="Figure 2-24" />
+    <img src="../Images/Figure02_24.png" alt="Figure 2-24" />
     <p><b>Figure 2-24</b> The Help Library Manager allows you to download a local copy of the .NET Framework 4.0
     SDK Documentation</p>
     <p><b>Note</b> Beginning with .NET 4.0, the help system is viewed via your current web browser, even if you do a local
@@ -319,7 +319,7 @@
     correct location. If you were to try to search for the System.Reflection namespace, you would be able to
     learn about the details of this namespace, examine the contained types, view code examples, and so
     forth (Figure 2-25)</p>
-    <img src="http://www.diggen.co.uk/Images/Figure02_25.png" alt="Figure 2-25" />
+    <img src="../Images/Figure02_25.png" alt="Figure 2-25" />
     <p><b>Figure 2-25</b> The Search edit box allows you to look up items of interest</p>
     <p>Each node in the tree defines the set of types in a given namespace, the members of a given type,
     and the parameters of a given member. Furthermore, when you view the help page for a given type, you

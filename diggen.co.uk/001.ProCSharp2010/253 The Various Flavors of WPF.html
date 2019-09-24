@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>The Various Flavors of WPF</h1>
@@ -25,13 +25,13 @@ systems, and other UI elements.</p>
 support any bells and whistles, but WPF really shines when you do incorporate such features. Consider
 Figure 27-1, which shows a WPF sample desktop application for viewing patient records in a medical
 environment.</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_01.png" alt="Figure 27-1" />
+<img src="../Images/Figure27_01.png" alt="Figure 27-1" />
 <p><b>Figure 27-1</b> This WPF desktop application makes use of several WPF APIs</p>
 <p>Sadly, the printed page does not show the full feature set of this window. Note that the upper right
 of the main window is displaying a real time graph of the patient's sinus rhythm. If you click on Patient
 Details button on the lower right, several animations take place to flip, rotate and transform the UI to the
 following look and feel (Figure 27-2).</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_02.png" alt="Figure 27-2" />
+<img src="../Images/Figure27_02.png" alt="Figure 27-2" />
 <p><b>Figure 27-2</b> Transformations and animations are very simple under WPF</p>
 <p>Could you build this same application without WPF? Absolutely. However, the amount of code—
 and the complexity of the code—would be much higher.</p>
@@ -48,7 +48,7 @@ navigate between them, pass data across pages (similar to a web-based applicatio
 maintain a history list. By way of a concrete example, consider Windows Explorer (see Figure 27-3),
 which makes use of such functionality. Notice the navigation buttons (and history list) mounted on the
 upper-left corner of the window.</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_03.png" alt="Figure 27-3" />
+<img src="../Images/Figure27_03.png" alt="Figure 27-3" />
 <p><b>Figure 27-3</b> A navigation-based desktop program</p>
 <p>Regardless of the fact that a WPF desktop application can take on a weblike navigational structure,
 understand that this is simply a UI design issue. The application itself is still little more than a local
@@ -63,7 +63,7 @@ downloaded and installed to the local machine. Unlike a traditional ClickOnce in
 executable application, however, the XBAP program is hosted directly within the browser and adopts the
 browser’s intrinsic navigational system. Figure 27-4 illustrates an XBAP program in action (specifically,
 the ExpenseIt WPF sample program that ships with the .NET Framework 4.0 SDK).</p>
-<img src="http://www.diggen.co.uk/Images/Figure27_04.png" alt="Figure 27-4" />
+<img src="../Images/Figure27_04.png" alt="Figure 27-4" />
 <p><b>Figure 27-4</b> XBAP programs are downloaded to a local machine and hosted within a web browser</p>
 <p>The benefit of an XBAP is that it allows you to create sophisticated UIs which are much more
 expressive than a typical web page built with HTML and JavaScript. An XBAP Page object can make use

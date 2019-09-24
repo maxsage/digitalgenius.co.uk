@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />   
-	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />       
-	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />  
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />       
+	<link rel="stylesheet" type="text/css" href="../master.css" />  
 </head>
 <body>
     <h1>Narrowing and Widening Data Type Conversions</h1>
@@ -117,7 +117,7 @@ missing a cast?)</pre>
         Console.WriteLine(<span class="str">"Value of myByte: {0}"</span>, myByte);
     }
 }</pre>
-    <img src="http://www.diggen.co.uk/Images/Figure03_14.png" alt="Figure 3-14" />
+    <img src="../Images/Figure03_14.png" alt="Figure 3-14" />
     <p><b>Figure 3-14</b> OOPS! We lost some data when adding our numbers!</p>
     <h2>Trapping Narrowing Data Conversions</h2>
     <p>As you have just witnessed, an explicit cast allows you to force the compiler to apply a narrowing
@@ -180,7 +180,7 @@ missing a cast?)</pre>
     <p>Notice that the return value of Add() has been wrapped within the scope of the checked keyword.
     Since the sum is greater than a byte, we trigger a runtime exception. Notice the error message printed
     out via the Message property in Figure 3-15.</p>
-    <img src="http://www.diggen.co.uk/Images/Figure03_15.png" alt="Figure 3-15" />    
+    <img src="../Images/Figure03_15.png" alt="Figure 3-15" />    
     <p><b>Figure 3-15</b> The checked keyword forces runtime exceptions to be thrown when data loss occurs</p>
     <p>If you wish to force overflow checking to occur over a block of code statements, you can do so by
     defining a checked scope as follows:</p>
@@ -209,7 +209,7 @@ missing a cast?)</pre>
     <p>To enable this flag using Visual Studio 2010, open your project's property page and click the
     Advanced button on the Build tab. From the resulting dialog box, select the Check for arithmetic
     overflow/underflow check box (see Figure 3-16).</p>
-    <img src="http://www.diggen.co.uk/Images/Figure03_16.png" alt="Figure 3-16" />
+    <img src="../Images/Figure03_16.png" alt="Figure 3-16" />
     <p><b>Figure 3-16</b> Enabling project-wide overflow/underflow data checking</p>
     <p>Enabling this setting can be very helpful when you're creating a debug build. Once all of the
     overflow exceptions have been squashed out of the code base, you're free to disable the /checked flag for

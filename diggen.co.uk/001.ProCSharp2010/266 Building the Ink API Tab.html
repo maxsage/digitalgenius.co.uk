@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Building the Ink API Tab</h1>
@@ -15,7 +15,7 @@ with a stylus for a TabletPC.</p>
 <p>Begin by locating the node that represents the Ink API tab in your Objects and Timeline area and
 expand it. You should see that the default layout manager for this TabItem is a &lt;Grid&gt;. Right-click this
 and change it to a StackPanel (see Figure 28-29).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_29.png" alt="Figure 28-29" />
+<img src="../Images/Figure28_29.png" alt="Figure 28-29" />
 <p><b>Figure 28-29</b> Changing the layout manager</p>
 <h2>Designing the ToolBar</h2>
 <p>You can ensure that the StackPanel is the currently selected node in the Objects and Timeline editor by
@@ -24,18 +24,18 @@ node in the Objects and Timeline editor, locate the Layout section of the Proper
 Height of the Toolbar control to 60 (leave the Width set to Auto).</p>
 <p>Now find the Common Properties section of your Properties window and click the ellipse button for
 the Items (Collection) property (see Figure 28-30).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_30.png" alt="Figure 28-30" />
+<img src="../Images/Figure28_30.png" alt="Figure 28-30" />
 <p><b>Figure 28-30</b> The first step in adding controls to a ToolBar with the Blend Properties window</p>
 <p>After you click this button, you are presented with a dialog box that allows you to select the controls
 you want to add to the ToolBar. Click the dropdown area of the Add another item button, then add three
 RadioButton controls (Figure 28-31).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_31.png" alt="Figure 28-31" />
+<img src="../Images/Figure28_31.png" alt="Figure 28-31" />
 <p><b>Figure 28-31</b> Adding three RadioButtons to the ToolBar</p>
 <p>You can use the embedded Properties editor of this dialog to give each RadioButton a Height of 50
 and a Width of 100 (again, you can find these properties in the Layout area). Also, set the Content
 property (located in the Common Properties area) of each RadioButton to the values Ink Mode!, Erase
 Mode!, and Select Mode! (see Figure 28-32).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_32.png" alt="Figure 28-32" />
+<img src="../Images/Figure28_32.png" alt="Figure 28-32" />
 <p><b>Figure 28-32</b> Configuring each RadioButton</p>
 <p>Once you add your three RadioButton controls, add a Separator control using the Add another item
 dropdown list. Now you need to add the final ComboBox (not ComboBoxItem) control; however, you will not
@@ -43,7 +43,7 @@ see this control listed in the Add another item dropdown. When you need to inser
 controls using the Items (Collection) dialog, just click the Add another item area as if it were a push
 button. This opens the Select Object editor, where you can type in the name of the control you want (see
 Figure 28-33).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_33.png" alt="Figure 28-33" />
+<img src="../Images/Figure28_33.png" alt="Figure 28-33" />
 <p><b>Figure 28-33</b> Using the Select Object editor to add unique items to the Toolbar</p>
 <p>Set the Width property of the ComboBox to 100 and add three ComboBoxItem objects to the ComboBox
 using the Items (Collection) property (again) in the Common Properties section of the property editor.
@@ -73,18 +73,18 @@ RadioButton provides two events (Checked and Unchecked) that you can use to inte
 <p>To configure your RadioButton controls to look like typical radio buttons, select each control on the
 designer using a Shift+Click operation, then right-click the selection and pick the Group Into ? Border
 menu option (see Figure 28-34).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_34.png" alt="Figure 28-34" />
+<img src="../Images/Figure28_34.png" alt="Figure 28-34" />
 <p><b>Figure 28-34</b> Grouping items in a Border control</p>
 <p>At this point, you’re ready to test the program, which you can do by pressing the F5 key. You should
 now see three mutually exclusive radio buttons and a combo box with three selections (see Figure 28-
 35).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_35.png" alt="Figure 28-35" />
+<img src="../Images/Figure28_35.png" alt="Figure 28-35" />
 <p><b>Figure 28-35</b> The completed toolbar system</p>
 <p>Before you finish the UI of your Ink API tab, you need to handle the Click event for each RadioButton
 control. Similar to Visual Studio, the Blend Properties window has a Lightning Bolt button to enter the
 names of event handlers (you can see it mounted next to the Name property). Use this tool to route the
 Click event for each button to the same handler, named RadioButtonClicked (see Figure 28-36).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_36.png" alt="Figure 28-36" />
+<img src="../Images/Figure28_36.png" alt="Figure 28-36" />
 <p><b>Figure 28-36</b> Handling the Click event for each RadioButton</p>
 <p>Doing this brings up the Blend code editor. Once you handle all three Click events, handle the
 SelectionChanged event of the ComboBox using a handler named ColorChanged. When you finish, you
@@ -122,7 +122,7 @@ stretch the ink canvas so it takes up a majority of the tab area.</p>
 (you’ll learn much more about the brush editor in the next chapter). Once you do this, run your program
 by pressing the F5 key. You will see the canvas is already able to draw data when you click-and-drag the
 left-mouse button (see Figure 28-37).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_37.png" alt="Figure 28-37" />
+<img src="../Images/Figure28_37.png" alt="Figure 28-37" />
 <p><b>Figure 28-37</b> The InkCanvas in action</p>
 <p>The InkCanvas does more than draw mouse (or stylus) strokes; it also supports a number of unique
 editing modes, controlled by the EditingMode property. You can assign this property any value from the
@@ -175,7 +175,7 @@ mode and remove the previous mouse stroke you entered (you’ll notice the mouse
 looks like an erasure). Finally, enter Select mode and select some strokes by using the mouse as a lasso.
 After you circle the item, you can move it around the canvas and resize its dimensions. Figure 28-38
 shows your edit modes at work.</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_38.png" alt="Figure 28-38" />
+<img src="../Images/Figure28_38.png" alt="Figure 28-38" />
 <p><b>Figure 28-38</b> The InkCanvas in action, with edit modes!</p>
 <h2>The ComboBox Control</h2>
 <p>Once you populate a ComboBox control (or a ListBox), you have three ways to determine the selected
@@ -254,7 +254,7 @@ System.Windows.Controls.SelectionChangedEventArgs e)
     ...
 }</pre>
 <p>Now run your program again and take note of your unique ComboBox (see Figure 28-39).</p>
-<img src="http://www.diggen.co.uk/Images/Figure28_39.png" alt="Figure 28-39" />
+<img src="../Images/Figure28_39.png" alt="Figure 28-39" />
 <p><b>Figure 28-39</b> A custom ComboBox, thanks to the WPF content model</p>
 <h2>Saving, Loading, and Clearing InkCanvas Data</h2>
 <p>The last part of this tab will enable you to save and load your canvas data, as well as clear it of all content.

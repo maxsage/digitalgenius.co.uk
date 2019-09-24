@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Understanding Object Context Boundaries</h1>
@@ -26,7 +26,7 @@ an application domain) is used to group together .NET objects that have no speci
 contextual needs. As you may expect, a vast majority of .NET objects are loaded into context 0. If the CLR
 determines a newly created object has special needs, a new context boundary is created within the
 hosting application domain. Figure 16-3 illustrates the process/AppDomain/context relationship.</p>
-<img src="http://www.diggen.co.uk/Images/Figure16_03.png" alt="Figure 16-3" />
+<img src="../Images/Figure16_03.png" alt="Figure 16-3" />
 <p><b>Figure 16-3</b> Processes, application domains, and context boundaries</p>
 <h2>Context-Agile and Context-Bound Types</h2>
 <p>.NET objects that do not demand any special contextual treatment are termed context-agile objects.

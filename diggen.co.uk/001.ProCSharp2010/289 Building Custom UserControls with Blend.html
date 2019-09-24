@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Building Custom UserControls with Blend</h1>
@@ -29,7 +29,7 @@ jackpot game. While you could bundle all of the logic in a new WPF executable, y
 your custom controls in a dedicated library project. Begin by launching Expression Blend, and from the
 File | New Project menu create a new WPF Control Library project named MyCustomControl
 (Figure 31-14).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_14.png" alt="Figure 31-14" />
+<img src="../Images/Figure31_14.png" alt="Figure 31-14" />
 <p><b>Figure 31-14</b> A new Blend WPF Control Library project</p>
 <h2>Renaming the Initial </h2>
 <p>This project type will provide you with an initial  named MainControl. Let’s rename this
@@ -80,7 +80,7 @@ property to the value Fill. When you are done, the Grid should be configured sim
 <span class="kwrd">&lt;/</span><span class="html">Grid</span><span class="kwrd">&gt;</span></pre>
     <p>Finally, set the Source property of the Image control to one of your three images. Your designer
 should now look something like Figure 31-15.</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_15.png" alt="Figure 31-15" />
+<img src="../Images/Figure31_15.png" alt="Figure 31-15" />
 <p><b>Figure 31-15</b> The UI of the SpinControl</p>
 <h2>Adding the Initial C# Code</h2>
 <p>Now that the markup is complete, use the Events tab of the Blend Properties window to handle the
@@ -128,7 +128,7 @@ editor of Blend to define a XAML storyboard.</p>
 <p>Ensure that the designer of your SpinControl is the active window in your project. Now, using the
 Objects and Timeline editor, select your Image control, and then click on the "New Storyboard" button
 (Figure 31-16).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_16.png" alt="Figure 31-16" />
+<img src="../Images/Figure31_16.png" alt="Figure 31-16" />
 <p><b>Figure 31-16</b> Creating a new Storyboard using Expression Blend</p>
 <p>From the resulting dialog box, name your storyboard SpinImageStoryboard. Once you have clicked
 the OK button, you will notice that the Objects and Timeline editor has changed its appearance.
@@ -138,33 +138,33 @@ arrange the IDE into animation editor mode (press F6 again to toggle back to the
 begin, click the yellow arrow of the timeline and drag it to the 0.5 second mark. Once you have done so,
 click the Record Keyframe button, which is located right above the zero second mark. When you are
 done, your time line editor should look like Figure 31-17.</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_17.png" alt="Figure 31-17" />
+<img src="../Images/Figure31_17.png" alt="Figure 31-17" />
 <p><b>Figure 31-17</b> Defining a new keyframe</p>
 <p>You will also notice that your visual editor is now in record mode, signified by the red border around
 the visual designer. You are free to now change any property of an object using the Properties editor.
 While you are making changes, these are being recorded by the IDE and are written out as XAML
 animation instructions. For this animation, locate the Transform editor in the Properties window of
 Expression Blend, and pick the Flip Y Access option (Figure 31-18).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_18.png" alt="Figure 31-18" />
+<img src="../Images/Figure31_18.png" alt="Figure 31-18" />
 <p><b>Figure 31-18</b> Applying a transformation to the Image control</p>
 <p>Now, go back to the Objects and Timeline editor, and click on your SpinImageStoryboard story board
 resource (Figure 31-19).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_19.png" alt="Figure 31-19" />
+<img src="../Images/Figure31_19.png" alt="Figure 31-19" />
     <p><b>Figure 31-19</b> Selecting the SpinImageStoryboard for editing</p>
 <p>Once you select a story board for editing, you can configure various settings on the storyboard itself,
 such as auto-reversing or repeat behaviors using the Properties editor. For your animation storyboard,
 click the AutoReverse checkbox (Figure 31-20).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_20.png" alt="Figure 31-20" />
+<img src="../Images/Figure31_20.png" alt="Figure 31-20" />
 <p><b>Figure 31-20</b> Auto reversing your animation</p>
 <p>At this point, you can test your animation! Just click the Play button (Figure 31-21). You should see
 your image flip and then reverse back to the original upright display.</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_21.png" alt="Figure 31-21" />
+<img src="../Images/Figure31_21.png" alt="Figure 31-21" />
 <p><b>Figure 31-21</b> Testing your animation</p>
 <p>In summary, you have defined a simple animation which will take place over a total of 1 second (1/2
 a second for the flipping of the image and an additional 1/2 a second to reverse the transformation). You
 can now exit the animation editor by clicking on the recording button on your visual designer
 (Figure 31-22).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_22.png" alt="Figure 31-22" />
+<img src="../Images/Figure31_22.png" alt="Figure 31-22" />
     <p><b>Figure 31-22</b> Exiting the animation editor</p>
 <p><b>Note</b> our animation only changed a single property of a single object. Note that a storyboard can change any
 number of properties (for any number of objects) over various key frames. To do so, simply drag the yellow
@@ -204,7 +204,7 @@ application project) loads into memory:</p>
 <span class="kwrd">&lt;/</span><span class="html">UserControl.Triggers</span><span class="kwrd">&gt;</span></pre>
 <p>You can verify this by clicking on the Triggers editor (which can be opened via the Windows menu
 of Expression Blend; see Figure 31-23).</p>
-<img src="http://www.diggen.co.uk/Images/Figure31_23.png" alt="Figure 31-23" />
+<img src="../Images/Figure31_23.png" alt="Figure 31-23" />
 <p><b>Figure 31-23</b> Deleting the automatically added trigger</p>
 <p>In addition to spinning when the control loads, you will also spin when the Spin() method is called.
 Import the System.Windows.Media.Animation namespace in your C# code file, and update your Spin()

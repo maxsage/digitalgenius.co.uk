@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Multitabled DataSet Objects and Data Relationships</h1>
@@ -23,7 +23,7 @@ The GUI is simple enough. In Figure 22-11, you can see three DataGridView widget
 from the Inventory, Orders, and Customers tables of the AutoLot database. In addition, the initial Button
 (named btnUpdateDatabase) submits any and all changes entered within the grids back to the database
 for processing using data adapter objects.</p>
-<img src="http://www.diggen.co.uk/Images/Figure22_11.png" alt="Figure 22-11" />
+<img src="../Images/Figure22_11.png" alt="Figure 22-11" />
 <p><b>Figure 22-11</b> The initial UI will display data from each table of the AutoLot database</p>
 <h2>Prepping the Data Adapters</h2>
 <p>To keep the data access code as simple as possible, the MainForm will make use of command builder
@@ -152,7 +152,7 @@ should find that your grids are populated with the recent changes.</p>
 Extend your UI to include a new Button (named btnGetOrderInfo), a related TextBox (named txtCustID),
 and a descriptive Label (you can group these controls within a GroupBox for more visual appeal).
 Figure 22-12 shows one possible UI of the application.</p>
-<img src="http://www.diggen.co.uk/Images/Figure22_12.png" alt="Figure 22-12" />
+<img src="../Images/Figure22_12.png" alt="Figure 22-12" />
 <p><b>Figure 22-12</b> The updated UI allows the user to look up customer order information</p>
 <p>This updated UI lets the user enter the ID of a customer and retrieve all the relevant information
 about that customer’s order (e.g., name, order ID, and car order). This information will be formatted into
@@ -200,7 +200,7 @@ Button’s Click event handler:</p>
 }</pre>
 <p>Figure 22-13 shows one possible output when specifying a customer ID with the value of 3 (this is
 Steve Hagen in my copy of the AutoLot database, who currently has two orders pending).</p>
-<img src="http://www.diggen.co.uk/Images/Figure22_13.png" alt="Figure 22-13" />
+<img src="../Images/Figure22_13.png" alt="Figure 22-13" />
 <p><b>Figure 22-13</b> Navigating data relations</p>
 <p>This last example should probably convince you of the usefulness of the DataSet class. Given that a
 DataSet is completely disconnected from the underlying data source, you can work with an in-memory

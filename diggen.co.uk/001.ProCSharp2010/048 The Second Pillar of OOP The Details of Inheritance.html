@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>The Second Pillar of OOP: The Details of Inheritance</h1>
@@ -35,7 +35,7 @@ Assume that you wish to leverage the functionality of the Employee class to crea
 (SalesPerson and Manager). The class hierarchy you will be building initially over the next several pages
 looks something like what you see in Figure 6-4 (be aware that you will not see individual fields in your
 diagram if you make use of C# automatic property syntax).</p>
-<img src="http://www.diggen.co.uk/Images/Figure06_04.png" alt="Figure 6-4" />
+<img src="../Images/Figure06_04.png" alt="Figure 6-4" />
 <p><b>Figure 6-4</b> The initial Employees hierarchy</p>
 <p>As illustrated in Figure 6-4, you can see that a SalesPerson “is-a” Employee (as is a Manager).
 Remember that under the classical inheritance model, base classes (such as Employee) are used to define
@@ -209,7 +209,7 @@ used when you are designing a utility class. However, when building class hierar
 that a certain branch in the inheritance chain should be “capped off,” as it makes no sense to further
 extend the linage. For example, assume you have added yet another class to your program
 (PTSalesPerson) that extends the existing SalesPerson type. Figure 6-5 shows the current update.</p>
-<img src="http://www.diggen.co.uk/Images/Figure06_05.png" alt="Figure 6-5" />
+<img src="../Images/Figure06_05.png" alt="Figure 6-5" />
 <p><b>Figure 6-5. </b>The PTSalesPerson class</p>
 <p>PTSalesPerson is a class representing, of course, a part-time salesperson. For the sake of argument,
 let’s say that you wish to ensure that no other developer is able to subclass from PTSalesPerson. (After all,

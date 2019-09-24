@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Understanding the Role of .NET Attributes</h1>
@@ -147,7 +147,7 @@ sandwiched between square brackets.</p>
 <p>Once this class has been compiled, you can view the extra metadata using ildasm.exe. Notice that
 these attributes are recorded using the serializable token (see the red triangle immediately inside the
 Motorcycle class) and the notserialized token (on the weightOfCurrentPassengers field; see Figure 15-3).</p>
-<img src="http://www.diggen.co.uk/Images/Figure15_03.png" alt="Figure 15-3" />
+<img src="../Images/Figure15_03.png" alt="Figure 15-3" />
 <p><b>Figure 15-3</b> Attributes shown in ildasm.exe</p>
 <p>As you might guess, a single item can be attributed with multiple attributes. Assume you have a
 legacy C# class type (HorseAndBuggy) that was marked as serializable, but is now considered obsolete for
@@ -215,7 +215,7 @@ string data defined at the attribute level is simply stored within the assembly 
 <p>you would find that the supplied string data is extracted and displayed within the Error List window of
 Visual Studio 2010, as well as one the offending line of code when you hover your mouse cursor above
 the obsolete type (see Figure 15-4).</p>
-<img src="http://www.diggen.co.uk/Images/Figure07_01.png" alt="Figure 15-4" />
+<img src="../Images/Figure07_01.png" alt="Figure 15-4" />
 <p><b>Figure 15-4</b> Attributes in action</p>
 <p>In this case, the “other piece of software” that is reflecting on the [Obsolete] attribute is the C#
 compiler. Hopefully, at this point, you should understand the following key points regarding .NET

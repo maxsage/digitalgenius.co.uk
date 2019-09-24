@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Working with Themes</h1>
@@ -35,14 +35,14 @@ subdirectories, one of which is App_Themes. This single subdirectory may be furt
 additional subdirectories, each of which represents a possible theme on your site. For example, consider
 Figure 33-22, which illustrates a single App_Themes folder containing three subdirectories, each of
 which has a set of files that make up the theme itself.</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_22.png" alt="Figure 33-22" />
+<img src="../Images/Figure33_22.png" alt="Figure 33-22" />
 <p><b>Figure 33-22</b> A single App_Theme folder may define numerous themes</p>
 <h2>Understanding *.skin Files</h2>
 <p>The one file that every theme subdirectory is sure to have is a *.skin file. These files define the look and
 feel for various web controls. To illustrate, create a new website named FunWithThemes. Next, insert a
 new *.skin file (using the Website &gt; Add New Item menu option) named BasicGreen.skin, as shown in
 Figure 33-23.</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_23.png" alt="Figure 33-23" />
+<img src="../Images/Figure33_23.png" alt="Figure 33-23" />
     <p><b>Figure 33-23</b> Inserting *.skin files</p>
 <p>Visual Studio 2010 will prompt you to confirm this file can be added into an App_Themes folder
 (which is exactly what we want). If you were now to look in your Solution Explorer, you would
@@ -90,7 +90,7 @@ UI look and feel for the same web controls. For example:</p>
         <span class="attr">ForeColor</span><span class="kwrd">="White"</span> <span class="attr">Height</span><span class="kwrd">="12pt"</span> <span class="kwrd">/&gt;</span>
 <span class="kwrd">&lt;/</span><span class="html">asp:Calendar</span><span class="kwrd">&gt;</span></pre>
     <p>At this point, your Solution Explorer should like Figure 33-24.</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_24.png" alt="Figure 33-24" />
+<img src="../Images/Figure33_24.png" alt="Figure 33-24" />
 <p><b>Figure 33-24</b> A single website with multiple themes</p>
 <p>Now that your site has a few themes defined, the next logical question is how to apply them to your
 pages? As you might guess, there are many ways to do so.</p>
@@ -153,7 +153,7 @@ variable, or persist the theme selection to a database.</p>
 <p>To illustrate how to assign a theme programmatically, update the UI of your Default.aspx file with
 three new Button controls as shown in Figure 33-25. Once you have done so, handle the Click event
 for each Button type.</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_25.png" alt="Figure 33-25" />
+<img src="../Images/Figure33_25.png" alt="Figure 33-25" />
 <p><b>Figure 33-25</b> The updated UI of the themes example</p>
 <p>Now be aware that you can only assign a theme programmatically during specific phases of your
 page’s life cycle. Typically, this will be done within the Page_PreInit event. This being said, update your

@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>The Role of the Global.asax File</h1>
@@ -13,7 +13,7 @@ web controls. While you could build a web application by simply linking a set of
 will most likely need a way to interact with the web application as a whole. To this end, an ASP.NET
 application may choose to include an optional Global.asax file via the Web Site &gt; Add New Item menu
 option, as shown in Figure 34-2 (notice you are selecting the Global Application Class icon).</p>    
-<img src="http://www.diggen.co.uk/Images/Figure32_23.png" alt="Figure 34-02" />
+<img src="../Images/Figure32_23.png" alt="Figure 34-02" />
 <p><b>Figure 34-2</b> The Global.asax file</p>
 <p>Simply put, Global.asax is just about as close to a traditional double-clickable *.exe as you can get
 in the world of ASP.NET, meaning this type represents the runtime behavior of the web site itself. When
@@ -207,7 +207,7 @@ underlying base class, it is important to remember that all of the rules of the 
 indeed apply. For example, if you were to apply the dot operator to the base keyword (or if you prefer,
 the this keyword) within any of the members in Global.asax, you would find you have immediate access
 to all members of the chain of inheritance, as you see in Figure 34-3.</p>
-<img src="http://www.diggen.co.uk/Images/Figure34_03.png" alt="Figure 34-03" />
+<img src="../Images/Figure34_03.png" alt="Figure 34-03" />
 <p><b>Figure 34-3</b> Remember that HttpApplication is the parent of the type lurking within Global.asax</p>
     </body>
     </html>

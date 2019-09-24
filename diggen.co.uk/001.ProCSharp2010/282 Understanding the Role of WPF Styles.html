@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Understanding the Role of WPF Styles</h1>
@@ -119,7 +119,7 @@ incompatible element, you will get markup and compiler errors. If the Button use
 <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnTestButton"</span> <span class="attr">Content</span><span class="kwrd">="This Style ROCKS!"</span>
     <span class="attr">Cursor</span><span class="kwrd">="Help"</span> <span class="attr">Style</span><span class="kwrd">="{StaticResource BigGreenButton}"</span> <span class="attr">Width</span><span class="kwrd">="250"</span> <span class="kwrd">/&gt;</span></pre>
  <p>you’d see the output like that shown in Figure 30-17.</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_17.png" alt="Figure 30-17" />
+<img src="../Images/Figure30_17.png" alt="Figure 30-17" />
 <p><b>Figure 30-17</b> Controls with different styles</p>
 <h2>Subclassing Existing Styles</h2>
 <p>You can also build new styles using an existing style, via the BasedOn property. The style you are
@@ -138,7 +138,7 @@ which rotates the button element by 20 degrees:</p>
     <span class="kwrd">&lt;/</span><span class="html">Setter</span><span class="kwrd">&gt;</span>
 <span class="kwrd">&lt;/</span><span class="html">Style</span><span class="kwrd">&gt;</span></pre>
 <p>This time, the output appears as in Figure 30-18.</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_18.png" alt="Figure 30-18" />
+<img src="../Images/Figure30_18.png" alt="Figure 30-18" />
 <p><b>Figure 30-18</b> Using a derived style</p>
 <h2>The Role of Unnamed Styles</h2>
 <p>Assume you need to ensure that all TextBox controls have the same look and feel. Now assume you have
@@ -318,7 +318,7 @@ method:</p>
 }</pre>
 <p>When you run this application, you can pick from one of these four button styles on the fly. Figure
 30-19 shows our completed application.</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_19.png" alt="Figure 30-19" />
+<img src="../Images/Figure30_19.png" alt="Figure 30-19" />
 <p><b>Figure 30-19</b> Controls with different styles</p>
     <p><b>Source Code </b>The WpfStyles project can be found under the Chapter 30 subdirectory.</p>
     </body>

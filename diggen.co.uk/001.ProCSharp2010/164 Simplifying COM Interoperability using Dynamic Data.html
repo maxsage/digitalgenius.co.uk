@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Simplifying COM Interoperability using Dynamic Data</h1>
@@ -15,7 +15,7 @@ completely different. Because of this, if a .NET program needs to use a COM obje
 business is to generate what is known as an “interop assembly” (described in the following) using Visual
 Studio 2010. Doing so is quite straightforward. Just activate the Add Reference dialog box, select the
 COM tab and find the COM library you wish to make use of (see Figure 18-5).</p>
-<img src="http://www.diggen.co.uk/Images/Figure18_05.png" alt="Figure 18-5" />
+<img src="../Images/Figure18_05.png" alt="Figure 18-5" />
 <p><b>Figure 18-5</b> The COM tab of the Add Reference dialog box will show you all registered COM libraries on
 your machine</p>
 <p>Once you select a COM library, the IDE will respond by generating a brand new assembly which
@@ -31,7 +31,7 @@ Callable Wrapper (RCW), which is basically a dynamically generated proxy. This R
 and transform .NET data types into COM types, adjust the COM object’s reference counter, and map any
 COM return values into .NET equivalents. Figure 18-6 shows the big picture of .NET to COM
 interoperability.</p>
-<img src="http://www.diggen.co.uk/Images/Figure18_06.png" alt="Figure 18-6" />
+<img src="../Images/Figure18_06.png" alt="Figure 18-6" />
 <p><b>Figure 18-6</b> .NET programs communicate with COM objects using a proxy termed the RCW</p>
 <h2>The Role of Primary Interop Assemblies (PIAs)</h2>
 <p>Many COM libraries created by COM library vendors (such as the Microsoft COM libraries that allow
@@ -44,7 +44,7 @@ libraries. In fact, if you reference a COM library from the COM tab of the Add R
 Visual Studio will not generate a new interoperability library as it would normally do, but use the
 provided PIA instead. Figure 18-7 shows the PIA of the Microsoft Office Excel object model, which you
 will be using in the next example.</p>
-<img src="http://www.diggen.co.uk/Images/Figure18_07.png" alt="Figure 18-7" />
+<img src="../Images/Figure18_07.png" alt="Figure 18-7" />
 <p><b>Figure 18-7</b> PIAs are listed in the .NET tab of the Add Reference dialog box</p>
 <h2>Embedding Interop Metadata</h2>
 <p>Before the release of .NET 4.0, when a C# application made use of a COM library (PIA or not), you
@@ -59,7 +59,7 @@ is hardcoded in the .NET program.</p>
 automatically set the Embed Interop Types property of the library to True. You can see this setting first
 hand by selecting a referenced interop library in the References folder of the Solution Explorer, and then
 investigate the Properties window (see Figure 18-8).</p>
-<img src="http://www.diggen.co.uk/Images/Figure18_08.png" alt="Figure 18-8" />
+<img src="../Images/Figure18_08.png" alt="Figure 18-8" />
 <p><b>Figure 18-8</b> .NET 4.0 allows you to embed the parts of an interop assemblies you make use of into your
 .NET assembly</p>
 <p>The C# compiler will only include the parts of the interop library you are actually making use of.

@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Understanding Private Assemblies</h1>
@@ -84,7 +84,7 @@ Explorer. Next, copy CSharpCarClient.exe and CarLibrary.dll to this new folder, 
 by double-clicking the executable. Your program should run successfully at this point. Next, create a
 new subdirectory under C:\MyApp named MyLibraries (see Figure 14-12), and move CarLibrary.dll to
 this location.</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_12.png" alt="Figure 14-12" />
+<img src="../Images/Figure14_12.png" alt="Figure 14-12" />
 <p><b>Figure 14-12</b> CarLibrary.dll now resides under the MyLibraries subdirectory</p>
 <p>Try to run your client program again. Because the CLR could not locate an assembly named
 CarLibrary directly within the application directory, you are presented with a rather nasty unhandled
@@ -140,19 +140,19 @@ MyLibraries is effectively ignored.</p>
 Visual Studio 2010 allows you create a configuration file during the development of the client program.
 To illustrate, load the CSharpCarClient solution into Visual Studio 2010 and insert a new Application
 Configuration File item using the Project &gt; Add New Item menu selection (see Figure 14-13).</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_13.png" alt="Figure 14-13" />
+<img src="../Images/Figure14_13.png" alt="Figure 14-13" />
 <p><b>Figure 14-13</b> Inserting a new App.config file into a new Visual Studio 2010 project</p>
 <p>Before you click the OK button, take note that the file is named App.config (don’t rename it!). If you
 look in the Solution Explorer window, you will find App.config has been inserted into your current
 project (Figure 14-14).</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_14.png" alt="Figure 14-14" />
+<img src="../Images/Figure14_14.png" alt="Figure 14-14" />
 <p><b>Figure 14-14</b> Edit the App.config file to store the necessary data for client applications.</p>
 <p>At this point, you are free to enter the necessary XML elements for the client you happen to be
 creating. Now, here is the cool thing. Each time you compile your project, Visual Studio 2010 will
 automatically copy the data in App.config to the \bin\Debug directory using the proper naming
 convention (such as CSharpCarClient.exe.config). However, this behavior will happen only if your
 configuration file is indeed named App.config; see Figure 14-15.</p>
-<img src="http://www.diggen.co.uk/Images/Figure14_15.png" alt="Figure 14-15" />
+<img src="../Images/Figure14_15.png" alt="Figure 14-15" />
 <p><b>Figure 14-15</b> The contents of App.config will be copied to a correctly named *.config in your output
 directory</p>
 <p>Using this approach, all you need to do is maintain App.config, and Visual Studio 2010 will ensure

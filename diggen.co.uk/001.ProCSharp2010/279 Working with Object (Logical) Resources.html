@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Working with Object (Logical) Resources</h1>
@@ -79,11 +79,11 @@ using their respective Properties windows. In Visual Studio 2010, first identify
 complex object you wish to package as a resource (the Background property in our example). Next to the
 property, you’ll see a small diamond button that, when clicked, will open a pop-up menu. From here,
 select the “Extract value to Resource...” option (Figure 30-7).</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_07.png" alt="Figure 30-7" />
+<img src="../Images/Figure30_07.png" alt="Figure 30-7" />
 <p><b>Figure 30-7</b> Moving a complex object into a resource container</p>
 <p>You are now asked to name your resource (myBrush), and specify where to place it. For this example,
 leave the default selection of MainWindow.xaml (Figure 30-8).</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_08.png" alt="Figure 30-8" />
+<img src="../Images/Figure30_08.png" alt="Figure 30-8" />
 <p><b>Figure 30-8</b> Naming the object resource</p>
 <p>When you’re done, the markup will be restructured like this:</p>
 <!-- code formatted by http://manoli.net/csharpformat/ -->
@@ -135,7 +135,7 @@ Fill property of an Ellipse:</p>
 <p>After you have extracted a resource to the scope of a window, you can locate it in your Document
 Outline window, which can be opened via the View &gt; Other Windows &gt; Document Outline menu
 (Figure 30-9).</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_09.png" alt="Figure 30-9" />
+<img src="../Images/Figure30_09.png" alt="Figure 30-9" />
 <p><b>Figure 30-9</b> Viewing our resource in the Document Outline</p>
 <p>If you select any aspect of the object resource in the Document Outline window, you can change
 values using the Properties window. Thus, you could change the individual gradient stops, the origin
@@ -230,7 +230,7 @@ scope in your App.xaml file:</p>
 Background property for this new Window, click the “Advanced properties“ square and you can activate the
 Apply Resource... menu option. You can then search for your application-level brush by typing its name
 into the Search box. (Figure 30-10)</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_10.png" alt="Figure 30-10" />
+<img src="../Images/Figure30_10.png" alt="Figure 30-10" />
 <p><b>Figure 30-10</b> Applying application-level resources</p>
 <h2>Defining Merged Resource Dictionaries</h2>
 <p>Application-level resources are a good starting point, but what if you need to define a set of complex (or
@@ -239,7 +239,7 @@ define what is known as a “merged resource dictionary.” This is nothing more
 contains nothing but a collection of object resources. A single project can have as many of these files as
 required (one for brushes, one for animations, and so forth), each of which can be inserted using the Add
 New Item dialog box activated via the Project menu (Figure 30-11).</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_11.png" alt="Figure 30-11" />
+<img src="../Images/Figure30_11.png" alt="Figure 30-11" />
 <p><b>Figure 30-11</b> Inserting a new merged resource dictionary</p>
 <p>In the new MyBrushes.xaml file, we will want to cut the current resources in the
 Application.Resources scope and move them into our dictionary, like so:</p>
@@ -285,13 +285,13 @@ applications that wish to make use of them could load them into memory.</p>
 <p>The easiest way to build a resource-only assembly is to actually begin with a WPF User Control
 Library project. Add such as project (named MyBrushesLibrary) to your current solution, using the
 Add &gt; New Project menu option of Visual Studio 2010 (Figure 30-12).</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_12.png" alt="Figure 30-12" />
+<img src="../Images/Figure30_12.png" alt="Figure 30-12" />
 <p><b>Figure 30-12</b> Adding a User Control library as a starting point for a resource-only library</p>
 <p>Now, completely delete the 1.xaml file from the project (the only items we really want
 are the referenced WPF assemblies). Next, drag and drop the MyBrushes.xaml file into your
 MyBrushesLibrary project and delete it from the ObjectResourcesApp project. Your Solution Explorer
 should now look like Figure 30-13.</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_13.png" alt="Figure 30-13" />
+<img src="../Images/Figure30_13.png" alt="Figure 30-13" />
 <p><b>Figure 30-13</b> Moving the MyBrushes.xaml file into our new library project</p>
 <p>Compile your code library project. Next, reference this library from the ObjectResourcesApp project
 using the Add Reference dialog box. Now, you will want to merge these binary resources into the
@@ -318,17 +318,17 @@ application-level, and even resource-dictionary-level. Assume you have defined a
 Background property of the main window and wish to package it as a new resource. Using the Brush
 editor, click on the (ever so tiny) Advanced Properties button (the small white dot) of the Background
 property to access the Convert to New Resource option (Figure 30-14).</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_14.png" alt="Figure 30-14" />
+<img src="../Images/Figure30_14.png" alt="Figure 30-14" />
 <p><b>Figure 30-14</b> Extracting a new resource using Blend</p>
 <p>From the resulting dialog box, you can give your object resource a name and specify where Blend
 should store it (the current window, the application, or a new merged resource dictionary). Here I have
 placed myNewBrush at the application level (Figure 30-15).</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_15.png" alt="Figure 30-15" />
+<img src="../Images/Figure30_15.png" alt="Figure 30-15" />
 <p><b>Figure 30-15</b> Defining a new application-level resource with Blend</p>
 <p>Once you’ve done this, you will see that your App.xaml file has been updated as expected. Also, using
 the Resources tab (opened via the Window menu) you can modify existing resources using the
 appropriate editor (Figure 30-16).</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_16.png" alt="Figure 30-16" />
+<img src="../Images/Figure30_16.png" alt="Figure 30-16" />
 <p><b>Figure 30-16</b> Modifying existing resources with Blend</p>
 <p>That wraps up our examination of WPF’s resource management system. You will make good use of
 these techniques for most of your applications, as well as during the remainder of the WPF chapters of

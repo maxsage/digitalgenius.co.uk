@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Parallel Programming under the .NET Platform</h1>
@@ -29,7 +29,7 @@ The TPL handles the partitioning of the work, thread scheduling, state managemen
 details. The end result is that you can maximize the performance of your .NET applications, while being
 shielded from many of complexities of directly working with threads. Figure 19-3 shows the members of
 this new .NET 4.0 namespace.</p>
-<img src="http://www.diggen.co.uk/Images/Figure19_03.png" alt="Figure 19-3" />
+<img src="../Images/Figure19_03.png" alt="Figure 19-3" />
 <p><b>Figure 19-3</b> Members of the System.Threading.Tasks namespace</p>
 <p>Starting with .NET 4.0, use of the TPL is the recommended way to build multithreaded applications.
 This is certainly not to suggest that having an understanding of traditional multithreading techniques
@@ -132,7 +132,7 @@ Family subdirectory, which currently contains a total of 37 files (be sure to up
 Directory.GetFiles() as necessary). Currently, all of the work is happening on the primary thread of the
 executable. Therefore, if the button is clicked, the program will appear to hang. Furthermore, the
 caption of the window will also report that the same primary thread is processing the file (Figure 19- 4).</p>
-<img src="http://www.diggen.co.uk/Images/Figure19_04.png" alt="Figure 19-4" />
+<img src="../Images/Figure19_04.png" alt="Figure 19-4" />
 <p><b>Figure 19-4</b> Currently, all action is taking place on the primary thread</p>
 <p>To process the files on as many CPUs as possible, you can rewrite the current foreach loop to make
 use of Parallel.ForEach(). Recall that this method has been overloaded numerous times, however in
@@ -344,7 +344,7 @@ most often in the string array, while FindLongestWord() locates, well, the longe
 <p>If you were to run this project, the amount of time to perform all tasks could take a goodly amount
 of time, based on the CPU count of your machine and overall processor speed. Eventually, you should
 see the following output (Figure 19-5).</p>
-<img src="http://www.diggen.co.uk/Images/Figure19_05.png" alt="Figure 19-5" /> 
+<img src="../Images/Figure19_05.png" alt="Figure 19-5" /> 
 <p><b>Figure 19-5</b> Stats about the downloaded EBook</p>
 <p>You can help ensure that your application makes use of all available CPUs on the host machine by
 invoking the FindTenMostCommon() and FindLongestWord()method in parallel. To do so, modify your

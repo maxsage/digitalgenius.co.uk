@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Rendering Graphical Data Using Shapes</h1>
@@ -15,7 +15,7 @@ the abstract Shape base class: Ellipse, Rectangle, Line, Polygon, Polyline, and 
 <p>Create a new WPF Application named RenderingWithShapes. Now, if you locate the abstract Shape
 class in the Visual Studio 2010 object browser (see Figure 29-1) and expand each of the parent nodes,
 you can see that each descendent of Shape receives a great deal of functionality up the inheritance chain.</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_01.png" alt="Figure 29-1" />
+<img src="../Images/Figure29_01.png" alt="Figure 29-1" />
 <p><b>Figure 29-1</b> The Shape base class receives a good deal of functionality from its parent classes</p>
 <p>Now, given your work in the previous two chapters, some of these parent classes may ring a bell.
 Recall, for example, that UIElement defines numerous methods to receive mouse input and deal with
@@ -169,7 +169,7 @@ render curved corners if you require.</p>
 and width make little sense when describing a line). Here we are setting up a few additional properties that
 control how to render the starting and ending points of the Line, as well as how to configure the stroke
 settings. Figure 29-2 shows the rendered toolbar, as seen through the Visual Studio 2010 WPF designer:</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_02.png" alt="Figure 29-2" />
+<img src="../Images/Figure29_02.png" alt="Figure 29-2" />
 <p><b>Figure 29-2</b> Using Shapes as content for a set of RadioButtons</p>
 <p>Now, using the Properties window of Visual Studio 2010, handle the MouseLeftButtonDown event for
 the Canvas, and the Click event for each RadioButton. In your C# file, your goal is to render the selected
@@ -279,7 +279,7 @@ information on other objects below that item (e.g., objects overlapping by Z-ord
 <p>With this modification, you should be able to add a shape to the canvas with a left mouse-click, and
 delete an item from the canvas with a right mouse-click! Figure 29-3 shows the functionality of the
 current example:</p>
-<img src="http://www.diggen.co.uk/Images/Figure29_03.png" alt="Figure 29-3" />
+<img src="../Images/Figure29_03.png" alt="Figure 29-3" />
 <p><b>Figure 29-3</b> Fun with shapes</p>
 <p>So far so good. At this point, you have used Shape derived objects to render content on RadioButtons
 using XAML and populate a Canvas using C#. We will add a bit more functionality to this example when
@@ -453,7 +453,7 @@ such as EllipseGeometry, RectangleGeometry, and LineGeometry. Figure 29-5 shows 
         <span class="kwrd">&lt;/</span><span class="html">GeometryGroup</span><span class="kwrd">&gt;</span>
     <span class="kwrd">&lt;/</span><span class="html">Path.Data</span><span class="kwrd">&gt;</span>
 <span class="kwrd">&lt;/</span><span class="html">Path</span><span class="kwrd">&gt;</span></pre>
-<img src="http://www.diggen.co.uk/Images/Figure29_05.png" alt="Figure 29-5" />
+<img src="../Images/Figure29_05.png" alt="Figure 29-5" />
 <p><b>Figure 29-5</b> A Path containing various Geometries objects</p>
 <p>The image in Figure 29-5 could have been rendered using the Line, Ellipse, and Rectangle classes
 shown earlier. However, this would have put various UIElement objects in memory. When you use
@@ -509,7 +509,7 @@ example, and the resulting output (see Figure 29-6).</p>
 <pre class="csharpcode">
 <span class="kwrd">&lt;</span><span class="html">Path</span> <span class="attr">Stroke</span><span class="kwrd">="Black"</span> <span class="attr">StrokeThickness</span><span class="kwrd">="3"</span>
     <span class="attr">Data</span><span class="kwrd">="M 10,75 C 70,15 250,270 300,175 H 240"</span> <span class="kwrd">/&gt;</span></pre>
-<img src="http://www.diggen.co.uk/Images/Figure29_06.png" alt="Figure 29-6" />
+<img src="../Images/Figure29_06.png" alt="Figure 29-6" />
 <p><b>Figure 29-6</b> The path mini-language allows you to compactly describe a Geometry/PathSegment object
 model</p>
 <p>The M command (short for move) takes an X,Y position that represents the starting point of the

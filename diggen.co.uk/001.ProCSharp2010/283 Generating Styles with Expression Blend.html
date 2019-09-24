@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Generating Styles with Expression Blend</h1>
@@ -15,7 +15,7 @@ topics, such as triggers and control templates) until the next chapter. Here I w
 <h2>Working with Default Visual Styles</h2>
 <p>Blend ships with a number of default styles for common controls, referred to as the Simple Styles. If you
 open the Assets Library, you can locate the Styles in the tree view on the left-hand side (Figure 30-20).</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_20.png" alt="Figure 30-20" />
+<img src="../Images/Figure30_20.png" alt="Figure 30-20" />
 <p><b>Figure 30-20</b> Blend’s default styles</p>
 <p>When you select one of these simple styles, a few things happen. First, the control is declared with
 the {DynamicResource} markup extension. For example, if you place a Simple Button Style on your
@@ -26,17 +26,17 @@ designer, you’ll find XAML similar to:</p>
     <span class="attr">VerticalAlignment</span><span class="kwrd">="Top"</span> <span class="attr">Height</span><span class="kwrd">="63"</span> <span class="attr">Content</span><span class="kwrd">="Button"</span><span class="kwrd">/&gt;</span></pre>
      <p>Strangely enough, the control will look identical to a normal Button. However, if you take a look in
 your Project window, you will see Blend has added a new file named Simple Styles.xaml (Figure 30-21).</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_21.png" alt="Figure 30-21" />
+<img src="../Images/Figure30_21.png" alt="Figure 30-21" />
 <p><b>Figure 30-21</b> This is a resource dictionary!</p>
 <p>If you double-click on this item and open the XAML editor, you will see it is a very large
 &lt;ResourceDictionary> of default control styles. Furthermore, if you open the Blend Resources window,
 you’ll see each item is listed and can be edited by clicking a given entry (Figure 30-22).</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_22.png" alt="Figure 30-22" />
+<img src="../Images/Figure30_22.png" alt="Figure 30-22" />
 <p><b>Figure 30-22</b> Selecting a default style for editing</p>
 <p>If you click on the SimpleButton icon in the Resources view, a new designer will open that you can
 use to change the style to your heart’s content using Blend’s standard editing tools (the Properties
 window, animation editor, etc). Consider Figure 30-23</p>
-<img src="http://www.diggen.co.uk/Images/Figure30_23.png" alt="Figure 30-23" />
+<img src="../Images/Figure30_23.png" alt="Figure 30-23" />
 <p><b>Figure 30-23</b> Editing a default style</p>
 <p>The beauty of this approach is that the Simple Styles.xaml file is merged with your application
 resources and, therefore, all of your local edits will automatically be compiled into your application.

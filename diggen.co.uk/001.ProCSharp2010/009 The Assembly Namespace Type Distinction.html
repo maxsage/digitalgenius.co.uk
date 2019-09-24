@@ -3,8 +3,8 @@
 <head>
     <title>The Assembly/Namespace/Type Distinction</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />	
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />	
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="../master.css" />	
 </head>
 <body>
     <h1>The Assembly/Namespace/Type Distinction</h1>
@@ -22,7 +22,7 @@
     particular assembly, the types within a given namespace, and the members of a specific type. Note that
     the mscorlib.dll assembly contains many different namespaces (such as System.IO), each with its own
     semantically related types (e.g., BinaryReader).</p>
-    <img src="http://www.diggen.co.uk/Images/Figure01_05.png" alt="Figure 1-5" />
+    <img src="../Images/Figure01_05.png" alt="Figure 1-5" />
     <p><b>Figure 1-5</b> A single assembly can have any number of namespaces</p>
     <p>The key difference between this approach and a language-specific library such as MFC is that any
     language targeting the .NET runtime makes use of the same namespaces and same types. For example,
@@ -312,7 +312,7 @@
     Framework assemblies are located under a specific directory termed the global assembly cache (GAC).
     On a Windows machine, this can be located by default under C:\Windows\Assembly, as shown in
     Figure 1-6.</p>
-    <img src="http://www.diggen.co.uk/Images/Figure01_06.png" alt="Figure 1-6" />
+    <img src="../Images/Figure01_06.png" alt="Figure 1-6" />
     <p><b>Figure 1-6</b> Many .NET libraries reside in the GAC</p>
     <p>Depending on the development tool you are using to build your .NET applications, you will have
     various ways to inform the compiler which assemblies you wish to include during the compilation cycle.

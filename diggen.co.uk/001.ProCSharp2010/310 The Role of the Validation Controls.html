@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>The Role of the Validation Controls</h1>
@@ -139,7 +139,7 @@ ValidatorCtrls and insert a new Web Form named Default.aspx. To begin, place fou
 TextBox controls (with four corresponding and descriptive Labels) onto your page. Next, place a
 RequiredFieldValidator, RangeValidator, RegularExpressionValidator, and CompareValidator type
 adjacent to each respective input field. Last of all, add a single Button and final Label (see Figure 33-19).</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_19.png" alt="Figure 33-19" />
+<img src="../Images/Figure33_19.png" alt="Figure 33-19" />
 <p><b>Figure 33-19</b> ASP.NET validation controls will ensure your form data is correct before allowing postback</p>
 <p>Now that you have an initial UI, let’s walk through the process of configuring each validator.</p>
 <h2>The RequiredFieldValidator</h2>
@@ -266,7 +266,7 @@ a bulleted list.</p>
 RequiredFieldValidator, RangeValidator) on the page. This will ensure that you do not see duplicate
 error messages for a given validation failure (one in the summary pane and another at the validator’s
 location). Figure 33-20 shows the summary pane in action.</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_20.png" alt="Figure 33-20" />
+<img src="../Images/Figure33_20.png" alt="Figure 33-20" />
 <p><b>Figure 33-20</b> Using a validation summary</p>
 <p>Last but not least, if you would rather have the error messages displayed using a client-side
 MessageBox, set the ValidationSummary control’s ShowMessageBox property to true and the ShowSummary
@@ -281,7 +281,7 @@ validated independently.</p>
 two Panels. The first Panel object expects a TextBox to contain some form of user input (via a
 RequiredFieldValidator) and the second Panel expects a US SSN value (via a
 RegularExpressionValidator). Figure 33-21 shows one possible UI.</p>
-<img src="http://www.diggen.co.uk/Images/Figure33_21.png" alt="Figure 33-21" />
+<img src="../Images/Figure33_21.png" alt="Figure 33-21" />
 <p><b>Figure 33-21</b> These Panel objects will independently configure their input areas</p>
 <p>To ensure that the validators function independently, simply assign each validator and the control
 being validated to a uniquely named group using the ValidationGroup property. In the following

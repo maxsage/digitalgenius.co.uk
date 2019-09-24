@@ -3,8 +3,8 @@
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/csharp.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.diggen.co.uk/master.css" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
 </head>
 <body>
 <h1>Building an Extendable Application</h1>
@@ -123,7 +123,7 @@ given class or structure.</p>
 to select a snap-in using a standard Windows Open dialog box. If you have not created a Windows Forms
 application before, begin this final project of the chapter by selecting a Windows Forms Application
 project from the New Project dialog box of Visual Studio 2010 (Figure 15-7).</p>
-<img src="http://www.diggen.co.uk/Images/Figure15_07.png" alt="Figure 15-7" />
+<img src="../Images/Figure15_07.png" alt="Figure 15-7" />
 <p><b>Figure 15-7</b> Creating a new Windows Forms project with Visual Studio 2010</p>
 <p>Now, set a reference to the CommonSnappableTypes.dll assembly, but not the CSharpSnapIn.dll or
 VbSnapIn.dll code libraries. As well, import the System.Reflection and CommonSnappableTypes
@@ -137,7 +137,7 @@ designer, define a topmost menu item named File that provides a single submenu n
 Module. As well, the main window will contain a ListBox type (which I renamed as lstLoadedSnapIns)
 that will be used to display the names of each snap-in loaded by the user. Figure 15-8 shows the final
 GUI.</p>
-<img src="http://www.diggen.co.uk/Images/Figure15_08.png" alt="Figure 15-8" />
+<img src="../Images/Figure15_08.png" alt="Figure 15-8" />
 <p><b>Figure 15-8</b> GUI for MyExtendableApp</p>
 <p>The code that handles the Click event for the File &gt; Snap In Module menu item (which may be
 created simply by double-clicking the menu item from the design-time editor) displays a File Open
@@ -243,7 +243,7 @@ single System.Type parameter.</p>
     }
 }</pre>
 <p>Figure 15-9 shows one possible run.Figure 15-9 shows one possible run.</p>
-<img src="http://www.diggen.co.uk/Images/Figure15_09.png" alt="Figure 15-9" />
+<img src="../Images/Figure15_09.png" alt="Figure 15-9" />
 <p><b>Figure 15-9</b> Snapping in external assemblies</p>
 <p>Excellent! That wraps up the example application. I hope you can see that the topics presented in
 this chapter can be quite helpful in the real world and are not limited to the tool builders of the world.</p>
