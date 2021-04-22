@@ -1,0 +1,272 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Introducing the WPF Data-Binding Model</h1>
+    <p>Controls are often the target of various data-binding operations. Simply put, data binding is the act of
+connecting control properties to data values that might change over the course of your application’s
+lifetime. Doing so lets a user interface element display the state of a variable in your code. For example,
+you might use data binding to accomplish the following:</p>
+<ul>
+ <li>Check a CheckBox control based on a Boolean property of a given object.</li>
+ <li>Display data in DataGrid objects from a relational database table.</li>
+ <li>Connect a Label to an integer that represents the number of files in a folder.</li>
+</ul>
+<p>When you use the intrinsic WPF data-binding engine, you must be aware of the distinction between
+the source and the destination of the binding operation. As you might expect, the source of a databinding
+operation is the data itself (e.g., a Boolean property or relational data), while the destination
+(target) is the UI control property that uses the data content (e.g., a CheckBox or TextBox).</p>
+<p>Truth be told, using the WPF data-binding infrastructure is always optional. If you were to roll your
+own data-binding logic, the connection between a source and destination typically would involve
+handling various events and authoring procedural code to connect the source and destination. For
+example, if you had a ScrollBar on a window that needed to display its value on a Label type, you might
+handle the ScrollBar’s ValueChanged event and update the Label’s content accordingly.</p>
+<p>However, you can use WPF data binding to connect the source and destination directly in XAML (or
+use C# code in your code file) without the need to handle various events or hard-code the connections
+between the source and destination. Also, based on how you set up your data-binding logic, you can
+ensure that the source and destination stay in sync if either of their values changes.</p>
+<h2>Building the Data Binding Tab</h2>
+<p>Using the Objects and Timeline editor, change the Grid of your third tab to a StackPanel. Now, use the
+Assets Library and the Properties editor of Blend to build the following initial layout:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">TabItem</span> <span class="attr">x:Name</span><span class="kwrd">="tabDataBinding"</span> <span class="attr">Header</span><span class="kwrd">="Data Binding"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">StackPanel</span> <span class="attr">Width</span><span class="kwrd">="250"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">Content</span><span class="kwrd">="Move the scroll bar to see the current value"</span><span class="kwrd">/&gt;</span>
+
+        <span class="rem">&lt;!-- The scrollbar's value is the source of this data bind --&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">ScrollBar</span> <span class="attr">x:Name</span><span class="kwrd">="mySB"</span> <span class="attr">Orientation</span><span class="kwrd">="Horizontal"</span> <span class="attr">Height</span><span class="kwrd">="30"</span>
+            <span class="attr">Minimum</span> = <span class="kwrd">"1"</span> <span class="attr">Maximum</span> = <span class="kwrd">"100"</span> <span class="attr">LargeChange</span><span class="kwrd">="1"</span> <span class="attr">SmallChange</span><span class="kwrd">="1"</span><span class="kwrd">/&gt;</span>
+
+        <span class="rem">&lt;!-- The label's content will be bound to the scroll bar! --&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="labelSBThumb"</span> <span class="attr">Height</span><span class="kwrd">="30"</span> <span class="attr">BorderBrush</span><span class="kwrd">="Blue"</span>
+            <span class="attr">BorderThickness</span><span class="kwrd">="2"</span> <span class="attr">Content</span> = <span class="kwrd">"0"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">TabItem</span><span class="kwrd">&gt;</span></pre>
+    <p>Notice that the &lt;ScrollBar&gt; object (named mySB here) has been configured with a range between 1
+and 100. The goal is to ensure that, as you reposition the thumb of the scrollbar (or click the left or right
+arrow), the Label will automatically update with the current value.</p>
+<h2>Establishing Data Bindings using Blend</h2>
+<p>The glue that makes it possible to define a binding in XAML is the {Binding} markup extension. If you
+wish to establish a binding between controls using Blend, you can do so easily. For this example, locate
+the Content property of the Label object (in the Common Properties area of the Properties window) and
+click the (very) small white square next to the property to open the Advanced Property options. From
+here, select Data Binding (see Figure 28-44).</p>
+<img src="../Images/Figure28_44.png" alt="Figure 28-44" />
+<p><b>Figure 28-44</b> </p>
+<p>You are interested in the Element Property tab here because this will give you a list of all items in
+your XAML file, which you can select as the source of the data-binding operation. Select this tab, and in
+the Scene elements list box, find your ScrollBar object (named mySB). In the Properties list box, find the
+Value property (see Figure 28-45). Click the OK button once you do this.</p>
+<img src="../Images/Figure28_45.png" alt="Figure 28-45" />
+<p><b>Figure 28-45</b> Selecting the source object and the property on the object</p>
+<p>If you run your program again, you will find that the content of the label updates as you move the
+thumb! Now look at the XAML the data binding tool generated on your behalf:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="labelSBThumb"</span> <span class="attr">Height</span><span class="kwrd">="30"</span> <span class="attr">BorderBrush</span><span class="kwrd">="Blue"</span> <span class="attr">BorderThickness</span><span class="kwrd">="2"</span>
+    <span class="attr">Content</span> = <span class="kwrd">"{Binding Value, ElementName=mySB, Mode=Default}"</span><span class="kwrd">/&gt;</span></pre>
+     <p>Note the value assigned to the Label’s Content property. Here, the ElementName value represents the
+source of the data-binding operation (the ScrollBar object), while the first item after the Binding
+keyword (Value) represents (in this case) the property of the element to obtain.</p>
+<p>If you have worked with WPF data binding previously, you might expect to see the use of the Path
+token to set the property to observe on the object. For example, the following markup would also update
+the Label correctly:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="labelSBThumb"</span> <span class="attr">Height</span><span class="kwrd">="30"</span> <span class="attr">BorderBrush</span><span class="kwrd">="Blue"</span>
+    <span class="attr">BorderThickness</span><span class="kwrd">="2"</span> <span class="attr">Content</span> = <span class="kwrd">"{Binding Path=Value,
+    ElementName=mySB, Mode=Default}"</span><span class="kwrd">/&gt;</span></pre>
+<p>By default, Blend omits the Path= aspect of the data-binding operation unless the property is a subproperty
+of another object (e.g., myObject.MyProperty.Object2.Property2).</p> 
+<h2>The DataContext Property</h2>
+<p>You can define a data-binding operation in XAML using an alternative format, where it is possible to
+break out the values specified by the {Binding} markup extension by explicitly setting the DataContext
+property to the source of the binding operation, as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">&lt;!-- Breaking object/value apart via DataContext --&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="labelSBThumb"</span> <span class="attr">Height</span><span class="kwrd">="30"</span> <span class="attr">BorderBrush</span><span class="kwrd">="Blue"</span>
+    <span class="attr">BorderThickness</span><span class="kwrd">="2"</span>
+    <span class="attr">DataContext</span> = <span class="kwrd">"{Binding ElementName=mySB}"</span>
+    <span class="attr">Content</span> = <span class="kwrd">"{Binding Path=Value}"</span> <span class="kwrd">/&gt;</span></pre>
+<p>In the current example, the output would be identical if you were to modify the markup in this way.
+Given this, you might wonder when you would want to set the DataContext property explicitly. Doing so
+can be helpful because sub-elements can inherit its value in a tree of markup.</p>
+<p>In this way, you can easily set the same data source to a family of controls, rather than having to
+repeat a bunch of redundant "{Binding ElementName=X, Path=Y}" XAML values to multiple controls. For
+example, assume you have added a new Button to the &lt;StackPanel&gt; of this tab (you’ll see why it is so
+large in just a moment):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">Content</span><span class="kwrd">="Click"</span> <span class="attr">Height</span><span class="kwrd">="140"</span><span class="kwrd">/&gt;</span></pre>
+<p>You could use Blend to generate data bindings for multiple controls, but instead try entering the
+modified markup manually using the XAML editor:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">&lt;!-- Note the StackPanel sets the DataContext property --&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">StackPanel</span> <span class="attr">Width</span><span class="kwrd">="250"</span> <span class="attr">DataContext</span> = <span class="kwrd">"{Binding ElementName=mySB}"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">Content</span><span class="kwrd">="Move the scroll bar to see the current value"</span><span class="kwrd">/&gt;</span>
+    
+    <span class="kwrd">&lt;</span><span class="html">ScrollBar</span> <span class="attr">Orientation</span><span class="kwrd">="Horizontal"</span> <span class="attr">Height</span><span class="kwrd">="30"</span> <span class="attr">Name</span><span class="kwrd">="mySB"</span>
+        <span class="attr">Maximum</span> = <span class="kwrd">"100"</span> <span class="attr">LargeChange</span><span class="kwrd">="1"</span> <span class="attr">SmallChange</span><span class="kwrd">="1"</span><span class="kwrd">/&gt;</span>
+
+    <span class="rem">&lt;!-- Now both UI elements use the scrollbar's value in unique ways. --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="labelSBThumb"</span> <span class="attr">Height</span><span class="kwrd">="30"</span> <span class="attr">BorderBrush</span><span class="kwrd">="Blue"</span> <span class="attr">BorderThickness</span><span class="kwrd">="2"</span>
+        <span class="attr">Content</span> = <span class="kwrd">"{Binding Path=Value}"</span><span class="kwrd">/&gt;</span>
+
+    <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">Content</span><span class="kwrd">="Click"</span> <span class="attr">Height</span><span class="kwrd">="200"</span>
+        <span class="attr">FontSize</span> = <span class="kwrd">"{Binding Path=Value}"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span></pre>
+    <p>Here, you set the DataContext property on the &lt;StackPanel&gt; directly. Therefore, as you move the
+thumb, you see not only the current value on the Label, but also see the font size of the Button grow and
+shrink accordingly, based on the same value (see Figure 28-46 shows for one possible output).</p>
+<img src="../Images/Figure28_46.png" alt="Figure 28-46" />
+<p><b>Figure 28-46</b> Binding the ScrollBar value to a Label and a Button</p>
+<h2>Data Conversion Using IValueConverter</h2>
+<p>The ScrollBar type uses a double to represent the value of the thumb, rather than an expected whole
+number (e.g., an integer). Therefore, as you drag the thumb, you will find various floating-point numbers
+displayed within the Label (e.g., 61.0576923076923). The end user would find this rather unintuitive
+because he is most likely expecting to see whole numbers (e.g., 61, 62, and 63).</p>
+<p>If you wish to convert the value of a data-binding operation into an alternative format, you could
+create a custom class that implements the IValueConverter interface of the System.Windows.Data
+namespace. This interface defines two members that allow you to perform the conversion to and from
+the target and destination (in the case of a two-way data binding). Once you define this class, you can
+use it to qualify further the processing of your data-binding operation.</p>
+<p>Assuming that you wish to display whole numbers within the Label control, you can build the
+following class using Expression Blend. Activate the Project &gt; Add New Item menu and insert a class
+named MyDoubleConverter. Next, add the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> MyDoubleConverter : IValueConverter
+{
+    <span class="kwrd">public</span> <span class="kwrd">object</span> Convert(<span class="kwrd">object</span> value, Type targetType, <span class="kwrd">object</span> parameter,
+        System.Globalization.CultureInfo culture)
+    {
+        <span class="rem">// Convert the double to an int.</span>
+        <span class="kwrd">double</span> v = (<span class="kwrd">double</span>)value;
+        <span class="kwrd">return</span> (<span class="kwrd">int</span>)v;
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">object</span> ConvertBack(<span class="kwrd">object</span> value, Type targetType, <span class="kwrd">object</span> parameter,
+        System.Globalization.CultureInfo culture)
+    {
+        <span class="rem">// You won't worry about "two way" bindings</span>
+        <span class="rem">// here, so just return the value.</span>
+        <span class="kwrd">return</span> value;
+    }
+}</pre>
+<p>The Convert() method is called when the value is transferred from the source (the ScrollBar) to the
+destination (the Text property of the TextBox). You receive many of incoming arguments, but you only
+need to manipulate the incoming object for this conversion, which is the value of the current double.
+You can use this type to cast the type into an integer and return the new number.</p>
+<p>The ConvertBack() method will be called when the value is passed from the destination to the
+source (if you have enabled a two-way binding mode). Here, you simply return the value straightaway.
+Doing so lets you type a floating-point value into the TextBox (e.g., 99.9) and have it automatically
+convert to a whole number value (e.g., 99) when the user tabs off the control. This “free” conversion
+happens due to the fact that the Convert() method is called again, after a call to ConvertBack(). If you
+were simply to return null from ConvertBack(), your binding would appear to be out of sync because the
+text box would still be displaying a floating-point number!</p>
+<h2>Establishing Data Bindings in Code</h2>
+<p>With this class in place, you are ready to register your custom converter with any control that wishes to
+use it. You could accomplish this exclusively in XAML; however, to do so, you would need to define some
+custom object resources, which you will not learn how to do until the next chapter. For now, you can
+register your data conversion class in code. Begin by cleaning up the current definition of the &lt;Label&gt;
+control in your data binding tab, so that it no longer uses the {Binding} markup extension:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="labelSBThumb"</span> <span class="attr">Height</span><span class="kwrd">="30"</span> <span class="attr">BorderBrush</span><span class="kwrd">="Blue"</span>
+    <span class="attr">BorderThickness</span><span class="kwrd">="2"</span> <span class="attr">Content</span> = <span class="kwrd">"0"</span><span class="kwrd">/&gt;</span></pre>
+    <p>In your window’s constructor, call a new private helper function called SetBindings(). In this
+method, add the following code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> SetBindings()
+{
+    <span class="rem">// Create a Binding object.</span>
+    Binding b = <span class="kwrd">new</span> Binding();
+
+    <span class="rem">// Register the converter, source and path.</span>
+    b.Converter = <span class="kwrd">new</span> MyDoubleConverter();
+    b.Source = <span class="kwrd">this</span>.mySB;
+    b.Path = <span class="kwrd">new</span> PropertyPath(<span class="str">"Value"</span>);
+
+    <span class="rem">// Call the SetBinding method on the Label.</span>
+    <span class="kwrd">this</span>.labelSBThumb.SetBinding(Label.ContentProperty, b);
+}</pre>
+<p>The only part of this function that probably looks a bit off is the call to SetBinding(). Notice that the
+first parameter calls a static, read-only field of the Label class named ContentProperty.</p>
+<p>As you will learn about in Chapter 31, you are specifying what is known as a dependency property.
+For the time being, just know that when you set bindings in code, the first argument will nearly always
+require you to specify the name of the class that wants the binding (the Label, in this case), followed by a
+call to the underlying property with the -Property suffix (again, you’ll learn more about this in Chapter
+31). In any case, running the application illustrates that the Label only prints out whole numbers.</p>
+<h2>Building the DataGrid Tab</h2>
+<p>You have built an interesting example so far using nothing but Expression Blend. For the remainder of
+this project, however, you will use Visual Studio 2010, which will give you some firsthand experience
+regarding how Blend and Visual Studio can work hand-in-hand. So, save your project and close down
+Blend. Next, open the same project in Visual Studio 2010 using the File &gt; Open &gt; Project/Solution...
+menu option.</p>
+<p>The previous data-binding example illustrated how to configure two (or more) controls to
+participate in a data-binding operation. While this is helpful, it is also possible to bind data from XML
+files, database data, and in-memory objects. To complete this example, you will design the final tab of
+your tab control, so it displays data obtained from the Inventory table of the AutoLot database.</p>
+<p>As with the other tabs, you begin by changing the current Grid to a StackPanel. Do this by directly
+updating the XAML using Visual Studio. Now define a DataGrid control in your new StackPanel named
+gridInventory:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">TabItem</span> <span class="attr">x:Name</span><span class="kwrd">="tabDataGrid"</span> <span class="attr">Header</span><span class="kwrd">="DataGrid"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">DataGrid</span> <span class="attr">x:Name</span><span class="kwrd">="gridInventory"</span> <span class="attr">Height</span><span class="kwrd">="288"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">TabItem</span><span class="kwrd">&gt;</span></pre>
+    <p>Next, reference the AutoLotDAL.dll assembly you created in Chapter 23 (where you used the Entity
+Framework), as well as System.Data.Entity.dll. You will use the Entity Framework, so you need to
+ensure that your project has the required connection string data in an App.config file. You should
+probably begin by copying the App.config file from your AutoLotEDM_GUI project from Chapter 23 into
+this project using the Project &gt; Add Existing Item menu option.</p>
+<p>Open the code file for your window and add a final helper function called ConfigureGrid();make
+sure you call this from your constructor. Assuming that you did import the AutoLotDAL namespace, all
+you need to do is add a few lines of code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> ConfigureGrid()
+{
+    <span class="kwrd">using</span> (AutoLotEntities context = <span class="kwrd">new</span> AutoLotEntities())
+    {
+        <span class="rem">// Build a LINQ query that gets back some data from the Inventory table.</span>
+        <span class="kwrd">var</span> dataToShow = <span class="kwrd">from</span> c <span class="kwrd">in</span> context.Inventories
+        select <span class="kwrd">new</span> { c.CarID, c.Make, c.Color, c.PetName };
+        <span class="kwrd">this</span>.gridInventory.ItemsSource = dataToShow;
+    }
+}</pre>
+<p>Notice that you do not directly bind context.Inventories to the grid’s ItemsSource collection;
+instead, you build a LINQ query that appears to ask for the same data in the entities. The reason for this
+approach: The Inventory object set also contains additional EF properties that would appear on the grid,
+but which don’t map to the physical database.</p>
+<p>If we were to run the project as-is, you would see an extremely plain grid. To make the grid a bit less
+of an eye sore, use the Visual Studio 2010 Properties window to edit the Rows category of the DataGrid.
+At a minimum, set the AlternationCount property to 2 and pick a custom brush using the integrated
+editor for the AlternatingRowBackground and RowBackground properties (see Figure 28-47 for some
+possible values).</p>
+<img src="../Images/Figure28_47.png" alt="Figure 28-47" />
+<p><b>Figure 28-47</b> Applying some eye candy to the grid</p>
+<p>You can see the final tab for this example in Figure 28-48.</p>
+<img src="../Images/Figure28_48.png" alt="Figure 28-48" />
+<p><b>Figure 28-48</b> The final tab of your project</p>
+<p>To be sure, you can configure the WPF DataGrid in a huge number of ways, so you’ll want to consult
+the .NET Framework 4.0 SDK for details. For example, you can build custom data templates for the
+DataGrid using WPF graphical types; this enables you to provide an extremely rich UI.</p>
+<p>That wraps up the current example. You’ll use some other controls in later chapters; at this point,
+however, you should feel comfortable with the process of building UIs with Blend, Visual Studio 2010,
+and manually using XAML and C# code.</p>
+    </body></html>
+    
+      
+   

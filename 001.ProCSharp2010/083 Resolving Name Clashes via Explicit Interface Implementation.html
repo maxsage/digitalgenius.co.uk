@@ -1,0 +1,147 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>DG</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="../master.css" />	
+</head>
+<body>
+<h1>Resolving Name Clashes via Explicit Interface Implementation</h1>
+<p>As shown earlier in this chapter, a single class or structure can implement any number of interfaces.
+Given this, there is always the possibility you may implement interfaces that contain identical members,
+and therefore have a name clash to contend with. To illustrate various manners in which you can resolve
+this issue, create a new Console Application named InterfaceNameClash. Now design three interfaces
+that represent various locations to which an implementing type could render its output:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Draw image to a Form.</span>
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IDrawToForm
+{
+    <span class="kwrd">void</span> Draw();
+}
+
+<span class="rem">// Draw to buffer in memory.</span>
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IDrawToMemory
+{
+    <span class="kwrd">void</span> Draw();
+}
+
+<span class="rem">// Render to the printer.</span>
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IDrawToPrinter
+{
+    <span class="kwrd">void</span> Draw();
+}</pre>
+<p>Notice that each interface defines a method named Draw(), with the identical signature (which
+happen to be no arguments). If you now wish to support each of these interfaces on a single class type
+named Octagon, the compiler would allow the following definition:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Octagon : IDrawToForm, IDrawToMemory, IDrawToPrinter
+{
+    <span class="kwrd">public</span> <span class="kwrd">void</span> Draw()
+    {
+        <span class="rem">// Shared drawing logic.</span>
+        Console.WriteLine(<span class="str">"Drawing the Octagon..."</span>);
+    }
+}</pre>
+<p>Although the code compiles cleanly, we do have a possible problem. Simply put, providing a single
+implementation of the Draw() method does not allow us to take unique courses of action based on which
+interface is obtained from an Octagon object. For example, the following code will invoke the same
+Draw() method, regardless of which interface you obtain:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Interface Name Clashes *****\n"</span>);
+    <span class="rem">// All of these invocations call the</span>
+    <span class="rem">// same Draw() method!</span>
+    Octagon oct = <span class="kwrd">new</span> Octagon();
+    oct.Draw();
+
+    IDrawToForm itfForm = (IDrawToForm)oct;
+    itfForm.Draw();
+
+    IDrawToPrinter itfPriner = (IDrawToPrinter)oct;
+    itfPriner.Draw();
+
+    IDrawToMemory itfMemory = (IDrawToMemory)oct;
+    itfMemory.Draw();
+
+    Console.ReadLine();
+}</pre>
+<p>Clearly, the sort of code required to render the image to a window is quite different from the code
+needed to render the image to a networked printer or a region of memory. When you implement several
+interfaces that have identical members, you can resolve this sort of name clash using explicit interface
+implementation syntax. Consider the following update to the Octagon type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Octagon : IDrawToForm, IDrawToMemory, IDrawToPrinter
+{
+    <span class="rem">// Explicitly bind Draw() implementations</span>
+    <span class="rem">// to a given interface.</span>
+    <span class="kwrd">void</span> IDrawToForm.Draw()
+    {
+        Console.WriteLine(<span class="str">"Drawing to form..."</span>);
+    }
+    
+    <span class="kwrd">void</span> IDrawToMemory.Draw()
+    {
+        Console.WriteLine(<span class="str">"Drawing to memory..."</span>);
+    }
+
+    <span class="kwrd">void</span> IDrawToPrinter.Draw()
+    {
+        Console.WriteLine(<span class="str">"Drawing to a printer..."</span>);
+    }
+}</pre>
+<p>As you can see, when explicitly implementing an interface member, the general pattern breaks
+down to</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+returnType InterfaceName.MethodName(<span class="kwrd">params</span>)</pre>
+<p>Note that when using this syntax, you do not supply an access modifier; explicitly implemented
+members are automatically private. For example, the following is illegal syntax:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Error! No access modifer!</span>
+<span class="kwrd">public</span> <span class="kwrd">void</span> IDrawToForm.Draw()
+{
+    Console.WriteLine(<span class="str">"Drawing to form..."</span>);
+}</pre>
+<p>Because explicitly implemented members are always implicitly private, these members are no
+longer available from the object level. In fact, if you were to apply the dot operator to an Octagon type,
+you would find that IntelliSense does not show you any of the Draw() members (see Figure 9-6).</p>
+    <img src="../Images/Figure09_06.png" alt="Figure 9-6" />
+<p>As expected, you must make use of explicit casting to access the required functionality. For example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Interface Name Clashes *****\n"</span>);
+    Octagon oct = <span class="kwrd">new</span> Octagon();
+
+    <span class="rem">// We now must use casting to access the Draw()</span>
+    <span class="rem">// members.</span>
+    IDrawToForm itfForm = (IDrawToForm)oct;
+    itfForm.Draw();
+
+    <span class="rem">// Shorthand notation if you don't need</span>
+    <span class="rem">// the interface variable for later use.</span>
+    ((IDrawToPrinter)oct).Draw();
+
+    <span class="rem">// Could also use the "as" keyword.</span>
+    <span class="kwrd">if</span>(oct <span class="kwrd">is</span> IDrawToMemory)
+        ((IDrawToMemory)oct).Draw();
+
+    Console.ReadLine();
+}</pre>
+<p>While this syntax is quite helpful when you need to resolve name clashes, you can use explicit
+interface implementation simply to hide more “advanced” members from the object level. In this way,
+when the object user applies the dot operator, he or she will see only a subset of the type’s overall
+functionality. However, those who require the more advanced behaviors can extract out the desired
+interface via an explicit cast.</p>
+ <p><b>Source Code</b> The InterfaceNameClash project is located under the Chapter 9 subdirectory.</p>
+    </body></html>
+   
+

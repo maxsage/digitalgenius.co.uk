@@ -1,0 +1,318 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Working with DataRows</h1>
+<p>As you have seen, a collection of DataColumn objects represents the schema of a DataTable. In contrast, a
+collection of DataRow objects represents the actual data in the table. Thus, if you have 20 rows in the
+Inventory table of the AutoLot database, you can represent these records using 20 DataRow objects.
+Table 22-4 documents some (but not all) of the members of the DataRow type.</p>
+<p><b>Table 22-4.</b> Key Members of the DataRow Type</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Members
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    HasErrors GetColumnsInError() GetColumnError() ClearErrors() RowError
+   </td>
+   <td>
+    The HasErrors property returns a Boolean value indicating whether there
+are errors in a DataRow. If so, you can use the GetColumnsInError() method
+to obtain the offending columns and GetColumnError()to obtain the error
+description. Similarly, you can use the ClearErrors() method to remove
+each error listing for the row. The RowError property allows you to
+configure a textual description of the error for a given row.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ItemArray
+   </td>
+   <td>
+    This property gets or sets all of the column values for this row using an
+array of objects.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    RowState
+   </td>
+   <td>
+    You use this property to pinpoint the current state of the DataRow in the
+DataTable containing the DataRow, using values of the RowState
+enumeration (e.g., a row can be flagged as new, modified, unchanged, or
+deleted).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Table
+   </td>
+   <td>
+    You use this property to obtain a reference to the DataTable containing
+this DataRow.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    AcceptChanges() RejectChanges()
+   </td>
+   <td>
+    These methods commit or reject all changes made to this row since the
+last time AcceptChanges() was called.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    BeginEdit() EndEdit() CancelEdit()
+   </td>
+   <td>
+    These methods begin, end, or cancel an edit operation on a DataRow
+object.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Delete()
+   </td>
+   <td>
+    This method marks a row you want to remove when the AcceptChanges()
+method is called.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IsNull()
+   </td>
+   <td>
+    This method gets a value indicating whether the specified column
+contains a null value.
+   </td>
+  </tr>
+</table>
+<p>Working with a DataRow is a bit different from working with a DataColumn; you cannot create a direct
+instance of this type because there is no public constructor:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Error! No public constructor!</span>
+DataRow r = <span class="kwrd">new</span> DataRow();</pre>
+<p>Instead, you obtain a new DataRow object from a given DataTable. For example, assume you wish to
+insert two rows in the Inventory table. The DataTable.NewRow() method allows you to obtain the next
+slot in the table, at which point you can fill each column with new data using the type indexer. When
+doing so, you can specify either the string name assigned to the DataColumn or its (zero-based) ordinal
+position:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> FillDataSet(DataSet ds)
+{
+...
+    <span class="rem">// Now add some rows to the Inventory Table.</span>
+    DataRow carRow = inventoryTable.NewRow();
+    carRow[<span class="str">"Make"</span>] = <span class="str">"BMW"</span>;
+    carRow[<span class="str">"Color"</span>] = <span class="str">"Black"</span>;
+    carRow[<span class="str">"PetName"</span>] = <span class="str">"Hamlet"</span>;
+    inventoryTable.Rows.Add(carRow);
+
+    carRow = inventoryTable.NewRow();
+    <span class="rem">// Column 0 is the autoincremented ID field,</span>
+    <span class="rem">// so start at 1.</span>
+    carRow[1] = <span class="str">"Saab"</span>;
+    carRow[2] = <span class="str">"Red"</span>;
+    carRow[3] = <span class="str">"Sea Breeze"</span>;
+    inventoryTable.Rows.Add(carRow);
+}</pre>
+<p><b>Note</b> If you pass the DataRow’s indexer method an invalid column name or ordinal position, you will receive a
+runtime exception.</p>
+<p>At this point, you have a single DataTable containing two rows. Of course, you can repeat this
+general process to create a number of DataTables to define the schema and data content. Before you
+insert the inventoryTable object into your DataSet object, you should check out the all-important
+RowState property.</p>
+<h2>Understanding the RowState Property</h2>
+<p>The RowState property is useful when you need to identify programmatically the set of all rows in a table
+that have changed from their original value, have been newly inserted, and so forth. You can assign this
+property any value from the DataRowState enumeration, as shown in Table 22-5.</p>
+<p><b>Table 22-5.</b> Values of the DataRowState Enumeration</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Value
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Added
+   </td>
+   <td>
+    The row has been added to a DataRowCollection, and AcceptChanges() has not
+been called.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Deleted
+   </td>
+   <td>
+    The row has been marked for deletion using the Delete() method of the DataRow,
+and AcceptChanges() has not been called.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Detached
+   </td>
+   <td>
+    The row has been created but is not part of any DataRowCollection. A DataRow is in
+this state immediately after it has been created, but before it is added to a
+collection. It is also in this state if it has been removed from a collection.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Modified
+   </td>
+   <td>
+    The row has been modified, and AcceptChanges() has not been called.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Unchanged
+   </td>
+   <td>
+    The row has not changed since AcceptChanges() was last called.
+   </td>
+  </tr>
+</table>
+<p>When you manipulate the rows of a given DataTable programmatically, the RowState property is set
+automatically. For example, add a new method to your Program class, which operates on a local DataRow
+object, printing out its row state along the way:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> ManipulateDataRowState()
+{
+    <span class="rem">// Create a temp DataTable for testing.</span>
+    DataTable temp = <span class="kwrd">new</span> DataTable(<span class="str">"Temp"</span>);
+    temp.Columns.Add(<span class="kwrd">new</span> DataColumn(<span class="str">"TempColumn"</span>, <span class="kwrd">typeof</span>(<span class="kwrd">int</span>)));
+    
+    <span class="rem">// RowState = Detached (i.e. not part of a DataTable yet)</span>
+    DataRow row = temp.NewRow();
+    Console.WriteLine(<span class="str">"After calling NewRow(): {0}"</span>, row.RowState);
+    
+    <span class="rem">// RowState = Added.</span>
+    temp.Rows.Add(row);
+    Console.WriteLine(<span class="str">"After calling Rows.Add(): {0}"</span>, row.RowState);
+    
+    <span class="rem">// RowState = Added.</span>
+    row[<span class="str">"TempColumn"</span>] = 10;
+    Console.WriteLine(<span class="str">"After first assignment: {0}"</span>, row.RowState);
+    
+    <span class="rem">// RowState = Unchanged.</span>
+    temp.AcceptChanges();
+    Console.WriteLine(<span class="str">"After calling AcceptChanges: {0}"</span>, row.RowState);
+    
+    <span class="rem">// RowState = Modified.</span>
+    row[<span class="str">"TempColumn"</span>] = 11;
+    Console.WriteLine(<span class="str">"After first assignment: {0}"</span>, row.RowState);
+    
+    <span class="rem">// RowState = Deleted.</span>
+    temp.Rows[0].Delete();
+    Console.WriteLine(<span class="str">"After calling Delete: {0}"</span>, row.RowState);
+}</pre>
+<p>The ADO.NET DataRow is smart enough to remember its current state of affairs. Given this, the
+owning DataTable is able to identify which rows have been added, updated, or deleted. This is a key
+feature of the DataSet because, when it comes time to send updated information to the data store, only
+the modified data is submitted.</p>
+<h2>Understanding the DataRowVersion Property</h2>
+<p>Beyond maintaining the current state of a row with the RowState property, a DataRow object maintains
+three possible versions of the data it contains using the DataRowVersion property. When a DataRow object
+is first constructed, it contains only a single copy of data, represented as the current version. However, as
+you programmatically manipulate a DataRow object (using various method calls), additional versions of
+the data spring to life. Specifically, you can set the DataRowVersion to any value of the related
+DataRowVersion enumeration (see Table 22-6).</p>
+<p><b>Table 22-6.</b> Values of the DataRowVersion Enumeration</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Value
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Current
+   </td>
+   <td>
+    This represents the current value of a row, even after changes have been made.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Default
+   </td>
+   <td>
+    This is the default version of DataRowState. For a DataRowState value of Added,
+Modified, or Deleted, the default version is Current. For a DataRowState value of
+Detached, the version is Proposed.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Original
+   </td>
+   <td>
+    This represents the value first inserted into a DataRow or the value the last time
+AcceptChanges() was called.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Proposed
+   </td>
+   <td>
+    This is the value of a row currently being edited due to a call to BeginEdit().
+   </td>
+  </tr>
+</table>
+<p>As suggested in Table 22-6, the value of the DataRowVersion property is dependent on the value of
+the DataRowState property in many cases. As mentioned previously, the DataRowVersion property will be
+changed behind the scenes when you invoke various methods on the DataRow (or, in some cases, the
+DataTable) object. Here is a breakdown of the methods that can affect the value of a row’s
+DataRowVersion property:</p>
+<ul>
+ <li>If you call the DataRow.BeginEdit() method and change the row’s value, the
+Current and Proposed values become available.</li>
+ <li>If you call the DataRow.CancelEdit() method, the Proposed value is deleted.</li>
+ <li>After you call DataRow.EndEdit(), the Proposed value becomes the Current value.</li>
+ <li>After you call the DataRow.AcceptChanges() method, the Original value becomes
+identical to the Current value. The same transformation occurs when you call
+DataTable.AcceptChanges().</li>
+ <li>After you call DataRow.RejectChanges(), the Proposed value is discarded, and the
+version becomes Current.</li>
+</ul>
+<p>Yes, this is a bit convoluted, not least because a DataRow might or might not have all versions at any
+given time (you’ll receive runtime exceptions if you attempt to obtain a row version that is not currently
+tracked). Regardless of the complexity, given that the DataRow maintains three copies of data, it becomes
+simple to build a front end that allows an end user to alter values, change his or her mind and roll back
+values, or commit values permanently. You’ll see various examples of manipulating these methods over
+the remainder of this chapter.</p>
+    </body>
+    </html>
+      
+      
+   

@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />   
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />       
+	<link rel="stylesheet" type="text/css" href="../master.css" />  
+</head>
+<body>
+    <h1>An Interesting Aside: Some Additional Members of the System.Environment Class</h1>
+    <p>The Environment class exposes a number of extremely helpful methods beyond GetCommandLineArgs().
+    Specifically, this class allows you to obtain a number of details regarding the operating system currently
+    hosting your .NET application using various static members. To illustrate the usefulness of
+    System.Environment, update your Main() method to call a helper method named
+    ShowEnvironmentDetails().</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">int</span> Main(<span class="kwrd">string</span>[] args)
+{
+    ...
+    <span class="rem">// Helper method within the Program class.</span>
+    ShowEnvironmentDetails();
+    
+    Console.ReadLine();
+    <span class="kwrd">return</span> -1;
+}</pre>
+    <p>Implement this method within your Program class to call various members of the Environment type.</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ShowEnvironmentDetails()
+{
+    <span class="rem">// Print out the drives on this machine,</span>
+    <span class="rem">// and other interesting details.</span>
+    <span class="kwrd">foreach</span> (<span class="kwrd">string</span> drive <span class="kwrd">in</span> Environment.GetLogicalDrives())
+        Console.WriteLine(<span class="str">"Drive: {0}"</span>, drive);
+
+    Console.WriteLine(<span class="str">"OS: {0}"</span>, Environment.OSVersion);
+    Console.WriteLine(<span class="str">"Number of processors: {0}"</span>,
+        Environment.ProcessorCount);
+    Console.WriteLine(<span class="str">".NET Version: {0}"</span>,
+        Environment.Version);
+}</pre>
+    <p>Figure 3-4 shows a possible test run of invoking this method. If you did not specify command-line
+    arguments via the Visual Studio 2010 Debug tab, you will not find them printed to the console.</p>
+    <img src="../Images/Figure03_04.png" alt="Figure 3-4" />
+    <p><b>Figure 3-4.</b> Displaying system environment variables</p>
+    <p>The Environment type defines members other than those shown in the previous example. Table 3-1
+    documents some additional properties of interest; however, be sure to check out the .NET Framework
+    4.0 SDK documentation for full details.</p>
+    <p><b>Table 3-1.</b> Select Properties of System.Environment</p>
+    <table class="gridtable">
+        <tr>
+            <th>Property</th>
+            <th>Meaning in Life</th>
+        </tr>
+        <tr>
+            <td>ExitCode</td>
+            <td>Gets or sets the exit code for the application.</td>
+        </tr>
+        <tr>
+            <td>MachineName</td>
+            <td>Gets the name of the current machine.</td>
+        </tr>
+        <tr>
+            <td>NewLine</td>
+            <td>Gets the newline symbol for the current environment.</td>
+        </tr>
+        <tr>
+            <td>StackTrace</td>
+            <td>Gets the current stack trace information for the application.</td>
+        </tr>
+        <tr>
+            <td>SystemDirectory</td>
+            <td>Returns the full path to the system directory.</td>
+        </tr>
+        <tr>
+            <td>UserName</td>
+            <td>Returns the name of the user that started this application.</td>
+        </tr>
+    </table>
+    <p><b>Source Code</b> The SimpleCSharpApp project is located under the Chapter 3 subdirectory.</p>
+</body>
+</html>

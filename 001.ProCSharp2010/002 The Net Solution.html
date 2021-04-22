@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>The .NET Solution</title>
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="../master.css" />	
+</head>
+<body>
+	<h1>The .NET Solution</h1>
+    <p>So much for the brief history lesson. The bottom line is that life as a Windows programmer has
+    historically been tough. The .NET Framework is a rather radical and brute-force approach to making 		
+    our lives easier. As you will see during the remainder of this book, the .NET Framework is a software
+    platform for building systems on the Windows family of operating systems, as well as on numerous non-
+    Microsoft operating systems such as Mac OS X and various Unix/Linux distributions. To set the stage,
+    here is a quick rundown of some core features provided courtesy of .NET.</p>
+    <ul>
+        <li><i>Interoperability with existing code:</i> This is (of course) a good thing. Existing COM
+        binaries can commingle (i.e., interop) with newer .NET binaries and vice versa. As
+        of .NET 4.0, interoperability has been further simplified with the addition of the
+        dynamic keyword (covered in Chapter 18).</li>
+        <li><i>Support for numerous programming languages:</i> .NET applications can be created
+        using any number of programming languages (C#, Visual Basic, F#, S#, and so on).</li>
+		<li><i>A common runtime engine shared by all .NET-aware languages:</i> One aspect of this
+        engine is a well-defined set of types that each .NET-aware language understands.</li>
+        <li><i>Complete and total language integration:</i> .NET supports cross-language
+        inheritance, cross-language exception handling, and cross-language debugging of
+        code.</li>
+        <li><i>A comprehensive base class library:</i> This library provides shelter from the
+        complexities of raw API calls and offers a consistent object model used by all
+        .NET-aware languages.</li>
+        <li><i>No more COM plumbing:</i> IClassFactory, IUnknown, IDispatch, IDL code, and the
+        variant-compliant data types (e.g., BSTR, SAFEARRAY) have no place in a .NET
+        binary.</li>
+        <li><i>A simplified deployment model:</i> Under .NET, there is no need to register a binary
+        unit into the system registry. Furthermore, .NET allows multiple versions of the
+        same *.dll to exist in harmony on a single machine.</li>
+    </ul>
+    <p>As you can most likely gather from the previous bullet points, the .NET platform has nothing to do
+    with COM (beyond the fact that both frameworks originated from Microsoft). In fact, the only way .NET
+    and COM types can interact with each other is using the interoperability layer.</p>
+</body>
+</html>

@@ -1,0 +1,546 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Understanding Operator Overloading</h1>
+  <p>C#, like any programming language, has a canned set of tokens that are used to perform basic operations
+on intrinsic types. For example, you know that the + operator can be applied to two integers in order to
+yield a larger integer:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// The + operator with ints.</span>
+<span class="kwrd">int</span> a = 100;
+<span class="kwrd">int</span> b = 240;
+<span class="kwrd">int</span> c = a + b; <span class="rem">// c is now 340</span></pre>
+<p>Once again, this is no major newsflash, but have you ever stopped and noticed how the same +
+operator can be applied to most intrinsic C# data types? For example, consider this code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// + operator with strings.</span>
+<span class="kwrd">string</span> s1 = <span class="str">"Hello"</span>;
+<span class="kwrd">string</span> s2 = <span class="str">" world!"</span>;
+<span class="kwrd">string</span> s3 = s1 + s2; <span class="rem">// s3 is now "Hello world!"</span></pre>
+<p>In essence, the + operator functions in specific ways based on the supplied data types (strings or
+integers in this case). When the + operator is applied to numerical types, the result is the summation of
+the operands. However, when the + operator is applied to string types, the result is string concatenation.</p>
+<p>The C# language gives you the capability to build custom classes and structures that also respond
+uniquely to the same set of basic tokens (such as the + operator). Be aware that you cannot overload
+every intrinsic C# operator. Table 12-1 outlines the “overloadability” of the core operators.</p>
+<p><b>Table 12-1. </b>Overloadability of C# Operators</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    C# Operator
+   </th>
+   <th>
+    Overloadability
+   </th>
+  </tr>
+  <tr>
+   <td>
+    +, -, !, ~, ++, --, true, false
+   </td>
+   <td>
+    These unary operators can be overloaded.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    +, -, *, /, %, &amp;, |, ^, &lt;&lt;, &gt;&gt;
+   </td>
+   <td>
+    These binary operators can be overloaded.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ==, !=, &lt;, &gt;, &lt;=, &gt;=
+   </td>
+   <td>
+    These comparison operators can be overloaded. C# demands
+that “like” operators (i.e., &lt; and &gt;, &lt;= and &gt;=, == and !=) are
+overloaded together.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    []
+   </td>
+   <td>
+    The [] operator cannot be overloaded. As you saw earlier in
+this chapter, however, the indexer construct provides the
+same functionality.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ()
+   </td>
+   <td>
+    The () operator cannot be overloaded. As you will see later in
+this chapter, however, custom conversion methods provide
+the same functionality.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    +=, -=, *=, /=, %=, &amp;=, |=, ^=, &lt;&lt;=, &gt;&gt;=
+   </td>
+   <td>
+    Shorthand assignment operators cannot be overloaded;
+however, you receive them as a freebie when you overload
+the related binary operator.
+   </td>
+  </tr>
+ </table>
+ <h2>Overloading Binary Operators</h2>
+  <p>To illustrate the process of overloading binary operators, assume the following simple Point class is
+defined in a new Console Application named OverloadedOps:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Just a simple, everyday C# class.</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> Point
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> X {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Y {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+
+    <span class="kwrd">public</span> Point(<span class="kwrd">int</span> xPos, <span class="kwrd">int</span> yPos)
+    {
+        X = xPos;
+        Y = yPos;
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">string</span> ToString()
+    {
+        <span class="kwrd">return</span> <span class="kwrd">string</span>.Format(<span class="str">"[{0}, {1}]"</span>, <span class="kwrd">this</span>.X, <span class="kwrd">this</span>.Y);
+    }
+}</pre>
+<p>Now, logically speaking, it makes sense to “add” Points together. For example, if you added together
+two Point variables, you should receive a new Point that is the summation of the X and Y values. Of
+course, it may also be helpful to subtract one Point from another. Ideally, you would like to be able to
+author the following code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Adding and subtracting two points?</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Overloaded Operators *****\n"</span>);
+
+    <span class="rem">// Make two points.</span>
+    Point ptOne = <span class="kwrd">new</span> Point(100, 100);
+    Point ptTwo = <span class="kwrd">new</span> Point(40, 40);
+    Console.WriteLine(<span class="str">"ptOne = {0}"</span>, ptOne);
+    Console.WriteLine(<span class="str">"ptTwo = {0}"</span>, ptTwo);
+
+    <span class="rem">// Add the points to make a bigger point?</span>
+    Console.WriteLine(<span class="str">"ptOne + ptTwo: {0} "</span>, ptOne + ptTwo);
+
+    <span class="rem">// Subtract the points to make a smaller point?</span>
+    Console.WriteLine(<span class="str">"ptOne - ptTwo: {0} "</span>, ptOne - ptTwo);
+    Console.ReadLine();
+}</pre>
+<p>However, as our Point now stands, we will receive compile-time errors, as the Point type does not
+know how to respond to the + or - operators.</p>
+<p>To equip a custom type to respond uniquely to intrinsic operators, C# provides the operator
+keyword, which you can use only in conjunction with static methods. When you overload a binary
+operator (such as + and -), you will most often pass in two arguments that are the same type as the
+defining class (a Point in this example), as illustrated in the following code update:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// A more intelligent Point type.</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> Point
+{
+...
+    <span class="rem">// overloaded operator +</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Point <span class="kwrd">operator</span> + (Point p1, Point p2)
+    { <span class="kwrd">return</span> <span class="kwrd">new</span> Point(p1.X + p2.X, p1.Y + p2.Y); }
+    <span class="rem">// overloaded operator -</span>
+
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Point <span class="kwrd">operator</span> - (Point p1, Point p2)
+    { <span class="kwrd">return</span> <span class="kwrd">new</span> Point(p1.X - p2.X, p1.Y - p2.Y); }
+}</pre>
+<p>The logic behind operator + is simply to return a brand new Point object based on the summation of
+the fields of the incoming Point parameters. Thus, when you write pt1 + pt2, under the hood you can
+envision the following hidden call to the static operator + method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Pseudo-code: Point p3 = Point.operator+ (p1, p2)</span>
+Point p3 = p1 + p2;</pre>
+<p>Likewise, p1 – p2 maps to the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Pseudo-code: Point p4 = Point.operator- (p1, p2)</span>
+Point p4 = p1 - p2;</pre>
+<p>With this update, our program now compiles, and we find we are able to add and subtract Point
+objects:</p>
+<pre class="csharpcode">
+ptOne = [100, 100]
+ptTwo = [40, 40]
+ptOne + ptTwo: [140, 140]
+ptOne - ptTwo: [60, 60]
+</pre>
+<p>When you are overloading a binary operator, you are not required to pass in two parameters of the
+same type. If it makes sense to do so, one of the arguments can differ. For example, here is an overloaded
+operator + that allows the caller to obtain a new Point that is based on a numerical adjustment:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> Point
+{
+...
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Point <span class="kwrd">operator</span> + (Point p1, <span class="kwrd">int</span> change)
+    {
+        <span class="kwrd">return</span> <span class="kwrd">new</span> Point(p1.X + change, p1.Y + change);
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Point <span class="kwrd">operator</span> + (<span class="kwrd">int</span> change, Point p1)
+    {
+        <span class="kwrd">return</span> <span class="kwrd">new</span> Point(p1.X + change, p1.Y + change);
+    }
+}</pre>
+<p>Notice that you need both versions of the method if you want the arguments to be passed in either
+order (i.e., you can’t just define one of the methods and expect the compiler to automatically support the
+other one). We are now able to use these new versions of operator + as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Prints [110, 110]</span>
+Point biggerPoint = ptOne + 10;
+Console.WriteLine(<span class="str">"ptOne + 10 = {0}"</span>, biggerPoint);
+
+<span class="rem">// Prints [120, 120]</span>
+Console.WriteLine(<span class="str">"10 + biggerPoint = {0}"</span>, 10 + biggerPoint);
+Console.WriteLine();</pre>
+<h2>And What of the += and –+ Operators?</h2>
+  <p>If you are coming to C# from a C++ background, you may lament the loss of overloading the shorthand
+assignment operators (+=, -=, and so forth). Don’t despair. In terms of C#, the shorthand assignment
+operators are automatically simulated if a type overloads the related binary operator. Thus, given that
+the Point structure has already overloaded the + and - operators, you can write the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Overloading binary operators results in a freebie shorthand operator.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+...
+    <span class="rem">// Freebie +=</span>
+    Point ptThree = <span class="kwrd">new</span> Point(90, 5);
+    Console.WriteLine(<span class="str">"ptThree = {0}"</span>, ptThree);
+    Console.WriteLine(<span class="str">"ptThree += ptTwo: {0}"</span>, ptThree += ptTwo);
+
+    <span class="rem">// Freebie -=</span>
+    Point ptFour = <span class="kwrd">new</span> Point(0, 500);
+    Console.WriteLine(<span class="str">"ptFour = {0}"</span>, ptFour);
+    Console.WriteLine(<span class="str">"ptFour -= ptThree: {0}"</span>, ptFour -= ptThree);
+    Console.ReadLine();
+}</pre>
+<h2>Overloading Unary Operators</h2>
+  <p>C# also allows you to overload various unary operators, such as ++ and --. When you overload a unary
+operator, you also define a static method via the operator keyword; however, in this case you simply
+pass in a single parameter that is the same type as the defining class/structure. For example, if you were
+to update the Point with the following overloaded operators:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> Point
+{
+...
+    <span class="rem">// Add 1 to the X/Y values incoming Point.</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Point <span class="kwrd">operator</span> ++(Point p1)
+    { <span class="kwrd">return</span> <span class="kwrd">new</span> Point(p1.X+1, p1.Y+1); }
+
+    <span class="rem">// Subtract 1 from the X/Y values incoming Point.</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Point <span class="kwrd">operator</span> --(Point p1)
+    { <span class="kwrd">return</span> <span class="kwrd">new</span> Point(p1.X-1, p1.Y-1); }
+}</pre>
+<p>you could increment and decrement Point’s x and y values like this:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+...
+    <span class="rem">// Applying the ++ and -- unary operators to a Point.</span>
+    Point ptFive = <span class="kwrd">new</span> Point(1, 1);
+    Console.WriteLine(<span class="str">"++ptFive = {0}"</span>, ++ptFive); <span class="rem">// [2, 2]</span>
+    Console.WriteLine(<span class="str">"--ptFive = {0}"</span>, --ptFive); <span class="rem">// [1, 1]</span>
+
+    <span class="rem">// Apply same operators as postincrement/decrement.</span>
+    Point ptSix = <span class="kwrd">new</span> Point(20, 20);
+    Console.WriteLine(<span class="str">"ptSix++ = {0}"</span>, ptSix++); <span class="rem">// [20, 20]</span>
+    Console.WriteLine(<span class="str">"ptSix-- = {0}"</span>, ptSix--); <span class="rem">// [21, 21]</span>
+    Console.ReadLine();
+}</pre>
+<p>Notice in the preceding code example we are applying our custom ++ and -- operators in two
+different manners. In C++, it is possible to overload pre- and postincrement/decrement operators
+separately. This is not possible in C#. However, the return value of the increment/decrement is
+automatically handled “correctly” free of charge (i.e., for an overloaded ++ operator, pt++ has the value of
+the unmodified object as its value within an expression, while ++pt has the new value applied before use
+in the expression).</p>
+<h2>Overloading Equality Operators</h2>
+  <p>As you may recall from Chapter 6, System.Object.Equals() can be overridden to perform value-based
+(rather than referenced-based) comparisons between reference types. If you choose to override Equals()
+(and the often related System.Object.GetHashCode() method), it is trivial to overload the equality
+operators (== and !=). To illustrate, here is the updated Point type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This incarnation of Point also overloads the == and != operators.</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> Point
+{
+...
+    <span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">bool</span> Equals(<span class="kwrd">object</span> o)
+    {
+        <span class="kwrd">return</span> o.ToString() == <span class="kwrd">this</span>.ToString();
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">int</span> GetHashCode()
+    { <span class="kwrd">return</span> <span class="kwrd">this</span>.ToString().GetHashCode(); }
+
+    <span class="rem">// Now let's overload the == and != operators.</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> <span class="kwrd">operator</span> ==(Point p1, Point p2)
+    { <span class="kwrd">return</span> p1.Equals(p2); }
+
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> <span class="kwrd">operator</span> !=(Point p1, Point p2)
+    { <span class="kwrd">return</span> !p1.Equals(p2); }
+}</pre>
+<p>Notice how the implementation of operator == and operator != simply makes a call to the
+overridden Equals() method to get the bulk of the work done. Given this, you can now exercise your
+Point class as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Make use of the overloaded equality operators.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+...
+    Console.WriteLine(<span class="str">"ptOne == ptTwo : {0}"</span>, ptOne == ptTwo);
+    Console.WriteLine(<span class="str">"ptOne != ptTwo : {0}"</span>, ptOne != ptTwo);
+    Console.ReadLine();
+}</pre>
+<p>As you can see, it is quite intuitive to compare two objects using the well-known == and != operators
+rather than making a call to Object. Equals(). If you do overload the equality operators for a given class,
+keep in mind that C# demands that if you override the == operator, you must also override the !=
+operator (if you forget, the compiler will let you know).</p>
+<h2>Overloading Comparison Operators</h2>
+  <p>In Chapter 9, you learned how to implement the IComparable interface in order to compare the
+relationship between two like objects. You can, in fact, also overload the comparison operators (&lt;, &gt;, &lt;=,
+and &gt;=) for the same class. As with the equality operators, C# demands that if you overload &lt;, you must
+also overload >. The same holds true for the &lt;= and &gt;= operators. If the Point type overloaded these
+comparison operators, the object user could now compare Points as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Using the overloaded &lt; and &gt; operators.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+...
+    Console.WriteLine(<span class="str">"ptOne &lt; ptTwo : {0}"</span>, ptOne &lt; ptTwo);
+    Console.WriteLine(<span class="str">"ptOne &gt; ptTwo : {0}"</span>, ptOne &gt; ptTwo);
+    Console.ReadLine();
+}</pre>
+<p>Assuming you have implemented the IComparable interface, overloading the comparison operators
+is trivial. Here is the updated class definition:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Point is also comparable using the comparison operators.</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> Point : IComparable
+{
+...
+    <span class="kwrd">public</span> <span class="kwrd">int</span> CompareTo(<span class="kwrd">object</span> obj)
+    {
+        <span class="kwrd">if</span> (obj <span class="kwrd">is</span> Point)
+        {
+            Point p = (Point)obj;
+            <span class="kwrd">if</span> (<span class="kwrd">this</span>.X &gt; p.X &amp;&amp; <span class="kwrd">this</span>.Y &gt; p.Y)
+                <span class="kwrd">return</span> 1;
+            <span class="kwrd">if</span> (<span class="kwrd">this</span>.X &lt; p.X &amp;&amp; <span class="kwrd">this</span>.Y &lt; p.Y)
+                <span class="kwrd">return</span> -1;
+            <span class="kwrd">else</span>
+                <span class="kwrd">return</span> 0;
+        }
+        <span class="kwrd">else</span>
+            <span class="kwrd">throw</span> <span class="kwrd">new</span> ArgumentException();
+    }
+    
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> <span class="kwrd">operator</span> &lt;(Point p1, Point p2)
+    { <span class="kwrd">return</span> (p1.CompareTo(p2) &lt; 0); }
+
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> <span class="kwrd">operator</span> &gt;(Point p1, Point p2)
+    { <span class="kwrd">return</span> (p1.CompareTo(p2) &gt; 0); }
+
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> <span class="kwrd">operator</span> &lt;=(Point p1, Point p2)
+    { <span class="kwrd">return</span> (p1.CompareTo(p2) &lt;= 0); }
+
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> <span class="kwrd">operator</span> &gt;=(Point p1, Point p2)
+    { <span class="kwrd">return</span> (p1.CompareTo(p2) &gt;= 0); }
+}</pre>
+<h2>The Internal Representation of Overloaded Operators</h2>
+  <p>Like any C# programming element, overloaded operators are represented using specific CIL syntax. To
+begin examining what takes place behind the scenes, open the OverloadedOps.exe assembly using
+ildasm.exe. As you can see from Figure 12-1, the overloaded operators are internally expressed via
+hidden methods (such as op_Addition(), op_Subtraction(), op_Equality(), and so on).</p>
+<img src="../Images/Figure12_01.png" alt="Figure 12-1" />
+<p><b>Figure 12-1. </b>In terms of CIL, overloaded operators map to hidden methods</p>
+<p>Now, if you were to examine the specific CIL instructions for the op_Addition method (the one that
+takes two Point parameters), you would find that the specialname method decoration has also been
+inserted by the compiler:</p>
+<pre class="csharpcode">
+.method public hidebysig specialname static
+    class OverloadedOps.Point
+    op_Addition(class OverloadedsOps.Point p1,
+        class OverloadedOps.Point p2) cil managed
+    {
+        ...
+    }</pre>
+<p>The truth of the matter is that any operator that you may overload equates to a specially named
+method in terms of CIL. Table 12-2 documents the C# operator-to-CIL mapping for the most common
+C# operators.</p>
+<p><b>Table 12-2. </b>C# Operator-to-CIL Special Name Road Map</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Intrinsic C# Operator
+   </th>
+   <th>
+    CIL Representation
+   </th>
+  </tr>
+  <tr>
+   <td>
+    --
+   </td>
+   <td>
+    op_Decrement()
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ++
+   </td>
+   <td>
+    op_Increment()
+   </td>
+  </tr>
+  <tr>
+   <td>
+    +
+   </td>
+   <td>
+    op_Addition()
+   </td>
+  </tr>
+  <tr>
+   <td>
+    -
+   </td>
+   <td>
+    op_Subtraction()
+   </td>
+  </tr>
+  <tr>
+   <td>
+    *
+   </td>
+   <td>
+    op_Multiply()
+   </td>
+  </tr>
+  <tr>
+   <td>
+    /
+   </td>
+   <td>
+    op_Division()
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ==
+   </td>
+   <td>
+    op_Equality()
+   </td>
+  </tr>
+  <tr>
+   <td>
+    &gt;
+   </td>
+   <td>
+    op_GreaterThan()
+   </td>
+  </tr>
+  <tr>
+   <td>
+    &lt;
+   </td>
+   <td>
+    op_LessThan()
+   </td>
+  </tr>
+  <tr>
+   <td>
+    !=
+   </td>
+   <td>
+    op_Inequality()
+   </td>
+  </tr>
+  <tr>
+   <td>
+    &gt;=
+   </td>
+   <td>
+    op_GreaterThanOrEqual()
+   </td>
+  </tr>
+  <tr>
+   <td>
+    &lt;=
+   </td>
+   <td>
+    op_LessThanOrEqual()
+   </td>
+  </tr>
+  <tr>
+   <td>
+    -=
+   </td>
+   <td>
+    op_SubtractionAssignment()
+   </td>
+  </tr>
+  <tr>
+   <td>
+    +=
+   </td>
+   <td>
+    op_AdditionAssignment()
+   </td>
+  </tr>
+</table>
+<h2>Final Thoughts Regarding Operator Overloading</h2>
+  <p>As you have seen, C# provides the capability to build types that can respond uniquely to various
+intrinsic, well-known operators. Now, before you go and retrofit all your classes to support such
+behavior, you must be sure that the operator(s) you are about to overload make some sort of logical
+sense in the world at large.</p>
+<p>For example, let’s say you overloaded the multiplication operator for the MiniVan class. What exactly
+would it mean to multiply two MiniVan objects? Not much. In fact, it would be very confusing for
+teammates to see the following use of MiniVan objects.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Huh?! This is far from intuitive...</span>
+MiniVan newVan = myVan * yourVan;</pre>
+<p>Overloading operators is generally useful only when you’re building utility types. Strings, points,
+rectangles, fractions, and hexagons make good candidates for operator overloading. People, managers,
+cars, database connections, and web pages do not. As a rule of thumb, if an overloaded operator makes it
+harder for the user to understand a type’s functionality, don’t do it. Use this feature wisely.</p>
+<p>Also, be aware that even if you do not generally overload operators for your custom classes,
+numerous types in the base class libraries have already done so. For example, the System.Drawing.dll
+assembly provides a Windows Forms-centric Point definition that overloads numerous operators.
+Notice the operator icon from the Visual Studio 2010 Object Browser shown in Figure 12-2.</p>
+<img src="../Images/Figure12_02.png" alt="Figure 12-2" />
+<p><b>Figure 12-2.</b> Numerous types in the base class libraries have already overloaded operators</p>
+<p><b>Source Code</b> The OverloadedOps project is located under the Chapter 12 subdirectory.</p>
+    </body>
+    </html>
+ 
+   
+

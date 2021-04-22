@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />   
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />       
+	<link rel="stylesheet" type="text/css" href="../master.css" />  
+</head>
+<body>
+    <h1>C# Iteration Constructs</h1>
+    <p>All programming languages provide ways to repeat blocks of code until a terminating condition has been
+    met. Regardless of which language you have used in the past, the C# iteration statements should not
+    raise too many eyebrows and should require little explanation. C# provides the following four iteration
+    constructs:</p>
+    <ul>
+        <li>for loop</li>
+        <li>foreach/in loop</li>
+        <li>while loop</li>
+        <li>do/while loop</li>
+    </ul>
+    <p>Let's quickly examine each looping construct in turn, using a new Console Application project
+    named IterationsAndDecisions.</p>
+    <h2>The for Loop</h2>
+    <p>When you need to iterate over a block of code a fixed number of times, the for statement provides a
+    good deal of flexibility. In essence, you are able to specify how many times a block of code repeats itself,
+    as well as the terminating condition. Without belaboring the point, here is a sample of the syntax.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// A basic for loop.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> ForAndForEachLoop()
+{
+    <span class="rem">// Note! "i" is only visible within the scope of the for loop.</span>
+    <span class="kwrd">for</span>(<span class="kwrd">int</span> i = 0; i &lt; 4; i++)
+    {
+        Console.WriteLine(<span class="str">"Number is: {0} "</span>, i);
+    }
+    <span class="rem">// "i" is not visible here.</span>
+}</pre>
+    <p>All of your old C, C++, and Java tricks still hold when building a C# for statement. You can create
+    complex terminating conditions, build endless loops, and make use of the goto, continue, and break
+    keywords. I'll assume that you will bend this iteration construct as you see fit. Consult the .NET
+    Framework 4.0 SDK documentation if you require further details on the C# for keyword.</p>
+    <h2>The foreach Loop</h2>
+    <p>The C# foreach keyword allows you to iterate over all items within an array (or a collection object; see
+    Chapter 10) without the need to test for an upper limit. Here are two examples using foreach&#45;one to
+    traverse an array of strings and the other to traverse an array of integers.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Iterate array items using foreach.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> ForAndForEachLoop()
+{
+...
+    <span class="kwrd">string</span>[] carTypes = {<span class="str">"Ford"</span>, <span class="str">"BMW"</span>, <span class="str">"Yugo"</span>, <span class="str">"Honda"</span> };
+    <span class="kwrd">foreach</span> (<span class="kwrd">string</span> c <span class="kwrd">in</span> carTypes)
+        Console.WriteLine(c);
+    
+    <span class="kwrd">int</span>[] myInts = { 10, 20, 30, 40 };
+    <span class="kwrd">foreach</span> (<span class="kwrd">int</span> i <span class="kwrd">in</span> myInts)
+        Console.WriteLine(i);
+}</pre>    
+    <p>In addition to iterating over simple arrays, foreach is also able to iterate over system-supplied or
+    user-defined collections. I'll hold off on the details until Chapter 9, as this aspect of the foreach keyword
+    entails an understanding of interface-based programming and the role of the IEnumerator and
+    IEnumerable interfaces.</p>
+    <h2>Use of var Within foreach Constructs</h2>
+    <p>It is also possible to make use of implicit typing within a foreach looping construct. As you would expect,
+    the compiler will correctly infer the correct "type of type." Consider the following method, which iterates
+    over a local array of integers:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> VarInForeachLoop()
+{
+    <span class="kwrd">int</span>[] myInts = { 10, 20, 30, 40 };
+    
+    <span class="rem">// Use "var" in a standard foreach loop.</span>
+    <span class="kwrd">foreach</span> (<span class="kwrd">var</span> item <span class="kwrd">in</span> myInts)
+    {
+        Console.WriteLine(<span class="str">"Item value: {0}"</span>, item);
+    }
+}</pre>
+    <p>Understand that in this example there is no compelling reason to use the var keyword in our
+    foreach loop, as we can clearly see that we are indeed iterating over an array of integers. But once again,
+    when using the LINQ programming model, using var within a foreach loop will be very useful, and in
+    some cases, absolutely mandatory.</p>
+    <h2>The while and do/while Looping Constructs</h2>
+    <p>The while looping construct is useful should you wish to execute a block of statements until some
+    terminating condition has been reached. Within the scope of a while loop, you will need to ensure this
+    terminating event is indeed established; otherwise, you will be stuck in an endless loop. In the following
+    example, the message "In while loop" will be continuously printed until the user terminates the loop by
+    entering yes at the command prompt:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ExecuteWhileLoop()
+{
+    <span class="kwrd">string</span> userIsDone = <span class="str">""</span>;
+
+    <span class="rem">// Test on a lower-class copy of the string.</span>
+    while(userIsDone.ToLower() != <span class="str">"yes"</span>)
+    {
+        Console.Write(<span class="str">"Are you done? [yes] [no]: "</span>);
+        userIsDone = Console.ReadLine();
+        Console.WriteLine(<span class="str">"In while loop"</span>);
+    }
+}
+</pre>
+    <p>Closely related to the while loop is the do/while statement. Like a simple while loop, do/while is
+    used when you need to perform some action an undetermined number of times. The difference is that
+    do/while loops are guaranteed to execute the corresponding block of code at least once. In contrast, it is
+    possible that a simple while loop may never execute if the terminating condition is false from the onset.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ExecuteDoWhileLoop()
+{
+    <span class="kwrd">string</span> userIsDone = <span class="str">""</span>;
+    <span class="kwrd">do</span>
+    {
+        Console.WriteLine(<span class="str">"In do/while loop"</span>);
+        Console.Write(<span class="str">"Are you done? [yes] [no]: "</span>);
+        userIsDone = Console.ReadLine();
+    }while(userIsDone.ToLower() != <span class="str">"yes"</span>); <span class="rem">// Note the semicolon!</span>
+}</pre>
+</body>
+</html>

@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+    <link rel="stylesheet" type="text/css" href="csharp.css" />
+    <link rel="stylesheet" type="text/css" href="master.css" />
+    <title></title>
+</head>
+<body>
+    <div>
+        <h1>Demo</h1>
+        <p>This page is for reference purposes. It demonstrates most of the formatting possible with the csharp.css and general master.css style sheet.</p>
+        <div>
+            <pre class="csharpcode">
+&lt;<span class="html">form</span> <span class="attr">name</span><span class="attrvalue">="myForm"</span> <span class="attr">novalidate</span>&gt;
+    <span class="rem">&lt;!-- Here is a comment --&gt;</span>
+    &lt;<span class="html">div</span> <span class="attr">class</span><span class="attrvalue">="well"</span>&gt;
+    &lt;<span class="html">div</span> <span class="attr">class</span><span class="attrvalue">="checkbox"</span>&gt;
+        &lt;<span class="html">label</span>&gt;
+            &lt;<span class="html">input</span> <span class="attr">name</span><span class="attrvalue">="sample"</span> <span class="attr">type</span><span class="attrvalue">="checkbox"</span> <span class="attr">ng-model</span><span class="attrvalue">="inputValue"</span>
+            <span class="attr">ng-true-value</span><span class="attrvalue">="Hurrah!"</span> <span class="attr">ng-false-value</span><span class="attrvalue">="Boo!"</span>&gt;
+            This is a checkbox
+        &lt;/<span class="html">label</span>&gt;
+    &lt;/<span class="html">div</span>&gt;
+    &lt;/<span class="html">div</span>&gt;
+    &lt;<span class="html">div</span> <span class="attr">class</span><span class="attrvalue">="well"</span>&gt;
+        &lt;<span class="html">p</span>&gt;Model Value: {{<span class="angular">inputValue</span>}}&lt;/<span class="html">p</span>&gt;
+    &lt;/<span class="html">div</span>&gt;
+&lt;/<span class="html">form</span>&gt;</pre>
+        </div>
+        <h1>01 Heading1</h1>
+        <p>Paragraph Text</p>
+        <ul>
+            <li>List Item 1</li>
+            <li>List Item 2</li>
+            <li>List Item 3</li>
+            <li>List Item 4</li>
+        </ul>
+        <p>Paragraph Text. <span class="csharpcode">UIElement</span>. Paragraph Text. Paragraph Text. Paragraph Text. Paragraph Text. 
+            Paragraph Text. Paragraph Text. Paragraph Text. Paragraph Text. Paragraph Text. Paragraph Text. 
+            Paragraph Text. Paragraph Text.</p>
+        <img src="http://www.diggen.co.uk/010.ProAngularJS/Images/Figure13_04.png" alt="Figure 13.04" />
+        <p class="figure">Figure 1.1 The completed Hello World! application.</p>
+        <p>Paragraph Text. Paragraph Text. Paragraph Text. Paragraph Text. Paragraph Text. Paragraph Text.
+            Paragraph Text. Paragraph Text. Paragraph Text. Paragraph Text. Paragraph Text. Paragraph Text.
+            Paragraph Text. Paragraph Text.</p>
+        <p class="note"><strong>Note: </strong>This is a note.</p>
+        <p>
+            Paragraph Text. Paragraph Text. Paragraph Text. Paragraph Text. Paragraph Text. Paragraph Text.
+            Paragraph Text. Paragraph Text. Paragraph Text. Paragraph Text. Paragraph Text. Paragraph Text.
+            Paragraph Text. Paragraph Text.
+        </p>
+        <div>
+            <pre class="csharpcode">
+<span class="kwrd">using</span> System;
+<span class="kwrd">using</span> System.Collections.Generic;
+<span class="kwrd">using</span> System.Linq;
+<span class="kwrd">using</span> System.Text;
+<span class="kwrd">namespace</span> SimpleCSharpApp
+{
+    <span class="kwrd">class</span> Program
+    {
+        <span class="preproc">#region</span> This is a region preproc directive
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            <span class="rem">// This is a remark.</span>
+            <span class="kwrd">string</span> myString <span class="op">=</span> <span class="str">"This is a string";</span>
+
+        }
+        <span class="preproc">#endregion</span> 
+    }
+}            </pre>
+        </div>
+
+
+        <table class="gridtable">
+            <tr>
+                <th>
+                    Class Characteristic
+                </th>
+                <th>
+                    Meaning in Life
+                </th>
+            </tr>
+            <tr>
+                <td>
+                    Is the class sealed or not?
+                </td>
+                <td>
+                    Sealed classes cannot function as a base class to other classes.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Does the class implement any interfaces?
+                </td>
+                <td>
+                    An interface is a collection of abstract members that provide a contract between
+                    the object and object user. The CTS allows a class to implement any number of interfaces.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Is the class abstract or concrete?
+                </td>
+                <td>
+                    Abstract classes cannot be directly instantiated, but are intended to define common
+                    behaviors for derived types. Concrete classes can be instantiated directly.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    What is the visibility of this class?
+                </td>
+                <td>
+                    Each class must be configured with a visibility keyword such as public or internal.
+                    Basically, this controls if the class may be used by external assemblies or only
+                    from within the defining assembly.
+                </td>
+            </tr>
+        </table>
+        </div>
+
+    </body>
+</html>

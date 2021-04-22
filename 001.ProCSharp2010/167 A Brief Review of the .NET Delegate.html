@@ -1,0 +1,108 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>A Brief Review of the .NET Delegate</h1>
+    <p>Recall that the .NET delegate type is essentially a type-safe, object-oriented, function pointer. When you
+declare a .NET delegate, the C# compiler responds by building a sealed class that derives from
+System.MulticastDelegate (which in turn derives from System.Delegate). These base classes provide
+every delegate with the ability to maintain a list of method addresses, all of which may be invoked at a
+later time. Consider the BinaryOp delegate first defined in Chapter 11:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// A C# delegate type.</span>
+<span class="kwrd">public</span> <span class="kwrd">delegate</span> <span class="kwrd">int</span> BinaryOp(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y);</pre>
+<p>Based on its definition, BinaryOp can point to any method taking two integers (by value) as
+arguments and returning an integer. Once compiled, the defining assembly now contains a full-blown
+class definition that is dynamically generated when you build your project, based on the delegate
+declaration. In the case of BinaryOp, this class looks more or less like the following (shown in pseudocode):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">sealed</span> <span class="kwrd">class</span> BinaryOp : System.MulticastDelegate
+{
+    <span class="kwrd">public</span> BinaryOp(<span class="kwrd">object</span> target, <span class="kwrd">uint</span> functionAddress);
+    <span class="kwrd">public</span> <span class="kwrd">void</span> Invoke(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y);
+    <span class="kwrd">public</span> IAsyncResult BeginInvoke(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y,
+        AsyncCallback cb, <span class="kwrd">object</span> state);
+    <span class="kwrd">public</span> <span class="kwrd">int</span> EndInvoke(IAsyncResult result);
+}</pre>
+<p>Recall that the generated Invoke() method is used to invoke the methods maintained by a delegate
+object in a synchronous manner. Therefore, the calling thread (such as the primary thread of the
+application) is forced to wait until the delegate invocation completes. Also recall that in C#, the Invoke()
+method does not need to be directly called in code, but can be triggered indirectly under the hood when
+applying “normal” method invocation syntax.</p>
+<p>Consider the following Console Application program (SyncDelegateReview), which invokes the
+static Add() method in a synchronous (a.k.a. blocking) manner (be sure to import the System.Threading
+namespace, as you will be calling the Thread.Sleep() method).</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">namespace</span> SyncDelegateReview
+{
+    <span class="kwrd">public</span> <span class="kwrd">delegate</span> <span class="kwrd">int</span> BinaryOp(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y);
+
+    <span class="kwrd">class</span> Program
+    {
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            Console.WriteLine(<span class="str">"***** Synch Delegate Review *****"</span>);
+
+            <span class="rem">// Print out the ID of the executing thread.</span>
+            Console.WriteLine(<span class="str">"Main() invoked on thread {0}."</span>,
+                Thread.CurrentThread.ManagedThreadId);
+
+            <span class="rem">// Invoke Add() in a synchronous manner.</span>
+            BinaryOp b = <span class="kwrd">new</span> BinaryOp(Add);
+
+            <span class="rem">// Could also write b.Invoke(10, 10);</span>
+            <span class="kwrd">int</span> answer = b(10, 10);
+
+            <span class="rem">// These lines will not execute until</span>
+            <span class="rem">// the Add() method has completed.</span>
+            Console.WriteLine(<span class="str">"Doing more work in Main()!"</span>);
+            Console.WriteLine(<span class="str">"10 + 10 is {0}."</span>, answer);
+            Console.ReadLine();
+        }
+
+        <span class="kwrd">static</span> <span class="kwrd">int</span> Add(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y)
+        {
+            <span class="rem">// Print out the ID of the executing thread.</span>
+            Console.WriteLine(<span class="str">"Add() invoked on thread {0}."</span>,
+                Thread.CurrentThread.ManagedThreadId);
+            <span class="rem">// Pause to simulate a lengthy operation.</span>
+            Thread.Sleep(5000);
+            <span class="kwrd">return</span> x + y;
+        }
+    }
+}</pre>
+<p>Within the Add() method, you are invoking the static Thread.Sleep() method to suspend the calling
+thread for approximately five seconds to simulate a lengthy task. Given that you are invoking the Add()
+method in a synchronous manner, the Main() method will not print out the result of the operation until
+the Add() method has completed.</p>
+<p>Next, note that the Main() method is obtaining access to the current thread (via
+Thread.CurrentThread) and printing out the ID of the thread via the ManagedThreadId property. This
+same logic is repeated in the static Add() method. As you might suspect, given that all the work in this
+application is performed exclusively by the primary thread, you find the same ID value displayed to the
+console:</p>
+<pre class="csharpcode">
+***** Synch Delegate Review *****
+Main() invoked on thread 1.
+Add() invoked on thread 1.
+Doing more work in Main()!
+10 + 10 is 20.
+
+Press any key to continue . . .
+</pre>
+<p>When you run this program, you should notice that a five-second delay takes place before you see
+the final Console.WriteLine() logic in Main() execute. Although many (if not most) methods may be
+called synchronously without ill effect, .NET delegates can be instructed to call their methods
+asynchronously if necessary.</p>
+<p><b>Source Code</b> The SyncDelegateReview project is located under the Chapter 19 subdirectory.</p>     
+    </body>
+    </html>
+      
+   

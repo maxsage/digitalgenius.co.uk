@@ -1,0 +1,133 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>The Inheritance Chain of the Page Type</h1>
+    <p>As you have just seen, all .NET web pages eventually derive from System.Web.UI.Page. Like any base
+class, this type provides a polymorphic interface to all derived types. However, the Page type is not the
+only member in your inheritance hierarchy. If you were to locate the System.Web.UI.Page class (within
+the System.Web.dll assembly) using the Visual Studio 2010 object browser, you would find that Page is-a
+TemplateControl, which is-a Control, which is-a Object (see Figure 32-23).</p>
+<img src="../Images/Figure32_23.png" alt="Figure 32-23" />
+<p><b>Figure 32-23</b> The inheritance chain of Page</p>
+<p>Each of these base classes brings a good deal of functionality to each and every *.aspx file. For the
+majority of your projects, you will make use of the members defined within the Page and Control parent
+classes. The functionality gained from the System. Web.UI.TemplateControl class is only of interest if you
+are building custom Web Form controls or interacting with the rendering process.</p>
+<p>The first parent class of interest is Page itself. Here you will find numerous properties that enable
+you to interact with various web primitives such as application and session variables, the HTTP request/
+response, theme support, and so forth. Table 32-4 describes some (but by no means all) of the core properties.</p>
+<p><b>Table 32-4.</b> Select Properties of the Page Type</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Property
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Application
+   </td>
+   <td>
+    Allows you to interact with data that can be accessed across the entire website for
+all users
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Cache
+   </td>
+   <td>
+    Allows you to interact with the cache object for the current website
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ClientTarget
+   </td>
+   <td>
+    Allows you to specify how this page should render itself based on the requesting
+browser
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IsPostBack
+   </td>
+   <td>
+    Gets a value indicating whether the page is being loaded in response to a client
+postback or whether it is being loaded and accessed for the first time
+   </td>
+  </tr>
+  <tr>
+   <td>
+    MasterPageFile
+   </td>
+   <td>
+    Establishes the master page for the current page
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Request
+   </td>
+   <td>
+    Provides access to the current HTTP request
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Response
+   </td>
+   <td>
+    Allows you to interact with the outgoing HTTP response
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Server
+   </td>
+   <td>
+    Provides access to the HttpServerUtility object, which contains various serverside
+helper functions
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Session
+   </td>
+   <td>
+    Allows you to interact with the session data for the current caller
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Theme
+   </td>
+   <td>
+    Gets or sets the name of the theme used for the current page
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Trace
+   </td>
+   <td>
+    Provides access to a TraceContext object, which allows you to log custom
+messages during debugging sessions
+   </td>
+  </tr>
+</table>
+    </body>
+    </html>
+   
+      
+   

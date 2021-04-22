@@ -1,0 +1,339 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Understanding WPF Control Commands</h1>
+    <p>Windows Presentation Foundation provides support for what might be considered control-agnostic
+events with control commands. A typical .NET event is defined within a specific base class and can only
+be used by that class or a derivative thereof. Therefore, normal .NET events are tightly coupled to the
+class in which they are defined.</p>
+<p>In contrast, WPF control commands are event-like entities that are independent from a specific
+control and, in many cases, can be successfully applied to numerous (and seemingly unrelated) control
+types. By way of a few examples, WPF supports Copy, Paste, and Cut commands, which you can apply to
+a wide variety of UI elements (e.g., menu items, toolbar buttons, and custom buttons), as well as
+keyboard shortcuts (e.g., Ctrl+C, and Ctrl+V).</p>
+<p>While other UI toolkits (such as Windows Forms) provided standard events for such purposes, using
+them typically left you with redundant and hard to maintain code. Under the WPF model, you can use
+commands as an alternative. The end result typically yields a smaller and more flexible code base.</p>
+<h2>The Intrinsic Control Command Objects</h2>
+<p>WPF ships with numerous built-in control commands, all of which you can configure with associated
+keyboard shortcuts (or other input gestures). Programmatically speaking, a WPF control command is
+any object that supports a property (often called Command) that returns an object implementing the
+ICommand interface, as shown here:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> ICommand
+{
+    <span class="rem">// Occurs when changes occur that affect whether</span>
+    <span class="rem">// or not the command should execute.</span>
+    <span class="kwrd">event</span> EventHandler CanExecuteChanged;
+
+    <span class="rem">// Defines the method that determines whether the command</span>
+    <span class="rem">// can execute in its current state.</span>
+    <span class="kwrd">bool</span> CanExecute(<span class="kwrd">object</span> parameter);
+
+    <span class="rem">// Defines the method to be called when the command is invoked.</span>
+    <span class="kwrd">void</span> Execute(<span class="kwrd">object</span> parameter);
+}</pre>
+<p>While you could provide your own implementation of this interface to account for a control
+command, the chances that you will need to do so are slim, given that the functionality provided by the
+five WPF classes contains close to 100 command objects out-of-the-box. These classes define numerous
+properties that expose specific command objects, each of which implements ICommand.</p>
+<p>While you could provide your own implementation of this interface to account for a control
+command, the chances that you will need to do so are slim, given that the functionality provided by the
+five WPF classes contains close to 100 command objects out-of-the-box. These classes define numerous
+properties that expose specific command objects, each of which implements ICommand.</p>
+<p>Table 28-3 documents some of the standard command objects available (be sure to consult the
+.NET Framework 4.0 SDK documentation for complete details).</p>
+<p><b>Table 28-3.</b> The Intrinsic WPF Control Command Objects</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    WPF Class
+   </th>
+   <th>
+    Command Objects
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    ApplicationCommands
+   </td>
+   <td>
+    Close, Copy, Cut, Delete, Find, Open,
+Paste, Save, SaveAs, Redo, Undo
+   </td>
+   <td>
+    Various application-level
+commands
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ComponentCommands
+   </td>
+   <td>
+    MoveDown, MoveFocusBack, MoveLeft,
+MoveRight, ScrollToEnd, ScrollToHome
+   </td>
+   <td>
+    Various commands
+common to UI
+components
+   </td>
+  </tr>
+  <tr>
+   <td>
+    MediaCommands
+   </td>
+   <td>
+    BoostBase, ChannelUp, ChannelDown,
+FastForward, NextTrack, Play, Rewind,
+Select, Stop
+   </td>
+   <td>
+    Various media-centric
+commands
+   </td>
+  </tr>
+  <tr>
+   <td>
+    NavigationCommands
+   </td>
+   <td>
+    BrowseBack, BrowseForward,
+Favorites, LastPage, NextPage, Zoom
+   </td>
+   <td>
+    Various commands
+relating to the WPF
+navigation model
+   </td>
+  </tr>
+  <tr>
+   <td>
+    EditingCommands
+   </td>
+   <td>
+    AlignCenter, CorrectSpellingError,
+DecreaseFontSize, EnterLineBreak,
+EnterParagraphBreak,
+MoveDownByLine, MoveRightByWord
+   </td>
+   <td>
+    Various commands
+relating to the WPF
+document API
+   </td>
+  </tr>
+</table>
+<h2>Connecting Commands to the Command Property</h2>
+<p>If you wish to connect any of these command properties to a UI element that supports the Command
+property (such as a Button or MenuItem), you have little work to do. You can see how to do this by
+updating the current menu system so it supports a new topmost menu item named Edit and three subitems
+to account for copying, pasting, and cutting of textual data:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Menu</span> <span class="attr">DockPanel</span>.<span class="attr">Dock</span> <span class="kwrd">="Top"</span>
+        <span class="attr">HorizontalAlignment</span><span class="kwrd">="Left"</span>
+        <span class="attr">Background</span><span class="kwrd">="White"</span> <span class="attr">BorderBrush</span> <span class="kwrd">="Black"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">MenuItem</span> <span class="attr">Header</span><span class="kwrd">="_File"</span> <span class="attr">Click</span> <span class="kwrd">="FileExit_Click"</span> <span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Separator</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">MenuItem</span> <span class="attr">Header</span> <span class="kwrd">="_Exit"</span> <span class="attr">MouseEnter</span> <span class="kwrd">="MouseEnterExitArea"</span>
+            <span class="attr">MouseLeave</span> <span class="kwrd">="MouseLeaveArea"</span> <span class="attr">Click</span> <span class="kwrd">="FileExit_Click"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">MenuItem</span><span class="kwrd">&gt;</span>
+
+    <span class="rem">&lt;!-- New menu item with commands! --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">MenuItem</span> <span class="attr">Header</span><span class="kwrd">="_Edit"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">MenuItem</span> <span class="attr">Command</span> <span class="kwrd">="ApplicationCommands.Copy"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">MenuItem</span> <span class="attr">Command</span> <span class="kwrd">="ApplicationCommands.Cut"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">MenuItem</span> <span class="attr">Command</span> <span class="kwrd">="ApplicationCommands.Paste"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">MenuItem</span><span class="kwrd">&gt;</span>
+
+    <span class="kwrd">&lt;</span><span class="html">MenuItem</span> <span class="attr">Header</span><span class="kwrd">="_Tools"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">MenuItem</span> <span class="attr">Header</span> <span class="kwrd">="_Spelling Hints"</span>
+            <span class="attr">MouseEnter</span> <span class="kwrd">="MouseEnterToolsHintsArea"</span>
+            <span class="attr">MouseLeave</span> <span class="kwrd">="MouseLeaveArea"</span>
+            <span class="attr">Click</span> <span class="kwrd">="ToolsSpellingHints_Click"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">MenuItem</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Menu</span><span class="kwrd">&gt;</span></pre>
+    <p>Notice that each of the sub-items on the Edit menu has a value assigned to the Command property.
+Doing this means that the menu items automatically receive the correct name and shortcut key (e.g.,
+Ctrl+C for a cut operation) in the menu item UI; it also means that the application is now copy, cut, and
+paste aware with no procedural code!</p>
+<p>If you were to run the application and select some of your text, you would be able to use your new
+menu items out-of-the-box. As a bonus, your application is also equipped to respond to a standard
+right-click operation to present the user with the same options (Figure 28-15).</p>
+<img src="../Images/Figure20_05.png" alt="Figure 20-5" />
+<p><b>Figure 28-15</b> Command objects provide a good deal of built-in functionality for free</p>
+<h2>Connecting Commands to Arbitrary Actions</h2>
+<p>If you wish to connect a command object to an arbitrary (application-specific) event, you will need to
+drop down to procedural code. Doing so is not complex, but it does involve a bit more logic than you see
+in XAML. For example, assume that want to have the entire window respond to the F1 key, so that when
+the end user presses this key, he will activate an associated help system.</p>
+<p>Also, assume your code file for the main window defines a new method named
+SetF1CommandBinding(), which you call within the constructor after the call to InitializeComponent():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> MainWindow()
+{
+    InitializeComponent();
+    SetF1CommandBinding();
+}</pre>
+<p>This new method will programmatically create a new CommandBinding object, which you can use
+whenever you wish to bind a command object to a given event handler in your application. Here, you
+configure your CommandBinding object to operate with the ApplicationCommands.Help command, which is
+automatically F1-aware:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> SetF1CommandBinding()
+{
+    CommandBinding helpBinding = <span class="kwrd">new</span> CommandBinding(ApplicationCommands.Help);
+    helpBinding.CanExecute += CanHelpExecute;
+    helpBinding.Executed += HelpExecuted;
+    CommandBindings.Add(helpBinding);
+}</pre>
+<p>Most CommandBinding objects will want to handle the CanExecute event (which allows you to specify
+whether the command occurs based on the operation of your program) and the Executed event (which is
+where you can author the content that should occur once the command occurs). Add the following event
+handlers to your Window-derived type (note the format of each method, as required by the associated
+delegates):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> CanHelpExecute(<span class="kwrd">object</span> sender, CanExecuteRoutedEventArgs e)
+{
+    <span class="rem">// Here, you can set CanExecute to false if you wish to prevent the</span>
+    <span class="rem">// command from executing.</span>
+    e.CanExecute = <span class="kwrd">true</span>;
+}
+
+<span class="kwrd">private</span> <span class="kwrd">void</span> HelpExecuted(<span class="kwrd">object</span> sender, ExecutedRoutedEventArgs e)
+{
+    MessageBox.Show(<span class="str">"Look, it is not that difficult. Just type something!"</span>,
+        <span class="str">"Help!"</span>);
+}</pre>
+    <p>In the preceding snippet, you implemented CanHelpExecute() so it always allows F1 help to launch;
+you do this by simply returning true. However, if you have certain situations where the help system
+should not display, you can account for this and return false when necessary. Your “help system”
+displayed within HelpExecuted() is little more than a message box. At this point, you can run your
+application. When you press the F1 key on your keyboard, you will see your (less than helpful, if not a bit
+insulting) user-guidance system (see Figure 28-16).</p>
+<img src="../Images/Figure28_16.png" alt="Figure 28-16" />
+<p><b>Figure 28-16</b> Your custom help system (which is not quite as helpful as the user would hope)</p>
+<h2>Working with the Open and Save Commands</h2>
+<p>To complete the current example, you will add functionality to save your text data to an external file and
+open up *.txt files for editing. If you want to take the long road, you can manually add programming
+logic that enables or disables new menu items based on whether your TextBox has data inside it. Once
+again, however, you can use commands to decrease your burden.</p>
+<p>Begin by updating the &lt;MenuItem&gt; element that represents your topmost File menu by adding two
+new submenus that use the Save and Open ApplicationCommands objects:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">MenuItem</span> <span class="attr">Header</span><span class="kwrd">="_File"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">MenuItem</span> <span class="attr">Command</span> <span class="kwrd">="ApplicationCommands.Open"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">MenuItem</span> <span class="attr">Command</span> <span class="kwrd">="ApplicationCommands.Save"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Separator</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">MenuItem</span> <span class="attr">Header</span> <span class="kwrd">="_Exit"</span>
+        <span class="attr">MouseEnter</span> <span class="kwrd">="MouseEnterExitArea"</span>
+        <span class="attr">MouseLeave</span> <span class="kwrd">="MouseLeaveArea"</span> <span class="attr">Click</span> <span class="kwrd">="FileExit_Click"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">MenuItem</span><span class="kwrd">&gt;</span></pre>
+    <p>Again, remember that all command objects implement the ICommand interface, which defines two
+events (CanExecute and Executed). Now you need to enable the entire window, so it can check whether it
+is currently OK to fire these commands; if so, you can define an event handler to execute the custom
+code.</p>
+<p>You do this by populating the CommandBindings collection maintained by the window. To do so in
+XAML requires that you use property element syntax to define a &lt;Window.CommandBindings&gt; scope in
+which you place two &lt;CommandBinding&gt; definitions. Update your &lt;Window&gt; like this:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span> <span class="attr">x:Class</span><span class="kwrd">="MyWordPad.MainWindow"</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">Title</span><span class="kwrd">="MySpellChecker"</span> <span class="attr">Height</span><span class="kwrd">="331"</span> <span class="attr">Width</span><span class="kwrd">="508"</span>
+    <span class="attr">WindowStartupLocation</span> <span class="kwrd">="CenterScreen"</span> <span class="kwrd">&gt;</span>
+
+    <span class="rem">&lt;!-- This will inform the Window which handlers to call,</span>
+<span class="rem">        when testing for the Open and Save commands. --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Window.CommandBindings</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">CommandBinding</span> <span class="attr">Command</span><span class="kwrd">="ApplicationCommands.Open"</span>
+            <span class="attr">Executed</span><span class="kwrd">="OpenCmdExecuted"</span>
+            <span class="attr">CanExecute</span><span class="kwrd">="OpenCmdCanExecute"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">CommandBinding</span> <span class="attr">Command</span><span class="kwrd">="ApplicationCommands.Save"</span>
+            <span class="attr">Executed</span><span class="kwrd">="SaveCmdExecuted"</span>
+            <span class="attr">CanExecute</span><span class="kwrd">="SaveCmdCanExecute"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Window.CommandBindings</span><span class="kwrd">&gt;</span>
+
+    <span class="rem">&lt;!-- This panel establishes the content for the window --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">DockPanel</span><span class="kwrd">&gt;</span>
+        ...
+    <span class="kwrd">&lt;/</span><span class="html">DockPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+    <p>Now right-click each of the Executed and CanExecute attributes in your XAML editor and pick the
+Navigate to Event Handler menu option. As you might recall from Chapter 27, this will automatically
+generate stub code for the event itself. At this point, you should have four empty handlers in the C# code
+file for the window.</p>
+<p>The implementation of CanExecute event handlers will tell the window that it is OK to fire the
+corresponding Executed events at any time by setting the CanExecute property of the incoming
+CanExecuteRoutedEventArgs object:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> OpenCmdCanExecute(<span class="kwrd">object</span> sender, CanExecuteRoutedEventArgs e)
+{
+    e.CanExecute = <span class="kwrd">true</span>;
+}
+
+<span class="kwrd">private</span> <span class="kwrd">void</span> SaveCmdCanExecute(<span class="kwrd">object</span> sender, CanExecuteRoutedEventArgs e)
+{
+    e.CanExecute = <span class="kwrd">true</span>;
+}</pre>
+<p>The corresponding Executed handlers perform the actual work of displaying the open and save
+dialog boxes; they also send the data in your TextBox to a file. Begin by making sure that you import the
+System.IO and Microsoft.Win32 namespaces into your code file. The completed code is straightforward:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> OpenCmdExecuted(<span class="kwrd">object</span> sender, ExecutedRoutedEventArgs e)
+{
+    <span class="rem">// Create an open file dialog box and only show XAML files.</span>
+    OpenFileDialog openDlg = <span class="kwrd">new</span> OpenFileDialog();
+    openDlg.Filter = <span class="str">"Text Files |*.txt"</span>;
+
+    <span class="rem">// Did they click on the OK button?</span>
+    <span class="kwrd">if</span> (<span class="kwrd">true</span> == openDlg.ShowDialog())
+    {
+        <span class="rem">// Load all text of selected file.</span>
+        <span class="kwrd">string</span> dataFromFile = File.ReadAllText(openDlg.FileName);
+
+        <span class="rem">// Show string in TextBox.</span>
+        txtData.Text = dataFromFile;
+    }
+}
+
+<span class="kwrd">private</span> <span class="kwrd">void</span> SaveCmdExecuted(<span class="kwrd">object</span> sender, ExecutedRoutedEventArgs e)
+{
+    SaveFileDialog saveDlg = <span class="kwrd">new</span> SaveFileDialog();
+    saveDlg.Filter = <span class="str">"Text Files |*.txt"</span>;
+
+    <span class="rem">// Did they click on the OK button?</span>
+    <span class="kwrd">if</span> (<span class="kwrd">true</span> == saveDlg.ShowDialog())
+    {
+        <span class="rem">// Save data in the TextBox to the named file.</span>
+        File.WriteAllText(saveDlg.FileName, txtData.Text);
+    }
+}</pre>
+<p>That wraps up this example and your initial look at working with WPF controls. Here, you learned
+how to work with menu systems, status bars, tool bars, nested panels, and a few basic UI controls, such
+as TextBox and Expander. The next example will work with some more exotic controls, while examining
+several important WPF services at the same time. As an added bonus, you will build the interface using
+Expression Blend.</p>
+   <p><b>Source Code</b> You can find the MyWordPad project under the Chapter 28 subdirectory.</p>
+    </body></html>
+      
+   

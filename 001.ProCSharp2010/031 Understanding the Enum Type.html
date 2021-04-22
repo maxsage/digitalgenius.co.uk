@@ -1,0 +1,260 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+    <h1>
+        Understanding the Enum Type</h1>
+    <p>
+        The .NET type system is composed of classes, structures, enumerations, interfaces,
+        and delegates. To begin exploration of these types, let's check out the role of
+        the enumeration (or simply, enum) using a new Console Application project named
+        FunWithEnums.</p>
+    <p>
+        When building a system, it is often convenient to create a set of symbolic names
+        that map to known numerical values. For example, if you are creating a payroll system,
+        you may want to refer to the type of employees using constants such as vice president,
+        manager, contractor, and grunt. C# supports the notion of custom enumerations for
+        this very reason. For example, here is an enumeration named EmpType:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// A custom enumeration.</span>
+<span class="kwrd">enum</span> EmpType
+{
+    Manager, <span class="rem">// = 0</span>
+    Grunt, <span class="rem">// = 1</span>
+    Contractor, <span class="rem">// = 2</span>
+    VicePresident <span class="rem">// = 3</span>
+}</pre>
+    <p>The EmpType enumeration defines four named constants, corresponding to discrete numerical
+    values. By default, the first element is set to the value zero (0), followed by an n + 1 progression. You are
+    free to change the initial value as you see fit. For example, if it made sense to number the members of
+    EmpType as 102 through 105, you could do so as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Begin with 102.</span>
+<span class="kwrd">enum</span> EmpType
+{
+    Manager = 102,
+    Grunt, <span class="rem">// = 103</span>
+    Contractor, <span class="rem">// = 104</span>
+    VicePresident <span class="rem">// = 105</span>
+}</pre>
+    <p>Enumerations do not necessarily need to follow a sequential ordering, and need not have unique
+    values. If (for some reason or another) it makes sense to establish your EmpType as shown here, the
+    compiler continues to be happy:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Elements of an enumeration need not be sequential!</span>
+<span class="kwrd">enum</span> EmpType
+{
+    Manager = 10,
+    Grunt = 1,
+    Contractor = 100,
+    VicePresident = 9
+}</pre>
+    <h2>Controlling the Underlying Storage for an Enum</h2>
+    <p>By default, the storage type used to hold the values of an enumeration is a System.Int32 (the C# int);
+    however, you are free to change this to your liking. C# enumerations can be defined in a similar manner
+    for any of the core system types (byte, short, int, or long). For example, if you want to set the
+    underlying storage value of EmpType to be a byte rather than an int, you can write the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This time, EmpType maps to an underlying byte.</span>
+<span class="kwrd">enum</span> EmpType : <span class="kwrd">byte</span>
+{
+    Manager = 10,
+    Grunt = 1,
+    Contractor = 100,
+    VicePresident = 9
+}</pre>
+    <p>Changing the underlying type of an enumeration can be helpful if you are building a .NET
+    application that will be deployed to a low-memory device (such as a .NET-enabled cell phone or PDA)
+    and need to conserve memory wherever possible. Of course, if you do establish your enumeration to use
+    a byte as storage, each value must be within its range! For example, the following version of EmpType will
+    result in a compiler error, as the value 999 cannot fit within the range of a byte:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Compile time error! 999 is too big for a byte!</span>
+<span class="kwrd">enum</span> EmpType : <span class="kwrd">byte</span>
+{
+    Manager = 10,
+    Grunt = 1,
+    Contractor = 100,
+    VicePresident = 999
+}</pre>   
+    <h2>Declaring Enum Variables</h2>
+    <p>Once you have established the range and storage type of your enumeration, you can use it in place of socalled
+    "magic numbers." Because enumerations are nothing more than a user-defined data type, you are
+    able to use them as function return values, method parameters, local variables, and so forth. Assume you
+    have a method named AskForBonus(), taking an EmpType variable as the sole parameter. Based on the
+    value of the incoming parameter, you will print out a fitting response to the pay bonus request:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"**** Fun with Enums *****"</span>);
+        <span class="rem">// Make a contractor type.</span>
+        EmpType emp = EmpType.Contractor;
+        AskForBonus(emp);
+        Console.ReadLine();
+    }
+
+    <span class="rem">// Enums as parameters.</span>
+    <span class="kwrd">static</span> <span class="kwrd">void</span> AskForBonus(EmpType e)
+    {
+        <span class="kwrd">switch</span> (e)
+        {
+            <span class="kwrd">case</span> EmpType.Manager:
+                Console.WriteLine(<span class="str">"How about stock options instead?"</span>);
+            <span class="kwrd">break</span>;
+            <span class="kwrd">case</span> EmpType.Grunt:
+                Console.WriteLine(<span class="str">"You have got to be kidding..."</span>);
+            <span class="kwrd">break</span>;
+            <span class="kwrd">case</span> EmpType.Contractor:
+                Console.WriteLine(<span class="str">"You already get enough cash..."</span>);
+            <span class="kwrd">break</span>;
+            <span class="kwrd">case</span> EmpType.VicePresident:
+                Console.WriteLine(<span class="str">"VERY GOOD, Sir!"</span>);
+            <span class="kwrd">break</span>;
+        }
+    }
+}</pre>
+    <p>Notice that when you are assigning a value to an enum variable, you must scope the enum name
+    (EmpType) to the value (Grunt). Because enumerations are a fixed set of name/value pairs, it is illegal to
+    set an enum variable to a value that is not defined directly by the enumerated type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ThisMethodWillNotCompile()
+{
+    <span class="rem">// Error! SalesManager is not in the EmpType enum!</span>
+    EmpType emp = EmpType.SalesManager;
+
+    <span class="rem">// Error! Forgot to scope Grunt value to EmpType enum!</span>
+    emp = Grunt;
+}</pre>
+    <h2>The System.Enum Type</h2>
+    <p>The interesting thing about .NET enumerations is that they gain functionality from the System.Enum class
+    type. This class defines a number of methods that allow you to interrogate and transform a given
+    enumeration. One helpful method is the static Enum.GetUnderlyingType(), which as the name implies
+    returns the data type used to store the values of the enumerated type (System.Byte in the case of the
+    current EmpType declaration).</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"**** Fun with Enums *****"</span>);
+    <span class="rem">// Make a contractor type.</span>
+    EmpType emp = EmpType.Contractor;
+    AskForBonus(emp);
+
+    <span class="rem">// Print storage for the enum.</span>
+    Console.WriteLine(<span class="str">"EmpType uses a {0} for storage"</span>,
+        Enum.GetUnderlyingType(emp.GetType()));
+    Console.ReadLine();
+}</pre>
+    <p>If you were to consult the Visual Studio 2010 object browser, you would be able to verify that the
+    Enum.GetUnderlyingType() method requires you to pass in a System.Type as the first parameter. As fully
+    examined in Chapter 16, Type represents the metadata description of a given .NET entity.</p>
+    <p>One possible way to obtain metadata (as shown previously) is to use the GetType() method, which is
+    common to all types in the .NET base class libraries. Another approach is to make use of the C# typeof
+    operator. One benefit of doing so is that you do not need to have a variable of the entity you wish to
+    obtain a metadata description of:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This time use typeof to extract a Type.</span>
+Console.WriteLine(<span class="str">"EmpType uses a {0} for storage"</span>,
+    Enum.GetUnderlyingType(<span class="kwrd">typeof</span>(EmpType)));</pre>
+    <h2>Dynamically Discovering an Enum's Name/Value Pairs</h2>
+    <p>Beyond the Enum.GetUnderlyingType() method, all C# enumerations support a method named
+    ToString(), which returns the string name of the current enumeration's value. The following code is an
+    example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"**** Fun with Enums *****"</span>);
+    EmpType emp = EmpType.Contractor;
+
+    <span class="rem">// Prints out "emp is a Contractor".</span>
+    Console.WriteLine(<span class="str">"emp is a {0}."</span>, emp.ToString());
+    Console.ReadLine();
+}</pre>
+    <p>If you are interested in discovering the value of a given enumeration variable, rather than its name,
+    you can simply cast the enum variable against the underlying storage type. The following is an example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"**** Fun with Enums *****"</span>);
+    EmpType emp = EmpType.Contractor;
+
+    <span class="rem">// Prints out "Contractor = 100".</span>
+    Console.WriteLine(<span class="str">"{0} = {1}"</span>, emp.ToString(), (<span class="kwrd">byte</span>)emp);
+    Console.ReadLine();
+}</pre>
+    <p><b>Note</b> The static Enum.Format() method provides a finer level of formatting options by specifying a desired
+    format flag. Consult the .NET Framework 4.0 SDK documentation for full details of the System.Enum.Format()
+    method.</p>
+    <p>System.Enum also defines another static method named GetValues(). This method returns an
+    instance of System.Array. Each item in the array corresponds to a member of the specified enumeration.
+    Consider the following method, which will print out each name/value pair within any enumeration you
+    pass in as a parameter:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This method will print out the details of any enum.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> EvaluateEnum(System.Enum e)
+{
+    Console.WriteLine(<span class="str">"=&gt; Information about {0}"</span>, e.GetType().Name);
+
+    Console.WriteLine(<span class="str">"Underlying storage type: {0}"</span>,
+        Enum.GetUnderlyingType(e.GetType()));
+    
+    <span class="rem">// Get all name/value pairs for incoming parameter.</span>
+    Array enumData = Enum.GetValues(e.GetType());
+    Console.WriteLine(<span class="str">"This enum has {0} members."</span>, enumData.Length);
+    
+    <span class="rem">// Now show the string name and associated value, using the D format</span>
+    <span class="rem">// flag (see Chapter 3).</span>
+    <span class="kwrd">for</span>(<span class="kwrd">int</span> i = 0; i &lt; enumData.Length; i++)
+    {
+        Console.WriteLine(<span class="str">"Name: {0}, Value: {0:D}"</span>,
+            enumData.GetValue(i));
+    }
+    Console.WriteLine();
+}</pre>
+    <p>To test this new method, update your Main() method to create variables of several enumeration
+    types declared in the System namespace (as well as an EmpType enumeration for good measure). The
+    following code is an example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"**** Fun with Enums *****"</span>);
+    EmpType e2 = EmpType.Contractor;
+
+    <span class="rem">// These types are enums in the System namespace.</span>
+    DayOfWeek day = DayOfWeek.Monday;
+    ConsoleColor cc = ConsoleColor.Gray;
+
+    EvaluateEnum(e2);
+    EvaluateEnum(day);
+    EvaluateEnum(cc);
+    Console.ReadLine();
+}</pre>
+    <p>The output is shown in Figure 4-3.</p>
+    <img src="../Images/Figure04_03.png" alt="Figure 4-3" />
+    <p><b>Figure 4-3</b> Dynamically discovering name/value pairs of enumeration types</p>
+    <p>As you will see over the course of this text, enumerations are used extensively throughout the .NET
+    base class libraries. For example, ADO.NET makes use of numerous enumerations to represent the state
+    of a database connection (e.g., opened or closed), the state of a row in a DataTable (e.g., changed, new, or
+    detached). Therefore, when you make use of any enumeration, always remember that you are able to
+    interact with the name/value pairs using the members of System.Enum.</p>
+</body>
+</html>

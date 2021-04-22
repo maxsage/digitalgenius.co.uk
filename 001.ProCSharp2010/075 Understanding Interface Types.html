@@ -1,0 +1,180 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>DG</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="../master.css" />	
+</head>
+<body>
+<h1>Understanding Interface Types</h1>
+  <p>To begin this chapter, allow me to provide a formal definition of the interface type. An interface is
+nothing more than a named set of abstract members. Recall from Chapter 6 that abstract methods are
+pure protocol in that they do not provide a default implementation. The specific members defined by an
+interface depend on the exact behavior it is modeling. Yes, it’s true. An interface expresses a behavior
+that a given class or structure may choose to support. Furthermore, as you will see in this chapter, a class
+(or structure) can support as many interfaces as necessary, thereby supporting (in essence) multiple
+behaviors.</p>
+<p>As you might guess, the .NET base class libraries ship with hundreds of predefined interface types
+that are implemented by various classes and structures. For example, as you will see in Chapter 21,
+ADO.NET ships with multiple data providers that allow you to communicate with a particular database
+management system. Thus, under ADO.NET we have numerous connection objects to choose among
+(SqlConnection, OracleConnection, OdbcConnection, etc.).</p>
+<p>Regardless of the fact that each connection object has a unique name, is defined within a different
+namespace, and (in some cases) is bundled within a different assembly, all connection objects
+implement a common interface named IDbConnection:</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// The IDbConnection interface defines a common</span>
+<span class="rem">// set of members supported by all connection objects.</span>
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IDbConnection : IDisposable
+{
+    <span class="rem">// Methods</span>
+    IDbTransaction BeginTransaction();
+    IDbTransaction BeginTransaction(IsolationLevel il);
+    <span class="kwrd">void</span> ChangeDatabase(<span class="kwrd">string</span> databaseName);
+
+    <span class="kwrd">void</span> Close();
+    IDbCommand CreateCommand();
+    <span class="kwrd">void</span> Open();
+
+    <span class="rem">// Properties</span>
+    <span class="kwrd">string</span> ConnectionString { <span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+    <span class="kwrd">int</span> ConnectionTimeout { <span class="kwrd">get</span>; }
+    <span class="kwrd">string</span> Database { <span class="kwrd">get</span>; }
+    ConnectionState State { <span class="kwrd">get</span>; }
+}</pre>
+<p><b>Note </b>By convention, .NET interfaces are prefixed with a capital letter “I.” When you are creating your own
+custom interfaces, it is considered a best practice to do the same.</p>
+<p>Don’t concern yourself with the details of what these members actually do at this point. Simply
+understand that the IDbConnection interface defines a set of members that are common to all ADO.NET
+connection objects. Given this, you are guaranteed that every connection object supports members such
+as Open(), Close(), CreateCommand(), and so forth. Furthermore, given that interface members are always
+abstract, each connection object is free to implement these methods in its own unique manner.</p>
+<p>Another example: the System.Windows.Forms namespace defines a class named Control, which is a
+base class to a number of Windows Forms GUI widgets (DataGridView, Label, StatusBar, TreeView, etc.).
+The Control class implements an interface named IDropTarget, which defines basic drag-and-drop
+functionality:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IDropTarget
+{
+    <span class="rem">// Methods</span>
+    <span class="kwrd">void</span> OnDragDrop(DragEventArgs e);
+    <span class="kwrd">void</span> OnDragEnter(DragEventArgs e);
+    <span class="kwrd">void</span> OnDragLeave(EventArgs e);
+    <span class="kwrd">void</span> OnDragOver(DragEventArgs e);
+}</pre>
+<p>Based on this interface, you can correctly assume that any class that extends
+System.Windows.Forms.Control supports four methods named OnDragDrop(), OnDragEnter(),
+OnDragLeave(), and OnDragOver().</p>
+<p>As you work through the remainder of this book, you’ll be exposed to dozens of interfaces that ship
+with the .NET base class libraries. As you will see, these interfaces can be implemented on your own
+custom classes and structures to define types that integrate tightly within the framework.</p>
+      <h2>Interface Types vs. Abstract Base Classes</h2>
+  <p>Given your work in Chapter 6, the interface type may seem very similar to an abstract base class. Recall
+that when a class is marked as abstract, it may define any number of abstract members to provide a
+polymorphic interface to all derived types. However, even when a class does define a set of abstract
+members, it is also free to define any number of constructors, field data, nonabstract members (with
+implementation), and so on. Interfaces, on the other hand, only contain abstract member definitions.</p>
+<p>The polymorphic interface established by an abstract parent class suffers from one major limitation
+in that only derived types support the members defined by the abstract parent. However, in larger
+software systems, it is very common to develop multiple class hierarchies that have no common parent
+beyond System.Object. Given that abstract members in an abstract base class apply only to derived
+types, we have no way to configure types in different hierarchies to support the same polymorphic
+interface. By way of example, assume you have defined the following abstract class:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">abstract</span> <span class="kwrd">class</span> CloneableType
+{
+    <span class="rem">// Only derived types can support this</span>
+    <span class="rem">// "polymorphic interface." Classes in other</span>
+    <span class="rem">// hierarchies have no access to this abstract</span>
+    <span class="rem">// member.</span>
+    <span class="kwrd">public</span> <span class="kwrd">abstract</span> <span class="kwrd">object</span> Clone();
+}</pre>
+<p>Given this definition, only members that extend CloneableType are able to support the Clone()
+method. If you create a new set of classes that do not extend this base class, you can’t gain this
+polymorphic interface. Also you may recall, that C# does not support multiple inheritance for classes.
+Therefore, if you wanted to create a MiniVan that is-a Car and is-a CloneableType, you are unable to do so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Nope! Multiple inheritance is not possible in C#</span>
+<span class="rem">// for classes.</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> MiniVan : Car, CloneableType
+{
+}</pre>
+<p>As you would guess, interface types come to the rescue. Once an interface has been defined, it can
+be implemented by any class or structure, in any hierarchy, within any namespace or any assembly
+(written in any .NET programming language). As you can see, interfaces are highly polymorphic.
+Consider the standard .NET interface named ICloneable defined in the System namespace. This interface
+defines a single method named Clone():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> ICloneable
+{
+    <span class="kwrd">object</span> Clone();
+}</pre>
+<p>If you examine the .NET Framework 4.0 SDK documentation, you’ll find that a large number of
+seemingly unrelated types (System.Array, System.Data.SqlClient.SqlConnection,
+System.OperatingSystem, System.String, etc.) all implement this interface. Although these types have no
+common parent (other than System.Object), we can treat them polymorphically via the ICloneable
+interface type.</p>
+<p>For example, if you had a method named CloneMe() that took an ICloneable interface parameter,
+you could pass this method any object that implements said interface. Consider the following simple
+Program class defined within a Console Application named ICloneableExample:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** A First Look at Interfaces *****\n"</span>);
+
+        <span class="rem">// All of these classes support the ICloneable interface.</span>
+        <span class="kwrd">string</span> myStr = <span class="str">"Hello"</span>;
+        OperatingSystem unixOS = <span class="kwrd">new</span> OperatingSystem(PlatformID.Unix, <span class="kwrd">new</span> Version());
+        System.Data.SqlClient.SqlConnection sqlCnn =
+            <span class="kwrd">new</span> System.Data.SqlClient.SqlConnection();
+        
+        <span class="rem">// Therefore, they can all be passed into a method taking ICloneable.</span>
+        CloneMe(myStr);
+        CloneMe(unixOS);
+        CloneMe(sqlCnn);
+        Console.ReadLine();
+    }
+
+    <span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> CloneMe(ICloneable c)
+    {
+        <span class="rem">// Clone whatever we get and print out the name.</span>
+        <span class="kwrd">object</span> theClone = c.Clone();
+        Console.WriteLine(<span class="str">"Your clone is a: {0}"</span>,
+            theClone.GetType().Name);
+    }
+}</pre>
+<p>When you run this application, the class name of each class prints out to the console, via the
+GetType() method you inherit from System.Object (Chapter 15 provides full coverage of this method and
+.NET reflection services).</p>
+    <p><b>Source Code</b> The ICloneableExample project is located under the Chapter 9 subdirectory.</p>
+<p>Another limitation of traditional abstract base classes is that each derived type must contend with
+the set of abstract members and provide an implementation. To see this problem, recall the shapes
+hierarchy we defined in Chapter 6. Assume we defined a new abstract method in the Shape base class
+named GetNumberOfPoints(), which allows derived types to return the number of points required to
+render the shape:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+{
+...
+    <span class="rem">// Every derived class must now support this method!</span>
+    <span class="kwrd">public</span> <span class="kwrd">abstract</span> <span class="kwrd">byte</span> GetNumberOfPoints();
+}</pre>
+<p>Clearly, the only type that has any points in the first place is Hexagon. However, with this update,
+every derived class (Circle, Hexagon, and ThreeDCircle) must now provide a concrete implementation of
+this function even if it makes no sense to do so.</p>
+<p>Again, the interface type provides a solution. If you define an interface that represents the behavior
+of “having points,” you can simply plug it into the Hexagon type, leaving Circle and ThreeDCircle
+untouched.</p>
+
+ 
+   
+

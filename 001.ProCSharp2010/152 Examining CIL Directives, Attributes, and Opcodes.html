@@ -1,0 +1,103 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Examining CIL Directives, Attributes, and Opcodes</h1>
+    <p>When you begin to investigate low-level languages such as CIL, you are guaranteed to find new (and
+often intimidating-sounding) names for very familiar concepts. For example, at this point in the text, if
+you were shown the following set of items</p>
+<pre class="csharpcode">
+{new, public, this, base, get, set, explicit, unsafe, enum, operator, partial}</pre>
+<p>you would most certainly understand them to be keywords of the C# language (which is correct).
+However, if you look more closely at the members of this set, you may be able to see that while each item
+is indeed a C# keyword, it has radically different semantics. For example, the enum keyword defines a
+System.Enum-derived type, while the this and base keywords allow you to reference the current object or
+the object’s parent class, respectively. The unsafe keyword is used to establish a block of code that
+cannot be directly monitored by the CLR, while the operator keyword allows you to build a hidden
+(specially named) method that will be called when you apply a specific C# operator (such as the plus
+sign).</p>
+<p>In stark contrast to a higher-level language such as C#, CIL does not just simply define a general set
+of keywords, per se. Rather, the token set understood by the CIL compiler is subdivided into three broad
+categories based on semantics:</p>
+<ul>
+ <li>CIL directives</li>
+ <li>CIL attributes</li>
+ <li>CIL operation codes (opcodes)</li>
+</ul>
+<p>Each category of CIL token is expressed using a particular syntax, and the tokens are combined to
+build a valid .NET assembly.</p>
+<h2>The Role of CIL Directives</h2>
+<p>First up, there is a set of well-known CIL tokens that are used to describe the overall structure of a .NET
+assembly. These tokens are called directives. CIL directives are used to inform the CIL compiler how to
+define the namespaces(s), type(s), and member(s) that will populate an assembly.</p>
+<p>Directives are represented syntactically using a single dot (.) prefix (e.g., .namespace, .class,
+.publickeytoken, .method, .assembly, etc.). Thus, if your *.il file (the conventional extension for a file
+containing CIL code) has a single .namespace directive and three .class directives, the CIL compiler will
+generate an assembly that defines a single .NET namespace containing three .NET class types.</p>
+<h2>The Role of CIL Attributes</h2>
+<p>In many cases, CIL directives in and of themselves are not descriptive enough to fully express the
+definition of a given .NET type or type member. Given this fact, many CIL directives can be further
+specified with various CIL attributes to qualify how a directive should be processed. For example, the
+.class directive can be adorned with the public attribute (to establish the type visibility), the extends
+attribute (to explicitly specify the type’s base class), and the implements attribute (to list the set of
+interfaces supported by the type).</p>
+<p><b>Note</b> Don’t confuse a “.NET attribute” (see Chapter 15) with that of a “CIL attribute,” the two are very different
+concepts.</p>
+<h2>The Role of CIL Opcodes</h2>
+<p>Once a .NET assembly, namespace, and type set have been defined in terms of CIL using various directives
+and related attributes, the final remaining task is to provide the type’s implementation logic. This is a job
+for operation codes, or simply opcodes. In the tradition of other low-level languages, many CIL opcodes
+tend to be cryptic and completely unpronounceable by us mere humans. For example, if you need to load a
+string variable into memory, you don’t use a friendly opcode named LoadString, but rather ldstr</p>
+<p>Now, to be fair, some CIL opcodes do map quite naturally to their C# counterparts (e.g., box, unbox,
+throw, and sizeof). As you will see, the opcodes of CIL are always used within the scope of a member’s
+implementation, and unlike CIL directives, they are never written with a dot prefix.</p>
+<h2>The CIL Opcode/CIL Mnemonic Distinction</h2>
+<p>As just explained, opcodes such as ldstr are used to implement the members of a given type. In reality,
+however, tokens such as ldstr are CIL mnemonics for the actual binary CIL opcodes. To clarify the
+distinction, assume you have authored the following method in C#:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">int</span> Add(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y)
+{
+    <span class="kwrd">return</span> x + y;
+}</pre>
+<p>The act of adding two numbers is expressed in terms of the CIL opcode 0X58. In a similar vein,
+subtracting two numbers is expressed using the opcode 0X59, and the act of allocating a new object on
+the managed heap is achieved using the 0X73 opcode. Given this reality, understand that the “CIL code”
+processed by a JIT compiler is actually nothing more than blobs of binary data.</p>
+<p>Thankfully, for each binary opcode of CIL, there is a corresponding mnemonic. For example, the add
+mnemonic can be used rather than 0X58, sub rather than 0X59, and newobj rather than 0X73. Given this
+opcode/mnemonic distinction, realize that CIL decompilers such as ildasm.exe translate an assembly’s
+binary opcodes into their corresponding CIL mnemonics. For example, here would be the CIL presented
+by ildasm.exe for the previous C# Add() method:</p>
+<pre class="csharpcode">
+.method private hidebysig static int32 Add(int32 x,
+    int32 y) cil managed
+{
+    // Code size 9 (0x9)
+    .maxstack 2
+    .locals init ([0] int32 CS$1$0000)
+    IL_0000: nop
+    IL_0001: ldarg.0
+    IL_0002: ldarg.1
+    IL_0003: add
+    IL_0004: stloc.0
+    IL_0005: br.s IL_0007
+    IL_0007: ldloc.0
+    IL_0008: ret
+}</pre>
+<p>Unless you’re building some extremely low-level .NET software (such as a custom managed
+compiler), you’ll never need to concern yourself with the literal numeric binary opcodes of CIL. For all
+practical purposes, when .NET programmers speak about “CIL opcodes” they’re referring to the set of
+friendly string token mnemonics (as I’ve done within this text, and will do for the remainder of this
+chapter) rather than the underlying numerical values.</p>
+    </body></html>
+     
+      
+   

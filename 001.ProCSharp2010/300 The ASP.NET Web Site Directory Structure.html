@@ -1,0 +1,156 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>The ASP.NET Web Site Directory Structure</h1>
+    <p>When you create a new ASP.NET Web Site project, your project may contain any number of specifically
+named subdirectories, each of which has a special meaning to the ASP.NET runtime. Table 32-3
+documents these special subdirectories.</p>
+<p><b>Table 32-3.</b> Special ASP.NET Subdirectories</p>
+<table class="gridtable">
+   <tr>
+   <th>
+    <p>Subfolder</p>
+   </th>
+   <th>
+    <p>Meaning in Life</p>
+   </th>
+  </tr>
+  <tr>
+   <td>
+    <p>App_Browsers</p>
+   </td>
+   <td>
+    <p>Folder for browser definition files that are used to identify individual
+browsers and determine their capabilities</p>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <p>App_Code</p>
+   </td>
+   <td>
+    <p>Folder for source code for components or classes that you want to
+compile as part of your application. ASP.NET compiles the code in
+this folder when pages are requested. Code in the App_Code folder is
+automatically accessible by your application</p>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <p>App_Data</p>
+   </td>
+   <td>
+    <p>Folder for storing Access *.mdb files, SQL Express *.mdf files, XML
+files, or other data stores</p>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <p>App_GlobalResources</p>
+   </td>
+   <td>
+    <p>Folder for *.resx files that are accessed programmatically from
+application code</p>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <p>App_LocalResources</p>
+   </td>
+   <td>
+    <p>Folder for *.resx files that are bound to a specific page</p>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <p>App_Themes</p>
+   </td>
+   <td>
+    <p>Folder that contains a collection of files that define the appearance of
+ASP.NET web pages and controls</p>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <p>App_WebReferences</p>
+   </td>
+   <td>
+    <p>Folder for proxy classes, schemas, and other files associated with
+using a web service in your application</p>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <p>Bin</p>
+   </td>
+   <td>
+    <p>Folder for compiled private assemblies (*.dll files). Assemblies in the
+Bin folder are automatically referenced by your application</p>
+   </td>
+  </tr>
+</table>
+<p>If you are interested in adding any of these known subfolders to your current web application, you
+may do so explicitly using the Website &gt; Add Folder menu option. However, in many cases, the IDE will
+automatically do so as you naturally insert related files into your site. For example, inserting a new class
+file into your project will automatically add an App_Code folder to your directory structure if one does
+not currently exist.</p>
+<h2>Referencing Assemblies</h2>
+<p>Although the Web Site templates do generate an *.sln file to load your *.aspx files into the IDE, there is
+no longer a related *.csproj file. However, an ASP.NET Web Application projects records all external
+assemblies within *.csproj. So where are the external assemblies recorded under ASP.NET?</p>
+<p>As you have seen, when you reference a private assembly, Visual Studio 2010 will automatically
+create a \bin directory within your directory structure to store a local copy of the binary. When your code
+base makes use of types within these code libraries, they are automatically loaded on demand.</p>
+<p>If you reference a shared assembly located in the Global Assembly Cache, Visual Studio 2010 will
+automatically insert a Web.config file into your current web solution (if one is not currently in place) and
+record the external reference within the &lt;assemblies&gt; element. For example, if you again activate the
+Web Site &gt; Add Reference menu option and this time select a shared assembly (such as
+System.Data.OracleClient.dll), you will find that your Web.config file has been updated as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">assemblies</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">assembly</span><span class="kwrd">="System.Data.OracleClient, Version=4.0.0.0,
+        Culture=neutral, PublicKeyToken=B03F5F7F11D50A3A"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">assemblies</span><span class="kwrd">&gt;</span></pre>
+    <p>As you can see, each assembly is described using the same information required for a dynamic load
+via the Assembly.Load() method (see Chapter 15).</p>
+<h2>The Role of the App_Code Folder</h2>
+<p>The App_Code folder is used to store source code files that are not directly tied to a specific web page
+(such as a code-behind file) but are to be compiled for use by your website. Code within the App_Code
+folder will be automatically compiled on the fly on an as-needed basis. After this point, the assembly is
+accessible to any other code in the website. To this end, the App_Code folder is much like the Bin folder,
+except that you can store source code in it instead of compiled code. The major benefit of this approach
+is that it is possible to define custom types for your web application without having to compile them
+independently.</p>
+<p>A single App_Code folder can contain code files from multiple languages. At runtime, the
+appropriate compiler kicks in to generate the assembly in question. If you would rather partition your
+code, however, you can define multiple subdirectories that are used to hold any number of managed
+code files (*.vb, *.cs, etc.).</p>
+<p>For example, assume you have added an App_Code folder to the root directory of a website
+application that has two subfolders, MyCSharpCode and MyVbNetCode, that contain language-specific
+files. Once you do, you are able to update your Web.config file to specify these subdirectories using a
+&lt;codeSubDirectories&gt; element nested within the &lt;configuration&gt; element:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">compilation</span> <span class="attr">debug</span><span class="kwrd">="true"</span> <span class="attr">strict</span><span class="kwrd">="false"</span> <span class="attr">explicit</span><span class="kwrd">="true"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">codeSubDirectories</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">directoryName</span><span class="kwrd">="MyCSharpCode"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">directoryName</span><span class="kwrd">="MyVbNetCode"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">codeSubDirectories</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">compilation</span><span class="kwrd">&gt;</span></pre>
+    <p><b>Note</b> The App_Code directory will also be used to contain files that are not language files but are useful
+nonetheless (*.xsd files, *.wsdl files, etc.).</p>
+<p>Beyond Bin and App_Code, the App_Data and App_Themes folders are two additional special
+subdirectories that you should be familiar with, both of which will be detailed in the next several
+chapters. As always, consult the .NET Framework 4.0 SDK documentation for full details of the
+remaining ASP.NET subdirectories if you require further information.</p>
+</body>
+    </html>   
+      
+   

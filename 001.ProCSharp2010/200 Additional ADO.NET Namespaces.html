@@ -1,0 +1,81 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Additional ADO.NET Namespaces</h1>
+<p>In addition to the .NET namespaces that define the types of a specific data provider, the .NET base class
+libraries provide a number of additional ADO.NET-centric namespaces, some of which you can see in
+Table 21-3 (again, Chapter 24 will address the assemblies and namespaces specific to Entity
+Framework).</p>
+<p><b>Table 21-3.</b> Select Additional ADO.NET-Centric Namespaces</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Namespace
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Microsoft.SqlServer.Server
+   </td>
+   <td>
+    This namespace provides types that facilitate CLR and SQL Server 2005 and
+later integration services.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.Data
+   </td>
+   <td>
+    This namespace defines the core ADO.NET types used by all data providers,
+including common interfaces and numerous types that represent the
+disconnected layer (e.g., DataSet and DataTable).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.Data.Common
+   </td>
+   <td>
+    This namespace contains types shared between all ADO.NET data providers,
+including the common abstract base classes.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.Data.Sql
+   </td>
+   <td>
+    This namespace contains types that allow you to discover Microsoft SQL
+Server instances installed on the current local network.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    System.Data.SqlTypes
+   </td>
+   <td>
+    This namespace contains native data types used by Microsoft SQL Server. You
+can always use the corresponding CLR data types, but the SqlTypes are
+optimized to work with SQL Server (e.g., if your SQL Server database contains
+an integer value, you can represent it using either int or SqlTypes.SqlInt32).
+   </td>
+  </tr>
+</table>
+<p>Note that this chapter does not examine every type within every ADO.NET namespace (that task
+would require a large book all by itself); however, it is quite important that you understand the types
+within the System.Data namespace.</p>
+    </body>
+    </html>
+      
+      
+   

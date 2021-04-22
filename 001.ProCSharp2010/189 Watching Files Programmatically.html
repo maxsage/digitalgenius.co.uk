@@ -1,0 +1,121 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Watching Files Programmatically</h1>
+<p>Now that you have a better handle on the use of various readers and writers, you’ll look at the role of the
+FileSystemWatcher class. This type can be quite helpful when you wish to monitor (or “watch”) files on
+your system programmatically. Specifically, you can instruct the FileSystemWatcher type to monitor files
+for any of the actions specified by the System.IO.NotifyFilters enumeration (many of these members
+are self-explanatory, but you should still check the .NET Framework 4.0 SDK documentation for more
+details):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">enum</span> NotifyFilters
+{
+    Attributes, CreationTime,
+    DirectoryName, FileName,
+    LastAccess, LastWrite,
+    Security, Size
+}</pre>
+<p>To begin working with the FileSystemWatcher type, you need to set the Path property to specify the
+name (and location) of the directory that contains the files you want to monitor, as well as the Filter
+property that defines the file extensions of the files you want to monitor.</p>
+<p>At this point, you may choose to handle the Changed, Created, and Deleted events, all of which work
+in conjunction with the FileSystemEventHandler delegate. This delegate can call any method matching
+the following pattern:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// The FileSystemEventHandler delegate must point</span>
+<span class="rem">// to methods matching the following signature.</span>
+<span class="kwrd">void</span> MyNotificationHandler(<span class="kwrd">object</span> source, FileSystemEventArgs e)</pre>
+<p>You can also handle the Renamed event using the RenamedEventHandler delegate type, which can call
+methods that match the following signature:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// The RenamedEventHandler delegate must point</span>
+<span class="rem">// to methods matching the following signature.</span>
+<span class="kwrd">void</span> MyRenamedHandler(<span class="kwrd">object</span> source, RenamedEventArgs e)</pre>
+<p>Next, let’s look at the process of watching a file. Assume you have created a new directory on your C:
+drive named MyFolder that contains various *.txt files (named whatever you wish). The following
+Console Application (named MyDirectoryWatcher) monitors the *.txt files in the MyFolder directory and
+prints out messages when files are created, deleted, modified, or renamed:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** The Amazing File Watcher App *****\n"</span>);
+
+    <span class="rem">// Establish the path to the directory to watch.</span>
+    FileSystemWatcher watcher = <span class="kwrd">new</span> FileSystemWatcher();
+    <span class="kwrd">try</span>
+    {
+        watcher.Path = <span class="str">@"C:\MyFolder"</span>;
+    }
+    <span class="kwrd">catch</span>(ArgumentException ex)
+    {
+        Console.WriteLine(ex.Message);
+        <span class="kwrd">return</span>;
+    }
+
+    <span class="rem">// Set up the things to be on the lookout for.</span>
+    watcher.NotifyFilter = NotifyFilters.LastAccess
+        | NotifyFilters.LastWrite
+        | NotifyFilters.FileName
+        | NotifyFilters.DirectoryName;
+        
+    <span class="rem">// Only watch text files.</span>
+    watcher.Filter = <span class="str">"*.txt"</span>;
+
+    <span class="rem">// Add event handlers.</span>
+    watcher.Changed += <span class="kwrd">new</span> FileSystemEventHandler(OnChanged);
+    watcher.Created += <span class="kwrd">new</span> FileSystemEventHandler(OnChanged);
+    watcher.Deleted += <span class="kwrd">new</span> FileSystemEventHandler(OnChanged);
+    watcher.Renamed += <span class="kwrd">new</span> RenamedEventHandler(OnRenamed);
+
+    <span class="rem">// Begin watching the directory.</span>
+    watcher.EnableRaisingEvents = <span class="kwrd">true</span>;
+    
+    <span class="rem">// Wait for the user to quit the program.</span>
+    Console.WriteLine(<span class="str">@"Press 'q' to quit app."</span>);
+    while(Console.Read()!=<span class="str">'q'</span>);
+}</pre>
+<p>The two event handlers simply print out the current file modification:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> OnChanged(<span class="kwrd">object</span> source, FileSystemEventArgs e)
+{
+    <span class="rem">// Specify what is done when a file is changed, created, or deleted.</span>
+    Console.WriteLine(<span class="str">"File: {0} {1}!"</span>, e.FullPath, e.ChangeType);
+}
+
+<span class="kwrd">static</span> <span class="kwrd">void</span> OnRenamed(<span class="kwrd">object</span> source, RenamedEventArgs e)
+{
+    <span class="rem">// Specify what is done when a file is renamed.</span>
+    Console.WriteLine(<span class="str">"File: {0} renamed to\n{1}"</span>, e.OldFullPath, e.FullPath);
+}</pre>
+<p>To test this program, run the application and open Windows Explorer. Try renaming your files,
+creating a *.txt file, deleting a *.txt file, and so forth. You will see various bits of information generated
+about the state of the text files within your MyFolder, as in this example:</p>
+<pre class="csharpcode">
+***** The Amazing File Watcher App *****
+
+Press 'q' to quit app.
+File: C:\MyFolder\New Text Document.txt Created!
+File: C:\MyFolder\New Text Document.txt renamed to
+C:\MyFolder\Hello.txt
+File: C:\MyFolder\Hello.txt Changed!
+File: C:\MyFolder\Hello.txt Changed!
+File: C:\MyFolder\Hello.txt Deleted!</pre>
+    <p><b>Source Code</b> You can find the MyDirectoryWatcher application under the Chapter 20 subdirectory.</p>
+<p>That wraps up this chapter’s look at fundamental IO operations within the .NET platform. While you
+will certainly use these techniques in many of your applications, you might also find that object
+serialization services can greatly simplify how you persist large amounts of data.</p>
+     
+      
+   

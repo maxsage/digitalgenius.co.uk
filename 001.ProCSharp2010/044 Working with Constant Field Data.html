@@ -1,0 +1,144 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+    <h1>Working with Constant Field Data</h1>
+    <p>C# offers the const keyword to define constant data, which can never change after the initial assignment.
+    As you might guess, this can be helpful when you are defining a set of known values for use in your
+    applications that are logically connected to a given class or structure.</p>
+    <p>Assume you are building a utility class named MyMathClass that needs to define a value for the value
+    PI (which you will assume to be 3.14). Begin by creating a new Console Application project named
+    ConstData. Given that you would not want to allow other developers to change this value in code, PI
+    could be modeled with the following constant:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">namespace</span> ConstData
+{
+    <span class="kwrd">class</span> MyMathClass
+    {
+        <span class="kwrd">public</span> <span class="kwrd">const</span> <span class="kwrd">double</span> PI = 3.14;
+    }
+
+    <span class="kwrd">class</span> Program
+    {
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            Console.WriteLine(<span class="str">"***** Fun with Const *****\n"</span>);
+            Console.WriteLine(<span class="str">"The value of PI is: {0}"</span>, MyMathClass.PI);
+
+            <span class="rem">// Error! Can't change a constant!</span>
+            <span class="rem">// MyMathClass.PI = 3.1444;</span>
+
+            Console.ReadLine();
+        }
+    }
+}</pre>
+    <p>Notice that you are referencing the constant data defined by MyMathClass using a class name prefix
+    (i.e., MyMathClass.PI). This is due to the fact that constant fields of a class are implicitly static. However,
+    it is permissible to define and access a local constant variable within a type member. By way of example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> LocalConstStringVariable()
+{
+    <span class="rem">// A local constant data point can be directly accessed.</span>
+    <span class="kwrd">const</span> <span class="kwrd">string</span> fixedStr = <span class="str">"Fixed string Data"</span>;
+    Console.WriteLine(fixedStr);
+
+    <span class="rem">// Error!</span>
+    fixedStr = <span class="str">"This will not work!"</span>;
+}</pre>
+    <p>Regardless of where you define a constant piece of data, the one point to always remember is that
+    the initial value assigned to the constant must be specified at the time you define the constant. Thus, if
+    you were to modify your MyMathClass in such a way that the value of PI is assigned in a class constructor
+    as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> MyMathClass
+{
+    <span class="rem">// Try to set PI in ctor?</span>
+    <span class="kwrd">public</span> <span class="kwrd">const</span> <span class="kwrd">double</span> PI;
+
+    <span class="kwrd">public</span> MyMathClass()
+    {
+        <span class="rem">// Error!</span>
+        PI = 3.14;
+    }
+}</pre>
+    <p>you would receive a compile-time error. The reason for this restriction has to do with the fact the value
+    of constant data must be known at compile time. Constructors, as you know, are invoked at runtime.</p>
+    <h2>Understanding Read-Only Fields</h2>
+    <p>Closely related to constant data is the notion of read-only field data (which should not be confused with
+    a read-only property). Like a constant, a read-only field cannot be changed after the initial assignment.
+    However, unlike a constant, the value assigned to a read-only field can be determined at runtime, and
+    therefore can legally be assigned within the scope of a constructor, but nowhere else.</p>
+    <p>This can be very helpful when you don't know the value of a field until runtime, perhaps because
+    you need to read an external file to obtain the value, but wish to ensure that the value will not change
+    after that point. For the sake of illustration, assume the following update to MyMathClass:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> MyMathClass
+{
+    <span class="rem">// Read-only fields can be assigned in ctors,</span>
+    <span class="rem">// but nowhere else.</span>
+    <span class="kwrd">public</span> <span class="kwrd">readonly</span> <span class="kwrd">double</span> PI;
+
+    <span class="kwrd">public</span> MyMathClass ()
+    {
+        PI = 3.14;
+    }
+}</pre>
+    <p>Again, any attempt to make assignments to a field marked readonly outside the scope of a
+    constructor results in a compiler error:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> MyMathClass
+{
+    <span class="kwrd">public</span> <span class="kwrd">readonly</span> <span class="kwrd">double</span> PI;
+    <span class="kwrd">public</span> MyMathClass ()
+    {
+        PI = 3.14;
+    }
+
+    <span class="rem">// Error!</span>
+    <span class="kwrd">public</span> <span class="kwrd">void</span> ChangePI()
+    { PI = 3.14444;}
+}</pre>
+    <h2>Static Read-Only Fields</h2>
+    <p>Unlike a constant field, read-only fields are not implicitly static. Thus, if you wish to expose PI from the class
+    level, you must explicitly make use of the static keyword. If you know the value of a static read-only field at
+    compile time, the initial assignment looks very similar to that of a constant:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> MyMathClass
+{
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">readonly</span> <span class="kwrd">double</span> PI = 3.14;
+}
+
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Fun with Const *****"</span>);
+        Console.WriteLine(<span class="str">"The value of PI is: {0}"</span>, MyMathClass.PI);
+        Console.ReadLine();
+    }
+}</pre>
+    <p>However, if the value of a static read-only field is not known until runtime, you must make use of a
+    static constructor as described earlier in this chapter:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> MyMathClass
+{
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">readonly</span> <span class="kwrd">double</span> PI;
+    
+    <span class="kwrd">static</span> MyMathClass()
+    { PI = 3.14; }
+}</pre>
+    <p><b>Source Code</b> The ConstData project is included under the Chapter 5 subdirectory.</p>
+    </body>
+</html>

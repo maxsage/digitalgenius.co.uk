@@ -1,0 +1,223 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Applying Graphical Transformations</h1>
+<p>To wrap up our discussion of using shapes, let’s address the topic of transformations. WPF ships with
+numerous classes that extend the System.Windows.Media.Transform abstract base class. Table 29-5
+documents many of the key out-of-the-box Transform derived classes.</p>
+<p>To wrap up our discussion of using shapes, let’s address the topic of transformations. WPF ships with
+numerous classes that extend the System.Windows.Media.Transform abstract base class. Table 29-5
+documents many of the key out-of-the-box Transform derived classes.</p>
+ <p><b>Table 29-5.</b> Key Descendents of the System.Windows.Media.Transform Type</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Type
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    MatrixTransform
+   </td>
+   <td>
+    Creates an arbitrary matrix transformation that is used to manipulate
+objects or coordinate systems in a 2D plane
+   </td>
+  </tr>
+  <tr>
+   <td>
+    RotateTransform
+   </td>
+   <td>
+    Rotates an object clockwise about a specified point in a 2D (x, y) coordinate
+system
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ScaleTransform
+   </td>
+   <td>
+    Scales an object in the 2D (x, y) coordinate system
+   </td>
+  </tr>
+  <tr>
+   <td>
+    SkewTransform
+   </td>
+   <td>
+    Skews an object in the 2D (x, y) coordinate system
+   </td>
+  </tr>
+  <tr>
+   <td>
+    TranslateTransform
+   </td>
+   <td>
+    Translates (moves) an object in the 2-D x-y coordinate system.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    TransformGroup
+   </td>
+   <td>
+    Represents a composite Transform composed of other Transform objects
+   </td>
+  </tr>
+</table>
+<p>Transformations can be applied to any UIElement (e.g., descendents of Shape as well as controls such
+as Buttons, TextBoxes, and the like). Using these transformation classes, you can render graphical data at a
+given angle, skew the image across a surface, and expand, shrink, or flip the target item in a variety of ways.</p>
+<p><b>Note</b> While transformation objects can be used anywhere, you will find them most useful when working with
+WPF animations and custom control templates. As you will see later in the text, you can use WPF animations to
+incorporate visual cues to the end user for a custom control.</p>
+<p>Transformation objects (or a whole set of them) can be assigned to a target object (Button, Path, etc.)
+using two common properties. The LayoutTransform property is helpful in that the transformation
+occurs before elements are rendered into a layout manager, and therefore the transformation will not
+affect z-ordering operations (in other words, the transformed image data will not overlap).</p>
+<p>The RenderTransform property, on the other hand, occurs after the items are in their container, and
+therefore it is quite possible that elements can be transformed in such a way that they could overlap
+each other, based on how they were arranged in the container.</p>
+<h2>A First Look at Transformations</h2>
+<p>We will add some transformational logic to our RenderingWithShapes project in just a moment.
+However, to see transformation objects in action, open kaxaml (or your custom XAML editor) and define
+a simple &lt;StackPanel&gt; in the root &lt;Page&gt; or &lt;Window&gt;, and set the Orientation property to Horizontal.
+Now, add the following &lt;Rectangle&gt;, which will be drawn at a 45-degree angle using a RotateTransform
+object.</p>
+<<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">&lt;!-- A Rectangle with a rotate transformation --&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Rectangle</span> <span class="attr">Height</span> <span class="kwrd">="100"</span> <span class="attr">Width</span> <span class="kwrd">="40"</span> <span class="attr">Fill</span> <span class="kwrd">="Red"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Rectangle.LayoutTransform</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">RotateTransform</span> <span class="attr">Angle</span> <span class="kwrd">="45"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Rectangle.LayoutTransform</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Rectangle</span><span class="kwrd">&gt;</span></pre>
+<p>Here is a &lt;Button&gt; that is skewed across the surface by 20 percent, using a &lt;SkewTransform&gt;:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">&lt;!-- A Button with a skew transformation --&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">Content</span> <span class="kwrd">="Click Me!"</span> <span class="attr">Width</span><span class="kwrd">="95"</span> <span class="attr">Height</span><span class="kwrd">="40"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Button.LayoutTransform</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">SkewTransform</span> <span class="attr">AngleX</span> <span class="kwrd">="20"</span> <span class="attr">AngleY</span> <span class="kwrd">="20"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Button.LayoutTransform</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Button</span><span class="kwrd">&gt;</span></pre>
+    <p>And for good measure, here is an &lt;Ellipse&gt; that is scaled by 20 percent with a ScaleTransform,
+(note the values set to the initial Height and Width), as well as a &lt;TextBox&gt; that has a group of
+transformation objects applied to it.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">&lt;!-- An Ellipse that has been scaled by 20% --&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Ellipse</span> <span class="attr">Fill</span> <span class="kwrd">="Blue"</span> <span class="attr">Width</span><span class="kwrd">="5"</span> <span class="attr">Height</span><span class="kwrd">="5"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Ellipse.LayoutTransform</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">ScaleTransform</span> <span class="attr">ScaleX</span> <span class="kwrd">="20"</span> <span class="attr">ScaleY</span> <span class="kwrd">="20"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Ellipse.LayoutTransform</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Ellipse</span><span class="kwrd">&gt;</span>
+
+<span class="rem">&lt;!-- A textbox that has been rotated and skewed --&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">Text</span> <span class="kwrd">="Me Too!"</span> <span class="attr">Width</span><span class="kwrd">="50"</span> <span class="attr">Height</span><span class="kwrd">="40"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">TextBox.LayoutTransform</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">TransformGroup</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">RotateTransform</span> <span class="attr">Angle</span> <span class="kwrd">="45"</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">SkewTransform</span> <span class="attr">AngleX</span> <span class="kwrd">="5"</span> <span class="attr">AngleY</span> <span class="kwrd">="20"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">TransformGroup</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">TextBox.LayoutTransform</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">TextBox</span><span class="kwrd">&gt;</span></pre>
+    <p>Note that when a transformation is applied, you are not required to perform any manual
+calculations to correctly respond to hit-testing, input focus, or whatnot. The WPF graphics engine
+handles such tasks on your behalf. For example, in Figure 29-10, you can see that the TextBox is still
+responsive to keyboard input.</p>
+<img src="../Images/Figure29_10.png" alt="Figure 29-10" />
+<p><b>Figure 29-10</b> The results of graphical transformation objects</p>
+<h2>Transforming our Canvas Data</h2>
+<p>Now, let’s see how we can incorporate some transformational logic into our RenderingWithShapes
+example. In addition to applying a transformation object to a single item (Rectangle, TextBox, etc.), you
+can also apply transformation objects to a layout manager, to transform all of the internal data. You
+could, for example, render the entire &lt;DockPanel&gt; of the main window at an angle like so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">DockPanel</span> <span class="attr">LastChildFill</span><span class="kwrd">="True"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">DockPanel.LayoutTransform</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">RotateTransform</span> <span class="attr">Angle</span><span class="kwrd">="45"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">DockPanel.LayoutTransform</span><span class="kwrd">&gt;</span>
+...
+<span class="kwrd">&lt;/</span><span class="html">DockPanel</span><span class="kwrd">&gt;</span></pre>
+    <p>This is a bit extreme for this example, so let’s add a final (less aggressive) feature that allows the user
+to flip the entire Canvas and all contained graphics. Begin by adding a final &lt;ToggleButton&gt; to your
+&lt;ToolBar&gt;, defined as:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">ToggleButton</span> <span class="attr">Name</span><span class="kwrd">="flipCanvas"</span> <span class="attr">Click</span><span class="kwrd">="flipCanvas_Click"</span> <span class="attr">Content</span><span class="kwrd">="Flip Canvas!"</span><span class="kwrd">/&gt;</span></pre>
+    <p>Within the Click event handler, you create a RotateTransform object and connect it to the Canvas
+object via the LayoutTransform property if this new ToggleButton is clicked. If the ToggleButton is not
+clicked, you remove the transformation by setting the same property to null:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> flipCanvas_Click(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+{
+    <span class="kwrd">if</span> (flipCanvas.IsChecked == <span class="kwrd">true</span>)
+    {
+        RotateTransform rotate = <span class="kwrd">new</span> RotateTransform(-180);
+        canvasDrawingArea.LayoutTransform = rotate;
+    }
+    <span class="kwrd">else</span>
+    {
+        canvasDrawingArea.LayoutTransform = <span class="kwrd">null</span>;
+    }
+}</pre>
+<p>Run your application and add a bunch of graphics throughout the canvas area. If you click your new
+button, you will find that the shape data flows outside of the boundaries of the canvas! This is because
+we have not defined a clipping region (see Figure 29-11).</p>
+<img src="../Images/Figure29_11.png" alt="Figure 29-11" />
+<p><b>Figure 29-11</b> Oops! Our data is flowing outside of the canvas after the transformation!</p>
+<p>Fixing this is trivial. Rather than manually authoring complex clipping-logic code, simply set the
+ClipToBounds property of the &lt;Canvas&gt; to true, which prevents child elements from being rendered
+outside the parent’s boundaries. If you run your program again, you’ll find the data will not bleed off the
+canvas boundary.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Canvas</span> <span class="attr">ClipToBounds</span> = <span class="kwrd">"True"</span> ... <span class="kwrd">&gt;</span></pre>
+<p>The last tiny modification to make has to do with the fact that when you flip the canvas by pressing
+your toggle button, and then click on the canvas to draw a new shape, the point at which you click is not
+the point where the graphical data is applied. Rather the data is rendered above the mouse cursor.</p>
+<p>To resolve this issue, check out the solution code for this example where I have added one final
+Boolean member variable (isFlipped), which will apply the same transformation object to the shape
+being drawn before the rendering occurs (via RenderTransform). Here is the crux of the code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> canvasDrawingArea_MouseLeftButtonDown(<span class="kwrd">object</span> sender, MouseButtonEventArgs e)
+{
+    Shape shapeToRender = <span class="kwrd">null</span>;
+...
+    <span class="rem">// isFlipped is a private boolean field. This is toggled when the</span>
+    <span class="rem">// toggle button is clicked.</span>
+    <span class="kwrd">if</span> (isFlipped)
+    {
+        RotateTransform rotate = <span class="kwrd">new</span> RotateTransform(-180);
+        shapeToRender.RenderTransform = rotate;
+    }
+
+    <span class="rem">// Set top / left to draw in the canvas.</span>
+    Canvas.SetLeft(shapeToRender, e.GetPosition(canvasDrawingArea).X);
+    Canvas.SetTop(shapeToRender, e.GetPosition(canvasDrawingArea).Y);
+
+    <span class="rem">// Draw shape!</span>
+    canvasDrawingArea.Children.Add(shapeToRender);
+}</pre>
+<p>This wraps up our examination of System.Windows.Shapes, brushes, and transformations. Before
+turning our attending to the role of rendering graphics using drawings and geometries, let’s see how
+Expression Blend can be used to simplify how we work with primitive graphics.</p>
+    </body>
+    </html>
+    
+      
+   

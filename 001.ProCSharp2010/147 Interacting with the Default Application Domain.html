@@ -1,0 +1,160 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Interacting with the Default Application Domain</h1>
+    <p>Recall that when a .NET executable starts, the CLR will automatically place it into the default app
+domain o f the hosting process. This is done automatically and transparently, and you never have to
+author any specific code to do so. However, it is possible for your application to gain access to this
+default application domain using the static AppDomain.CurrentDomain property. Once you have this
+access point, you are able to hook into any events of interest, or make use of the methods and properties
+of AppDomain to perform some runtime diagnostics.</p>
+<p>To learn how to interact with the default application domain, begin by creating a new Console
+Application named DefaultAppDomainApp. Now, update your Program with the following logic, which
+will simply display some details about the default application domain, using a number of members of
+the AppDomain class:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Fun with the default app domain *****\n"</span>);
+        DisplayDADStats();
+        Console.ReadLine();
+    }
+
+    <span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> DisplayDADStats()
+    {
+        <span class="rem">// Get access to the app domain for the current thread.</span>
+        AppDomain defaultAD = AppDomain.CurrentDomain;
+
+        <span class="rem">// Print out various stats about this domain.</span>
+        Console.WriteLine(<span class="str">"Name of this domain: {0}"</span>, defaultAD.FriendlyName);
+        Console.WriteLine(<span class="str">"ID of domain in this process: {0}"</span>, defaultAD.Id);
+        Console.WriteLine(<span class="str">"Is this the default domain?: {0}"</span>,
+            defaultAD.IsDefaultAppDomain());
+        Console.WriteLine(<span class="str">"Base directory of this domain: {0}"</span>, defaultAD.BaseDirectory);
+    }
+}</pre>
+<p>The output of this example can be seen here:</p>
+<pre class="csharpcode">
+***** Fun with the default app domain *****
+
+Name of this domain: DefaultAppDomainApp.exe
+ID of domain in this process: 1
+Is this the default domain?: True
+Base directory of this domain: E:\MyCode\DefaultAppDomainApp\bin\Debug\</pre>
+<p>Notice that the name of the default application domain will be identical to the name of the
+executable which is contained within it (DefaultAppDomainApp.exe in this example). Also notice, that the
+base directory value, which will be used to probe for externally required private assemblies, maps to the
+current location of the deployed executable.</p>
+<h2>Enumerating Loaded Assemblies</h2>
+<p>It is also possible to discover all of the loaded .NET assemblies within a given application domain using
+the instance level GetAssemblies() method. This method will return to you an array of Assembly objects,
+which as you recall from the previous chapter, is a member of the System.Reflection namespace (so
+don’t forget to import this namespace into your C# code file!)</p>
+<p>To illustrate, define a new method named ListAllAssembliesInAppDomain() within the Program
+class. This helper method will obtain all loaded assemblies, and print out the friendly name and version
+of each:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ListAllAssembliesInAppDomain()
+{
+    <span class="rem">// Get access to the app domain for the current thread.</span>
+    AppDomain defaultAD = AppDomain.CurrentDomain;
+
+    <span class="rem">// Now get all loaded assemblies in the default app domain.</span>
+    Assembly[] loadedAssemblies = defaultAD.GetAssemblies();
+    Console.WriteLine(<span class="str">"***** Here are the assemblies loaded in {0} *****\n"</span>,
+        defaultAD.FriendlyName);
+    <span class="kwrd">foreach</span>(Assembly a <span class="kwrd">in</span> loadedAssemblies)
+    {
+        Console.WriteLine(<span class="str">"-&gt; Name: {0}"</span>, a.GetName().Name);
+        Console.WriteLine(<span class="str">"-&gt; Version: {0}\n"</span>, a.GetName().Version);
+    }
+}</pre>
+    <p>Assuming you have updated your Main() method to call this new member, you will see that the
+application domain hosting your executable is currently making use of the following .NET libraries:</p>
+<pre class="csharpcode">
+***** Here are the assemblies loaded in DefaultAppDomainApp.exe *****
+
+-> Name: mscorlib
+-> Version: 4.0.0.0
+
+-> Name: DefaultAppDomainApp
+-> Version: 1.0.0.0
+</pre>
+<p>Now understand that the list of loaded assemblies can change at any time as you author new C#
+code. For example, assume you have updated your ListAllAssembliesInAppDomain() method to make
+use of a LINQ query, which will order the loaded assemblies by name:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ListAllAssembliesInAppDomain()
+{
+    <span class="rem">// Get access to the app domain for the current thread.</span>
+    AppDomain defaultAD = AppDomain.CurrentDomain;
+
+    <span class="rem">// Now get all loaded assemblies in the default app domain.</span>
+    <span class="kwrd">var</span> loadedAssemblies = <span class="kwrd">from</span> a <span class="kwrd">in</span> defaultAD.GetAssemblies()
+        orderby a.GetName().Name select a;
+
+    Console.WriteLine(<span class="str">"***** Here are the assemblies loaded in {0} *****\n"</span>,
+        defaultAD.FriendlyName);
+    <span class="kwrd">foreach</span> (<span class="kwrd">var</span> a <span class="kwrd">in</span> loadedAssemblies)
+    {
+        Console.WriteLine(<span class="str">"-&gt; Name: {0}"</span>, a.GetName().Name);
+        Console.WriteLine(<span class="str">"-&gt; Version: {0}\n"</span>, a.GetName().Version);
+    }
+}</pre>
+<p>If you were to run the program once again, you will see that System.Core.dll and System.dll have
+also been loaded into memory, as they are required for the LINQ to Objects API:</p>
+<pre class="csharpcode">
+***** Here are the assemblies loaded in DefaultAppDomainApp.exe *****
+
+-&gt; Name: DefaultAppDomainApp
+-&gt; Version: 1.0.0.0
+
+-&gt; Name: mscorlib
+-&gt; Version: 4.0.0.0
+
+-&gt; Name: System
+-&gt; Version: 4.0.0.0
+
+-&gt; Name: System.Core
+-&gt; Version: 4.0.0.0</pre>
+<h2>Receiving Assembly Load Notifications</h2>
+<p>If you wish to be informed by the CLR when a new assembly has been loaded into a given application
+domain, you may handle the AssemblyLoad event. This event is typed against the
+AssemblyLoadEventHandler delegate, which can point to any method taking a System.Object as the first
+parameter, and an AssemblyLoadEventArgs as the second.</p>
+<p>Let’s add one final method to the current Program class called InitDAD(). As the name suggests, this
+method will initialize the default application domain, specifically by handling the AssemblyLoad event via
+a fitting lambda expression:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> InitDAD()
+{
+    <span class="rem">// This logic will print out the name of any assembly</span>
+    <span class="rem">// loaded into the applicaion domain, after it has been</span>
+    <span class="rem">// created.</span>
+    AppDomain defaultAD = AppDomain.CurrentDomain;
+    defaultAD.AssemblyLoad += (o, s) =&gt;
+    {
+        Console.WriteLine(<span class="str">"{0} has been loaded!"</span>, s.LoadedAssembly.GetName().Name);
+    };
+}</pre>
+<p>As you would expect, when you run the modified application, you will be notified when a new
+assembly has been loaded. Here, you are simply printing out the friendly name of the assembly, using
+the LoadedAssembly property of the incoming AssemblyLoadedEventArgs parameter.</p>
+    <p><b>Source Code</b> The DefaultAppDomainApp project is included under the Chapter 16 subdirectory.</p>
+    </body>
+    </html>
+     
+      
+   

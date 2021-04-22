@@ -1,0 +1,174 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+    <h1>Defining the Pillars of OOP</h1>
+    <p>All object-based languages (C#, Java, C++, Smalltalk, Visual Basic, etc.) must contend
+        with three core principals, often called the pillars of object-oriented programming
+        (OOP):</p>
+    <ul>
+        <li><i>Encapsulation:</i> How does this language hide an object's internal implementation
+            details and preserve data integrity?</li>
+        <li><i>Inheritance:</i>How does this language promote code reuse? </li>
+        <li><i>Polymorphism:</i>How does this language let you treat related objects in a similar
+            way? </li>
+    </ul>
+    <p>Before digging into the syntactic details of each pillar, it is important that you
+        understand the basic role of each. Here is an overview of each pillar, which will
+        be examined in full detail over the remainder of this chapter and the next.</p>
+    <h2>The Role of Encapsulation</h2>
+    <p>The first pillar of OOP is called encapsulation. This trait boils down to the language's
+        ability to hide unnecessary implementation details from the object user. For example,
+        assume you are using a class named DatabaseReader, which has two primary methods
+        named Open() and Close():</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <pre class="csharpcode">
+<span class="rem">// Assume this class encapsulates the details of opening and closing a database.</span>
+DatabaseReader dbReader = <span class="kwrd">new</span> DatabaseReader();
+dbReader.Open(<span
+            class="str">@"C:\AutoLot.mdf"</span>);
+
+<span class="rem">// Do something with data file and close the file.</span>
+dbReader.Close();</pre>
+    <p>The fictitious DatabaseReader class encapsulates the inner details of locating, loading,
+        manipulating, and closing the data file. Programmers love encapsulation, as this
+        pillar of OOP keeps coding tasks simpler. There is no need to worry about the numerous
+        lines of code that are working behind the scenes to carry out the work of the DatabaseReader
+        class. All you do is create an instance and send the appropriate messages (e.g.,
+        "Open the file named AutoLot.mdf located on my C drive").</p>
+    <p>Closely related to the notion of encapsulating programming logic is the idea of data
+        protection. Ideally, an object's state data should be specified using the private
+        (or possibly protected) keyword. In this way, the outside world must ask politely
+        in order to change or obtain the underlying value. This is a good thing, as publicly
+        declared data points can easily become corrupted (hopefully by accident rather than
+        intent!). You will formally examine this aspect of encapsulation in just a bit.</p>
+    <h2>The Role of Inheritance</h2>
+    <p>The next pillar of OOP, inheritance, boils down to the language's ability to allow
+        you to build new class definitions based on existing class definitions. In essence,
+        inheritance allows you to extend the behavior of a base (or parent) class by inheriting
+        core functionality into the derived subclass (also called a child class). Figure
+        5-4 shows a simple example.</p>
+    <p>You can read the diagram in Figure 5-4 as "A Hexagon is-a Shape that is-an Object."
+        When you have classes related by this form of inheritance, you establish "is-a"
+        relationships between types. The "is-a" relationship is termed inheritance.</p>
+    <p>Here, you can assume that Shape defines some number of members that are common to
+        all descendents (maybe a value to represent the color to draw the shape, and other
+        values to represent the height and width). Given that the Hexagon class extends
+        Shape, it inherits the core functionality defined by Shape and Object, as well as
+        defines additional hexagon-related details of its own (whatever those may be).</p>
+    <p><b>Note</b> Under the .NET platform, System.Object is always the topmost parent in
+        any class hierarchy, which defines some general functionality for all types, fully
+        described in Chapter 6.</p>
+    <img src="../Images/Figure05_04.png" alt="Figure 5-4" />
+    <p><b>Figure 5-4.</b> The "is-a" relationship</p>
+    <p>There is another form of code reuse in the world of OOP: the containment/delegation
+        model also known as the "has-a" relationship or aggregation. This form of reuse
+        is not used to establish parent/child relationships. Rather, the "has-a" relationship
+        allows one class to define a member variable of another class and expose its functionality
+        (if required) to the object user indirectly.</p>
+    <p>For example, assume you are again modeling an automobile. You might want to express
+        the idea that a car "has-a" radio. It would be illogical to attempt to derive the
+        Car class from a Radio, or vice versa (a Car "is-a" Radio? I think not!). Rather,
+        you have two independent classes working together, where the Car class creates and
+        exposes the Radio's functionality:</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <pre class="csharpcode">
+<span class="kwrd">class</span> Radio
+{
+    <span class="kwrd">public</span> <span
+        class="kwrd">void</span> Power(<span class="kwrd">bool</span> turnOn)
+    {
+        Console.WriteLine(<span
+            class="str">"Radio on: {0}"</span>, turnOn);
+    }
+}
+
+<span class="kwrd">class</span> Car
+{
+    <span
+                class="rem">// Car "has-a" Radio.</span>
+    <span class="kwrd">private</span> Radio myRadio = <span
+                    class="kwrd">new</span> Radio();
+        
+    <span class="kwrd">public</span> <span
+                        class="kwrd">void</span> TurnOnRadio(<span class="kwrd">bool</span> onOff)
+    {
+        <span
+                            class="rem">// Delegate call to inner object.</span>
+        myRadio.Power(onOff);
+    }
+}</pre>
+    <p>Notice that the object user has no clue that the Car class is making use of an inner
+        Radio object.</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span
+        class="kwrd">string</span>[] args)
+{
+    <span class="rem">// Call is forwarded to Radio
+            internally.</span>
+    Car viper = <span class="kwrd">new</span> Car();
+    viper.TurnOnRadio(<span
+                class="kwrd">false</span>);
+}</pre>
+    <h2>The Role of Polymorphism</h2>
+    <p>The final pillar of OOP is <i>polymorphism</i>. This trait captures a language's
+        ability to treat related objects in a similar manner. Specifically, this tenant
+        of an object-oriented language allows a base class to define a set of members (formally
+        termed the polymorphic interface) that are available to all descendents. A class's
+        polymorphic interface is constructed using any number of virtual or abstract members.</p>
+    <p>In a nutshell, a "virtual member" is a member in a base class that defines a default
+        implementation that may be changed (or more formally speaking, "overridden" by a
+        derived class. In contrast, an "abstract method" is a member in a base class that
+        does not provide a default implementation, but does provide a signature. When a
+        class derives from a base class defining an abstract method, it "must" be overridden
+        by a derived type. In either case, when derived types override the members defined
+        by a base class, they are essentially redefining how they respond to the same request.</p>
+    <p>To preview polymorphism, let's provide some details behind the shapes hierarchy shown
+        in Figure 5-5. Assume that the Shape class has defined a virtual method named Draw()
+        that takes no parameters. Given the fact that every shape needs to render itself
+        in a unique manner, subclasses such as Hexagon and Circle are free to override this
+        method to their own liking (see Figure 5-5).</p>
+    <img src="../Images/Figure05_05.png" alt="Figure 5-5" />
+    <p><b>Figure 5-5.</b> Classical polymorphism</p>
+	<p>Once a polymorphic interface has been designed, you can begin to make various assumptions
+        in your code. For example, given that Hexagon and Circle derive from a common parent
+        (Shape), an array of Shape types could contain anything deriving from this base
+        class. Furthermore, given that Shape defines a polymorphic interface to all derived
+        types (the Draw() method in this example), you can assume each member in the array
+        has this functionality.</p>
+    <p>Consider the following Main() method, which instructs an array of Shape-derived types
+        to render themselves using the Draw() method:</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span
+        class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Shape[] myShapes = <span
+            class="kwrd">new</span> Shape[3];
+        myShapes[0] = <span class="kwrd">new</span> Hexagon();
+        myShapes[1] = <span
+                class="kwrd">new</span> Circle();
+        myShapes[2] = <span class="kwrd">new</span> Hexagon();
+        <span
+                    class="kwrd">foreach</span> (Shape s <span class="kwrd">in</span> myShapes)
+        {
+            <span
+                        class="rem">// Use the polymorphic interface!</span>
+            s.Draw();
+        }
+        Console.ReadLine();
+    }
+}</pre>
+	<p>This wraps up our brisk overview of the pillars of OOP. Now that you have the theory in your mind,
+		the remainder of this chapter explores further details of how encapsulation is handled under C#.
+		Chapter 6 will tackle the details of inheritance and polymorphism.</p>
+</body>
+</html>

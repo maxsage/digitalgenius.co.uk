@@ -1,0 +1,229 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Working with StreamWriters and StreamReaders</h1>
+    <p>The StreamWriter and StreamReader classes are useful whenever you need to read or write characterbased
+data (e.g., strings). Both of these types work by default with Unicode characters; however, you can
+change this by supplying a properly configured System.Text.Encoding object reference. To keep things
+simple, assume that the default Unicode encoding fits the bill.</p>
+<p>StreamReader derives from an abstract type named TextReader, as does the related StringReader
+type (discussed later in this chapter). The TextReader base class provides a limited set of functionality to
+each of these descendents; specifically it provides the ability to read and peek into a character stream.</p>
+<p>The StreamWriter type (as well as StringWriter, which you will examine later in this chapter) derives
+from an abstract base class named TextWriter. This class defines members that allow derived types to
+write textual data to a given character stream.</p>
+<p>To aid in your understanding of the core writing capabilities of the StreamWriter and StringWriter
+classes, Table 20-8 describes the core members of the abstract TextWriter base class.</p>
+<p><b>Table 20-8.</b> Core Members of TextWriter</p>
+<table class="gridtable">
+  <tr>
+   <th>Member</th>
+   <th>Meaning in Life</th>
+  </tr>
+  <tr>
+   <td>
+    Close()
+   </td>
+   <td>
+    This method closes the writer and frees any associated resources. In the process,
+the buffer is automatically flushed (again, this member is functionally equivalent to
+calling the Dispose() method).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Flush()
+   </td>
+   <td>
+    This method clears all buffers for the current writer and causes any buffered data to
+be written to the underlying device; however, it does not close the writer.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    NewLine
+   </td>
+   <td>
+    This property indicates the newline constant for the derived writer class. The
+default line terminator for the Windows OS is a carriage return, followed by a line
+feed (\r\n).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Write()
+   </td>
+   <td>
+    This overloaded method writes data to the text stream without a newline constant.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    WriteLine()
+   </td>
+   <td>
+    This overloaded method writes data to the text stream with a newline constant
+   </td>
+  </tr>
+</table>
+<p><b>Note</b> The last two members of the TextWriter class probably look familiar to you. If you recall, the
+System.Console type has Write() and WriteLine() members that push textual data to the standard output
+device. In fact, the Console.In property wraps a TextWriter, and the Console.Out property wraps a
+TextReader.</p>
+<p>The derived StreamWriter class provides an appropriate implementation for the Write(), Close(),
+and Flush() methods, and it defines the additional AutoFlush property. When set to true, this property
+forces StreamWriter to flush all data every time you perform a write operation. Be aware that you can
+gain better performance by setting AutoFlush to false, provided you always call Close() when you finish
+writing with a StreamWriter.</p>
+<h2>Writing to a Text File</h2>
+<p>To see the StreamWriter type in action, create a new Console Application named StreamWriterReaderApp
+and import System.IO. The following Main() method creates a new file named reminders.txt using the
+File.CreateText() method. Using the obtained StreamWriter object, you can add some textual data to
+the new file:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with StreamWriter / StreamReader *****\n"</span>);
+
+    <span class="rem">// Get a StreamWriter and write string data.</span>
+    <span class="kwrd">using</span>(StreamWriter writer = File.CreateText(<span class="str">"reminders.txt"</span>))
+    {
+        writer.WriteLine(<span class="str">"Don't forget Mother's Day this year..."</span>);
+        writer.WriteLine(<span class="str">"Don't forget Father's Day this year..."</span>);
+        writer.WriteLine(<span class="str">"Don't forget these numbers:"</span>);
+        <span class="kwrd">for</span>(<span class="kwrd">int</span> i = 0; i &lt; 10; i++)
+            writer.Write(i + <span class="str">" "</span>);
+
+        <span class="rem">// Insert a new line.</span>
+        writer.Write(writer.NewLine);
+    }
+
+    Console.WriteLine(<span class="str">"Created file and wrote some thoughts..."</span>);
+    Console.ReadLine();
+}</pre>
+<p>After you run this program, you can examine the contents of this new file (see Figure 20-3). You will
+find this file under the bin\Debug folder of your current application because you did not specify an
+absolute path at the time you called CreateText().</p>
+<img src="../Images/Figure20_03.png" alt="Figure 20-3" />
+<p><b>Figure 20-3</b> The contents of your *.txt file</p>
+<h2>Reading from a Text File</h2>
+<p>Next, you will learn to read data from a file programmatically by using the corresponding StreamReader
+type. Recall that this class derives from the abstract TextReader, which offers the functionality described
+in Table 20-9.</p>
+<p><b>Table 20-9.</b> TextReader Core Members</p>
+<table class="gridtable">
+   <tr>
+   <th>
+    Member
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Peek()
+   </td>
+   <td>
+    Returns the next available character without actually changing the position
+of the reader. A value of -1 indicates you are at the end of the stream.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Read()
+   </td>
+   <td>
+    Reads data from an input stream.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ReadBlock()
+   </td>
+   <td>
+    Reads a specified maximum number of characters from the current stream
+and writes the data to a buffer, beginning at a specified index.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ReadLine()
+   </td>
+   <td>
+    Reads a line of characters from the current stream and returns the data as a
+string (a null string indicates EOF).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ReadToEnd()
+   </td>
+   <td>
+    Reads all characters from the current position to the end of the stream and
+returns them as a single string.
+   </td>
+  </tr>
+</table>
+<p>If you now extend the current MyStreamWriterReader sample application to use a StreamReader, you
+can read in the textual data from the reminders.txt file, as shown here:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with StreamWriter / StreamReader *****\n"</span>);
+...
+    <span class="rem">// Now read data from file.</span>
+    Console.WriteLine(<span class="str">"Here are your thoughts:\n"</span>);
+    <span class="kwrd">using</span>(StreamReader sr = File.OpenText(<span class="str">"reminders.txt"</span>))
+    {
+        <span class="kwrd">string</span> input = <span class="kwrd">null</span>;
+        while ((input = sr.ReadLine()) != <span class="kwrd">null</span>)
+        {
+            Console.WriteLine (input);
+        }
+    }
+    Console.ReadLine();
+}</pre>
+<p>Once you run the program, you will see the character data in reminders.txt displayed to the
+console.</p>
+<h2>Directly Creating StreamWriter/StreamReader Types</h2>
+<p>One of the confusing aspects of working with the types within System.IO is that you can often achieve an
+identical result using different approaches. For example, you have already seen that you can use the
+CreateText() method to obtain a StreamWriter with the File or FileInfo type. It so happens that you
+can work with StreamWriters and StreamReaders another way: by creating them directly. For example,
+you could retrofit the current application as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with StreamWriter / StreamReader *****\n"</span>);
+
+    <span class="rem">// Get a StreamWriter and write string data.</span>
+    <span class="kwrd">using</span>(StreamWriter writer = <span class="kwrd">new</span> StreamWriter(<span class="str">"reminders.txt"</span>))
+    {
+        ...
+    }
+
+    <span class="rem">// Now read data from file.</span>
+    <span class="kwrd">using</span>(StreamReader sr = <span class="kwrd">new</span> StreamReader(<span class="str">"reminders.txt"</span>))
+    {
+        ...
+    }
+}</pre>
+<p>Although it can be a bit confusing to see so many seemingly identical approaches to file I/O, keep in
+mind that the end result is greater flexibility. In any case, you are now ready to examine the role of the
+StringWriter and StringReader classes, given that you have seen how to move character data to and
+from a given file using the StreamWriter and StreamReader types.</p>
+     <p><b>Source Code</b> You can find the StreamWriterReaderApp project under the Chapter 20 subdirectory.</p>
+    </body>
+    </html>
+      
+   

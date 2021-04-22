@@ -1,0 +1,72 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Working with the DriveInfo Class Type</h1>
+    <p>The System.IO namespace provides a class named DriveInfo. Like Directory.GetLogicalDrives(), the
+static DriveInfo.GetDrives() method allows you to discover the names of a machine’s drives. Unlike
+Directory.GetLogicalDrives(), however, DriveInfo provides numerous other details (e.g., the drive
+type, available free space, and volume label). Consider the following Program class defined within a new
+Console Application named DriveInfoApp (don’t forget to import System.IO):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Fun with DriveInfo *****\n"</span>);
+
+        <span class="rem">// Get info regarding all drives.</span>
+        DriveInfo[] myDrives = DriveInfo.GetDrives();
+
+        <span class="rem">// Now print drive stats.</span>
+        <span class="kwrd">foreach</span>(DriveInfo d <span class="kwrd">in</span> myDrives)
+        {
+            Console.WriteLine(<span class="str">"Name: {0}"</span>, d.Name);
+            Console.WriteLine(<span class="str">"Type: {0}"</span>, d.DriveType);
+        
+            <span class="rem">// Check to see whether the drive is mounted.</span>
+            <span class="kwrd">if</span>(d.IsReady)
+            {
+                Console.WriteLine(<span class="str">"Free space: {0}"</span>, d.TotalFreeSpace);
+                Console.WriteLine(<span class="str">"Format: {0}"</span>, d.DriveFormat);
+                Console.WriteLine(<span class="str">"Label: {0}"</span>, d.VolumeLabel);
+                Console.WriteLine();
+            }
+        }
+        Console.ReadLine();
+    }
+}</pre>
+<p>Here is some possible output:</p>
+<pre class="csharpcode">
+***** Fun with DriveInfo *****
+
+Name: C:\
+Type: Fixed
+Free space: 587376394240
+Format: NTFS
+Label: Mongo Drive
+
+Name: D:\
+Type: CDRom
+Name: E:\
+Type: CDRom
+Name: F:\
+Type: CDRom
+Name: H:\
+Type: Fixed
+Free space: 477467508736
+Format: FAT32
+Label: My Passport</pre>
+<p>At this point, you have investigated some core behaviors of the Directory, DirectoryInfo, and
+DriveInfo classes. Next, you’ll learn how to create, open, close, and destroy the files that populate a
+given directory.</p>
+<p><b>Source Code</b> You can find the DriveInfoApp project under the Chapter 20 subdirectory.</p>
+    </body></html>
+      
+   

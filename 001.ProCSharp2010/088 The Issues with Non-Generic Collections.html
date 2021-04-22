@@ -1,0 +1,579 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>The Issues with Non-Generic Collections</h1>
+<p>When the .NET platform was first released, programmers frequently used the System.Collections
+namespace of mscorlib.dll. Here, developers were provided with a set of classes that allowed them to
+manage and organize large amounts of data. Table 10-1 documents some of the more commonly used
+collection classes, and the core interfaces they implement.</p>
+<p><b>Table 10-1. </b>Commonly used Classes of System.Collections</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    System.Collections Class
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+   <th>
+    Key Implemented Interfaces
+   </th>
+  </tr>
+  <tr>
+   <td>
+    ArrayList
+   </td>
+   <td>
+    Represents a dynamically sized
+collection of objects listed in
+sequential order.
+   </td>
+   <td>
+    IList, ICollection,
+IEnumerable, and ICloneable
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Hashtable
+   </td>
+   <td>
+    Represents a collection of key/value
+pairs that are organized based on
+the hash code of the key.
+   </td>
+   <td>
+    IDictionary, ICollection,
+IEnumerable, and ICloneable
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Queue
+   </td>
+   <td>
+    Represents a standard first-in, firstout
+(FIFO) queue.
+   </td>
+   <td>
+    ICollection, IEnumerable,
+and ICloneable
+   </td>
+  </tr>
+  <tr>
+   <td>
+    SortedList
+   </td>
+   <td>
+    Represents a collection of key/value
+pairs that are sorted by the keys and
+are accessible by key and by index.
+   </td>
+   <td>
+    IDictionary, ICollection,
+IEnumerable, and ICloneable
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Stack
+   </td>
+   <td>
+    A last-in, first-out (LIFO) stack
+providing push and pop (and peek)
+functionality.
+   </td>
+   <td>
+    ICollection, IEnumerable,
+and ICloneable
+   </td>
+  </tr>
+</table>
+<p>The interfaces implemented by these classic collection classes provide huge insights into their
+overall functionality. Table 10-2 documents the overall nature of these key interfaces, some of which
+you worked with first-hand in Chapter 9.</p>
+<p><b>Table 10-2. </b>Key Interfaces Supported by Classes of System.Collections</p>
+<table class="gridtable">
+   <tr>
+   <th>
+    System.Collections Interface
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    ICollection
+   </td>
+   <td>
+    Defines general characteristics (e.g., size, enumeration, and
+thread safety) for all non-generic collection types.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ICloneable
+   </td>
+   <td>
+    Allows the implementing object to return a copy of itself to the caller.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IDictionary
+   </td>
+   <td>
+    Allows a non-generic collection object to represent its contents
+using key/value pairs.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IEnumerable
+   </td>
+   <td>
+    Returns an object implementing the IEnumerator interface (see
+next table entry).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IEnumerator
+   </td>
+   <td>
+    Enables foreach style iteration of collection items.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IList
+   </td>
+   <td>
+    Provides behavior to add, remove, and index items in a
+sequential list of objects.
+   </td>
+  </tr>
+</table>
+<p>In addition to these core classes (and interfaces), the System.Collections.Specialized namespace
+of System.dll added a few (pardon the redundancy) specialized collection types such as BitVector32,
+ListDictionary, StringDictionary, and StringCollection. This namespace also contains many
+additional interfaces and abstract base classes that you can use as a starting point for creating custom
+collection classes.</p>
+<p>While it is true that many successful .NET applications have been built over the years using these
+"classic" collection classes (and interfaces), history has shown that use of these types can result in a
+number of issues.</p>
+<p>The first issue is that using the System.Collections and System.Collections.Specialized classes
+can result in some poorly performing code, especially when you are manipulating data structures (e.g.,
+value types). As you’ll see momentarily, the CLR must perform a number of memory transfer operations
+when you store structures in a classic collection class, which can hurt runtime execution speed.</p>
+<p>The second issue is that these classic collection classes are not type safe because they were (by-andlarge)
+developed to operate on System.Objects, and they could therefore contain anything at all. If a
+.NET developer needed to create a highly type safe collection (e.g., a container that can only hold objects
+implementing a certain interface), the only real choice was to create a brand new collection class by
+hand. Doing so was not too labor intensive, but it was a tad bit on the tedious side.</p>
+<p>Given these (and other) issues, .NET 2.0 introduced a brand new set of collection classes, which are
+packaged up in the System.Collections.Generic namespace. Any new project created with .NET 2.0 and
+higher should ignore the legacy, non-generic classes in favor of the corresponding generic classes.</p>
+<p><b>Note </b>This is worth repeating: Any .NET application built with .NET 2.0 or higher should ignore the classes in
+System.Collections in favor of the classes in System.Collections.Generic.</p>
+<p>Before you look at how to use generics in your programs, you’ll find it helpful to examine the issues
+of non-generic collection classes a bit closer; this will help you understand better the problems generics
+intend to solve in the first place. If you wish to follow along, create a new Console Application named
+IssuesWithNon-genericCollections. Next, import the System.Collections namespace to the top of your
+C# code file:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System.Collections;</pre>
+<h2>The Issue of Performance</h2>
+<p>As you might recall from Chapter 4, the .NET platform supports two broad categories of data: value types
+and reference types. Given that .NET defines two major categories of types, you might occasionally need
+to represent a variable of one category as a variable of the other category. To do so, C# provides a simple
+mechanism, termed boxing, to store the data in a value type within a reference variable. Assume that you
+have created a local variable of type int in a method called SimpleBoxUnboxOperation():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> SimpleBoxUnboxOperation()
+{
+    <span class="rem">// Make a ValueType (int) variable.</span>
+    <span class="kwrd">int</span> myInt = 25;
+}</pre>
+<p>If, during the course of your application, you were to represent this value type as a reference type,
+you would box the value, as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> SimpleBoxUnboxOperation()
+{
+    <span class="rem">// Make a ValueType (int) variable.</span>
+    <span class="kwrd">int</span> myInt = 25;
+
+    <span class="rem">// Box the int into an object reference.</span>
+    <span class="kwrd">object</span> boxedInt = myInt;
+}</pre>
+<p>Boxing can be formally defined as the process of explicitly assigning a value type to a System.Object
+variable. When you box a value, the CLR allocates a new object on the heap and copies the value type’s
+value (25, in this case) into that instance. What is returned to you is a reference to the newly allocated
+heap-based object. If you use this technique, you don’t need to use of a set of wrapper classes to treat
+stack data temporarily as heap-allocated objects.</p>
+<p>The opposite operation is also permitted through unboxing. Unboxing is the process of converting
+the value held in the object reference back into a corresponding value type on the stack. Syntactically
+speaking, an unboxing operation looks like a normal casting operation. However, the semantics are
+quite different. The CLR begins by verifying that the receiving data type is equivalent to the boxed type;
+and if so, it copies the value back into a local stack-based variable. For example, the following unboxing
+operations work successfully, given that the underlying type of the boxedInt is indeed an int:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> SimpleBoxUnboxOperation()
+{
+    <span class="rem">// Make a ValueType (int) variable.</span>
+    <span class="kwrd">int</span> myInt = 25;
+
+    <span class="rem">// Box the int into an object reference.</span>
+    <span class="kwrd">object</span> boxedInt = myInt;
+
+    <span class="rem">// Unbox the reference back into a corresponding int.</span>
+    <span class="kwrd">int</span> unboxedInt = (<span class="kwrd">int</span>)boxedInt;
+}</pre>
+<p>When the C# compiler encounters boxing/unboxing syntax, it emits CIL code that contains the
+box/unbox op codes. If you were to examine your compiled assembly using ildasm.exe, you would find
+the following:</p>
+<pre class="csharpcode">
+.method private hidebysig static void SimpleBoxUnboxOperation() cil managed
+{
+ // Code size 19 (0x13)
+ .maxstack 1
+ .locals init ([0] int32 myInt, [1] object boxedInt, [2] int32 unboxedInt)
+ IL_0000: nop
+ IL_0001: ldc.i4.s 25
+ IL_0003: stloc.0
+ IL_0004: ldloc.0
+ IL_0005: box [mscorlib]System.Int32
+ IL_000a: stloc.1
+ IL_000b: ldloc.1
+ IL_000c: unbox.any [mscorlib]System.Int32
+ IL_0011: stloc.2
+ IL_0012: ret
+} // end of method Program::SimpleBoxUnboxOperation 
+</pre>
+<p>Remember that unlike when performing a typical cast, you must unbox into an appropriate data
+type. If you attempt to unbox a piece of data into the incorrect variable, an InvalidCastException
+exception will be thrown. To be perfectly safe, you should wrap each unboxing operation in try/catch
+logic; however, this would be quite labor intensive to do for every unboxing operation. Consider the
+following code update, which will throw an error because you’re attempting to unbox the boxed int into
+a long:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> SimpleBoxUnboxOperation()
+{
+    <span class="rem">// Make a ValueType (int) variable.</span>
+    <span class="kwrd">int</span> myInt = 25;
+
+        <span class="rem">// Box the int into an object reference.</span>
+    <span class="kwrd">object</span> boxedInt = myInt;
+
+    <span class="rem">// Unbox in the wrong data type to trigger</span>
+    <span class="rem">// runtime exception.</span>
+    <span class="kwrd">try</span>
+    {
+        <span class="kwrd">long</span> unboxedInt = (<span class="kwrd">long</span>)boxedInt;
+    }
+    <span class="kwrd">catch</span> (InvalidCastException ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+}</pre>
+<p>At first glance, boxing/unboxing might seem like a rather uneventful language feature that is more
+academic than practical. After all, You will seldom store a local value type in a local object variable, as
+seen here. However, it turns out that the boxing/unboxing process is quite helpful because it allows you
+to assume everything can be treated as a System.Object, while the CLR takes care of the memory-related
+details on your behalf.</p>
+<p>Let’s look at a practical use of these techniques. Assume you have created a non-generic
+System.Collections.ArrayList to hold onto a batch of numeric (stack-allocated) data. If you were to
+examine the members of ArrayList, you would find they are prototyped to operate on System.Object
+data. Now consider the Add(), Insert(), Remove() methods, as well as the class indexer:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> ArrayList : <span class="kwrd">object</span>,
+    IList, ICollection, IEnumerable, ICloneable
+{
+...
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> <span class="kwrd">int</span> Add(<span class="kwrd">object</span> value);
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> <span class="kwrd">void</span> Insert(<span class="kwrd">int</span> index, <span class="kwrd">object</span> value);
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> <span class="kwrd">void</span> Remove(<span class="kwrd">object</span> obj);
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> <span class="kwrd">object</span> <span class="kwrd">this</span>[<span class="kwrd">int</span> index] {<span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+}</pre>
+<p>ArrayList has been built to operate on objects, which represent data allocated on the heap, so it
+might seem strange that the following code compiles and executes without throwing an error:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> WorkWithArrayList()
+{
+    <span class="rem">// Value types are automatically boxed when</span>
+    <span class="rem">// passed to a method requesting an object.</span>
+    ArrayList myInts = <span class="kwrd">new</span> ArrayList();
+    myInts.Add(10);
+    myInts.Add(20);
+    myInts.Add(35);
+    Console.ReadLine();
+}</pre>
+<p>Although you pass in numerical data directly into methods requiring an object, the runtime
+automatically boxes the stack-based data on your behalf.</p>
+<p>Later, if you wish to retrieve an item from the ArrayList using the type indexer, you must unbox the
+heap-allocated object into a stack-allocated integer using a casting operation. Remember that the
+indexer of the ArrayList is returning System.Objects, not System.Int32s:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> WorkWithArrayList()
+{
+    <span class="rem">// Value types are automatically boxed when</span>
+    <span class="rem">// passed to a member requesting an object.</span>
+    ArrayList myInts = <span class="kwrd">new</span> ArrayList();
+    myInts.Add(10);
+    myInts.Add(20);
+    myInts.Add(35);
+
+    <span class="rem">// Unboxing occures when a object is converted back to</span>
+    <span class="rem">// stack based data.</span>
+    <span class="kwrd">int</span> i = (<span class="kwrd">int</span>)myInts[0];
+
+    <span class="rem">// Now it is reboxed, as WriteLine() requires object types!</span>
+    Console.WriteLine(<span class="str">"Value of your int: {0}"</span>, i);
+    Console.ReadLine();
+}
+</pre>
+<p>Again, note that the stack-allocated System.Int32 is boxed prior to the call to ArrayList.Add() so it
+can be passed in the required System.Object. Also note that the System.Object is unboxed back into a
+System.Int32 once it is retrieved from the ArrayList using the type indexer, only to be boxed again when
+it is passed to the Console.WriteLine() method, as this method is operating on System.Object variables.</p>
+<p>Boxing and unboxing are convenient from a programmer’s point of view, but this simplified
+approach to stack/heap memory transfer comes with the baggage of performance issues (in both speed
+of execution and code size) and a lack of type safety. To understand the performance issues, ponder the
+steps that must occur to box and unbox a simple integer:</p>
+<ol>
+ <li>
+  A new object must be allocated on the managed heap.
+ </li>
+ <li>
+  The value of the stack-based data must be transferred into that memory location.
+ </li>
+ <li>
+  When unboxed, the value stored on the heap-based object must be transferred back to the stack.
+ </li>
+ <li>
+  The now unused object on the heap will (eventually) be garbage collected.
+ </li>
+</ol>
+<p>Although this particular WorkWithArrayList() method won’t cause a major bottleneck in terms of
+performance, you could certainly feel the impact if an ArrayList contained thousands of integers that
+your program manipulates on a somewhat regular basis. In an ideal world, you could manipulate stackbased
+data in a container without any performance issues. Ideally, it would be nice if you did not have to
+have to bother plucking data from this container using try/catch scopes (this is exactly what generics let
+you achieve).</p>
+<h2>The Issue of Type Safety</h2>
+<p>You touched on the issue of type safety when you looked at unboxing operations. Recall that you must
+unbox your data into the same data type it was declared as before boxing. However, there is another
+aspect of type safety you must keep in mind in a generic-free world: the fact that a majority of the classes
+of System.Collections can typically hold anything whatsoever because their members are prototyped to
+operate on System.Objects. For example, this method builds an ArrayList of random bits of unrelated
+data:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ArrayListOfRandomObjects()
+{
+    <span class="rem">// The ArrayList can hold anything at all.</span>
+    ArrayList allMyObjects = <span class="kwrd">new</span> ArrayList();
+    allMyObjects.Add(<span class="kwrd">true</span>);
+    allMyObjects.Add(<span class="kwrd">new</span> OperatingSystem(PlatformID.MacOSX, <span class="kwrd">new</span> Version(10, 0)));
+    allMyObjects.Add(66);
+    allMyObjects.Add(3.14);
+}</pre>
+<p>In some cases, you will require an extremely flexible container that can hold literally anything (as
+seen here). However, most of the time you desire a type-safe container that can only operate on a
+particular type of data point. For example, you might need a container that can only hold database
+connections, bitmaps, or IPointy-compatible objects.</p>
+<p>Prior to generics, the only way you could address this issue of type safety was to create a custom
+(strongly typed) collection class manually. Assume you wish to create a custom collection that can only
+contain objects of type Person:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> Person
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Age {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+    <span class="kwrd">public</span> <span class="kwrd">string</span> FirstName {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+    <span class="kwrd">public</span> <span class="kwrd">string</span> LastName {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+    <span class="kwrd">public</span> Person(){}
+    <span class="kwrd">public</span> Person(<span class="kwrd">string</span> firstName, <span class="kwrd">string</span> lastName, <span class="kwrd">int</span> age)
+    {
+        Age = age;
+        FirstName = firstName;
+        LastName = lastName;
+    }
+    
+    <span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">string</span> ToString()
+    {
+        <span class="kwrd">return</span> <span class="kwrd">string</span>.Format(<span class="str">"Name: {0} {1}, Age: {2}"</span>,
+            FirstName, LastName, Age);
+    }
+}</pre>
+<p>To build a person only collection, you could define a System.Collections.ArrayList member
+variable within a class named PersonCollection and configure all members to operate on strongly typed
+Person objects, rather than on System.Object types. Here is a simple example (a production-level custom
+collection could support many additional members and might extend an abstract base class from the
+System.Collections namespace):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> PersonCollection : IEnumerable
+{
+    <span class="kwrd">private</span> ArrayList arPeople = <span class="kwrd">new</span> ArrayList();
+
+    <span class="rem">// Cast for caller.</span>
+    <span class="kwrd">public</span> Person GetPerson(<span class="kwrd">int</span> pos)
+    { <span class="kwrd">return</span> (Person)arPeople[pos]; }
+
+    <span class="rem">// Only insert Person objects.</span>
+    <span class="kwrd">public</span> <span class="kwrd">void</span> AddPerson(Person p)
+    { arPeople.Add(p); }
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> ClearPeople()
+    { arPeople.Clear(); }
+
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Count
+    { <span class="kwrd">get</span> { <span class="kwrd">return</span> arPeople.Count; } }
+    
+    <span class="rem">// Foreach enumeration support.</span>
+    IEnumerator IEnumerable.GetEnumerator()
+    { <span class="kwrd">return</span> arPeople.GetEnumerator(); }
+}</pre>
+<p>Notice that the PersonCollection class implements the IEnumerable interface, which allows a
+foreach-like iteration over each contained item. Also notice that your GetPerson() and AddPerson()
+methods have been prototyped to operate only on Person objects, not bitmaps, strings, database
+connections, or other items. With these types defined, you are now assured of type safety, given that the
+C# compiler will be able to determine any attempt to insert an incompatible data type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> UsePersonCollection()
+{
+    Console.WriteLine(<span class="str">"***** Custom Person Collection *****\n"</span>);
+    PersonCollection myPeople = <span class="kwrd">new</span> PersonCollection();
+    myPeople.AddPerson(<span class="kwrd">new</span> Person(<span class="str">"Homer"</span>, <span class="str">"Simpson"</span>, 40));
+    myPeople.AddPerson(<span class="kwrd">new</span> Person(<span class="str">"Marge"</span>, <span class="str">"Simpson"</span>, 38));
+    myPeople.AddPerson(<span class="kwrd">new</span> Person(<span class="str">"Lisa"</span>, <span class="str">"Simpson"</span>, 9));
+    myPeople.AddPerson(<span class="kwrd">new</span> Person(<span class="str">"Bart"</span>, <span class="str">"Simpson"</span>, 7));
+    myPeople.AddPerson(<span class="kwrd">new</span> Person(<span class="str">"Maggie"</span>, <span class="str">"Simpson"</span>, 2));
+    
+    <span class="rem">// This would be a compile-time error!</span>
+    <span class="rem">// myPeople.AddPerson(new Car());</span>
+    
+    <span class="kwrd">foreach</span> (Person p <span class="kwrd">in</span> myPeople)
+        Console.WriteLine(p);
+}</pre>
+<p>While custom collections do ensure type safety, this approach leaves you in a position where you
+must create an (almost identical) custom collection for each unique data type you wish to contain. Thus,
+if you need a custom collection that can operate only on classes deriving from the Car base class, you
+need to build a highly similar collection class:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> CarCollection : IEnumerable
+{
+    <span class="kwrd">private</span> ArrayList arCars = <span class="kwrd">new</span> ArrayList();
+
+    <span class="rem">// Cast for caller.</span>
+    <span class="kwrd">public</span> Car GetCar(<span class="kwrd">int</span> pos)
+    { <span class="kwrd">return</span> (Car) arCars[pos]; }
+
+    <span class="rem">// Only insert Car objects.</span>
+    <span class="kwrd">public</span> <span class="kwrd">void</span> AddCar(Car c)
+    { arCars.Add(c); }
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> ClearCars()
+    { arCars.Clear(); }
+
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Count
+    { <span class="kwrd">get</span> { <span class="kwrd">return</span> arCars.Count; } }
+
+    <span class="rem">// Foreach enumeration support.</span>
+    IEnumerator IEnumerable.GetEnumerator()
+    { <span class="kwrd">return</span> arCars.GetEnumerator(); }
+}</pre>
+<p>However, a custom collection class does nothing to solve the issue of boxing/unboxing penalties.
+Even if you were to create a custom collection named IntCollection that you designed to operate only
+on System.Int32 items, you would have to allocate some type of object to hold the data (e.g.,
+System.Array and ArrayList):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> IntCollection : IEnumerable
+{
+    <span class="kwrd">private</span> ArrayList arInts = <span class="kwrd">new</span> ArrayList();
+
+    <span class="rem">// Unbox for caller.</span>
+    <span class="kwrd">public</span> <span class="kwrd">int</span> GetInt(<span class="kwrd">int</span> pos)
+    { <span class="kwrd">return</span> (<span class="kwrd">int</span>)arInts[pos]; }
+
+    <span class="rem">// Boxing operation!</span>
+    <span class="kwrd">public</span> <span class="kwrd">void</span> AddInt(<span class="kwrd">int</span> i)
+    { arInts.Add(i); }
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> ClearInts()
+    { arInts.Clear(); }
+
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Count
+    { <span class="kwrd">get</span> { <span class="kwrd">return</span> arInts.Count; } }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    { <span class="kwrd">return</span> arInts.GetEnumerator(); }
+}</pre>
+<p>Regardless of which type you might choose to hold the integers, you cannot escape the boxing
+dilemma using non-generic containers.</p>
+<p>When you use generic collection classes, you rectify all of the previous issues, including
+boxing/unboxing penalties and a lack of type safety. Also, the need to build a custom (generic) collection
+class manually becomes quite rare. Rather than having to build unique classes that can contain people,
+cars, and integers, you can use a generic collection class and specify the type of type. Consider the
+following method, which uses a generic List&lt;&gt; class (in the System.Collections.Generic namespace) to
+contain various types of data in a strongly typed manner (don’t fret the details of generic syntax at this
+time):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> UseGenericList()
+{
+    Console.WriteLine(<span class="str">"***** Fun with Generics *****\n"</span>);
+
+    <span class="rem">// This List&lt;&gt; can only hold Person objects.</span>
+    List&lt;Person&gt; morePeople = <span class="kwrd">new</span> List&lt;Person&gt;();
+    morePeople.Add(<span class="kwrd">new</span> Person (<span class="str">"Frank"</span>, <span class="str">"Black"</span>, 50));
+    Console.WriteLine(morePeople[0]);
+
+    <span class="rem">// This List&lt;&gt; can only hold integers.</span>
+    List&lt;<span class="kwrd">int</span>&gt; moreInts = <span class="kwrd">new</span> List&lt;<span class="kwrd">int</span>&gt;();
+    moreInts.Add(10);
+    moreInts.Add(2);
+    <span class="kwrd">int</span> sum = moreInts[0] + moreInts[1];
+
+    <span class="rem">// Compile-time error! Can't add Person object</span>
+    <span class="rem">// to a list of ints!</span>
+    <span class="rem">// moreInts.Add(new Person());</span>
+}</pre>
+<p>The first List&lt;&gt; object can only contain Person objects. Therefore, you do not need to perform a cast
+when plucking the items from the container, which makes this approach more type safe. The second
+List&lt;&gt; can only contain integers, all of which are allocated on the stack; in other words, there is no
+hidden boxing or unboxing as you found with the non-generic ArrayList.</p>
+<p>Here is a short list of the benefits generic containers provide over their non-generic counterparts:</p>
+<ul>
+ <li>Generics provide better performance because they do not result in boxing or
+unboxing penalties.
+ </li>
+ <li>Generics are more type safe because they can only contain the type of type you
+specify.
+ </li>
+ <li>Generics greatly reduce the need to build custom collection types because the
+base class library provides several prefabricated containers.
+ </li>
+</ul>
+    <p><b>Source Code</b> You can find the IssuesWithNonGenericCollections project under the Chapter 10
+directory.</p>
+    </body></html>

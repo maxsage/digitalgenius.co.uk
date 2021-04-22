@@ -1,0 +1,378 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Understanding the Connected Layer of ADO.NET</h1>
+    <p>Recall that the connected layer of ADO.NET allows you to interact with a database using the connection,
+command, and data reader objects of your data provider. You have already used these objects in the
+previous DataProviderFactory application, now you’ll walk through the process again, this time using an
+expanded example. You need to perform the following steps when you wish to connect to a database
+and read the records using a data reader object:</p>
+<ol>
+ <li>Allocate, configure, and open your connection object.</li>
+ <li>Allocate and configure a command object, specifying the connection object as
+a constructor argument or with the Connection property.</li>
+ <li>Call ExecuteReader() on the configured command class.</li>
+ <li>Process each record using the Read() method of the data reader.</li>
+</ol>
+<p>To get the ball rolling, create a new Console Application named AutoLotDataReader and import the
+System.Data and System.Data.SqlClient namespaces. Here is the complete code within Main(); an
+analysis will follow:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Fun with Data Readers *****\n"</span>);
+
+        <span class="rem">// Create an open a connection.</span>
+        <span class="kwrd">using</span>(SqlConnection cn = <span class="kwrd">new</span> SqlConnection())
+        {
+            cn.ConnectionString =
+                <span class="str">@"Data Source=(local)\SQLEXPRESS;Integrated Security=SSPI;"</span> +
+                    <span class="str">"Initial Catalog=AutoLot"</span>;
+            cn.Open();
+
+            <span class="rem">// Create a SQL command object.</span>
+            <span class="kwrd">string</span> strSQL = <span class="str">"Select * From Inventory"</span>;
+            SqlCommand myCommand = <span class="kwrd">new</span> SqlCommand(strSQL, cn);
+
+            <span class="rem">// Obtain a data reader a la ExecuteReader().</span>
+            <span class="kwrd">using</span>(SqlDataReader myDataReader = myCommand.ExecuteReader())
+            {
+                <span class="rem">// Loop over the results.</span>
+                while (myDataReader.Read())
+                {
+                    Console.WriteLine(<span class="str">"-&gt; Make: {0}, PetName: {1}, Color: {2}."</span>,
+                        myDataReader[<span class="str">"Make"</span>].ToString(),
+                        myDataReader[<span class="str">"PetName"</span>].ToString(),
+                        myDataReader[<span class="str">"Color"</span>].ToString());
+                }
+            }
+        }
+        Console.ReadLine();
+    }
+}</pre>
+<h2>Working with Connection Objects</h2>
+<p>The first step to take when working with a data provider is to establish a session with the data source
+using the connection object (which, as you recall, derives from DbConnection). .NET connection objects
+are provided with a formatted connection string; this string contains a number of name/value pairs,
+separated by semicolons. You use this information to identify the name of the machine you wish to
+connect to, required security settings, the name of the database on that machine, and other data
+provider–specific information.</p>
+<p>As you can infer from the preceding code, the Initial Catalog name refers to the database you
+want to establish a session with. The Data Source name identifies the name of the machine that
+maintains the database. Here, (local) allows you to define a single token to specify the current local
+machine (regardless of the literal name of said machine), while the \SQLEXPRESS token informs the SQL
+server provider that you are connecting to the default SQL Server Express edition installation (if you
+created AutoLot on a full version of Microsoft SQL Server on your local computer, specify Data
+Source=(local)).</p>
+<p>Beyond this, you can supply any number of tokens that represent security credentials. Here, you set
+the Integrated Security to SSPI (equivalent to true), which uses the current Windows account
+credentials for user authentication.</p>
+<p><b>Note</b> Look up the ConnectionString property of your data provider’s connection object in the .NET
+Framework 4.0 SDK documentation to learn more about each name/value pair for your specific DBMS.</p>
+<p>Once you establish your construction string, you can use a call to Open() to establish a connection
+with the DBMS. In addition to the ConnectionString, Open(), and Close() members, a connection object
+provides a number of members that let you configure additional settings regarding your connection,
+such as timeout settings and transactional information. Table 21-5 lists some (but not all) members of
+the DbConnection base class.</p>
+<p><b>Table 21-5.</b> Members of the DbConnection Type</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Member
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    BeginTransaction()
+   </td>
+   <td>
+    You use this method to begin a database transaction.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ChangeDatabase()
+   </td>
+   <td>
+    You use this method to change the database on an open connection.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ConnectionTimeout
+   </td>
+   <td>
+    This read-only property returns the amount of time to wait while
+establishing a connection before terminating and generating an error
+(the default value is 15 seconds). If you wish to change the default,
+specify a Connect Timeout segment in the connection string (e.g.,
+Connect Timeout=30).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Database
+   </td>
+   <td>
+    This read-only property gets the name of the database maintained by
+the connection object.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DataSource
+   </td>
+   <td>
+    This read-only property gets the location of the database maintained
+by the connection object.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    GetSchema()
+   </td>
+   <td>
+    This method returns a DataTable object that contains schema
+information from the data source.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    State
+   </td>
+   <td>
+    This read-only property gets the current state of the connection, which
+is represented by the ConnectionState enumeration.
+   </td>
+  </tr>
+</table>
+<p>The properties of the DbConnection type are typically read-only in nature and are only useful when
+you wish to obtain the characteristics of a connection at runtime. When you wish to override default
+settings, you must alter the construction string itself. For example, the connection string sets the
+connection timeout setting from 15 seconds to 30 seconds:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Data Readers *****\n"</span>);
+
+    <span class="kwrd">using</span>(SqlConnection cn = <span class="kwrd">new</span> SqlConnection())
+    {
+        cn.ConnectionString =
+            <span class="str">@"Data Source=(local)\SQLEXPRESS;"</span> +
+            <span class="str">"Integrated Security=SSPI;Initial Catalog=AutoLot;Connect Timeout=30"</span>;
+        cn.Open();
+
+        <span class="rem">// New helper function (see below).</span>
+        ShowConnectionStatus(cn);
+    ...
+}</pre>
+<p>In the preceding code, you pass your connection object as a parameter to a new static helper
+method in the Program class named ShowConnectionStatus(), which you implement as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ShowConnectionStatus(SqlConnection cn)
+{
+    <span class="rem">// Show various stats about current connection object.</span>
+    Console.WriteLine(<span class="str">"***** Info about your connection *****"</span>);
+    Console.WriteLine(<span class="str">"Database location: {0}"</span>, cn.DataSource);
+    Console.WriteLine(<span class="str">"Database name: {0}"</span>, cn.Database);
+    Console.WriteLine(<span class="str">"Timeout: {0}"</span>, cn.ConnectionTimeout);
+    Console.WriteLine(<span class="str">"Connection state: {0}\n"</span>, cn.State.ToString());
+}</pre>
+<p>While most of these properties are self-explanatory, the State property is worth special mention.
+You can assign this property any value of the ConnectionState enumeration:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">enum</span> ConnectionState
+{
+    Broken, Closed,
+    Connecting, Executing,
+    Fetching, Open
+}</pre>
+<p>However, the only valid ConnectionState values are ConnectionState.Open and
+ConnectionState.Closed (the remaining members of this enum are reserved for future use). Also, it is
+always safe to close a connection where connection state is currently ConnectionState.Closed.</p>
+<h2>Working with ConnectionStringBuilder Objects</h2>
+<p>Working with connection strings programmatically can be cumbersome because they are often
+represented as string literals, which are difficult to maintain and error-prone at best. The Microsoftsupplied
+ADO.NET data providers support connection string builder objects, which allow you to establish
+the name/value pairs using strongly typed properties. Consider the following update to the current
+Main() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Data Readers *****\n"</span>);
+
+    <span class="rem">// Create a connection string via the builder object.</span>
+    SqlConnectionStringBuilder cnStrBuilder =
+        <span class="kwrd">new</span> SqlConnectionStringBuilder();
+    cnStrBuilder.InitialCatalog = <span class="str">"AutoLot"</span>;
+    cnStrBuilder.DataSource = <span class="str">@"(local)\SQLEXPRESS"</span>;
+    cnStrBuilder.ConnectTimeout = 30;
+    cnStrBuilder.IntegratedSecurity = <span class="kwrd">true</span>;
+
+    <span class="kwrd">using</span>(SqlConnection cn = <span class="kwrd">new</span> SqlConnection())
+    {
+        cn.ConnectionString = cnStrBuilder.ConnectionString;
+        cn.Open();
+
+        ShowConnectionStatus(cn);
+...
+    }
+    Console.ReadLine();
+}</pre>
+<p>In this iteration, you create an instance of SqlConnectionStringBuilder, set the properties
+accordingly, and obtain the internal string using the ConnectionString property. Also note that you use
+the default constructor of the type. If you so choose, you can also create an instance of your data
+provider’s connection string builder object by passing in an existing connection string as a starting point
+(this can be helpful when you read these values dynamically from an App.config file). Once you have
+hydrated the object with the initial string data, you can change specific name/value pairs using the
+related properties, as in this example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Data Readers *****\n"</span>);
+
+    <span class="rem">// Assume you really obtained the cnStr value from a *.config file.</span>
+    <span class="kwrd">string</span> cnStr = <span class="str">@"Data Source=(local)\SQLEXPRESS;"</span> +
+        <span class="str">"Integrated Security=SSPI;Initial Catalog=AutoLot"</span>;
+
+    SqlConnectionStringBuilder cnStrBuilder =
+        <span class="kwrd">new</span> SqlConnectionStringBuilder(cnStr);
+
+    <span class="rem">// Change timeout value.</span>
+    cnStrBuilder.ConnectTimeout = 5;
+...
+}</pre>
+<h2>Working with Command Objects</h2>
+<p>Now that you understand better the role of the connection object, the next order of business is to check
+out how to submit SQL queries to the database in question. The SqlCommand type (which derives from
+DbCommand) is an OO representation of a SQL query, table name, or stored procedure. You specify the type
+of command using the CommandType property, which can take any value from the CommandType enum:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">enum</span> CommandType
+{
+    StoredProcedure,
+    TableDirect,
+    Text <span class="rem">// Default value.</span>
+}</pre>
+<p>When you create a command object, you can establish the SQL query as a constructor parameter or
+directly by using the CommandText property. Also when you create a command object, you need to specify
+the connection you want to use. Again, you can do so as a constructor parameter or by using the
+Connection property. Consider this code snippet:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Create command object via ctor args.</span>
+<span class="kwrd">string</span> strSQL = <span class="str">"Select * From Inventory"</span>;
+SqlCommand myCommand = <span class="kwrd">new</span> SqlCommand(strSQL, cn);
+
+<span class="rem">// Create another command object via properties.</span>
+SqlCommand testCommand = <span class="kwrd">new</span> SqlCommand();
+testCommand.Connection = cn;
+testCommand.CommandText = strSQL;</pre>
+<p>Realize that at this point that you have not literally submitted the SQL query to the AutoLot
+database, but instead prepared the state of the command object for future use. Table 21-6 highlights
+some additional members of the DbCommand type.</p>
+<p><b>Table 21-6.</b> Members of the DbCommand Type</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Member
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Meaning in Life
+   </td>
+   <td>
+    Gets or sets the time to wait while executing the command before
+terminating the attempt and generating an error. The default is 30 seconds.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Connection
+   </td>
+   <td>
+    Gets or sets the DbConnection used by this instance of the DbCommand.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Parameters
+   </td>
+   <td>
+    Gets the collection of DbParameter objects used for a parameterized query.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Cancel()
+   </td>
+   <td>
+    Cancels the execution of a command.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ExecuteReader()
+   </td>
+   <td>
+    Executes a SQL query and returns the data provider’s DbDataReader object,
+which provides forward-only, read-only access for the result of the query.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ExecuteNonQuery()
+   </td>
+   <td>
+    Executes a SQL non-query (e.g., an insert, update, delete, or create table).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ExecuteScalar()
+   </td>
+   <td>
+    A lightweight version of the ExecuteReader() method that was designed
+specifically for singleton queries (e.g., obtaining a record count).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Prepare()
+   </td>
+   <td>
+    Creates a prepared (or compiled) version of the command on the data
+source. As you might know, a prepared query executes slightly faster and is
+useful when you wish to execute the same query multiple times (typically
+with different parameters each time).
+   </td>
+  </tr>
+ </table>
+    </body>
+    </html>
+
+      
+      
+   

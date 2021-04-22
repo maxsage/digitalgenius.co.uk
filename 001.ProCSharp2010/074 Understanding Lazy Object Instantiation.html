@@ -1,0 +1,189 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>DG</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="../master.css" />	
+</head>
+<body>
+<h1>Understanding Lazy Object Instantiation</h1>
+   <p><b>Note</b> This section assumes you are comfortable with the topics of .NET generics and .NET delegates. If that’s
+not the case, you may want to return to this section once you have completed Chapters 10 and 11.</p>
+<p>When you are creating classes, you may occasionally need to account for a particular member variable in
+code, which may never actually be needed, in that the object user may not call the method (or property)
+that makes use of it. Fair enough. However, this can be very problematic if the member variable in
+question requires a large amount of memory to be instantiated.</p>
+<p>For example, assume you are writing a class that encapsulates the operations of a digital music
+player. In addition to the expected methods, such as Play(), Pause(), and Stop(), you also want to
+provide the ability to return a collection of Song objects (via a class named AllTracks), which represents
+every single digital music file on the device.</p>
+<p>If you’d like to follow along, create a new Console Application named LazyObjectInstantiation, and
+define the following class types:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Represents a single song.</span>
+<span class="kwrd">class</span> Song
+{
+    <span class="kwrd">public</span> <span class="kwrd">string</span> Artist { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">string</span> TrackName { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">double</span> TrackLength { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+}
+
+<span class="rem">// Represents all songs on a player.</span>
+<span class="kwrd">class</span> AllTracks
+{
+    <span class="rem">// Our media player can have a maximum</span>
+    <span class="rem">// of 10,000 songs.</span>
+    <span class="kwrd">private</span> Song[] allSongs = <span class="kwrd">new</span> Song[10000];
+
+    <span class="kwrd">public</span> AllTracks()
+    {
+        <span class="rem">// Assume we fill up the array</span>
+        <span class="rem">// of Song objects here.</span>
+        Console.WriteLine(<span class="str">"Filling up the songs!"</span>);
+    }
+}
+
+<span class="rem">// The MediaPlayer has-a AllTracks object.</span>
+<span class="kwrd">class</span> MediaPlayer
+{
+    <span class="rem">// Assume these methods do something useful.</span>
+    <span class="kwrd">public</span> <span class="kwrd">void</span> Play() { <span class="rem">/* Play a song */</span> }
+    <span class="kwrd">public</span> <span class="kwrd">void</span> Pause() { <span class="rem">/* Pause the song */</span> }
+    <span class="kwrd">public</span> <span class="kwrd">void</span> Stop() { <span class="rem">/* Stop playback */</span> }
+    
+    <span class="kwrd">private</span> AllTracks allSongs = <span class="kwrd">new</span> AllTracks();
+    
+    <span class="kwrd">public</span> AllTracks GetAllTracks()
+    {
+        <span class="rem">// Return all of the songs.</span>
+        <span class="kwrd">return</span> allSongs;
+    }
+}</pre>
+    <p>The current implementation of MediaPlayer makes the assumption that the object user will want to
+obtain a list of songs via the GetAllTracks() method. Well, what if the object user does not need to
+obtain this list? No matter, the AllTracks member variable will create 10,000 Song objects in memory:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    <span class="rem">// This caller does not care about getting all songs,</span>
+    <span class="rem">// but indirectly created 10,000 objects!</span>
+    MediaPlayer myPlayer = <span class="kwrd">new</span> MediaPlayer();
+    myPlayer.Play();
+
+    Console.ReadLine();
+}</pre>
+<p>Clearly, you would rather not create 10,000 objects that nobody will use, as that will add a good deal
+of stress to the .NET garbage collector. While you could manually add some code to ensure the allSongs
+object is only created if used (perhaps using the factory method design pattern), there is an easier way.</p>
+<p>With the release of .NET 4.0, the base class libraries provide a very interesting generic class named
+Lazy&lt;&gt;, defined in the System namespace of mscorlib.dll. This class allows you to define data that will
+not be created unless your code base actually makes use of it. As this is a generic class, you must specify
+the type of item to be created on first use, which can be any type with the .NET base class libraries or a
+custom type you have authored yourself. To enable lazy instantiation of the AllTracks member variable,
+you can simply replace this:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// The MediaPlayer has-a AllTracks object.</span>
+<span class="kwrd">class</span> MediaPlayer
+{
+...
+    <span class="kwrd">private</span> AllTracks allSongs = <span class="kwrd">new</span> AllTracks();
+
+    <span class="kwrd">public</span> AllTracks GetAllTracks()
+    {
+        <span class="rem">// Return all of the songs.</span>
+        <span class="kwrd">return</span> allSongs;
+    }
+}</pre>
+<p>with this:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// The MediaPlayer has-a Lazy&lt;AllTracks&gt; object.</span>
+<span class="kwrd">class</span> MediaPlayer
+{
+...
+    <span class="kwrd">private</span> Lazy&lt;AllTracks&gt; allSongs = <span class="kwrd">new</span> Lazy&lt;AllTracks&gt;();
+
+    <span class="kwrd">public</span> AllTracks GetAllTracks()
+    {
+        <span class="rem">// Return all of the songs.</span>
+        <span class="kwrd">return</span> allSongs.Value;
+    }
+}</pre>
+<p>Beyond the fact that we are now representing the AllTracks member variable as a Lazy&lt;&gt; type,
+notice that the implementation of the previous GetAllTracks() method has also been updated.
+Specifically, we must make use of the read-only Value property of the Lazy&lt;&gt; class to obtain the actual
+stored data (in this case, the AllTracks object that is maintaining the 10,000 Song objects).</p>
+<p>With this simple update, notice how the following updated Main() method will indirectly allocate
+the Song objects only if GetAllTracks() is indeed called:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Lazy Instantiation *****\n"</span>);
+
+    <span class="rem">// No allocation of AllTracks object here!</span>
+    MediaPlayer myPlayer = <span class="kwrd">new</span> MediaPlayer();
+    myPlayer.Play();
+    
+    <span class="rem">// Allocation of AllTracks happens when you call GetAllTracks().</span>
+    MediaPlayer yourPlayer = <span class="kwrd">new</span> MediaPlayer();
+    AllTracks yourMusic = yourPlayer.GetAllTracks();
+
+    Console.ReadLine();
+}</pre>
+<h2>Customizing the Creation of the Lazy Data</h2>
+<p>When you declare a Lazy&lt;&gt; variable, the actual internal data type is created using the default
+constructor:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Default constructor of AllTracks is called when the Lazy&lt;&gt;</span>
+<span class="rem">// variable is used.</span>
+<span class="kwrd">private</span> Lazy&lt;AllTracks&gt; allSongs = <span class="kwrd">new</span> Lazy&lt;AllTracks&gt;();</pre>
+<p>While this might be fine in some cases, what if the AllTracks class had some additional
+constructors, and you want to ensure the correct one is called? Furthermore, what if you have some extra
+work do to (beyond simply creating the AllTracks object) when the Lazy&lt;&gt; variable is made? As luck
+would have it, the Lazy&lt;&gt; class allows you to specify a generic delegate as an optional parameter, which
+will specify a method to call during the creation of the wrapped type.</p>
+<p>The generic delegate in question is of type System.Func&lt;&gt;, which can point to a method that returns
+the same data type being created by the related Lazy&lt;&gt; variable and can take up to 16 arguments (which
+are typed using generic type parameters). In most cases, you will not need to specify any parameters to
+pass to the method pointed to by Func&lt;&gt;. Furthermore, to greatly simplify the use of the required Func&lt;&gt;,
+I’d recommend using a lambda expression (see Chapter 11 for details regarding the delegate/lambda
+relationship).</p>
+<p>With this in mind, here is a final version of MediaPlayer that adds a bit of custom code when the
+wrapped AllTracks object is created. Remember, this method must return a new instance of the type
+wrapped by Lazy&lt;&gt; before exiting, and you can use any constructor you choose (here, we are still
+invoking the default constructor of AllTracks):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> MediaPlayer
+{
+...
+    <span class="rem">// Use a lambda expression to add additional code</span>
+    <span class="rem">// when the AllTracks object is made.</span>
+    <span class="kwrd">private</span> Lazy&lt;AllTracks&gt; allSongs = <span class="kwrd">new</span> Lazy&lt;AllTracks&gt;( () =&gt;
+        {
+            Console.WriteLine(<span class="str">"Creating AllTracks object!"</span>);
+            <span class="kwrd">return</span> <span class="kwrd">new</span> AllTracks();
+        }
+    );
+
+    <span class="kwrd">public</span> AllTracks GetAllTracks()
+    {
+        <span class="rem">// Return all of the songs.</span>
+        <span class="kwrd">return</span> allSongs.Value;
+    }
+}</pre>
+    <p>Sweet! Hopefully you can see the usefulness of the Lazy&lt;&gt; class. Essentially, this new generic class
+allows you to ensure expensive objects are only allocated when the object user requires them. If you find
+this topic useful for your projects, you may also want to look up the System.Lazy&lt;&gt; class in the .NET
+Framework 4.0 SDK documentation for further examples of how to program for "lazy instantiation".</p>
+ <p><b>Source Code</b> The LazyObjectInstantiation project is included under the Chapter 8 subdirectory.</p>
+    </body>
+    </html>
+   
+

@@ -1,0 +1,167 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Understanding C# Anonymous Methods</h1>
+  <p>As you have seen, when a caller wishes to listen to incoming events, it must define a custom method in a
+class (or structure) that matches the signature of the associated delegate, for example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {    
+        SomeType t = <span class="kwrd">new</span> SomeType();
+
+        <span class="rem">// Assume "SomeDelegate" can point to methods taking no</span>
+        <span class="rem">// args and returning void.</span>
+        t.SomeEvent += <span class="kwrd">new</span> SomeDelegate(MyEventHandler);
+    }
+
+    <span class="rem">// Typically only called by the SomeDelegate object.</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> MyEventHandler()
+    {
+        <span class="rem">// Do something when event is fired.</span>
+    }
+}</pre>
+<p>When you think about it, however, methods such as MyEventHandler() are seldom intended to be
+called by any part of the program other than the invoking delegate. As far as productivity is concerned, it
+is a bit of a bother (though in no way a showstopper) to manually define a separate method to be called
+by the delegate object.</p>
+<p>To address this point, it is possible to associate an event directly to a block of code statements at the
+time of event registration. Formally, such code is termed an anonymous method. To illustrate the syntax,
+check out the following Main() method, which handles the events sent from the Car class using
+anonymous methods, rather than specifically named event handlers:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Anonymous Methods *****\n"</span>);
+        Car c1 = <span class="kwrd">new</span> Car(<span class="str">"SlugBug"</span>, 100, 10);
+
+        <span class="rem">// Register event handlers as anonymous methods.</span>
+        c1.AboutToBlow += <span class="kwrd">delegate</span>
+        {
+            Console.WriteLine(<span class="str">"Eek! Going too fast!"</span>);
+        };
+
+        c1.AboutToBlow += <span class="kwrd">delegate</span>(<span class="kwrd">object</span> sender, CarEventArgs e)
+        {
+            Console.WriteLine(<span class="str">"Message from Car: {0}"</span>, e.msg);
+        };
+
+        c1.Exploded += <span class="kwrd">delegate</span>(<span class="kwrd">object</span> sender, CarEventArgs e)
+        {
+            Console.WriteLine(<span class="str">"Fatal Message from Car: {0}"</span>, e.msg);
+        };
+
+        <span class="rem">// This will eventually trigger the events.</span>
+        <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; 6; i++)
+            c1.Accelerate(20);
+    
+        Console.ReadLine();
+    }
+}</pre>
+<p><b>Note </b>The final curly bracket of an anonymous method must be terminated by a semicolon. If you fail to do so,
+you are issued a compilation error.</p>
+<p>Again, notice that the Program type no longer defines specific static event handlers such as
+CarAboutToBlow() or CarExploded(). Rather, the unnamed (aka anonymous) methods are defined inline
+at the time the caller is handling the event using the += syntax. The basic syntax of an anonymous
+method matches the following pseudo-code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        SomeType t = <span class="kwrd">new</span> SomeType();
+        t.SomeEvent += <span class="kwrd">delegate</span> (optionallySpecifiedDelegateArgs)
+        { <span class="rem">/* statements */</span> };
+    }
+}</pre>
+<p>When handling the first AboutToBlow event within the previous Main() method, notice that you are
+not specifying the arguments passed from the delegate:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+c1.AboutToBlow += <span class="kwrd">delegate</span>
+{
+    Console.WriteLine(<span class="str">"Eek! Going too fast!"</span>);
+};</pre>
+<p>Strictly speaking, you are not required to receive the incoming arguments sent by a specific event.
+However, if you wish to make use of the possible incoming arguments, you will need to specify the
+parameters prototyped by the delegate type (as shown in the second handling of the AboutToBlow and
+Exploded events). For example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+c1.AboutToBlow += <span class="kwrd">delegate</span>(<span class="kwrd">object</span> sender, CarEventArgs e)
+{
+    Console.WriteLine(<span class="str">"Critical Message from Car: {0}"</span>, e.msg);
+};</pre>
+<h2>Accessing Local Variables</h2>
+  <p>Anonymous methods are interesting in that they are able to access the local variables of the method that
+defines them. Formally speaking, such variables are termed outer variables of the anonymous method. A
+few important points about the interaction between an anonymous method scope and the scope of the
+defining method should be mentioned:</p>
+<ul>
+ <li>
+  An anonymous method cannot access ref or out parameters of the defining method
+ </li>
+ <li>
+  An anonymous method cannot have a local variable with the same name as a local variable
+in the outer method
+ </li>
+ <li>
+  An anonymous method can access instance variables (or static variables, as appropriate) in
+the outer class scope
+ </li>
+ <li>
+  An anonymous method can declare local variables with the same name as outer class
+member variables (the local variables have a distinct scope and hide the outer class member
+variables)
+ </li>
+</ul>
+<p>Assume our Main() method defined a local integer named aboutToBlowCounter. Within the
+anonymous methods that handle the AboutToBlow event, we will increment this counter by 1 and print
+out the tally before Main() completes:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Anonymous Methods *****\n"</span>);
+    <span class="kwrd">int</span> aboutToBlowCounter = 0;
+
+    <span class="rem">// Make a car as usual.</span>
+    Car c1 = <span class="kwrd">new</span> Car(<span class="str">"SlugBug"</span>, 100, 10);
+
+    <span class="rem">// Register event handlers as anonymous methods.</span>
+    c1.AboutToBlow += <span class="kwrd">delegate</span>
+    {
+        aboutToBlowCounter++;
+        Console.WriteLine(<span class="str">"Eek! Going too fast!"</span>);
+    };
+
+    c1.AboutToBlow += (<span class="kwrd">object</span> sender, CarEventArgs e)
+    {
+        aboutToBlowCounter++;
+        Console.WriteLine(<span class="str">"Critical Message from Car: {0}"</span>, e.msg);
+    };
+...
+    Console.WriteLine(<span class="str">"AboutToBlow event was fired {0} times."</span>,
+        aboutToBlowCounter);
+    Console.ReadLine();
+}</pre>
+<p>Once you run this updated Main() method, you will find the final Console.WriteLine() reports the
+AboutToBlow event was fired twice.</p>
+    <p><b>Source Code</b> The AnonymousMethods project is located under the Chapter 11 subdirectory.</p>
+    </body></html>
+
+ 
+   
+

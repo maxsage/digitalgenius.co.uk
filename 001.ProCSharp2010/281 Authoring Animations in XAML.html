@@ -1,0 +1,153 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Authoring Animations in XAML</h1>
+<p>Authoring animations in markup is similar to authoring them in code, at least for simple, straightforward
+animation sequences. When you need to capture more complex animations, which may involve
+changing the values of numerous properties at once, the amount of markup can grow considerably.
+Thankfully, the Expression Blend animation editors can take care of the details for us. Even so, it is
+important to know the basics of how an animation is represented in XAML, as this will make it easier for
+you to modify and tweak tool-generated content.</p>
+<p><b>Note</b> You will find a number of XAML files in the XamlAnimations folder of the downloadable source code. As
+you go through the next several pages, copy these markup files into your custom XAML editor, or into the kaxaml
+editor, to see the results.</p>
+<p>For the most part, creating an animation is similar to what you have already seen. You still configure
+an Animation object and associate it to an object’s property. One big difference, however, is that WPF is
+not function-call-friendly. As a result, instead of calling BeginAnimation(), you use a storyboard as a layer
+of indirection.</p>
+<p>Let’s walk through a complete example of an animation defined in terms of XAML, followed by a
+detailed breakdown. The following XAML definition will display a window that contains a single label. As
+soon as the Label object loads into memory, it begins an animation sequence in which the font size
+increases from 12 points to 100 over a period of four seconds. The animation will repeat for as long as
+the Window object is loaded in memory. You can find this markup in the GrowLabelFont.xaml file, so
+copy it into your MyXamlPad.exe application and observe the behavior.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/win    fx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">Height</span><span class="kwrd">="200"</span> <span class="attr">Width</span><span class="kwrd">="600"</span> <span class="attr">WindowStartupLocation</span><span class="kwrd">="CenterScreen"</span> <span class="attr">Title</span><span class="kwrd">="Growing Label Font!"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">Content</span> = <span class="kwrd">"Interesting..."</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Label.Triggers</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">EventTrigger</span> <span class="attr">RoutedEvent</span> = <span class="kwrd">"Label.Loaded"</span><span class="kwrd">&gt;</span>
+                    <span class="kwrd">&lt;</span><span class="html">EventTrigger.Actions</span><span class="kwrd">&gt;</span>
+                        <span class="kwrd">&lt;</span><span class="html">BeginStoryboard</span><span class="kwrd">&gt;</span>
+                            <span class="kwrd">&lt;</span><span class="html">Storyboard</span> <span class="attr">TargetProperty</span> = <span class="kwrd">"FontSize"</span><span class="kwrd">&gt;</span>
+                                <span class="kwrd">&lt;</span><span class="html">DoubleAnimation</span> <span class="attr">From</span> = <span class="kwrd">"12"</span> <span class="attr">To</span> = <span class="kwrd">"100"</span> <span class="attr">Duration</span> = <span class="kwrd">"0:0:4"</span>
+                                    <span class="attr">RepeatBehavior</span> = <span class="kwrd">"Forever"</span><span class="kwrd">/&gt;</span>
+                            <span class="kwrd">&lt;/</span><span class="html">Storyboard</span><span class="kwrd">&gt;</span>
+                        <span class="kwrd">&lt;/</span><span class="html">BeginStoryboard</span><span class="kwrd">&gt;</span>
+                    <span class="kwrd">&lt;/</span><span class="html">EventTrigger.Actions</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;/</span><span class="html">EventTrigger</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">Label.Triggers</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">Label</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+<p>Now, lets break this example down bit-by-bit.</p>
+<h2>The Role of Storyboards</h2>
+<p>Working from the innermost element outward, we first encounter the &lt;DoubleAnimation&gt; element, which
+makes use of the same properties we set in procedural code (To, From, Duration, and RepeatBehavior):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">DoubleAnimation</span> <span class="attr">From</span> = <span class="kwrd">"12"</span> <span class="attr">To</span> = <span class="kwrd">"100"</span> <span class="attr">Duration</span> = <span class="kwrd">"0:0:4"</span>
+    <span class="attr">RepeatBehavior</span> = <span class="kwrd">"Forever"</span><span class="kwrd">/&gt;</span></pre>
+     <p>As mentioned, Animation elements are placed within a &lt;Storyboard&gt; element, which is used to map the
+animation object to a given property on the parent type via the TargetProperty property—which in this
+case is FontSize. A &lt;Storyboard&gt; is always wrapped in a parent element named &lt;BeginStoryboard&gt;,
+which is little more than a way to denote a storyboard’s location:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">BeginStoryboard</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Storyboard</span> <span class="attr">TargetProperty</span> = <span class="kwrd">"FontSize"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">DoubleAnimation</span> <span class="attr">From</span> = <span class="kwrd">"12"</span> <span class="attr">To</span> = <span class="kwrd">"100"</span> <span class="attr">Duration</span> = <span class="kwrd">"0:0:4"</span>
+            <span class="attr">RepeatBehavior</span> = <span class="kwrd">"Forever"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Storyboard</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">BeginStoryboard</span><span class="kwrd">&gt;</span></pre>
+<h2>The Role of Event Triggers</h2>
+<p>Once the &lt;BeginStoryboard&gt; element has been defined, we need to specify some sort of action that will
+cause the animation to begin executing. WPF has a few different ways to respond to runtime conditions
+in markup, one of which is termed a trigger. From a high level, you can consider a trigger a way of
+responding to an event condition in XAML, without the need for procedural code.</p>
+<p>Typically, when you respond to an event in C#, you author custom code that will execute when the
+event occurs. A trigger, however, is just a way to be notified that some event condition has happened
+(“I’m loaded into memory”, “The mouse is over me!”, “I have focus!”).</p>
+<p>Once you’ve been notified that an event condition has occurred, you can start the storyboard. In
+this example, we are responding to the Label being loaded into memory. Because it is the Label’s Loaded
+event we are interested in, the &lt;EventTrigger&gt; is placed in the Label’s trigger collection:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">Content</span> = <span class="kwrd">"Interesting..."</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label.Triggers</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">EventTrigger</span> <span class="attr">RoutedEvent</span> = <span class="kwrd">"Label.Loaded"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">EventTrigger.Actions</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">BeginStoryboard</span><span class="kwrd">&gt;</span>
+                    <span class="kwrd">&lt;</span><span class="html">Storyboard</span> <span class="attr">TargetProperty</span> = <span class="kwrd">"FontSize"</span><span class="kwrd">&gt;</span>
+                        <span class="kwrd">&lt;</span><span class="html">DoubleAnimation</span> <span class="attr">From</span> = <span class="kwrd">"12"</span> <span class="attr">To</span> = <span class="kwrd">"100"</span> <span class="attr">Duration</span> = <span class="kwrd">"0:0:4"</span>
+                            <span class="attr">RepeatBehavior</span> = <span class="kwrd">"Forever"</span><span class="kwrd">/&gt;</span>
+                    <span class="kwrd">&lt;/</span><span class="html">Storyboard</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;/</span><span class="html">BeginStoryboard</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">EventTrigger.Actions</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">EventTrigger</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Label.Triggers</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Label</span><span class="kwrd">&gt;</span></pre>
+    <p>Let’s see another example of defining an animation in XAML, this time using a key frame animation.</p>
+<h2>Animation Using Discrete Key Frames</h2>
+<p>Unlike the linear interpolation animation objects, which can only move between a starting point and an
+ending point, the key frame counterparts allow us to create a collection of specific values for an
+animation that should take place at specific times.</p>
+<p>To illustrate the use of a discrete key frame type, assume you wish to build a Button control that
+animates its content so that over the course of three seconds, the value “OK!” appears, one character at a
+time. You’ll find the following markup in the StringAnimation.xaml file. Copy this markup into your
+MyXamlPad.exe program and view the results:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span> <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">Height</span><span class="kwrd">="100"</span> <span class="attr">Width</span><span class="kwrd">="300"</span>
+    <span class="attr">WindowStartupLocation</span><span class="kwrd">="CenterScreen"</span> <span class="attr">Title</span><span class="kwrd">="Animate String Data!"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">Name</span><span class="kwrd">="myButton"</span> <span class="attr">Height</span><span class="kwrd">="40"</span>
+                <span class="attr">FontSize</span><span class="kwrd">="16pt"</span> <span class="attr">FontFamily</span><span class="kwrd">="Verdana"</span> <span class="attr">Width</span> = <span class="kwrd">"100"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Button.Triggers</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">EventTrigger</span> <span class="attr">RoutedEvent</span><span class="kwrd">="Button.Loaded"</span><span class="kwrd">&gt;</span>
+                    <span class="kwrd">&lt;</span><span class="html">BeginStoryboard</span><span class="kwrd">&gt;</span>
+                        <span class="kwrd">&lt;</span><span class="html">Storyboard</span><span class="kwrd">&gt;</span>
+                            <span class="kwrd">&lt;</span><span class="html">StringAnimationUsingKeyFrames</span> <span class="attr">RepeatBehavior</span> = <span class="kwrd">"Forever"</span>
+                                    <span class="attr">Storyboard</span>.<span class="attr">TargetName</span><span class="kwrd">="myButton"</span>
+                                    <span class="attr">Storyboard</span>.<span class="attr">TargetProperty</span><span class="kwrd">="Content"</span>
+                                    <span class="attr">Duration</span><span class="kwrd">="0:0:3"</span><span class="kwrd">&gt;</span>
+                                <span class="kwrd">&lt;</span><span class="html">DiscreteStringKeyFrame</span> <span class="attr">Value</span><span class="kwrd">=""</span> <span class="attr">KeyTime</span><span class="kwrd">="0:0:0"</span> <span class="kwrd">/&gt;</span>
+                                <span class="kwrd">&lt;</span><span class="html">DiscreteStringKeyFrame</span> <span class="attr">Value</span><span class="kwrd">="O"</span> <span class="attr">KeyTime</span><span class="kwrd">="0:0:1"</span> <span class="kwrd">/&gt;</span>
+                                <span class="kwrd">&lt;</span><span class="html">DiscreteStringKeyFrame</span> <span class="attr">Value</span><span class="kwrd">="OK"</span> <span class="attr">KeyTime</span><span class="kwrd">="0:0:1.5"</span> <span class="kwrd">/&gt;</span>
+                                <span class="kwrd">&lt;</span><span class="html">DiscreteStringKeyFrame</span> <span class="attr">Value</span><span class="kwrd">="OK!"</span> <span class="attr">KeyTime</span><span class="kwrd">="0:0:2"</span> <span class="kwrd">/&gt;</span>
+                            <span class="kwrd">&lt;/</span><span class="html">StringAnimationUsingKeyFrames</span><span class="kwrd">&gt;</span>
+                        <span class="kwrd">&lt;/</span><span class="html">Storyboard</span><span class="kwrd">&gt;</span>
+                    <span class="kwrd">&lt;/</span><span class="html">BeginStoryboard</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;/</span><span class="html">EventTrigger</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">Button.Triggers</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">Button</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+<p>Notice first of all that we have defined an event trigger for our button to ensure that our storyboard
+executes when the button has loaded into memory. The StringAnimationUsingKeyFrames class is in
+charge of changing the content of the button, via the Storyboard.TargetName and
+Storyboard.TargetProperty values.</p>
+<p>Within the scope of the &lt;StringAnimationUsingKeyFrames&gt; element, we defined four
+DiscreteStringKeyFrame elements, which change the button’s Content property over the course of two
+seconds (note that the duration established by StringAnimationUsingKeyFrames is a total of three
+seconds, so we will see a slight pause between the final “!” and looping “O”).</p>
+<p>Now that you have a better feel for how to build animations in C# code and XAML, let’s turn our
+attention of the role of WPF styles, which make heavy use of graphics, object resources, and animations.</p>
+    <p><b>Source Code</b> These loose XAML files can be found under the XamlAnimations subdirectory of Chapter 30.</p>
+    </body>
+    </html>
+    
+      
+   

@@ -1,0 +1,79 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+    <h1>Ode to Errors, Bugs, and Exceptions</h1>
+    <p>
+        Despite what our (sometimes inflated) egos may tell us, no programmer is perfect.
+        Writing software is a
+complex undertaking, and given this complexity, it is quite common for even the best software
+        to ship
+with various...problems. Sometimes the problem is caused by “bad code” (such as overflowing
+        the
+bounds of an array). Other times, a problem is caused by bogus user input that has not been
+        accounted
+for in the application’s code base (e.g., a phone number input field assigned to the value
+        “Chucky”).
+    </p>
+    <p>
+        Now, regardless of the cause of the problem, the end result is that the application
+        does not work as
+expected. To help frame the upcoming discussion of structured exception handling, allow
+        me to provide
+definitions for three commonly used anomaly-centric terms:
+    </p>
+    <ul>
+        <li><i>Bugs:</i> These are, simply put, errors made by the programmer. For example,
+            suppose you are programming with unmanaged C++. If you fail to delete
+            dynamically allocated memory, resulting in a memory leak, you have a bug.</li>
+        <li><i>User errors:</i> User errors, on the other hand, are typically caused by the
+            individual
+            running your application, rather than by those who created it. For example, an
+            end user who enters a malformed string into a text box could very well generate
+            an
+            error if you fail to handle this faulty input in your code base.</li>
+        <li>Exceptions: Exceptions are typically regarded as runtime anomalies that are
+            difficult, if not impossible, to account for while programming your application.
+            Possible exceptions include attempting to connect to a database that no longer
+            exists, opening a corrupted XML file, or trying to contact a machine that is
+            currently offline. In each of these cases, the programmer (or end user) has little
+            control over these “exceptional” circumstances.</li>
+    </ul>
+    <p>
+        Given these definitions, it should be clear that .NET structured exception handling
+        is a technique
+for dealing with runtime exceptions. However, even for the bugs and user errors that have
+        escaped
+your view, the CLR will often generate a corresponding exception that identifies the problem
+        at
+hand. The .NET base class libraries define numerous exceptions, such as FormatException,
+        IndexOutOfRangeException, FileNotFoundException, ArgumentOutOfRangeException, and
+        so forth.
+    </p>
+    <p>
+        Within the .NET nomenclature, an “exception” accounts for bugs, bogus user input,
+        and runtime
+errors, even though we programmers may view each of these as a distinct issue. However,
+        before we get
+too far ahead of ourselves, let’s formalize the role of structured exception handling and
+        check out how it
+differs from traditional error-handling techniques.
+    </p>
+    <p>
+        <b>Note</b> To make the code examples used in this book as clean as possible, I
+        will not catch every possible
+exception that may be thrown by a given method in the base class libraries. In your production
+        level projects, you
+should, of course, make liberal use of the techniques presented in this chapter.
+    </p>
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,268 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>Understanding the Common Language Specification</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="../master.css" />	
+</head>
+<body>
+<h1>Building Cloneable Objects (ICloneable)</h1>
+   <p>As you recall from Chapter 6, System.Object defines a member named MemberwiseClone(). This method
+is used to obtain a shallow copy of the current object. Object users do not call this method directly as it is
+protected. However, a given object may call this method itself during the cloning process. To illustrate,
+create a new Console Application named CloneablePoint that defines a class named Point:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// A class named Point.</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> Point
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> X {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Y {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+
+    <span class="kwrd">public</span> Point(<span class="kwrd">int</span> xPos, <span class="kwrd">int</span> yPos) { X = xPos; Y = yPos;}
+    <span class="kwrd">public</span> Point(){}
+
+    <span class="rem">// Override Object.ToString().</span>
+    <span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">string</span> ToString()
+    { <span class="kwrd">return</span> <span class="kwrd">string</span>.Format(<span class="str">"X = {0}; Y = {1}"</span>, X, Y ); }
+}</pre>
+<p>Given what you already know about reference types and value types (Chapter 4), you are aware that
+if you assign one reference variable to another, you have two references pointing to the same object in
+memory. Thus, the following assignment operation results in two references to the same Point object on
+the heap; modifications using either reference affect the same object on the heap:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Object Cloning *****\n"</span>);
+    <span class="rem">// Two references to same object!</span>
+    Point p1 = <span class="kwrd">new</span> Point(50, 50);
+    Point p2 = p1;
+    p2.X = 0;
+    Console.WriteLine(p1);
+    Console.WriteLine(p2);
+    Console.ReadLine();
+}</pre>
+<p>When you want to give your custom type the ability to return an identical copy of itself to the caller,
+you may implement the standard ICloneable interface. As shown at the start of this chapter, this type
+defines a single method named Clone():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> ICloneable
+{
+    <span class="kwrd">object</span> Clone();
+}</pre>
+<p><b>Note</b>The usefulness of the ICloneable interface is a topic of debate within the .NET community. The
+problem has to do with the fact that the official specification does not explicitly say that objects implementing this
+interface must return a deep copy of the object (i.e., internal reference types of an object result in brand-new
+objects with identical state). Thus, it is technically possible that objects implementing ICloneable actually return
+a shallow copy of the interface (i.e., internal references point to the same object on the heap), which clearly
+generates a good deal of confusion. In our example, I am assuming we are implementing Clone() to return a full,
+deep copy of the object.</p>
+<p>Obviously, the implementation of the Clone() method varies among types. However, the basic
+functionality tends to be the same: copy the values of your member variables into a new object instance
+of the same type, and return it to the user. To illustrate, ponder the following update to the Point class:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// The Point now supports "clone-ability."</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> Point : ICloneable
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> X { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Y { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+
+    <span class="kwrd">public</span> Point(<span class="kwrd">int</span> xPos, <span class="kwrd">int</span> yPos) { X = xPos; Y = yPos; }
+    <span class="kwrd">public</span> Point() { }
+
+    <span class="rem">// Override Object.ToString().</span>
+    <span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">string</span> ToString()
+    { <span class="kwrd">return</span> <span class="kwrd">string</span>.Format(<span class="str">"X = {0}; Y = {1}"</span>, X, Y); }
+
+    <span class="rem">// Return a copy of the current object.</span>
+    <span class="kwrd">public</span> <span class="kwrd">object</span> Clone()
+    { <span class="kwrd">return</span> <span class="kwrd">new</span> Point(<span class="kwrd">this</span>.X, <span class="kwrd">this</span>.Y); }
+}</pre>
+<p>In this way, you can create exact stand-alone copies of the Point type, as illustrated by the following code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Object Cloning *****\n"</span>);
+    <span class="rem">// Notice Clone() returns a plain object type.</span>
+    <span class="rem">// You must perform an explicit cast to obtain the derived type.</span>
+    Point p3 = <span class="kwrd">new</span> Point(100, 100);
+    Point p4 = (Point)p3.Clone();
+
+    <span class="rem">// Change p4.X (which will not change p3.X).</span>
+    p4.X = 0;
+
+    <span class="rem">// Print each object.</span>
+    Console.WriteLine(p3);
+    Console.WriteLine(p4);
+    Console.ReadLine();
+}</pre>
+<p>While the current implementation of Point fits the bill, you can streamline things just a bit. Because
+the Point type does not contain any internal reference type variables, you could simplify the
+implementation of the Clone() method as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">object</span> Clone()
+{
+    <span class="rem">// Copy each field of the Point member by member.</span>
+    <span class="kwrd">return</span> <span class="kwrd">this</span>.MemberwiseClone();
+}</pre>
+<p>Be aware, however, that if the Point did contain any reference type member variables,
+MemberwiseClone() will copy the references to those objects (i.e., a shallow copy). If you wish to support a
+true deep copy, you will need to create a new instance of any reference type variables during the cloning
+process. Let’s see an example.</p>
+<h2>A More Elaborate Cloning Example</h2>
+   <p>Now assume the Point class contains a reference type member variable of type PointDescription. This
+class maintains a point’s friendly name as well as an identification number expressed as a System.Guid
+(if you don’t come from a COM background, know that a globally unique identifier [GUID] is a
+statistically unique 128-bit number). Here is the implementation:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This class describes a point.</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> PointDescription
+{
+    <span class="kwrd">public</span> <span class="kwrd">string</span> PetName {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+    <span class="kwrd">public</span> Guid PointID {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+
+    <span class="kwrd">public</span> PointDescription()
+    {
+        PetName = <span class="str">"No-name"</span>;
+        PointID = Guid.NewGuid();
+    }
+}</pre>
+<p>The initial updates to the Point class itself included modifying ToString() to account for these new
+bits of state data, as well as defining and creating the PointDescription reference type. To allow the
+outside world to establish a pet name for the Point, you also update the arguments passed into the
+overloaded constructor:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> Point : ICloneable
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> X { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Y { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">public</span> PointDescription desc = <span class="kwrd">new</span> PointDescription();
+
+    <span class="kwrd">public</span> Point(<span class="kwrd">int</span> xPos, <span class="kwrd">int</span> yPos, <span class="kwrd">string</span> petName)
+    {
+        X = xPos; Y = yPos;
+        desc.PetName = petName;
+    }
+
+    <span class="kwrd">public</span> Point(<span class="kwrd">int</span> xPos, <span class="kwrd">int</span> yPos)
+    {
+        X = xPos; Y = yPos;
+    }
+
+    <span class="kwrd">public</span> Point() { }
+
+    <span class="rem">// Override Object.ToString().</span>
+    <span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">string</span> ToString()
+    {
+        <span class="kwrd">return</span> <span class="kwrd">string</span>.Format(<span class="str">"X = {0}; Y = {1}; Name = {2};\nID = {3}\n"</span>,
+        X, Y, desc.PetName, desc.PointID);
+    }
+
+    <span class="rem">// Return a copy of the current object.</span>
+    <span class="kwrd">public</span> <span class="kwrd">object</span> Clone()
+    { <span class="kwrd">return</span> <span class="kwrd">this</span>.MemberwiseClone(); }
+}</pre>
+<p>Notice that you did not yet update your Clone() method. Therefore, when the object user asks for a
+clone using the current implementation, a shallow (member-by-member) copy is achieved. To illustrate,
+assume you have updated Main() as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Object Cloning *****\n"</span>);
+    Console.WriteLine(<span class="str">"Cloned p3 and stored new Point in p4"</span>);
+    Point p3 = <span class="kwrd">new</span> Point(100, 100, <span class="str">"Jane"</span>);
+    Point p4 = (Point)p3.Clone();
+
+    Console.WriteLine(<span class="str">"Before modification:"</span>);
+    Console.WriteLine(<span class="str">"p3: {0}"</span>, p3);
+    Console.WriteLine(<span class="str">"p4: {0}"</span>, p4);
+    p4.desc.PetName = <span class="str">"My new Point"</span>;
+    p4.X = 9;
+
+    Console.WriteLine(<span class="str">"\nChanged p4.desc.petName and p4.X"</span>);
+    Console.WriteLine(<span class="str">"After modification:"</span>);
+    Console.WriteLine(<span class="str">"p3: {0}"</span>, p3);
+    Console.WriteLine(<span class="str">"p4: {0}"</span>, p4);
+    Console.ReadLine();
+}</pre>
+<p>Notice in the following output that while the value types have indeed been changed, the internal
+reference types maintain the same values, as they are “pointing” to the same objects in memory
+(Specifically, note that the pet name for both objects is now “My new Point”).</p>
+<pre class="csharpcode">
+***** Fun with Object Cloning *****
+
+Cloned p3 and stored new Point in p4
+Before modification:
+p3: X = 100; Y = 100; Name = Jane;
+ID = 133d66a7-0837-4bd7-95c6-b22ab0434509
+
+p4: X = 100; Y = 100; Name = Jane;
+ID = 133d66a7-0837-4bd7-95c6-b22ab0434509
+
+Changed p4.desc.petName and p4.X
+After modification:
+p3: X = 100; Y = 100; Name = My new Point;
+ID = 133d66a7-0837-4bd7-95c6-b22ab0434509
+
+p4: X = 9; Y = 100; Name = My new Point;
+ID = 133d66a7-0837-4bd7-95c6-b22ab0434509
+</pre>
+<p>To have your Clone() method make a complete deep copy of the internal reference types, you need
+to configure the object returned by MemberwiseClone() to account for the current point’s name (the
+System.Guid type is in fact a structure, so the numerical data is indeed copied). Here is one possible
+implementation:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Now we need to adjust for the PointDescription member.</span>
+<span class="kwrd">public</span> <span class="kwrd">object</span> Clone()
+{
+    <span class="rem">// First get a shallow copy.</span>
+    Point newPoint = (Point)<span class="kwrd">this</span>.MemberwiseClone();
+
+    <span class="rem">// Then fill in the gaps.</span>
+    PointDescription currentDesc = <span class="kwrd">new</span> PointDescription();
+    currentDesc.PetName = <span class="kwrd">this</span>.desc.PetName;
+    newPoint.desc = currentDesc;
+    <span class="kwrd">return</span> newPoint;
+}</pre>
+<p>If you rerun the application once again and view the output (see below), you see that the Point
+returned from Clone() does copy its internal reference type member variables (note the pet name is now
+unique for both p3 and p4).</p>
+<pre class="csharpcode">
+***** Fun with Object Cloning *****
+
+Cloned p3 and stored new Point in p4
+
+Before modification:
+p3: X = 100; Y = 100; Name = Jane;
+ID = 51f64f25-4b0e-47ac-ba35-37d263496406
+
+p4: X = 100; Y = 100; Name = Jane;
+ID = 0d3776b3-b159-490d-b022-7f3f60788e8a
+
+Changed p4.desc.petName and p4.X
+After modification:
+p3: X = 100; Y = 100; Name = Jane;
+ID = 51f64f25-4b0e-47ac-ba35-37d263496406
+
+p4: X = 9; Y = 100; Name = My new Point;
+ID = 0d3776b3-b159-490d-b022-7f3f60788e8a
+</pre>
+<p>To summarize the cloning process, if you have a class or structure that contains nothing but value
+types, implement your Clone() method using MemberwiseClone(). However, if you have a custom type
+that maintains other reference types, you need to create a new object that takes into account each
+reference type member variable.</p>
+</body>
+    </html>
+ 
+   
+

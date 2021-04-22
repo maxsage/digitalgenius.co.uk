@@ -1,0 +1,240 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Logical Trees, Visual Trees and Default Templates</h1>
+    <p>There are a few more preparatory topics to investigate before you begin learning how to build custom
+controls. Specifically, you need to learn the distinction between a logical tree, a visual tree and a default
+template. When you are typing XAML into Visual Studio 2010, Expression Blend, or a tool such as
+kaxaml.exe, your markup is the logical view of the XAML document. As well, if you author C# code that
+adds new items to a StackPanel control, you are inserting new items into the logical tree. Essentially, a
+logical view represents how your content will be positioned within the various layout managers for a
+main Window (or another root element, such as Page or NavigationWindow).</p>
+<p>However, behind every logical tree, there is a much more verbose representation termed a visual
+tree, which is used internally by WPF to correctly render out elements onto the screen. Within any visual
+tree, there will be full details of the templates and styles used to render out each object, including any
+necessary drawings, shapes, visuals and animations.</p>
+<p>It is useful to understand the distinction between logical and visual trees because when you are
+building a custom control template, you are essentially replacing all or part of the default visual tree of a
+control and inserting your own. Therefore, if you want a Button control to be rendered as a star shape,
+you could define a new star template and plug it into the Button's visual tree. Logically, the Button is still
+of type Button, and it supports all of the properties, methods and events as expected. But visually, it has
+taken on a whole new appearance. This fact alone makes WPF an extremely useful API, given that other
+toolkits would require you to build a brand new class to make a star shaped button. With WPF, you
+simply need to define new markup.</p>
+<p><b>Note</b> WPF controls are often described as lookless. This refers to the fact that the look and feel of a WPF control
+is completely independent (and customizable) from its behavior.</p>
+<h2>Programmatically Inspecting a Logical Tree</h2>
+<p>While analyzing a window’s logical tree at runtime is not a tremendously common WPF programming
+activity, it is worth mentioning that the System.Windows namespace defines a class named
+LogicalTreeHelper which allows you to inspect the structure of a logic tree at runtime. To illustrate the
+connection between logic trees, visual trees and control templates, create a new WPF Application named
+TreesAndTemplatesApp.</p>
+<p>Update the markup for your window so that it contains two Button controls and a large read-only
+TextBox with scroll bars enabled. Make sure you use the IDE to handle the Click event of each button.
+The following XAML will do nicely:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span> <span class="attr">x:Class</span><span class="kwrd">="TreesAndTemplatesApp.MainWindow"</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">Title</span><span class="kwrd">="Fun with Trees and Templates"</span> <span class="attr">Height</span><span class="kwrd">="518"</span>
+    <span class="attr">Width</span><span class="kwrd">="836"</span> <span class="attr">WindowStartupLocation</span><span class="kwrd">="CenterScreen"</span><span class="kwrd">&gt;</span>
+
+    <span class="kwrd">&lt;</span><span class="html">DockPanel</span> <span class="attr">LastChildFill</span><span class="kwrd">="True"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Border</span> <span class="attr">Height</span><span class="kwrd">="50"</span> <span class="attr">DockPanel</span>.<span class="attr">Dock</span><span class="kwrd">="Top"</span> <span class="attr">BorderBrush</span><span class="kwrd">="Blue"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">StackPanel</span> <span class="attr">Orientation</span><span class="kwrd">="Horizontal"</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnShowLogicalTree"</span> <span class="attr">Content</span><span class="kwrd">="Logical Tree of Window"</span>
+                    <span class="attr">Margin</span><span class="kwrd">="4"</span> <span class="attr">BorderBrush</span><span class="kwrd">="Blue"</span> <span class="attr">Height</span><span class="kwrd">="40"</span> <span class="attr">Click</span><span class="kwrd">="btnShowLogicalTree_Click"</span><span class="kwrd">/&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnShowVisualTree"</span> <span class="attr">Content</span><span class="kwrd">="Visual Tree of Window"</span>
+                    <span class="attr">BorderBrush</span><span class="kwrd">="Blue"</span> <span class="attr">Height</span><span class="kwrd">="40"</span> <span class="attr">Click</span><span class="kwrd">="btnShowVisualTree_Click"</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">Border</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtDisplayArea"</span> <span class="attr">Margin</span><span class="kwrd">="10"</span> <span class="attr">Background</span><span class="kwrd">="AliceBlue"</span> <span class="attr">IsReadOnly</span><span class="kwrd">="True"</span>
+            <span class="attr">BorderBrush</span><span class="kwrd">="Red"</span> <span class="attr">VerticalScrollBarVisibility</span><span class="kwrd">="Auto"</span>
+            <span class="attr">HorizontalScrollBarVisibility</span><span class="kwrd">="Auto"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">DockPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+<p>Within your C# code file, define a string member variable named dataToShow. Now, within the Click
+handler for the btnShowLogicalTree object, call a helper function which calls itself recursively in order to
+populate the string variable with the logical tree of the Window. To do so, you will call the static
+GetChildren() method of LogicalTreeHelper. Here is the code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> btnShowLogicalTree_Click(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+{
+    dataToShow = <span class="str">""</span>;
+    BuildLogicalTree(0, <span class="kwrd">this</span>);
+    <span class="kwrd">this</span>.txtDisplayArea.Text = dataToShow;
+}
+
+<span class="kwrd">void</span> BuildLogicalTree(<span class="kwrd">int</span> depth, <span class="kwrd">object</span> obj)
+{
+    <span class="rem">// Add the type name to the dataToShow member variable.</span>
+    dataToShow += <span class="kwrd">new</span> <span class="kwrd">string</span>(<span class="str">' '</span>, depth) + obj.GetType().Name + <span class="str">"\n"</span>;
+    
+    <span class="rem">// If an item is not a DependencyObject, skip it.</span>
+    <span class="kwrd">if</span> (!(obj <span class="kwrd">is</span> DependencyObject))
+    <span class="kwrd">return</span>;
+
+    <span class="rem">// Make a recursive call for each logical child</span>
+    <span class="kwrd">foreach</span> (<span class="kwrd">object</span> child <span class="kwrd">in</span> LogicalTreeHelper.GetChildren(
+        obj <span class="kwrd">as</span> DependencyObject))
+            BuildLogicalTree(depth + 5, child);
+}</pre>
+    <p>If you run your application and click this first button, you will see a tree print out in the text area,
+which is just about an exact replica of the original XAML (Figure 31-7).</p>
+<img src="../Images/Figure31_07.png" alt="Figure 31-7" />
+<p><b>Figure 31-7</b> Viewing a logical tree at runtime</p>
+<h2>Programmatically Inspecting a Visual Tree</h2>
+<p>A Window's visual tree can also be inspected at runtime using the VisualTreeHelper class of
+System.Windows.Media. Here is a Click implementation of the second Button control
+(btnShowVisualTree), which performs similar recursive logic to build a textual representation of the
+visual tree:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> btnShowVisualTree_Click(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+{
+    dataToShow = <span class="str">""</span>;
+    BuildVisualTree(0, <span class="kwrd">this</span>);
+    <span class="kwrd">this</span>.txtDisplayArea.Text = dataToShow;
+}
+
+<span class="kwrd">void</span> BuildVisualTree(<span class="kwrd">int</span> depth, DependencyObject obj)
+{
+    <span class="rem">// Add the type name to the dataToShow member variable.</span>
+    dataToShow += <span class="kwrd">new</span> <span class="kwrd">string</span>(<span class="str">' '</span>, depth) + obj.GetType().Name + <span class="str">"\n"</span>;
+    <span class="rem">// Make a recursive call for each visual child</span>
+    <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; VisualTreeHelper.GetChildrenCount(obj); i++)
+        BuildVisualTree(depth + 1, VisualTreeHelper.GetChild(obj, i));
+}</pre>
+<p>As you can see in Figure 31-8, the visual tree exposes a number of lower-level rendering agents such
+as ContentPresenter, AdornerDecorator, TextBoxLineDrawingVisual, and so forth.</p>
+<img src="../Images/Figure31_08.png" alt="Figure 31-8" />
+<p><b>Figure 31-8</b> Viewing a visual tree at runtime</p>
+<h2>Programmatically Inspecting a Control’s Default Template</h2>
+<p>Recall that a visual tree is used by WPF to understand how to render a Window and all contained
+elements. Every WPF control stores its own set of rendering commands within its default template.
+Programmatically speaking, any template can represented as an instance of the ControlTemplate class.
+As well, you can obtain a controls default template by using the aptly named Template property:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Get the default template of the Button.</span>
+Button myBtn = <span class="kwrd">new</span> Button();
+ControlTemplate template = myBtn.Template;</pre>
+<p>Likewise, you could create a new ControlTemplate object in code and plug it into a control’s
+Template property:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Plug in a new template for the button to use.</span>
+Button myBtn = <span class="kwrd">new</span> Button();
+ControlTemplate customTemplate = <span class="kwrd">new</span> ControlTemplate();
+
+<span class="rem">// Assume this method adds all the code for a star template</span>
+MakeStarTemplate(customTemplate);
+myBtn.Template = customTemplate;</pre>
+<p>While you could build a new template in code, it is far more common to do so in XAML. In fact,
+Expression Blend has a large number of tools which can be used to define a template with minimal fuss
+and bother.</p>
+<p>However, before you start building your own templates, let’s finish the current example and add the
+ability to view the default template of a WPF control at runtime. This can be a really useful way to take a
+look at the overall composition of a template. First, update the markup of your window with a new
+StackPanel of controls docked to the left side of the master DockPanel, defined as so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Border</span> <span class="attr">DockPanel</span>.<span class="attr">Dock</span><span class="kwrd">="Left"</span> <span class="attr">Margin</span><span class="kwrd">="10"</span> <span class="attr">BorderBrush</span><span class="kwrd">="DarkGreen"</span>
+        <span class="attr">BorderThickness</span><span class="kwrd">="4"</span> <span class="attr">Width</span><span class="kwrd">="358"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">Content</span><span class="kwrd">="Enter Full Name of WPF Control"</span> <span class="attr">Width</span><span class="kwrd">="340"</span> <span class="attr">FontWeight</span><span class="kwrd">="DemiBold"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtFullName"</span> <span class="attr">Width</span><span class="kwrd">="340"</span> <span class="attr">BorderBrush</span><span class="kwrd">="Green"</span>
+            <span class="attr">Background</span><span class="kwrd">="BlanchedAlmond"</span> <span class="attr">Height</span><span class="kwrd">="22"</span>
+            <span class="attr">Text</span><span class="kwrd">="System.Windows.Controls.Button"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnTemplate"</span> <span class="attr">Content</span><span class="kwrd">="See Template"</span> <span class="attr">BorderBrush</span><span class="kwrd">="Green"</span>
+            <span class="attr">Height</span><span class="kwrd">="40"</span> <span class="attr">Width</span><span class="kwrd">="100"</span> <span class="attr">Margin</span><span class="kwrd">="5"</span>
+            <span class="attr">Click</span><span class="kwrd">="btnTemplate_Click"</span> <span class="attr">HorizontalAlignment</span><span class="kwrd">="Left"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Border</span> <span class="attr">BorderBrush</span><span class="kwrd">="DarkGreen"</span> <span class="attr">BorderThickness</span><span class="kwrd">="2"</span> <span class="attr">Height</span><span class="kwrd">="260"</span>
+                <span class="attr">Width</span><span class="kwrd">="301"</span> <span class="attr">Margin</span><span class="kwrd">="10"</span> <span class="attr">Background</span><span class="kwrd">="LightGreen"</span> <span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">StackPanel</span> <span class="attr">x:Name</span><span class="kwrd">="stackTemplatePanel"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">Border</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Border</span><span class="kwrd">&gt;</span></pre>
+    <p>Do take note of the empty StackPanel, stackTemplatePanel, as you will refer to it in code. Anyway,
+your window should now look something like Figure 31-9.</p>
+<img src="../Images/Figure31_09.png" alt="Figure 31-9" />
+<p><b>Figure 31-9</b> The updated UI of your window</p>
+<p>The upper left text area allows you to enter in the fully qualified name of a WPF control located the
+PresentationFramework.dll assembly. Once the library is loaded, you will dynamically create an
+instance of the object and display it in the large square in the bottom left. Last but not least, the control’s
+default template will be displayed in the right hand text area. First, add a new member variable to your
+C# class of type Control:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> Control ctrlToExamine = <span class="kwrd">null</span>;</pre>
+    <p>Here is the remaining code, which will require you to import the System.Reflection, System.Xml and
+System.Windows.Markup namespaces:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> btnTemplate_Click(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+{
+    dataToShow = <span class="str">""</span>;
+    ShowTemplate();
+    <span class="kwrd">this</span>.txtDisplayArea.Text = dataToShow;
+}
+
+<span class="kwrd">private</span> <span class="kwrd">void</span> ShowTemplate()
+{
+    <span class="rem">// Remove the control which is currently in the preview area.</span>
+    <span class="kwrd">if</span> (ctrlToExamine != <span class="kwrd">null</span>)
+        stackTemplatePanel.Children.Remove(ctrlToExamine);
+    <span class="kwrd">try</span>
+    {
+        <span class="rem">// Load PresentationFramework, and create an instance of the</span>
+        <span class="rem">// specified control. Give it a size for display purposes, then add to the</span>
+        <span class="rem">// empty StackPanel.</span>
+        Assembly asm = Assembly.Load(<span class="str">"PresentationFramework, Version=4.0.0.0,"</span> +
+            <span class="str">"Culture=neutral, PublicKeyToken=31bf3856ad364e35"</span>);
+        ctrlToExamine = (Control)asm.CreateInstance(txtFullName.Text);
+        ctrlToExamine.Height = 200;
+        ctrlToExamine.Width = 200;
+        ctrlToExamine.Margin = <span class="kwrd">new</span> Thickness(5);
+        stackTemplatePanel.Children.Add(ctrlToExamine);
+
+        <span class="rem">// Define some XML settings to preserve indentation.</span>
+        XmlWriterSettings xmlSettings = <span class="kwrd">new</span> XmlWriterSettings();
+        xmlSettings.Indent = <span class="kwrd">true</span>;
+
+        <span class="rem">// Create a StringBuilder to hold the XAML.</span>
+        StringBuilder strBuilder = <span class="kwrd">new</span> StringBuilder();
+
+        <span class="rem">// Create an XmlWriter based on our settings.</span>
+        XmlWriter xWriter = XmlWriter.Create(strBuilder, xmlSettings);
+
+        <span class="rem">// Now save the XAML into the XmlWriter object based on the ControlTemplate.</span>
+        XamlWriter.Save(ctrlToExamine.Template, xWriter);
+
+        <span class="rem">// Display XAML in the text box.</span>
+        dataToShow = strBuilder.ToString();
+    }
+    <span class="kwrd">catch</span> (Exception ex)
+    {
+        dataToShow = ex.Message;
+    }
+}</pre>
+<p>The bulk of the work is just tinkering with the compiled BAML resource to map it into a XAML
+string. Figure 31-10 shows your final application in action, displaying the default template of the
+DatePicker control.</p>
+<img src="../Images/Figure31_10.png" alt="Figure 31-10" />
+<p><b>Figure 31-10</b> Investigating a ControlTemplate at runtime</p>
+<p>Great! Hopefully you have a better idea about how logical trees, visual trees, and control templates
+work together. Now you can spend the remainder of this chapter learning how to build custom
+templates and user controls.</p>
+   <p><b>Source Code</b> The TreesAndTemplatesApp project is included under the Chapter 31 subdirectory.</p>
+    </body>
+    </html>
+      
+   

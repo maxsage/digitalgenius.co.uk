@@ -1,0 +1,170 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Working with Data Adapters</h1>
+<p>Now that you understand the ins-and-outs of manipulating ADO.NET DataSets manually, it’s time to
+turn your attention to the topic of data adapter objects. A data adapter is a class used to fill a DataSet with
+DataTable objects; this class can also send modified DataTables back to the database for processing.
+Table 22-8 documents the core members of the DbDataAdapter base class, the common parent to every
+data adapter object (e.g., SqlDataAdapter and OdbcDataAdapter).</p>
+<p><b>Table 22-8.</b> Core Members of the DbDataAdapter Class</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Members
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Fill()
+   </td>
+   <td>
+    Executes a SQL SELECT command (as specified by the SelectCommand
+property) to query the database for data and loads the data into a
+DataTable.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    SelectCommand InsertCommand UpdateCommand DeleteCommand
+   </td>
+   <td>
+    Establishes the SQL commands that you will issue to the data store when
+the Fill() and Update() methods are called.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Update()
+   </td>
+   <td>
+    Executes SQL INSERT, UPDATE, and DELETE commands (as specified by
+the InsertCommand, UpdateCommand, and DeleteCommand properties) to
+persist DataTable changes to the database.
+   </td>
+  </tr>
+</table>
+<p>Notice that a data adapter defines four properties: SelectCommand, InsertCommand, UpdateCommand,
+and DeleteCommand. When you create the data adapter object for your particular data provider (e.g.,
+SqlDataAdapter), you can pass in a string that represents the command text used by the SelectCommand’s
+command object.</p>
+<p>Assuming each of the four command objects has been properly configured, you can then call the
+Fill() method to obtain a DataSet (or a single DataTable, if you wish). To do so, you have the data
+adapter execute the SQL SELECT statement specified by the SelectCommand property.</p>
+<p>Similarly, if you wish to persist a modified DataSet (or DataTable) object back to the database, you
+can call the Update() method, which will use any of the remaining command objects, based on the state
+of each row in the DataTable (you’ll learn more about this in a bit).</p>
+<p>One of the strangest aspects of working with a data adapter object is the fact that you are never
+required to open or close a connection to the database. Rather, the underlying connection to the
+database is managed on your behalf. However, you will still need to supply the data adapter with a valid
+connection object or a connection string (which you will use to build a connection object internally) to
+inform the data adapter exactly which database you wish to communicate with.</p>
+<p><b>Note</b> A data adapter is agnostic by nature. You can plug in different connection objects and command objects
+on the fly and fetch data from a diverse variety of databases. For example, a single DataSet could contain table
+data obtained from SQL server, Oracle, and MySQL database providers.</p>
+<h2>A Simple Data Adapter Example</h2>
+<p>The next step is to add new functionality to the data access library assembly (AutoLotDAL.dll) you
+created in Chapter 21. Begin by creating a simple example that fills a DataSet with a single table using an
+ADO.NET data adapter object.</p>
+<p>Create a new Console Application named FillDataSetUsingSqlDataAdapter and import the
+System.Data and System.Data.SqlClient namespaces into your initial C# code file. Now update your
+Main() method as follows (you might need to change the connection string, based on how you created
+the AutoLot database in the previous chapter):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Data Adapters *****\n"</span>);
+
+    <span class="rem">// Hard-coded connection string.</span>
+    <span class="kwrd">string</span> cnStr = <span class="str">"Integrated Security = SSPI;Initial Catalog=AutoLot;"</span> +
+        <span class="str">@"Data Source=(local)\SQLEXPRESS"</span>;
+
+    <span class="rem">// Caller creates the DataSet object.</span>
+    DataSet ds = <span class="kwrd">new</span> DataSet(<span class="str">"AutoLot"</span>);
+
+    <span class="rem">// Inform adapter of the Select command text and connection string.</span>
+    SqlDataAdapter dAdapt =
+        <span class="kwrd">new</span> SqlDataAdapter(<span class="str">"Select * From Inventory"</span>, cnStr);
+
+    <span class="rem">// Fill our DataSet with a new table, named Inventory.</span>
+    dAdapt.Fill(ds, <span class="str">"Inventory"</span>);
+
+    <span class="rem">// Display contents of DataSet.</span>
+    PrintDataSet(ds);
+    Console.ReadLine();
+}</pre>
+<p>Notice that you construct the data adapter by specifying a string literal that will map to the SQL
+Select statement. You will use this value to build a command object internally, which you can obtain
+later using the SelectCommand property.</p>
+<p>Next, notice that it is the job of the caller to create an instance of the DataSet type, which is passed
+into the Fill() method. Optionally, you can pass the Fill() method as a second argument a string
+name that you use to set the TableName property of the new DataTable (if you do not specify a table name,
+the data adapter will simply name the table, Table). In most cases, the name you assign a DataTable will
+be identical to the name of the physical table in the relational database; however, this is not required.</p>
+<p><b>Note</b> The Fill() method returns an integer that represents the number of rows returned by the SQL query.</p>
+<p>Finally, notice that you do not explicitly open or close the connection to the database anywhere in
+the Main() method. You preprogram the Fill() method of a given data adapter to open and then close
+the underlying connection before returning from the Fill() method. Therefore, when you pass the
+DataSet to the PrintDataSet() method (implemented earlier in this chapter), you are operating on a
+local copy of disconnected data, incurring no round-trips to fetch the data.</p>
+<h2>Mapping Database Names to Friendly Names</h2>
+<p>As mentioned previously, database administrators tend to create table and column names that are less
+than friendly to end users (e.g., au_id, au_fname, and au_lname). The good news is that data adapter
+objects maintain an internal strongly typed collection (named DataTableMappingCollection) of
+System.Data.Common.DataTableMapping objects. You can access this collection using the TableMappings
+property of your data adapter object.</p>
+<p>If you so choose, you can manipulate this collection to inform a DataTable which display names it
+should use when asked to print its contents. For example, assume that you wish to map the table name
+Inventory to Current Inventory for display purposes. For example, assume you wish to display the CarID
+column name as Car ID (note the extra space) and the PetName column name as Name of Car. To do so,
+add the following code before calling the Fill() method of your data adapter object (be sure to import
+the System.Data.Common namespace to gain the definition of the DataTableMapping type):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+...
+    <span class="rem">// Now map DB column names to user-friendly names.</span>
+    DataTableMapping custMap =
+        dAdapt.TableMappings.Add(<span class="str">"Inventory"</span>, <span class="str">"Current Inventory"</span>);
+    custMap.ColumnMappings.Add(<span class="str">"CarID"</span>, <span class="str">"Car ID"</span>);
+    custMap.ColumnMappings.Add(<span class="str">"PetName"</span>, <span class="str">"Name of Car"</span>);
+    dAdapt.Fill(ds, <span class="str">"Inventory"</span>);
+...
+}</pre>
+<p>If you were to run this program again, you would find that the PrintDataSet() method now displays
+the friendly names of the DataTable and DataRow objects, rather than the names established by the
+database schema:</p>
+<pre class="csharpcode">
+***** Fun with Data Adapters *****
+
+DataSet is named: AutoLot
+
+=&gt; Current Inventory Table:
+Car ID     Make     Color     Name of Car
+----------------------------------
+83     Ford     Rust     Rusty
+107     Ford     Red     Snake
+678     Yugo     Green     Clunker
+904     VW     Black     Hank
+1000     BMW     Black     Bimmer
+1001     BMW     Tan     Daisy
+1992     Saab     Pink     Pinkey
+2003     Yugo     Rust     Mel</pre>
+    <p><b>Source Code</b> You can find the FillDataSetUsingSqlDataAdapter project under the Chapter 22
+subdirectory.</p>
+    </body>
+    </html>
+      
+      
+   

@@ -1,0 +1,225 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />   
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />       
+	<link rel="stylesheet" type="text/css" href="../master.css" />  
+</head>
+<body>
+    <h1>The System.Console Class</h1>
+     <p>Almost all of the example applications created over the course of the initial chapters of this book make
+    extensive use of the System.Console class. While it is true that a console user interface (CUI) is not as
+    enticing as a graphical user interface (GUI) or web-application, restricting the early examples to console
+    programs will allow us to keep focused on the syntax of C# and the core aspects of the .NET platform,
+    rather than dealing with the complexities of building GUIs or web sites.</p>
+    <p>As its name implies, the Console class encapsulates input, output, and error-stream manipulations
+    for console-based applications. Table 3-2 lists some (but definitely not all) members of interest.</p>
+    <p><b>Table 3-2.</b> Select Members of System.Console</p>
+    <table class="gridtable">
+        <tr>
+            <th>Member</th>
+            <th>Meaning in Life</th>
+        </tr>
+        <tr>
+            <td>Beep()</td>
+            <td>This method forces the console to emit a beep of a specified frequency
+            and duration.</td>
+        </tr>
+        <tr>
+            <td>BackgroundColor ForegroundColor</td>
+            <td>These properties set the background/foreground colors for the current
+            output. They may be assigned any member of the ConsoleColor
+            enumeration.</td>
+        </tr>
+        <tr>
+            <td>BufferHeight BufferWidth</td>
+            <td>These properties control the height/width of the console's buffer area.</td>
+        </tr>
+        <tr>
+            <td>Title</td>
+            <td>This property sets the title of the current console.</td>
+        </tr>
+        <tr>
+            <td>WindowHeight WindowWidth WindowTop WindowLeft</td>
+            <td>These properties control the dimensions of the console in relation to the
+            established buffer.</td>
+        </tr>
+        <tr>
+            <td>Clear()</td>
+            <td>This method clears the established buffer and console display area.</td>
+        </tr>
+    </table>
+     <h2>Basic Input and Output with the Console Class</h2>
+     <p>In addition to the members in Table 3-2, the Console type defines a set of methods to capture input and
+    output, all of which are static and are therefore called by prefixing the name of the class (Console) to the
+    method name. As you have seen, WriteLine() pumps a text string (including a carriage return) to the
+    output stream. The Write() method pumps text to the output stream without a carriage return.
+    ReadLine() allows you to receive information from the input stream up until the Enter key is pressed,
+    while Read() is used to capture a single character from the input stream.</p>
+     <p>To illustrate basic I/O using the Console class, create a new Console Application project named
+    BasicConsoleIO and update your Main() method to call a helper method named GetUserData():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Basic Console I/O *****"</span>);
+        GetUserData();
+        Console.ReadLine();
+    }
+}</pre>
+    <p>Implement this method within the Program class with logic that prompts the user for some bits of
+    information and echoes each item to the standard output stream. For example, we could ask the user for
+    his or her name and age (which we will treat as a text value for simplicity, rather than the expected
+    numerical value) as follows:</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> GetUserData()
+{
+    <span class="rem">// Get name and age.</span>
+    Console.Write(<span class="str">"Please enter your name: "</span>);
+    <span class="kwrd">string</span> userName = Console.ReadLine();
+    Console.Write(<span class="str">"Please enter your age: "</span>);
+    <span class="kwrd">string</span> userAge = Console.ReadLine();
+
+    <span class="rem">// Change echo color, just for fun.</span>
+    ConsoleColor prevColor = Console.ForegroundColor;
+    Console.ForegroundColor = ConsoleColor.Yellow;
+
+    <span class="rem">// Echo to the console.</span>
+    Console.WriteLine(<span class="str">"Hello {0}! You are {1} years old."</span>,
+        userName, userAge);
+
+    <span class="rem">// Restore previous color.</span>
+    Console.ForegroundColor = prevColor;
+}</pre>
+    <p>Not surprisingly, when you run this application, the input data is printed to the console (using a
+    custom color to boot!).</p>
+     <h2>Formatting Console Output</h2>
+     <p>During these first few chapters, you may have noticed numerous occurrences of tokens such as {0} and
+    {1} embedded within various string literals. The .NET platform support a style of string formatting
+    slightly akin to the printf() statement of C. Simply put, when you are defining a string literal that
+    contains segments of data whose value is not known until runtime, you are able to specify a placeholder
+    within the literal using this curly-bracket syntax. At runtime, the value(s) passed into
+    Console.WriteLine() are substituted for each placeholder.</p>
+    <p>The first parameter to WriteLine() represents a string literal that contains optional place-holders
+    designated by {0}, {1}, {2}, and so forth. Be very aware that the first ordinal number of a curly-bracket
+    placeholder always begins with 0. The remaining parameters to WriteLine() are simply the values to be
+    inserted into the respective placeholders.</p>
+    <p><b>Note</b> If you have more uniquely numbered curly-bracket placeholders than fill arguments, you will receive a
+    format exception at runtime.</p>
+    <p>It is also permissible for a given placeholder to repeat within a given string. For example, if you are a
+    Beatles fan and want to build the string "9, Number 9, Number 9", you would write:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// John says...</span>
+Console.WriteLine(<span class="str">"{0}, Number {0}, Number {0}"</span>, 9);</pre>
+    <p>Also know that it is possible to position each placeholder in any location within a string literal, and it
+    need not follow an increasing sequence. For example, consider the following code snippet:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Prints: 20, 10, 30</span>
+Console.WriteLine(<span class="str">"{1}, {0}, {2}"</span>, 10, 20, 30);</pre>
+    <h2>Formatting Numerical Data</h2>
+    <p>If you require more elaborate formatting for numerical data, each placeholder can optionally contain
+    various format characters. Table 3-3 shows the most common formatting options.</p>
+    <p><b>Table 3-3.</b> .NET Numerical Format Characters</p>
+    <table class="gridtable">
+        <tr>
+            <th>String Format Character</th>
+            <th>Meaning in Life</th>
+        </tr>
+        <tr>
+            <td>C or c</td>
+            <td>Used to format currency. By default, the flag will prefix the local cultural
+            symbol (a dollar sign [$] for U.S. English).</td>
+        </tr>
+        <tr>
+            <td>D or d</td>
+            <td>Used to format decimal numbers. This flag may also specify the
+            minimum number of digits used to pad the value.</td>
+        </tr>
+        <tr>
+            <td>E or e</td>
+            <td>Used for exponential notation. Casing controls whether the exponential
+            constant is uppercase (E) or lowercase (e).</td>
+        </tr>
+        <tr>
+            <td>F or f</td>
+            <td>Used for fixed-point formatting. This flag may also specify the minimum
+            number of digits used to pad the value.</td>
+        </tr>
+        <tr>
+            <td>G or g</td>
+            <td>Stands for general. This character can be used to format a number to fixed
+            or exponential format.</td>
+        </tr>
+        <tr>
+            <td>N or n</td>
+            <td>Used for basic numerical formatting (with commas).</td>
+        </tr>
+        <tr>
+            <td>X or x</td>
+            <td>Used for hexadecimal formatting. If you use an uppercase X, your hex
+            format will also contain uppercase characters.</td>
+        </tr>
+    </table>
+    <p>These format characters are suffixed to a given placeholder value using the colon token (e.g., {0:C},
+    {1:d}, {2:X}). To illustrate, update the Main() method to call a new helper function named
+    FormatNumericalData(). Implement this method in your Program class to format a fixed numerical value
+    in a variety of ways.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Now make use of some format tags.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> FormatNumericalData()
+{
+    Console.WriteLine(<span class="str">"The value 99999 in various formats:"</span>);
+    Console.WriteLine(<span class="str">"c format: {0:c}"</span>, 99999);
+    Console.WriteLine(<span class="str">"d9 format: {0:d9}"</span>, 99999);
+    Console.WriteLine(<span class="str">"f3 format: {0:f3}"</span>, 99999);
+    Console.WriteLine(<span class="str">"n format: {0:n}"</span>, 99999);
+
+    <span class="rem">// Notice that upper- or lowercasing for hex</span>
+    <span class="rem">// determines if letters are upper- or lowercase.</span>
+    Console.WriteLine(<span class="str">"E format: {0:E}"</span>, 99999);
+    Console.WriteLine(<span class="str">"e format: {0:e}"</span>, 99999);
+    Console.WriteLine(<span class="str">"X format: {0:X}"</span>, 99999);
+    Console.WriteLine(<span class="str">"x format: {0:x}"</span>, 99999);
+}</pre>
+    <p>Figure 3-5 shows the output for our current application.</p>
+    <img src="../Images/Figure03_05.png" alt="Figure 3-5" />
+    <p>Figure 3-5. Basic console I/O (with .NET string formatting)</p>
+    <p>Beyond controlling how numerical data is formatted, the .NET platform provides additional tokens
+    that may appear in a string literal that controls spacing and positioning of content. Furthermore, the
+    tokens applied to numerical data can be applied to other data types (such as enumerations or the
+    DateTime type) to control data formatting. Also, be aware that it is possible to build a custom class (or
+    structure) that defines a custom formatting scheme through the implementation of the
+    ICustomFormatter interface.</p>
+    <p>You'll see additional formatting examples where required throughout this text; however, if you are
+    interested in digging into .NET string formatting further, look up formatting types within the .NET
+    Framework 4.0 SDK documentation.</p>
+    <h2>Formatting Numerical Data Beyond Console Applications</h2>
+    <p>On a final note, be aware that the use of the .NET string formatting characters is not limited to console
+    programs. This same formatting syntax can be used when calling the static string.Format() method.
+    This can be helpful when you need to compose textual data at runtime for use in any application type
+    (e.g., desktop GUI app, ASP.NET web app, XML web services).</p>
+    <p>For example, assume you are building a graphical Windows Forms desktop application and need to
+    format a string for display in a message box.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> DisplayMessage()
+{
+    <span class="rem">// Using string.Format() to format a string literal.</span>
+    <span class="kwrd">string</span> userMessage = <span class="kwrd">string</span>.Format(<span class="str">"100000 in hex is {0:x}"</span>,
+        100000);
+
+    <span class="rem">// You would need to reference System.Windows.Forms.dll</span>
+    <span class="rem">// in order to compile this line of code!</span>
+    System.Windows.Forms.MessageBox.Show(userMessage);
+}</pre>
+    <p>Notice how string.Format() returns a new string object, which is formatted according to the
+    provided flags. After this point, you are free to use the textual data as you see fit.</p>
+</body>
+</html>

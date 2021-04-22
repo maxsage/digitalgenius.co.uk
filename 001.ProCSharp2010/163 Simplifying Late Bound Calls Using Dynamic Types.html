@@ -1,0 +1,145 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Simplifying Late Bound Calls Using Dynamic Types</h1>
+    <p>One place where you might decide to use the dynamic keyword is when you are working with reflection
+services, specifically when making late bound method calls. Back in Chapter 15, you saw a few examples
+of when this type of method call can be very useful, most commonly when you are building some type of
+extensible application. At that time, you learned how to use the Activator.CreateInstance() method to
+create an object, for which you have no compile time knowledge of (beyond its display name). You can
+then make use of the types of the System.Reflection namespace to invoke members via late binding.
+Recall the following example from Chapter 15.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> CreateUsingLateBinding(Assembly asm)
+{
+    <span class="kwrd">try</span>
+    {    
+        <span class="rem">// Get metadata for the Minivan type.</span>
+        Type miniVan = asm.GetType(<span class="str">"CarLibrary.MiniVan"</span>);
+
+        <span class="rem">// Create the Minivan on the fly.</span>
+        <span class="kwrd">object</span> obj = Activator.CreateInstance(miniVan);
+
+        <span class="rem">// Get info for TurboBoost.</span>
+        MethodInfo mi = miniVan.GetMethod(<span class="str">"TurboBoost"</span>);
+
+        <span class="rem">// Invoke method ('null' for no parameters).</span>
+        mi.Invoke(obj, <span class="kwrd">null</span>);
+    }
+    <span class="kwrd">catch</span> (Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+}</pre>
+<p>While this is code works as expected, you might agree it is a bit clunky. Here, you have to manually
+make use of the MethodInfo class, manually query the metadata, and so forth. The following is a version
+of this same method, now using the C# dynamic keyword and the DLR:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> InvokeMethodWithDynamicKeyword(Assembly asm)
+{
+    <span class="kwrd">try</span>
+    {
+        <span class="rem">// Get metadata for the Minivan type.</span>
+        Type miniVan = asm.GetType(<span class="str">"CarLibrary.MiniVan"</span>);
+
+        <span class="rem">// Create the Minivan on the fly and call method!</span>
+        dynamic obj = Activator.CreateInstance(miniVan);
+
+        obj.TurboBoost();
+    }
+    <span class="kwrd">catch</span> (Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+}</pre>
+<p>By declaring the obj variable using the dynamic keyword, the heavy lifting of reflection is done on
+your behalf courtesy of the DRL!</p>
+<h2>Leveraging the dynamic Keyword to Pass Arguments</h2>
+<p>The usefulness of the DLR becomes even more obvious when you need to make late bound calls on
+methods that take parameters. When you use “longhand” reflection calls, arguments need to be
+packaged up as an array of objects which are passed to the Invoke() method of MethodInfo.</p>
+<p>To illustrate using a fresh example, begin by creating a new C# Console Application named
+LateBindingWithDynamic. Next, add a Class Library project to the current solution (using the File | Add |
+New Project... menu option) named MathLibrary. Rename the initial Class1.cs of the MathLibrary
+project to SimpleMath.cs, and implement the class like so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> SimpleMath
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Add(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y)
+    { <span class="kwrd">return</span> x + y; }
+}</pre>
+<p>Once you have compiled your MathLibrary.dll assembly, place a copy of this library in the
+\bin\Debug folder of the LateBindingWithDynamic project (if you click the Show All Files button for
+each project of the Solution Explorer, you can simply drag and drop the file between projects). At this
+point, your Solution Explorer should look something like see Figure 18-4.</p>
+<img src="../Images/Figure18_04.png" alt="Figure 18-4" />
+<p><b>Figure 18-4</b> The LateBindingWithDynamic project has a private copy of MathLibrary.dll</p>
+<p><b>Note</b> Remember, the whole point of late binding is allowing an application to create an object for which it has
+no record of it the MANIFEST. This is why you manually copied MathLibrary.dll into the output folder of the Console
+project, rather than reference the assembly using Visual Studio.</p>
+<p>Now, import the System.Reflection namespace into the Program.cs file of your Console Application
+project. Next, add the following method to the Program class, which invokes the Add() method using
+typical reflection API calls:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> AddWithReflection()
+{
+    Assembly asm = Assembly.Load(<span class="str">"MathLibrary"</span>);
+
+    <span class="kwrd">try</span>
+    {
+        <span class="rem">// Get metadata for the SimpleMath type.</span>
+        Type math = asm.GetType(<span class="str">"MathLibrary.SimpleMath"</span>);
+
+        <span class="rem">// Create a SimpleMath on the fly.</span>
+        <span class="kwrd">object</span> obj = Activator.CreateInstance(math);
+
+        <span class="rem">// Get info for Add.</span>
+        MethodInfo mi = math.GetMethod(<span class="str">"Add"</span>);
+
+        <span class="rem">// Invoke method (with parameters).</span>
+        <span class="kwrd">object</span>[] args = { 10, 70 };
+        Console.WriteLine(<span class="str">"Result is: {0}"</span>, mi.Invoke(obj, args));
+    }
+    <span class="kwrd">catch</span> (Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+}</pre>
+<p>Now, consider the simplification of the previous logic with the dynamic keyword:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> AddWithDynamic()
+{
+    Assembly asm = Assembly.Load(<span class="str">"MathLibrary"</span>);
+
+    <span class="kwrd">try</span>
+    {
+        <span class="rem">// Get metadata for the SimpleMath type.</span>
+        Type math = asm.GetType(<span class="str">"MathLibrary.SimpleMath"</span>);
+
+        <span class="rem">// Create a SimpleMath on the fly.</span>
+        dynamic obj = Activator.CreateInstance(math);
+        Console.WriteLine(<span class="str">"Result is: {0}"</span>, obj.Add(10, 70));
+    }
+    <span class="kwrd">catch</span> (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+}</pre>
+<p>Not too shabby! If you call both methods from the Main() method, you’ll see identical
+output.However, when using the dynamic keyword, you saved yourself quite a bit of work. With
+dynamically defined data, you no longer need to manually package up arguments as an array of objects,
+query the assembly metadata, or other such details.</p>
+    <p><b>Source Code</b> The LateBindingWithDynamic project is included under the Chapter 18 subdirectory.</p>
+    </body>
+    </html>

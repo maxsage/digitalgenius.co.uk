@@ -1,0 +1,31 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Summarizing Processes, AppDomains, and Context</h1>
+    <p>At this point, you hopefully have a much better idea about how a .NET assembly is hosted by the CLR. To
+summarize the key points:</p>
+<ul>
+ <li>A .NET process hosts one to many application domains. Each AppDomain is able
+to host any number of related .NET assemblies. AppDomains may be
+independently loaded and unloaded by the CLR (or programmatically via the
+System.AppDomain type).</li>
+ <li>A given AppDomain consists of one to many contexts. Using a context, the CLR is
+able to place a “special needs” object into a logical container, to ensure that its
+runtime requirements are honored.</li>
+</ul>
+<p>If the previous pages have seemed to be a bit too low level for your liking, fear not. For the most part,
+the .NET runtime automatically deals with the details of processes, application domains, and contexts
+on your behalf. The good news, however, is that this information provides a solid foundation for
+understanding multithreaded programming under the .NET platform.</p>
+</body>
+    </html>
+
+     
+      
+   

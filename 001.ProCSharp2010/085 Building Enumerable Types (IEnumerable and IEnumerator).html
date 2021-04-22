@@ -1,0 +1,283 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>DG</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="../master.css" />	
+</head>
+<body>
+<h1>Building Enumerable Types (IEnumerable and IEnumerator)</h1>
+   <p>To begin examining the process of implementing existing .NET interfaces, let’s first look at the role of
+IEnumerable and IEnumerator. Recall that C# supports a keyword named foreach that allows you to
+iterate over the contents of any array type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Iterate over an array of items.</span>
+<span class="kwrd">int</span>[] myArrayOfInts = {10, 20, 30, 40};
+<span class="kwrd">foreach</span>(<span class="kwrd">int</span> i <span class="kwrd">in</span> myArrayOfInts)
+{
+    Console.WriteLine(i);
+}</pre>
+    <p>While it may seem that only array types can make use of this construct, the truth of the matter is any
+type supporting a method named GetEnumerator() can be evaluated by the foreach construct. To
+illustrate, begin by creating a new Console Application project named CustomEnumerator. Next, add the
+Car.cs and Radio.cs files defined in the SimpleException example of Chapter 7 (via the Project ? Add
+Existing Item menu option).</p>
+<p><b>Note </b>You may wish to rename the namespace containing the Car and Radio types to CustomEnumerator,
+to avoid having to import the CustomException namespace within this new project.</p>
+<p>Now, insert a new class named Garage that stores a set of Car objects within a System.Array:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Garage contains a set of Car objects.</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> Garage
+{
+    <span class="kwrd">private</span> Car[] carArray = <span class="kwrd">new</span> Car[4];
+
+    <span class="rem">// Fill with some Car objects upon startup.</span>
+    <span class="kwrd">public</span> Garage()
+    {
+        carArray[0] = <span class="kwrd">new</span> Car(<span class="str">"Rusty"</span>, 30);
+        carArray[1] = <span class="kwrd">new</span> Car(<span class="str">"Clunker"</span>, 55);
+        carArray[2] = <span class="kwrd">new</span> Car(<span class="str">"Zippy"</span>, 30);
+        carArray[3] = <span class="kwrd">new</span> Car(<span class="str">"Fred"</span>, 30);
+    }
+}</pre>
+<p>Ideally, it would be convenient to iterate over the Garage object’s subitems using the foreach
+construct, just like an array of data values:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This seems reasonable...</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        Console.WriteLine(<span class="str">"***** Fun with IEnumerable / IEnumerator *****\n"</span>);
+        Garage carLot = <span class="kwrd">new</span> Garage();
+
+        <span class="rem">// Hand over each car in the collection?</span>
+        <span class="kwrd">foreach</span> (Car c <span class="kwrd">in</span> carLot)
+        {
+            Console.WriteLine(<span class="str">"{0} is going {1} MPH"</span>,
+                c.PetName, c.CurrentSpeed);
+        }
+        Console.ReadLine();
+    }
+}</pre>
+<p>Sadly, the compiler informs you that the Garage class does not implement a method named
+GetEnumerator(). This method is formalized by the IEnumerable interface, which is found lurking within
+the System.Collections namespace.</p>
+<p><b>Notes </b>In the next chapter you will learn about the role of generics and the System.Collections.Generic
+namespace. As you will see, this namespace contain generic versions of IEnumerable/IEnumerator that provide a
+more type-safe way to iterate over subobjects.</p>
+<p>Classes or structures that support this behavior advertise that they are able to expose contained
+subitems to the caller (in this example, the foreach keyword itself):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This interface informs the caller</span>
+<span class="rem">// that the object's subitems can be enumerated.</span>
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IEnumerable
+{
+    IEnumerator GetEnumerator();
+}</pre>
+<p>As you can see, the GetEnumerator() method returns a reference to yet another interface named
+System.Collections.IEnumerator. This interface provides the infrastructure to allow the caller to traverse
+the internal objects contained by the IEnumerable-compatible container:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This interface allows the caller to</span>
+<span class="rem">// obtain a container's subitems.</span>
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IEnumerator
+{
+    <span class="kwrd">bool</span> MoveNext (); <span class="rem">// Advance the internal position of the cursor.</span>
+    <span class="kwrd">object</span> Current { <span class="kwrd">get</span>;} <span class="rem">// Get the current item (read-only property).</span>
+    <span class="kwrd">void</span> Reset (); <span class="rem">// Reset the cursor before the first member.</span>
+}</pre>
+<p>If you wish to update the Garage type to support these interfaces, you could take the long road and
+implement each method manually. While you are certainly free to provide customized versions of
+GetEnumerator(), MoveNext(), Current, and Reset(), there is a simpler way. As the System.Array type (as
+well as many other collection classes) already implements IEnumerable and IEnumerator, you can simply
+delegate the request to the System.Array as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System.Collections;
+...
+<span class="kwrd">public</span> <span class="kwrd">class</span> Garage : IEnumerable
+{
+    <span class="rem">// System.Array already implements IEnumerator!</span>
+    <span class="kwrd">private</span> Car[] carArray = <span class="kwrd">new</span> Car[4];
+
+    <span class="kwrd">public</span> Garage()
+    {
+        carArray[0] = <span class="kwrd">new</span> Car(<span class="str">"FeeFee"</span>, 200, 0);
+        carArray[1] = <span class="kwrd">new</span> Car(<span class="str">"Clunker"</span>, 90, 0);
+        carArray[2] = <span class="kwrd">new</span> Car(<span class="str">"Zippy"</span>, 30, 0);
+        carArray[3] = <span class="kwrd">new</span> Car(<span class="str">"Fred"</span>, 30, 0);
+    }
+
+    <span class="kwrd">public</span> IEnumerator GetEnumerator()
+    {
+        <span class="rem">// Return the array object's IEnumerator.</span>
+        <span class="kwrd">return</span> carArray.GetEnumerator();
+    }
+}</pre>
+<p>Once you have updated your Garage type, you can now safely use the type within the C# foreach
+construct. Furthermore, given that the GetEnumerator() method has been defined publicly, the object
+user could also interact with the IEnumerator type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Manually work with IEnumerator.</span>
+IEnumerator i = carLot.GetEnumerator();
+i.MoveNext();
+Car myCar = (Car)i.Current;
+Console.WriteLine(<span class="str">"{0} is going {1} MPH"</span>, myCar.PetName, myCar.CurrentSpeed);</pre>
+<p>However, if you prefer to hide the functionality of IEnumerable from the object level, simply make
+use of explicit interface implementation:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+IEnumerator IEnumerable.GetEnumerator()
+{
+    <span class="rem">// Return the array object's IEnumerator.</span>
+    <span class="kwrd">return</span> carArray.GetEnumerator();
+}</pre>
+<p>By doing so, the casual object user will not find the Garage’s GetEnumerator() method, while the
+foreach construct will obtain the interface in the background when necessary.</p>
+    <p><b>Source Code</b> The CustomEnumerator project is located under the Chapter 9 subdirectory.</p>
+<h2>Building Iterator Methods with the yield Keyword</h2>
+<p>Historically, when you wanted to build a custom collection (such as Garage) that supported foreach
+enumeration, implementing the IEnumerable interface (and possibly the IEnumerator interface) was your
+only option. However, there’s an alternative way to build types that work with the foreach loop via
+iterators.</p>
+<p>Simply put, an iterator is a member that specifies how a container’s internal items should be
+returned when processed by foreach. While the iterator method must still be named GetEnumerator(),
+and the return value must still be of type IEnumerator, your custom class does not need to implement
+any of the expected interfaces.</p>
+<p>To illustrate, create a new Console Application project named CustomEnumeratorWithYield and
+insert the Car, Radio, and Garage types from the previous example (again, renaming your namespace
+definitions to the current project if you like). Now, retrofit the current Garage type as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> Garage
+{
+    <span class="kwrd">private</span> Car[] carArray = <span class="kwrd">new</span> Car[4];
+    ...
+    <span class="rem">// Iterator method.</span>
+    <span class="kwrd">public</span> IEnumerator GetEnumerator()
+    {
+        <span class="kwrd">foreach</span> (Car c <span class="kwrd">in</span> carArray)
+        {
+            yield <span class="kwrd">return</span> c;
+        }
+    }
+}</pre>
+    <p>Notice that this implementation of GetEnumerator() iterates over the subitems using internal
+foreach logic and returns each Car to the caller using the yield return syntax. The yield keyword is used
+to specify the value (or values) to be returned to the caller’s foreach construct. When the yield return
+statement is reached, the current location in the container is stored, and execution is restarted from this
+location the next time the iterator is called (you'll see the details behind this “magic” in just a moment).</p>
+<p>Iterator methods are not required to make use of the foreach keyword to return its contents. It is
+also permissible to define this iterator method as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> IEnumerator GetEnumerator()
+{
+    yield <span class="kwrd">return</span> carArray[0];
+    yield <span class="kwrd">return</span> carArray[1];
+    yield <span class="kwrd">return</span> carArray[2];
+    yield <span class="kwrd">return</span> carArray[3];
+}
+</pre>
+<p>In this implementation, notice that the GetEnumerator() method is explicitly returning a new value
+to the caller with each pass through. Doing so for this example makes little sense, given that if we were to
+add more objects to the carArray member variable, our GetEnumerator() method would now be out of
+sync. Nevertheless, this syntax can be useful when you wish to return local data from a method for
+processing by the foreach syntax.</p>
+<h2>Building a Named Iterator</h2>
+<p>It is also interesting to note that the yield keyword can technically be used within any method,
+regardless of its name. These methods (which are technically called named iterators) are also unique in
+that they can take any number of arguments. When building a named iterator, be very aware that the
+method will return the IEnumerable interface, rather than the expected IEnumerator-compatible type. To
+illustrate, you could add the following method to the Garage type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> IEnumerable GetTheCars(<span class="kwrd">bool</span> ReturnRevesed)
+{
+    <span class="rem">// Return the items in reverse.</span>
+    <span class="kwrd">if</span> (ReturnRevesed)
+    {
+        <span class="kwrd">for</span> (<span class="kwrd">int</span> i = carArray.Length; i != 0; i--)
+        {
+            yield <span class="kwrd">return</span> carArray[i-1];
+        }
+    }
+    <span class="kwrd">else</span>
+    {
+        <span class="rem">// Return the items as placed in the array.</span>
+        <span class="kwrd">foreach</span> (Car c <span class="kwrd">in</span> carArray)
+        {
+            yield <span class="kwrd">return</span> c;
+        }
+    }
+}</pre>
+<p>Notice that the new method allows the caller to obtain the subitems in sequential order, as well as in
+reverse order, if the incoming parameter has the value true. You could now interact with our new
+method as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with the Yield Keyword *****\n"</span>);
+    Garage carLot = <span class="kwrd">new</span> Garage();
+
+    <span class="rem">// Get items using GetEnumerator().</span>
+    <span class="kwrd">foreach</span> (Car c <span class="kwrd">in</span> carLot)
+    {
+        Console.WriteLine(<span class="str">"{0} is going {1} MPH"</span>,
+            c.PetName, c.CurrentSpeed);
+    }
+
+    Console.WriteLine();
+
+    <span class="rem">// Get items (in reverse!) using named iterator.</span>
+    <span class="kwrd">foreach</span> (Car c <span class="kwrd">in</span> carLot.GetTheCars(<span class="kwrd">true</span>))
+    {
+        Console.WriteLine(<span class="str">"{0} is going {1} MPH"</span>,
+            c.PetName, c.CurrentSpeed);
+    }
+    Console.ReadLine();
+}</pre>
+<p>As you may agree, named iterators are helpful constructs, in that a single custom container can
+define multiple ways to request the returned set.</p>
+<h2>Internal Representation of an Iterator Method</h2>
+<p>When the C# compiler encounters an iterator method, it dynamically generates a nested class definition
+within the scope of the defining type (Garage in this case). The autogenerated nested class implements
+the GetEnumerator(), MoveNext(), and Current members on your behalf (oddly, the Reset() method is
+not implemented, and you will receive a runtime exception if you attempt to call it). If you load the
+current application into ildasm.exe, you’ll find two nested types, each of which accounts for the logic
+required by a specific iterator method. Notice in Figure 9-8 that these compiler-generated types have
+been named &lt;GetEnumerator&gt;d__0 and &lt;GetTheCars&gt;d__6.</p>
+<img src="../Images/Figure09_08.png" alt="Figure 9-8" />
+<p><b>Figure 9-8.</b> Iterator methods are internally implemented with the help of an autogenerated nested class</p> 
+<p>If you use ildasm.exe to view the implementation of the GetEnumerator() method of the Garage type,
+you’d find that it has been implemented to make use of the &lt;GetEnumerator&gt;d__0 type behind the scenes
+(the nested &lt;GetTheCars&gt;d__6 type is used by the GetTheCars() method in a similar manner).</p>
+<pre class="csharpcode">
+.method public hidebysig instance class
+	[mscorlib]System.Collections.IEnumerator
+	GetEnumerator() cil managed
+{
+...
+	newobj instance void
+		CustomEnumeratorWithYield.Garage/'&lt;GetEnumerator&gt;>d__0'::.ctor(int32)
+...
+} // end of method Garage::GetEnumerator
+            </pre>
+<p>So, to wrap up our look at building enumerable objects, remember that for your custom types to
+work with the C# foreach keyword, the container must define a method named GetEnumerator(), which
+has been formalized by the IEnumerable interface type. The implementation of this method is typically
+achieved by simply delegating it to the internal member that is holding onto the subobjects; however, it
+is also possible to make use of the yield return syntax to provide multiple “named iterator” methods.</p>
+    <p><b>Source Code</b> The CustomEnumeratorWithYield project is located under the Chapter 9 subdirectory.</p>
+ 
+   
+

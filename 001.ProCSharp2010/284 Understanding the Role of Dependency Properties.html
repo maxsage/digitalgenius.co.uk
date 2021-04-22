@@ -1,0 +1,269 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Understanding the Role of Dependency Properties</h1>
+<p>Like any .NET API, WPF makes use of each member of the .NET type system (classes, structures,
+interfaces, delegates, enumerations) and each type member (properties, methods, events, constant data,
+read-only fields, etc.) within its implementation. However, WPF also supports a unique programming
+concept termed a dependency property.</p>
+<p><b>Note</b> Dependency properties are also part of the Windows Workflow Foundation (WF) API. While a WF
+dependency property is constructed in a similar manner as a WPF dependency property, WF uses a different
+technology stack to implement them.</p>
+<p>Like a “normal” .NET property (often termed a CLR property in the WPF literature), dependency
+properties can be set declaratively using XAML or programmatically within a code file. Furthermore,
+dependency properties (like CLR properties) ultimately exist to encapsulate data fields of a class and
+can be configured as read-only, write-only or read-write.</p>
+<p>To make matters more interesting, in almost every case you will be blissfully unaware that you have
+actually set (or accessed) a dependency property as opposed to a CLR property! For example, the Height
+and Width properties that WPF controls inherit from FrameworkElement, as well as the Content member
+inherited from ControlContent, are all, in fact, dependency properties:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">&lt;!-- Set three dependency properties! --&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span> = <span class="kwrd">"btnMyButton"</span> <span class="attr">Height</span> = <span class="kwrd">"50"</span> <span class="attr">Width</span> = <span class="kwrd">"100"</span> <span class="attr">Content</span> = <span class="kwrd">"OK"</span><span class="kwrd">/&gt;</span></pre>
+     <p>Given all of these similarities, why does WPF defines a new term for such a familiar concept? The
+answer lies in how a dependency property is implemented within the class. You’l see a coding example
+in just a little bit; however, from a high level, all dependency properties are created in the following
+manner:</p>
+<ul>
+ <li>First, the class that defined a dependency property must have DependencyObject in
+its inheritance chain.</li>
+ <li>A single dependency property is represented as a public, static, read-only field in
+the class of type DependencyProperty. By convention, this field is named by
+suffixing the word Property to the name of the CLR wrapper (see final bullet
+point).</li>
+ <li>The DependencyProperty variable is registered via a static call to
+DependencyProperty.Register(), which typically occurs in a static constructor or
+inline when the variable is declared.
+ </li>
+     <li>Finally, the class will define a XAML-friendly CLR property, which makes calls to
+methods provided by DependencyObject to get and set the value.</li>
+</ul>
+<p>Once implemented, dependency properties provide a number of powerful features that are used by
+various WPF technologies including data binding, animation services, styles, and so forth. In a nutshell,
+the motivation of dependency properties is to provide a way to compute the value of a property based
+on the value of other inputs. Here is a list of some of these key benefits, which go well beyond those of
+the simple data encapsulation found with a CLR property:</p>
+<ul>
+ <li>Dependency properties can inherit their values from a parent element’s XAML
+definition. For example, if you defined a value for the FontSize attribute in the
+opening tag of a &lt;Window&gt;, all controls in that Window would have the same font size
+by default.</li>
+ <li>Dependency properties support the ability to have values set by elements
+contained within their XAML scope, such as a Button setting the Dock property of a
+DockPanel parent. (Recall from Chapter 28 that attached properties do this very
+thing, as attached properties are a form of dependency properties.)</li>
+ <li>Dependency properties allow WPF to compute a value based on multiple external
+values, which can be very important for animation and data binding services.</li>
+ <li>Dependency properties provide infrastructure support for WPF triggers (also used
+quite often when working with animation and data binding).</li>
+</ul>
+<p>Now remember, in many cases you will interact with an existing dependency property in a manner
+identical to a normal CLR property (thanks to the XAML wrapper). However, when I covered data
+binding in Chapter 28, you learned that if you need to establish a data binding in code, you must call the
+SetBinding() method on the object that is the destination of the operation and specify the dependency
+property it will operate on:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> SetBindings()
+{
+    Binding b = <span class="kwrd">new</span> Binding();
+    b.Converter = <span class="kwrd">new</span> MyDoubleConverter();
+    b.Source = <span class="kwrd">this</span>.mySB;
+    b.Path = <span class="kwrd">new</span> PropertyPath(<span class="str">"Value"</span>);
+
+    <span class="rem">// Specify the dependency property!</span>
+    <span class="kwrd">this</span>.labelSBThumb.SetBinding(Label.ContentProperty, b);
+}</pre>
+<p>You also saw similar code when you examined how to start an animation in code, back in the
+previous chapter:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Specify the dependency property!</span>
+rt.BeginAnimation(RotateTransform.AngleProperty, dblAnim);</pre>
+<p>The only time when you would need to build your own custom dependency property is when you
+are authoring a custom WPF control. For example, if you are building a  which defines four
+custom properties and you want these properties to integrate well within the WPF API, you should
+author them using dependency property logic.</p>
+<p>Specifically, if your properties need to be the target of a data binding or animation operation, if the
+property must broadcast when it has changed, if it must be able to work as a Setter in a WPF style, or if it
+must be able to receive their values from a parent element, a normal CLR property will not be enough. If
+you were to use a normal CLR property, other programmers may indeed be able to get and set a value;
+however, if they attempt to use your properties within the context of a WPF service, things will not work
+as expected. Because you can never know how others might want to interact with the properties of your
+custom  classes, you should get in the habit of always defining dependency properties when
+building custom controls.</p>
+<h2>Examining an Existing Dependency Property</h2>
+<p>Before you learn how to build a custom dependency property, let’s take a look at how the Height
+property of the FrameworkElement class has been implemented internally. The relevant code is shown
+here (with my included comments); however, you can view the same code yourself if you make use of
+reflector.exe (just use the View | Search option).</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// FrameworkElement is-a DependencyObject.</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> FrameworkElement : UIElement, IFrameworkInputElement,
+    IInputElement, ISupportInitialize, IHaveResources, IQueryAmbient
+{
+...
+    <span class="rem">// A static readonly field of type DependencyProperty.</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">readonly</span> DependencyProperty HeightProperty;
+
+    <span class="rem">// The DependencyProperty field is often registered</span>
+    <span class="rem">// in the static constructor of the class.</span>
+    <span class="kwrd">static</span> FrameworkElement()
+    {
+        ...
+        HeightProperty = DependencyProperty.Register(
+            <span class="str">"Height"</span>,
+            <span class="kwrd">typeof</span>(<span class="kwrd">double</span>),
+            <span class="kwrd">typeof</span>(FrameworkElement),
+            <span class="kwrd">new</span> FrameworkPropertyMetadata((<span class="kwrd">double</span>) 1.0 / (<span class="kwrd">double</span>) 0.0,
+                FrameworkPropertyMetadataOptions.AffectsMeasure,
+                <span class="kwrd">new</span> PropertyChangedCallback(FrameworkElement.OnTransformDirty)),
+            <span class="kwrd">new</span> ValidateValueCallback(FrameworkElement.IsWidthHeightValid));
+    }
+
+    <span class="rem">// The CLR wrapper, which is implemented using</span>
+    <span class="rem">// the inherited GetValue()/SetValue() methods.</span>
+    <span class="kwrd">public</span> <span class="kwrd">double</span> Height
+    {
+        <span class="kwrd">get</span> { <span class="kwrd">return</span> (<span class="kwrd">double</span>) <span class="kwrd">base</span>.GetValue(HeightProperty); }
+        <span class="kwrd">set</span> { <span class="kwrd">base</span>.SetValue(HeightProperty, value); }
+    }
+}</pre>
+<p>As you can see, dependency properties require quite a bit of additional code from a normal
+CLR property! And in reality, a dependency can be even more complex than what you see here
+(thankfully, many implementations are simpler than Height).</p>
+<p>First and foremost, remember that if a class wants to define a dependency property, it must have
+DependencyObject in the inheritance chain, as this is the class which defines the GetValue() and
+SetValue() methods used in the CLR wrapper. Since FrameworkElement is-a DependencyObject, this
+requirement is satisfied.</p>
+<p>Next, recall that the entity which will hold the actual value of the property (a double in the case of
+Height) is represented as a public, static read-only field of type DependencyProperty. The name of this
+field should, by convention, always be named by suffixing the word Property to the name of the related
+CLR wrapper, like so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">readonly</span> DependencyProperty HeightProperty;</pre>
+    <p>Given that dependency properties are declared as static fields, they are typically created (and
+registered) within the static constructor of the class. The DependencyProperty object is created via a call
+to the static DependencyProperty.Register() method. This method has been overloaded many times;
+however, in the case of Height, DependencyProperty.Register() is invoked as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+HeightProperty = DependencyProperty.Register(
+    <span class="str">"Height"</span>,
+    <span class="kwrd">typeof</span>(<span class="kwrd">double</span>),
+    <span class="kwrd">typeof</span>(FrameworkElement),
+    <span class="kwrd">new</span> FrameworkPropertyMetadata((<span class="kwrd">double</span>)0.0,
+        FrameworkPropertyMetadataOptions.AffectsMeasure,
+    <span class="kwrd">new</span> PropertyChangedCallback(FrameworkElement.OnTransformDirty)),
+    <span class="kwrd">new</span> ValidateValueCallback(FrameworkElement.IsWidthHeightValid));</pre>
+ <p>The first argument to DependencyProperty.Register() is the name of the normal CLR property on
+the class (Height in this case), while the second argument is the type information of the underlying data
+type it is encapsulating (a double). The third argument specifies the type information of the class that
+this property belongs to (FrameworkElement in this case). While this might seem redundant (after all, the
+HeightProperty field is already defined within the FrameworkElement class), this is a very clever aspect of
+WPF in that it allows one class to register properties on another (even if the class definition has been
+sealed!).</p>
+<p>The fourth argument passed to DependencyProperty.Register() in this example is what really gives
+dependency properties their own unique flavor. Here a FrameworkPropertyMetadata object is passed that
+describes various details regarding how WPF should handle this property with respect to callback
+notifications (if the property needs to notify others when the value changes) and various options
+(represented by the FrameworkPropertyMetadataOptions enum) that control what is effected by the
+property in question (Does it work with data binding?, Can it be inherited?, etc.). In this case, the
+constructor arguments of FrameworkPropertyMetadata break down as so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">new</span> FrameworkPropertyMetadata(
+    <span class="rem">// Default value of property.</span>
+    (<span class="kwrd">double</span>)0.0,
+
+    <span class="rem">// Metadata options.</span>
+    FrameworkPropertyMetadataOptions.AffectsMeasure,
+    
+    <span class="rem">// Delegate pointing to method called when property changes.</span>
+    <span class="kwrd">new</span> PropertyChangedCallback(FrameworkElement.OnTransformDirty)
+)</pre>
+<p>Because the final argument to the FrameworkPropertyMetadata constructor is a delegate, note that its
+constructor parameter is pointing to a static method on the FrameworkElement class named
+OnTransformDirty(). I won’t bother to show the code behind this method, but be aware that any time
+you are building a custom dependency property, you can specify a PropertyChangedCallback delegate to
+point to a method that will be called when your property value has been changed.</p>
+<p>This brings me to the final parameter passed to the DependencyProperty.Register() method, a
+second delegate of type ValidateValueCallback, which points to a method on the FrameworkElement class
+which is called to ensure the value assigned to the property is valid:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">new</span> ValidateValueCallback(FrameworkElement.IsWidthHeightValid)</pre>
+<p>This method contains logic you might normally expect to find in the set block of a property (more
+information on this point in the next section):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> IsWidthHeightValid(<span class="kwrd">object</span> value)
+{
+    <span class="kwrd">double</span> num = (<span class="kwrd">double</span>) value;
+    <span class="kwrd">return</span> ((!DoubleUtil.IsNaN(num) &amp;&amp; (num &gt;= 0.0))
+        &amp;&amp; !<span class="kwrd">double</span>.IsPositiveInfinity(num));
+}</pre>
+    <p>Once the DependencyProperty object has been registered, the final task is to wrap the field within a
+normal CLR property (Height in this case). Notice, however, that the get and set scopes do not simply
+return or set a class-level double-member variable, but do so indirectly using the GetValue() and
+SetValue() methods from the System.Windows.DependencyObject base class:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">double</span> Height
+{
+    <span class="kwrd">get</span> { <span class="kwrd">return</span> (<span class="kwrd">double</span>) <span class="kwrd">base</span>.GetValue(HeightProperty); }
+    <span class="kwrd">set</span> { <span class="kwrd">base</span>.SetValue(HeightProperty, value); }
+}</pre>
+    <h2>Important Notes Regarding CLR Property Wrappers</h2>
+<p>So, just to recap the story thus far, dependency properties look like a normal every day property when
+you get or set their values in XAML or code, but behind the scenes they are implemented with much
+more elaborate coding techniques. Remember, the whole reason to go through this process is to build a
+custom control that has custom properties that need to integrate with WPF services that demand
+communication with a dependency property (e.g., animation, data binding, and styles).</p>
+<p>Even though part of the implementation of a dependency property includes defining a CLR
+wrapper, you should never put validation logic in the set block. For that matter, the CLR wrapper of a
+dependency property should never do anything other than call GetValue() or SetValue().</p>
+<p>The reason is that the WPF runtime has been constructed in such a way that when you write XAML
+that seems to set a property, such as</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="myButton"</span> <span class="attr">Height</span><span class="kwrd">="100"</span> ...<span class="kwrd">/&gt;</span></pre>
+<p>the runtime will completely bypass the set block of the Height property and directly call SetValue()!
+The reason for this odd behavior has to do with a simple optimization technique. If the WPF runtime
+were to directly call the set block of the Height property, it would have to perform runtime reflection to
+figure out where the DependencyProperty field (specified by the first argument to SetValue()) is located,
+reference it in memory, and so forth. The same story holds true if you were write XAML which retrieves
+the value of the Height property; GetValue() is called directly.</p>
+<p>Since this is the case, why do you need to build this CLR wrapper at all? Well, WPF XAML does not
+allow you to call functions in markup, so the following markup would be an error:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">&lt;!-- Nope! Can't call methods in WPF XAML! --&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="myButton"</span> <span class="attr">this</span>.<span class="attr">SetValue</span>(<span class="kwrd">"100"</span>) ...<span class="kwrd">/&gt;</span></pre>
+<p>In effect, when you set or get a value in markup using the CLR wrapper, think of it as a way to tell the
+WPF runtime, "Hey! Go call GetValue() / SetValue() for me, since I can’t do it in markup!"</p>
+<p>Now, what if you call the CLR wrapper in code like so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Button b = <span class="kwrd">new</span> Button();
+b.Height = 10;</pre>
+<p>In this case, if the set block of the Height property contained code other than a call to SetValue(), it
+would execute as the WPF XAML parser optimization is not involved. The short answer is that when
+registering a dependency property, use a ValidateValueCallaback delegate to point to a method that
+performs the data validation. This ensures that the correct behavior will occur, regardless of whether you
+use XAML or code to get/set a dependency property.</p>
+    </body>
+    </html>
+
+    
+      
+   

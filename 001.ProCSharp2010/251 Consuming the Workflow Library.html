@@ -1,0 +1,111 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Consuming the Workflow Library</h1>
+<p>Any sort of application can make use of a workflow library; however, here you will opt for simplicity and
+build a simple Console Application named WorkflowLibraryClient. Once you make the project, you will
+need to set a reference not only to your CheckInventoryWorkflowLib.dll and AutoLot.dll assemblies, but
+also the key WF 4.0 library, System.Activities.dll, which can be found in the .NET tab of the Visual
+Studio 2010 Add Reference dialog.</p>
+<p>Once each assembly reference has been set, update your Program.cs file with the following logic:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System;
+<span class="kwrd">using</span> System.Linq;
+<span class="kwrd">using</span> System.Activities;
+<span class="kwrd">using</span> System.Collections.Generic;
+<span class="kwrd">using</span> CheckInventoryWorkflowLib;
+
+<span class="kwrd">namespace</span> WorkflowLibraryClient
+{
+    <span class="kwrd">class</span> Program
+    {
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            Console.WriteLine(<span class="str">"**** Inventory Look up ****"</span>);
+
+            <span class="rem">// Get user preferences.</span>
+            Console.Write(<span class="str">"Enter Color: "</span>);
+            <span class="kwrd">string</span> color = Console.ReadLine();
+            Console.Write(<span class="str">"Enter Make: "</span>);
+            <span class="kwrd">string</span> make = Console.ReadLine();
+
+            <span class="rem">// Package up data for workflow.</span>
+            Dictionary&lt;<span class="kwrd">string</span>, <span class="kwrd">object</span>&gt; wfArgs = <span class="kwrd">new</span> Dictionary&lt;<span class="kwrd">string</span>, <span class="kwrd">object</span>&gt;()
+            {
+                {<span class="str">"RequestedColor"</span>, color},
+                {<span class="str">"RequestedMake"</span>, make}
+            };
+            <span class="kwrd">try</span>
+            {
+                <span class="rem">// Send data to workflow!</span>
+                WorkflowInvoker.Invoke(<span class="kwrd">new</span> CheckInventory(), wfArgs);
+            }
+            <span class="kwrd">catch</span> (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+    }
+}</pre>
+<p>As you have done in other examples, you are using the WorkflowInvoker to spin off the workflow in a
+synchronous manner. While this is all well and good, how are you to get back the return value of the
+workflow? Remember, once the workflow terminates, you should get back a formatted response!</p>
+<h2>Retrieving the Workflow Output Argument</h2>
+<p>The WorkflowInvoker.Invoke() method will return an object implementing the IDictionary&lt;string,
+object&gt; interface. Because a workflow can return back any number of output arguments, you will need
+to specify the name of a given output argument as a string value to the type indexer. Update your
+try/catch logic as so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">try</span>
+{
+    <span class="rem">// Send data to workflow!</span>
+    IDictionary&lt;<span class="kwrd">string</span>, <span class="kwrd">object</span>&gt; outputArgs =
+        WorkflowInvoker.Invoke(<span class="kwrd">new</span> CheckInventory(), wfArgs);
+
+    <span class="rem">// Print out the output message.</span>
+    Console.WriteLine(outputArgs[<span class="str">"FormattedResponse"</span>]);
+}
+<span class="kwrd">catch</span> (Exception ex)
+{
+    Console.WriteLine(ex.Message);
+}</pre>
+<p>Now, run your program and enter a make and color which is currently in your copy of the Inventory
+table of the AutoLot database. You’ll see output such as the following:</p>
+<pre class="cmdline">
+**** Inventory Look up ****
+Enter Color: Black
+Enter Make: BMW
+Yes sir! We can send you Black BMW as soon as 2/17/2010 9:23:01 PM!
+Press any key to continue . . .</pre>
+<p>However, if you enter information for an item not currently in stock, you will not only see output
+such as:</p>
+<pre class="cmdline">
+**** Inventory Look up ****
+Enter Color: Pea Soup Green
+Enter Make: Viper
+Sorry, out of stock
+Press any key to continue . . .</pre>
+<p>You will also find a new *.txt file in the \bin\Debug folder of the client application. If you open this
+in any text editor, you’ll find the “sales memo”:</p>
+<pre class="cmdline">
+***** Attention sales team! *****
+Please order the following ASAP!
+1 Pea Soup Green Viper
+*********************************</pre>
+<p>That wraps up your introductory look at the brand new WF 4.0 API. As mentioned at the opening of
+this chapter, if you have worked with the previous version of the Windows Workflow Foundation API,
+you can clearly see the entire programming model has been overhauled completely (for the better, in my
+opinion).</p>
+<p>While this chapter has only touched on some of the key aspects of this .NET 4.0 API, I do hope you
+feel confident that you can dive into the topic further if you are interested.</p>
+<p><b>Source Code</b> The WorkflowLibraryClientproject is included under the Chapter 26 subdirectory.</p>
+</body>
+    </html>

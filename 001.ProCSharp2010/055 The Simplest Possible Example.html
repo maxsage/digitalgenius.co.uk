@@ -1,0 +1,227 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>The Simplest Possible Example of using System.Exception</h1>
+ <p>To illustrate the usefulness of structured exception handling, we need to create a class that will throw an
+exception under the correct (or one might say exceptional) circumstances. Assume we have created a
+new C# Console Application project (named SimpleException) that defines two class types (Car and
+Radio) associated by the “has-a” relationship. The Radio class defines a single method that turns the
+radio’s power on or off:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Radio
+{
+    <span class="kwrd">public</span> <span class="kwrd">void</span> TurnOn(<span class="kwrd">bool</span> on)
+    {
+        <span class="kwrd">if</span>(on)
+            Console.WriteLine(<span class="str">"Jamming..."</span>);
+        <span class="kwrd">else</span>
+            Console.WriteLine(<span class="str">"Quiet time..."</span>);
+    }
+}</pre>
+<p>In addition to leveraging the Radio class via containment/delegation, the Car class (shown below) is
+defined in such a way that if the user accelerates a Car object beyond a predefined maximum speed
+(specified using a constant member variable named MaxSpeed), its engine explodes, rendering the Car
+unusable (captured by a private bool member variable named carIsDead).</p>
+<p>Beyond these points, the Car type has a few properties to represent the current speed and a user
+supplied “pet name,” as well as various constructors to set the state of a new Car object. Here is the
+complete definition (with code annotations):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Car
+{
+    <span class="rem">// Constant for maximum speed.</span>
+    <span class="kwrd">public</span> <span class="kwrd">const</span> <span class="kwrd">int</span> MaxSpeed = 100;
+
+    <span class="rem">// Car properties.</span>
+    <span class="kwrd">public</span> <span class="kwrd">int</span> CurrentSpeed {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+    <span class="kwrd">public</span> <span class="kwrd">string</span> PetName {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+
+    <span class="rem">// Is the car still operational?</span>
+    <span class="kwrd">private</span> <span class="kwrd">bool</span> carIsDead;
+    
+    <span class="rem">// A car has-a radio.</span>
+    <span class="kwrd">private</span> Radio theMusicBox = <span class="kwrd">new</span> Radio();
+
+    <span class="rem">// Constructors.</span>
+    <span class="kwrd">public</span> Car() {}
+    <span class="kwrd">public</span> Car(<span class="kwrd">string</span> name, <span class="kwrd">int</span> speed)
+    {
+        CurrentSpeed = speed;
+        PetName = name;
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> CrankTunes(<span class="kwrd">bool</span> state)
+    {
+        <span class="rem">// Delegate request to inner object.</span>
+        theMusicBox.TurnOn(state);
+    }
+
+    <span class="rem">// See if Car has overheated.</span>
+    <span class="kwrd">public</span> <span class="kwrd">void</span> Accelerate(<span class="kwrd">int</span> delta)
+    {
+        <span class="kwrd">if</span> (carIsDead)
+            Console.WriteLine(<span class="str">"{0} is out of order..."</span>, PetName);
+        <span class="kwrd">else</span>
+        {
+            CurrentSpeed += delta;
+            <span class="kwrd">if</span> (CurrentSpeed &gt; MaxSpeed)
+            {
+                Console.WriteLine(<span class="str">"{0} has overheated!"</span>, PetName);
+                CurrentSpeed = 0;
+                carIsDead = <span class="kwrd">true</span>;
+            }
+            <span class="kwrd">else</span>
+                Console.WriteLine(<span class="str">"=&gt; CurrentSpeed = {0}"</span>, CurrentSpeed);
+        }
+    }
+}</pre>
+<p>Now, if we implement a Main() method that forces a Car object to exceed the predefined maximum
+speed (set to 100, in the Car class) as shown here:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Simple Exception Example *****"</span>);
+    Console.WriteLine(<span class="str">"=&gt; Creating a car and stepping on it!"</span>);
+    Car myCar = <span class="kwrd">new</span> Car(<span class="str">"Zippy"</span>, 20);
+    myCar.CrankTunes(<span class="kwrd">true</span>);
+
+    <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; 10; i++)
+        myCar.Accelerate(10);
+    Console.ReadLine();
+}</pre>
+<p>we would see the following output:</p>
+<pre class="csharpcode">
+***** Simple Exception Example *****
+=> Creating a car and stepping on it!
+Jamming...
+=> CurrentSpeed = 30
+=> CurrentSpeed = 40
+=> CurrentSpeed = 50
+=> CurrentSpeed = 60
+=> CurrentSpeed = 70
+=> CurrentSpeed = 80
+=> CurrentSpeed = 90
+=> CurrentSpeed = 100
+Zippy has overheated!
+Zippy is out of order...</pre>
+<h2>Throwing a General Exception</h2>
+<p>Now that we have a functional Car class, I’ll demonstrate the simplest way to throw an exception. The
+current implementation of Accelerate() simply displays an error message if the caller attempts to speed
+up the Car beyond its upper limit.</p>
+<p>To retrofit this method to throw an exception if the user attempts to speed up the automobile after it
+has met its maker, you want to create and configure a new instance of the System.Exception class,
+setting the value of the read-only Message property via the class constructor. When you wish to send the
+exception object back to the caller, use the C# throw keyword. Here is the relevant code update to the
+Accelerate() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This time, throw an exception if the user speeds up beyond MaxSpeed.</span>
+<span class="kwrd">public</span> <span class="kwrd">void</span> Accelerate(<span class="kwrd">int</span> delta)
+{
+    <span class="kwrd">if</span> (carIsDead)
+        Console.WriteLine(<span class="str">"{0} is out of order..."</span>, PetName);
+    <span class="kwrd">else</span>
+    {
+        CurrentSpeed += delta;
+        <span class="kwrd">if</span> (CurrentSpeed &gt;= MaxSpeed)
+        {
+            carIsDead = <span class="kwrd">true</span>;
+            CurrentSpeed = 0;
+    
+            <span class="rem">// Use the "throw" keyword to raise an exception.</span>
+            <span class="kwrd">throw</span> <span class="kwrd">new</span> Exception(<span class="kwrd">string</span>.Format(<span class="str">"{0} has overheated!"</span>, PetName));
+        }
+        <span class="kwrd">else</span>
+            Console.WriteLine(<span class="str">"=&gt; CurrentSpeed = {0}"</span>, CurrentSpeed);
+    }
+}</pre>
+<p>Before examining how a caller would catch this exception, a few points of interest. First of all, when
+you are throwing an exception, it is always up to you to decide exactly what constitutes the error in
+question, and when an exception should be thrown. Here, you are making the assumption that if the
+program attempts to increase the speed of a Car object that has expired, a System.Exception object
+should be thrown to indicate the Accelerate() method cannot continue (which may or may not be a
+valid assumption; this will be a judgment call on your part based on the application you are creating).</p>
+<p>Alternatively, you could implement Accelerate() to recover automatically without needing to throw
+an exception in the first place. By and large, exceptions should be thrown only when a more terminal
+condition has been met (for example, not finding a necessary file, failing to connect to a database, and
+the like). Deciding exactly what justifies throwing an exception is a design issue you must always
+contend with. For our current purposes, assume that asking a doomed automobile to increase its speed
+is cause to throw an exception.</p>
+<h2>Catching Exceptions</h2>
+ <p>Because the Accelerate() method now throws an exception, the caller needs to be ready to handle the
+exception should it occur. When you are invoking a method that may throw an exception, you make use
+of a try/catch block. Once you have caught the exception object, you are able to invoke the members of
+the exception object to extract the details of the problem.</p>
+<p>What you do with this data is largely up to you. You may wish to log this information to a report file,
+write the data to the Windows event log, e-mail a system administrator, or display the problem to the
+end user. Here, you will simply dump the contents to the console window:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Handle the thrown exception.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Simple Exception Example *****"</span>);
+    Console.WriteLine(<span class="str">"=&gt; Creating a car and stepping on it!"</span>);
+    Car myCar = <span class="kwrd">new</span> Car(<span class="str">"Zippy"</span>, 20);
+    myCar.CrankTunes(<span class="kwrd">true</span>);
+
+    <span class="rem">// Speed up past the car's max speed to</span>
+    <span class="rem">// trigger the exception.</span>
+    <span class="kwrd">try</span>
+    {
+        <span class="kwrd">for</span>(<span class="kwrd">int</span> i = 0; i &lt; 10; i++)
+            myCar. Accelerate(10);
+    }
+
+    <span class="kwrd">catch</span>(Exception e)
+    {
+        Console.WriteLine(<span class="str">"\n*** Error! ***"</span>);
+        Console.WriteLine(<span class="str">"Method: {0}"</span>, e.TargetSite);
+        Console.WriteLine(<span class="str">"Message: {0}"</span>, e.Message);
+        Console.WriteLine(<span class="str">"Source: {0}"</span>, e.Source);
+    }
+
+    <span class="rem">// The error has been handled, processing continues with the next statement.</span>
+    Console.WriteLine(<span class="str">"\n***** Out of exception logic *****"</span>);
+    Console.ReadLine();
+}</pre>
+<p>In essence, a try block is a section of statements that may throw an exception during execution. If
+an exception is detected, the flow of program execution is sent to the appropriate catch block. On the
+other hand, if the code within a try block does not trigger an exception, the catch block is skipped
+entirely, and all is right with the world. The following output shows a test run of this program.</p>
+<pre class="csharpcode">
+    ***** Simple Exception Example *****
+=> Creating a car and stepping on it!
+Jamming...
+=> CurrentSpeed = 30
+=> CurrentSpeed = 40
+=> CurrentSpeed = 50
+=> CurrentSpeed = 60
+=> CurrentSpeed = 70
+=> CurrentSpeed = 80
+=> CurrentSpeed = 90
+
+*** Error! ***
+Method: Void Accelerate(Int32)
+Message: Zippy has overheated!
+Source: SimpleException
+
+***** Out of exception logic *****</pre>
+<p>As you can see, once an exception has been handled, the application is free to continue on from the
+point after the catch block. In some circumstances, a given exception may be critical enough to warrant
+the termination of the application. However, in a good number of cases, the logic within the exception
+handler will ensure the application can continue on its merry way (although it may be slightly less
+functional, such as not being able to connect to a remote data source).</p>
+</body>
+    </html>
+ 
+   
+

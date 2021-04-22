@@ -1,0 +1,126 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Building a WPF Application using Code-Behind Files</h1>
+<p>The first two examples of this chapter illustrated the extreme ends of building a WPF application, using
+all code or using all XAML. The recommended way to build any WPF application, however, is to use the
+code file approach. Under this model, the XAML files of your project contain nothing but the markup
+that describes the general state of your classes, while the code file contains the implementation details.</p>
+<h2>Adding a Code File for the MainWindow Class</h2>
+<p>To illustrate, you will update the WpfAppAllXaml example to use code files. If you are following along,
+copy this entire folder and give it the name WpfAppCodeFiles. Now, create a new C# code file in this
+folder named MainWindow.xaml.cs (by convention, the name of a C# code-behind file takes the form
+*.xaml.cs). Add the following code to this new file:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// MainWindow.xaml.cs</span>
+<span class="kwrd">using</span> System;
+<span class="kwrd">using</span> System.Windows;
+<span class="kwrd">using</span> System.Windows.Controls;
+<span class="kwrd">namespace</span> SimpleXamlApp
+{
+    <span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> MainWindow : Window
+    {
+        <span class="kwrd">public</span> MainWindow()
+        {
+            <span class="rem">// Remember! This method is defined</span>
+            <span class="rem">// within the generated MainWindow.g.cs file.</span>
+            InitializeComponent();
+        }
+
+        <span class="kwrd">private</span> <span class="kwrd">void</span> btnExitApp_Clicked(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+        {
+            <span class="kwrd">this</span>.Close();
+        }
+    }
+}</pre>
+<p>Here, you have defined a partial class to contain the event handling logic that will be merged with
+the partial class definition of the same type in the *.g.cs file. Given that InitializeComponent() is
+defined within the MainWindow.g.cs file, your window’s constructor makes a call in order to load and
+process the embedded BAML resource.</p>
+<p>The MainWindow.xaml file will also need to be updated; this simply involves gutting all traces of the
+previous C# code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span> <span class="attr">x:Class</span><span class="kwrd">="SimpleXamlApp.MainWindow"</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">Title</span><span class="kwrd">="A Window built using Code Files!"</span>
+    <span class="attr">Height</span><span class="kwrd">="200"</span> <span class="attr">Width</span><span class="kwrd">="300"</span>
+    <span class="attr">WindowStartupLocation</span> <span class="kwrd">="CenterScreen"</span><span class="kwrd">&gt;</span>
+
+    <span class="rem">&lt;!--The event handler is now in your code file --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnExitApp"</span> <span class="attr">Width</span><span class="kwrd">="133"</span> <span class="attr">Height</span><span class="kwrd">="24"</span>
+        <span class="attr">Content</span> = <span class="kwrd">"Close Window"</span> <span class="attr">Click</span> <span class="kwrd">="btnExitApp_Clicked"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+    <h2>Adding a Code File for the MyApp Class</h2>
+<p>If desired, you could also build a code-behind file for your Application-derived type. Because most of
+the action takes place in the MyApp.g.cs file, the code within MyApp.xaml.cs is little more than the
+following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// MyApp.xaml.cs</span>
+<span class="kwrd">using</span> System;
+<span class="kwrd">using</span> System.Windows;
+<span class="kwrd">using</span> System.Windows.Controls;
+
+<span class="kwrd">namespace</span> SimpleXamlApp
+{
+    <span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> MyApp : Application
+    {
+        <span class="kwrd">private</span> <span class="kwrd">void</span> AppExit(<span class="kwrd">object</span> sender, ExitEventArgs e)
+        {
+            MessageBox.Show(<span class="str">"App has exited"</span>);
+        }
+    }
+}</pre>
+<p>The MyApp.xaml file now looks like so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Application</span> <span class="attr">x:Class</span><span class="kwrd">="SimpleXamlApp.MyApp"</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">StartupUri</span><span class="kwrd">="MainWindow.xaml"</span>
+    <span class="attr">Exit</span> <span class="kwrd">="AppExit"</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Application</span><span class="kwrd">&gt;</span></pre>
+    <h2>Processing the Code Files with msbuild.exe</h2>
+<p>Before you recompile your files using msbuild.exe, you need to update our *.csproj file to account for
+the new C# files to include in the compilation process, via the &lt;Compile&gt; elements (shown in bold):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Project</span> <span class="attr">DefaultTargets</span><span class="kwrd">="Build"</span> <span class="attr">xmlns</span>=
+    <span class="kwrd">"http://schemas.microsoft.com/developer/msbuild/2003"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">PropertyGroup</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">RootNamespace</span><span class="kwrd">&gt;</span>SimpleXamlApp<span class="kwrd">&lt;/</span><span class="html">RootNamespace</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">AssemblyName</span><span class="kwrd">&gt;</span>SimpleXamlApp<span class="kwrd">&lt;/</span><span class="html">AssemblyName</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">OutputType</span><span class="kwrd">&gt;</span>winexe<span class="kwrd">&lt;/</span><span class="html">OutputType</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">PropertyGroup</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">ItemGroup</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Reference</span> <span class="attr">Include</span><span class="kwrd">="System"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Reference</span> <span class="attr">Include</span><span class="kwrd">="WindowsBase"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Reference</span> <span class="attr">Include</span><span class="kwrd">="PresentationCore"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Reference</span> <span class="attr">Include</span><span class="kwrd">="PresentationFramework"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">ItemGroup</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">ItemGroup</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">ApplicationDefinition</span> <span class="attr">Include</span><span class="kwrd">="MyApp.xaml"</span> <span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Compile</span> <span class="attr">Include</span> = <span class="kwrd">"MainWindow.xaml.cs"</span> <span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Compile</span> <span class="attr">Include</span> = <span class="kwrd">"MyApp.xaml.cs"</span> <span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Page</span> <span class="attr">Include</span><span class="kwrd">="MainWindow.xaml"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">ItemGroup</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Import</span> <span class="attr">Project</span><span class="kwrd">="$(MSBuildBinPath)\Microsoft.CSharp.targets"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Import</span> <span class="attr">Project</span><span class="kwrd">="$(MSBuildBinPath)\Microsoft.WinFX.targets"</span> <span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Project</span><span class="kwrd">&gt;</span></pre>
+    <p>Once you pass our build script into msbuild.exe, you find once again the same executable assembly
+as the WpfAppAllXaml application. However, as far as development is concerned, you now have a clean
+partition of presentation (XAML) from programming logic (C#).</p>
+<p>Given that this is the preferred method for WPF development, you’ll be happy to know that WPF
+applications created using Visual Studio 2010 always make use of the code-behind model just presented.</p>
+   <p><b>Source Code</b> The WpfAppCodeFiles project can be found under the Chapter 27 subdirectory.</p>
+  </body></html>
+   

@@ -1,0 +1,263 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>The Role of the C# dynamic Keyword</h1>
+<p>Back in Chapter 3, you learned about the var keyword, which allows you to define local variable in such a
+way that the underlying date type is determined by the initial assignment (recall that this is termed
+implicit typing). Once this initial assignment has been made, you have a strongly typed variable, and any
+attempt to assign an incompatible value will result in a compiler error.</p>
+<p>To begin your investigation into the C# dynamic keyword, create a new Console Application named
+DynamicKeyword. Now, author the following method in your Program class, and verify that the final code
+statement will indeed trigger a compile time error if uncommented:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ImplicitlyTypedVariable()
+{
+    <span class="rem">// a is of type List&lt;int&gt;.</span>
+    <span class="kwrd">var</span> a = <span class="kwrd">new</span> List&lt;<span class="kwrd">int</span>&gt;();
+    a.Add(90);
+
+    <span class="rem">// This would be a compile time error!</span>
+    <span class="rem">// a = "Hello";</span>
+}</pre>
+<p>Using implicit typing simply for the sake of doing so is considered bad style (if you know you need a
+List&lt;int&gt;, just declare a List&lt;int&gt;). However, as you have seen in Chapter 13, implicit typing is very
+useful with LINQ, as many LINQ queries return back enumerations of anonymous class (via projections)
+which you cannot directly declare in your C# code. However even in such cases, the implicitly typed
+variable is, in fact, strongly typed.</p>
+<p>On a related note, as you also learned back in Chapter 6, System.Object is the top-most parent class
+in the .NET framework, and can represent anything at all. Again, if you declare a variable of type object,
+you have a strongly typed piece of data, however what it points to in memory can differ based on your
+assignment of the reference. In order to gain access to the members the object reference is pointing to in
+memory, you need to perform an explicit cast.</p>
+<p>Assume you have a simple class named Person that defines two automatic properties (FirstName and
+LastName) both encapsulating a string. Now, observer the following code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> UseObjectVarible()
+{
+    <span class="rem">// Assume we have a class named Person.</span>
+    <span class="kwrd">object</span> o = <span class="kwrd">new</span> Person() { FirstName = <span class="str">"Mike"</span>, LastName = <span class="str">"Larson"</span> };
+
+    <span class="rem">// Must cast object as Person to gain access</span>
+    <span class="rem">// to the Person properties.</span>
+    Console.WriteLine(<span class="str">"Person's first name is {0}"</span>, ((Person)o).FirstName);
+}</pre>
+<p>With the release of .NET 4.0, the C# language now supports a new keyword named dynamic. From a
+high level, you can consider the dynamic keyword a specialized form of System.Object, in that any value
+can be assigned to a dynamic data type. At first glance, this can appear horribly confusing, as it appears
+you now have three ways to define data whose underlying type is not directly indicated in our code base.
+For example, this method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> PrintThreeStrings()
+{
+    <span class="kwrd">var</span> s1 = <span class="str">"Greetings"</span>;
+    <span class="kwrd">object</span> s2 = <span class="str">"From"</span>;
+    dynamic s3 = <span class="str">"Minneapolis"</span>;
+
+    Console.WriteLine(<span class="str">"s1 is of type: {0}"</span>, s1.GetType());
+    Console.WriteLine(<span class="str">"s2 is of type: {0}"</span>, s2.GetType());
+    Console.WriteLine(<span class="str">"s3 is of type: {0}"</span>, s3.GetType());
+}</pre>
+<p>would print out the following if invoked from Main():</p>
+<pre class="csharpcode">
+s1 is of type: System.String
+s2 is of type: System.String
+s3 is of type: System.String
+</pre>
+<p>What makes a dynamic variable much (much) different from a variable declared implicitly or via a
+System.Object reference is that it is not strongly typed. Said another way, dynamic data is not statically
+typed. As far as the C# compiler is concerned, a data point declared with the dynamic keyword can be
+assigned any initial value at all, and can be reassigned to any new (and possibly unrelated) value during
+its lifetime. Consider the following method, and the resulting output:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ChangeDynamicDataType()
+{
+    <span class="rem">// Declare a single dynamic data point</span>
+    <span class="rem">// named 't'.</span>
+    dynamic t = <span class="str">"Hello!"</span>;
+    Console.WriteLine(<span class="str">"t is of type: {0}"</span>, t.GetType());
+
+    t = <span class="kwrd">false</span>;
+    Console.WriteLine(<span class="str">"t is of type: {0}"</span>, t.GetType());
+
+    t = <span class="kwrd">new</span> List&lt;<span class="kwrd">int</span>&gt;();
+    Console.WriteLine(<span class="str">"t is of type: {0}"</span>, t.GetType());
+}</pre>
+<pre class="csharpcode">
+t is of type: System.String
+t is of type: System.Boolean
+t is of type: System.Collections.Generic.List`1[System.Int32]
+</pre>
+<p>Now, at this point in your investigation, do be aware that the previous code would compile and
+execute identically if you were to declare the t variable as a System.Object. However, as you will soon
+see, the dynamic keyword offers many additional features.</p>
+<h2>Calling Members on Dynamically Declared Data</h2>
+<p>Now, given that a dynamic data type can take on the identity of any type on the fly (just like a variable of
+type System.Object), the next question on your mind might be about calling members on the dynamic
+variable (properties, methods, indexers, register with events, etc). Well, syntactically speaking, it will
+again look no different. Just apply the dot operator to the dynamic data variable, specify a public
+member, and supply any arguments (if required).</p>
+<p>However (and this is a very big “however”), the validity of the members you specify will not be
+checked by the compiler! Remember, unlike a variable defined as a System.Object, dynamic data is not
+statically typed. It is not until runtime that you will know if you invoked the dynamic data supports a
+specified member, if you passed in the correct parameters, spelled the member correctly, and so on.
+Thus, as strange as it might seem, the following method compiles perfectly:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> InvokeMembersOnDynamicData()
+{
+    dynamic textData1 = <span class="str">"Hello"</span>;
+    Console.WriteLine(textData1.ToUpper());
+
+    <span class="rem">// You would expect compiler errors here!</span>
+    <span class="rem">// But they compile just fine.</span>
+    Console.WriteLine(textData1.toupper());
+    Console.WriteLine(textData1.Foo(10, <span class="str">"ee"</span>, DateTime.Now));
+}</pre>
+<p>Notice the second call to WriteLine() attempts to call a method named toupper() on the dynamic
+data point. As you can see, textData1 is of type string, and therefore you know it does not have a
+method of this name in all lower case letters. Furthermore, string certainly does not have a method
+named Foo() which takes an int, string and DataTime object!</p>
+<p>Nevertheless, the C# compiler is satisfied. However, if you invoke this method from within Main(),
+you will get runtime errors similar to the following output:</p>
+<pre class="csharpcode">
+Unhandled Exception: Microsoft.CSharp.RuntimeBinder.RuntimeBinderException:
+'string' does not contain a definition for 'toupper'
+</pre>
+<p>Another very big distinction between calling members on dynamic data and strongly typed data is
+that when you apply the dot operator to a piece of dynamic data, you will not see the expected Visual
+Studio 2010 IntelliSense. Instead, you will find the following general message (see Figure 18-1).</p>
+<img src="../Images/Figure18_01.png" alt="Figure 18-1" />
+<p><b>Figure 18-1.</b> Dynamic data will not activate IntelliSense</p>
+<p>It should make sense that IntelliSense is not possible with dynamic data. However remember that
+this means you need to be extremely careful when you are typing C# code on such data points! Any
+misspelling or incorrect capitalization of a member will throw a runtime error, specifically an instance of
+the RuntimeBinderException class.</p>
+<h2>The Role of the Microsoft.CSharp.dll Assembly</h2>
+<p>When you create a new Visual Studio 2010 C# project, you will automatically have a reference set to a
+new .NET 4.0 assembly named Microsoft.CSharp.dll (you can see this for yourself by looking in the
+References folder of the Solution Explorer). This library is very small, and only defines a single
+namespace (Microsoft.CSharp.RuntimeBinder) with two classes (see Figure 18-2).</p>
+<img src="../Images/Figure18_02.png" alt="Figure 18-2" />
+<p><b>Figure 18-2</b> The Microsoft.CSharp.dll Assembly</p>
+<p>As you can tell by their names, both of these classes are strongly typed exceptions. The most
+common class, RuntimeBinderException, represents an error which will be thrown if you attempt to
+invoke a member on a dynamic data type which does not actually exist (as in the case of the toupper()
+and Foo() methods). This same error will be raised if you specify the wrong parameter data to a member
+which does exist.</p>
+<p>Because dynamic data is so volatile, whenever you are invoking members on a variable declared
+with the C# dynamic keyword you could wrap the calls within a proper try/catch block, and handle the
+error in a graceful manner.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> InvokeMembersOnDynamicData()
+{
+    dynamic textData1 = <span class="str">"Hello"</span>;
+
+    <span class="kwrd">try</span>
+    {
+        Console.WriteLine(textData1.ToUpper());
+        Console.WriteLine(textData1.toupper());
+        Console.WriteLine(textData1.Foo(10, <span class="str">"ee"</span>, DateTime.Now));
+    }
+    <span class="kwrd">catch</span> (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException ex)
+    {
+        Console.WriteLine(ex.Message);
+    }
+}</pre>
+<p>If you call this method again, you will find the call to ToUpper() (note the capital T and U) works
+correctly, however you then find the error data displayed to the console:</p>
+<pre>
+HELLO
+'string' does not contain a definition for'toupper'</pre>
+<p>Of course, the process of wrapping all dynamic method invocations in a try/catch block is rather
+tedious. As long as you watch your spelling, and parameter passing, this is not required. However,
+catching exceptions is handy when you might not know in advance if a member will be present on the
+target type.</p>
+<h2>The Scope of the dynamic keyword</h2>
+<p>Recall that implicitly typed data is only possible for local variables in a member scope. The var keyword
+can never be used as a return value, a parameter or a member of a class/structure. This is not the case
+with the dynamic keyword however. Consider the following class definition:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> VeryDynamicClass
+{
+    <span class="rem">// A dynamic field.</span>
+    <span class="kwrd">private</span> <span class="kwrd">static</span> dynamic myDynamicField;
+
+    <span class="rem">// A dynamic property.</span>
+    <span class="kwrd">public</span> dynamic DynamicProperty { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+
+    <span class="rem">// A dynamic return type and a dynamic paramater type.</span>
+    <span class="kwrd">public</span> dynamic DynamicMethod(dynamic dynamicParam)
+    {
+        <span class="rem">// A dynamic local variable.</span>
+        dynamic dynamicLocalVar = <span class="str">"Local variable"</span>;
+    
+        <span class="kwrd">int</span> myInt = 10;
+        <span class="kwrd">if</span> (dynamicParam <span class="kwrd">is</span> <span class="kwrd">int</span>)
+        {
+            <span class="kwrd">return</span> dynamicLocalVar;
+        }
+        <span class="kwrd">else</span>
+        {
+            <span class="kwrd">return</span> myInt;
+        }
+    }
+}</pre>
+    <p>You could now invoke the public members as expected, however as you are operating on dynamic
+methods and properties, you cannot be completely sure what the data type will be! To be sure, the
+VeryDynamicClass definition may not be very useful in a real world application, but it does illustrate the
+scope of where you can apply this C# keyword.</p>
+<h2>Limitations of the dynamic Keyword</h2>
+<p>While a great many things can be defined using the dynamic keyword, there are some limitations
+regarding its usage. While they are not show stoppers, do know that a dynamic data item cannot make
+use of lambda expressions or C# anonymous methods when calling a method. For example, the
+following code will always result in errors, even if the target method does indeed take a delegate
+parameter which takes a string value and returns void.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+dynamic a = GetDynamicObject();
+
+<span class="rem">// Error! Methods on dynamic data can’t use lambdas!</span>
+a.Method(arg =&gt; Console.WriteLine(arg));</pre>
+<p>To circumvent this restriction, you will need to work with the underlying delegate directly, using the
+techniques described in Chapter 11 (anonymous methods and lambda expressions, etc). Another
+limitation is that a dynamic point of data cannot understand any extension methods (see Chapter 12).
+Unfortunately, this would also include any of the extension methods which come from the LINQ APIs.
+Therefore, a variable declared with the dynamic keyword has very limited use within LINQ to Objects and
+other LINQ technologies:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+dynamic a = GetDynamicObject();
+
+<span class="rem">// Error! Dynamic data can’t find the Select() extension method!</span>
+<span class="kwrd">var</span> data = <span class="kwrd">from</span> d <span class="kwrd">in</span> a select d;</pre>
+<h2>Practical Uses of the dynamic Keyword</h2>
+<p>Given the fact that dynamic data is not strongly typed, not checked at compile time, has no ability to
+trigger IntelliSense and cannot be the target of a LINQ query, you are absolutely correct to assume that
+using the dynamic keyword just for the sake of doing so is very poor programming practice.</p>
+<p>However, in a few circumstances, the dynamic keyword can radically reduce the amount of code
+you need to author by hand. Specifically, if you are building a .NET application which makes heavy use
+of late binding (via reflection), the dynamic keyword can save you typing time. As well, if you are building
+a .NET application that needs to communicate with legacy COM libraries (such as Microsoft Office
+products), you can greatly simplify your codebase via the dynamic keyword.</p>
+<p>Like any “shortcut,” you need to weigh the pros and cons. The use of the dynamic keyword is a
+tradeoff between brevity of code, and type safety. While C# is a strongly typed language at its core, you
+can opt in (or opt out) dynamic behaviors on a call by call basis. Always remember that you never need
+to use the dynamic keyword. You could always get to the same end result by authoring alternative code by
+hand (and typically much more of it).</p>
+    <p><b>Source Code</b> The DynamicKeyword project is located under the Chapter 18 subdirectory.</p>
+     </body>
+    </html>
+      
+   

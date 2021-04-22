@@ -1,0 +1,152 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Building and Consuming a Multifile Assembly</h1>
+    <p>Now that you have constructed and consumed a single-file assembly, let’s examine the process of
+building a multifile assembly. Recall that a multifile assembly is simply a collection of related modules
+that is deployed and versioned as a single logical unit. At the time of this writing, the Visual Studio IDE
+does not support a C# multifile assembly project template. Therefore, you will need to make use of the
+command-line compiler (csc.exe) to build such a beast.</p>
+<p>To describe the process, you will build a multifile assembly named AirVehicles. The primary
+module (airvehicles.dll) will contain a single class type named Helicopter. The related manifest (also
+contained in airvehicles.dll) will catalog an additional *.netmodule file named ufo.netmodule that
+contains another class type named (of course) Ufo. Although both class types are physically contained in
+separate binaries, you will group them into a single namespace named AirVehicles. You’ll create both
+classes using C# (although you could certainly mix and match languages if you desire).</p>
+<p>To begin, open a simple text editor (such as Notepad) and create the following Ufo class definition
+and save it to a file named ufo.cs:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System;
+<span class="kwrd">namespace</span> AirVehicles
+{
+    <span class="kwrd">public</span> <span class="kwrd">class</span> Ufo
+    {
+        <span class="kwrd">public</span> <span class="kwrd">void</span> AbductHuman()
+        {
+            Console.WriteLine(<span class="str">"Resistance is futile"</span>);
+        }
+    }
+}</pre>
+<p>To compile this class into a .NET module, open a Visual Studio 2010 Command Prompt, navigate to
+the folder containing ufo.cs and issue the following command to the C# compiler (the module option of
+the /target flag instructs csc.exe to produce a *.netmodule as opposed to a *.dll or an *.exe file):</p>
+<pre class="csharpcode">csc.exe /t:module ufo.cs</pre>
+<p>If you now look in the folder that contains the ufo.cs file, you should see a new file named
+ufo.netmodule (take a peek in your working directory). Next, create a new file named helicopter.cs that
+contains the following class definition:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System;
+
+<span class="kwrd">namespace</span> AirVehicles
+{
+    <span class="kwrd">public</span> <span class="kwrd">class</span> Helicopter
+    {
+        <span class="kwrd">public</span> <span class="kwrd">void</span> TakeOff()
+        {
+            Console.WriteLine(<span class="str">"Helicopter taking off!"</span>);
+        }
+    }
+}</pre>
+<p>Given that airvehicles.dll is the intended name of the primary module of this multifile assembly,
+you will need to compile helicopter.cs using the /t:library and /out: options. To enlist the
+ufo.netmodule binary into the assembly manifest, you must also specify the /addmodule flag. The
+following command does the trick:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+csc /t:library /addmodule:ufo.netmodule /<span class="kwrd">out</span>:airvehicles.dll helicopter.cs</pre>
+<p>At this point, your directory should contain the primary airvehicles.dll module as well as the
+secondary ufo.netmodule binaries.</p>
+<h2>Exploring the ufo.netmodule File</h2>
+<p>Now, using ildasm.exe, open ufo.netmodule. As you can see, *.netmodules contain a module-level
+manifest; however, its sole purpose is to list each external assembly referenced by the code base. Given
+that the Ufo class did little more than make a call to Console.WriteLine(), you find the following core
+information:</p>
+<pre class="csharpcode">
+.assembly extern mscorlib
+{
+    .publickeytoken = (B7 7A 5C 56 19 34 E0 89 )
+    .ver 4:0:0:0
+}
+.module ufo.netmodule
+</pre>
+<h2>Exploring the airvehicles.dll File</h2>
+<p>Next, using ildasm.exe, open the primary airvehicles.dll module and investigate the assembly-level
+manifest. Notice that the .file token documents the associated modules in the multifile assembly
+(ufo.netmodule in this case). The .class extern tokens are used to document the names of the external
+types referenced for use from the secondary module (Ufo). Here is the relevant information:</p>
+<pre class="csharpcode">
+.assembly extern mscorlib
+{
+    .publickeytoken = (B7 7A 5C 56 19 34 E0 89 )
+    .ver 4:0:0:0
+}
+.assembly airvehicles
+{
+...
+    .hash algorithm 0x00008004
+    .ver 0:0:0:0
+}
+.file ufo.netmodule
+...
+.class extern public AirVehicles.Ufo
+{
+    .file ufo.netmodule
+    .class 0x02000002
+}
+.module airvehicles.dll
+</pre>
+<p>Again, realize that the only entity that links together airvehicles.dll and ufo.netmodule is the
+assembly manifest. These two binary files have not been merged into a single, larger *.dll.</p>
+<h2>Consuming a Multifile Assembly</h2>
+<p>The consumers of a multifile assembly couldn’t care less that the assembly they are referencing is
+composed of numerous modules. To keep things simple, let’s create a new C# client application at the
+command line. Create a new file named Client.cs with the following module definition. When you are
+done, save it in the same location as your multifile assembly.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> AirVehicles;
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main()
+    {
+        Console.WriteLine(<span class="str">"***** Multifile Assembly Client *****"</span>);
+        Helicopter h = <span class="kwrd">new</span> Helicopter();
+        h.TakeOff();
+
+        <span class="rem">// This will load the *.netmodule on demand.</span>
+        Ufo u = <span class="kwrd">new</span> Ufo();
+        u.AbductHuman();
+        Console.ReadLine();
+    }
+}</pre>
+<p>To compile this executable assembly at the command line, use the C# command-line compiler,
+csc.exe, with the following command set:</p>
+<pre class="csharpcode">
+csc /r:airvehicles.dll Client.cs</pre>
+<p>Notice that when you are referencing a multifile assembly, the compiler needs to be supplied only
+with the name of the primary module (the *.netmodules are loaded on demand by the CLR when used by
+the client’s code base). In and of themselves, *.netmodules do not have an individual version number
+and can’t be directly loaded by the CLR. Individual *.netmodules can be loaded only by the primary
+module (e.g., the file that contains the assembly manifest).</p>
+<p><b>Note</b> Visual Studio 2010 also allows you to reference a multifile assembly. Simply use the Add References
+dialog box and select the primary module. Any related *.netmodules are copied during the process.</p>
+<p>At this point, you should feel comfortable with the process of building both single-file and multifile
+assemblies. To be completely honest, chances are very good that all of your assemblies will be single-file
+entities. Nevertheless, multifile assemblies can prove helpful when you wish to break a large physical
+binary into modular units (which are quite useful for remote download scenarios). Next up, let’s
+formalize the concept of a private assembly.</p>
+    <p><b>Source Code</b> The MultifileAssembly code files are included under the Chapter 14 subdirectory.</p>
+    </body>
+    </html>
+
+ 
+   
+

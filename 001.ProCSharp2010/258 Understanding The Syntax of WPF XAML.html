@@ -1,0 +1,465 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Understanding The Syntax of WPF XAML</h1>
+<p>Production level WPF applications will typically make use of dedicated tools to generate the necessary
+XAML. As helpful as these tools are, it is a very good idea to have an understanding of the overall
+structure of XAML markup.</p>
+<h2>Introducing Kaxaml</h2>
+<p>When you are first learning the grammar of XAML, it can be very helpful to use a free tool named
+kaxaml. You can obtain this popular WPF XAML editor/parser from the following web site:</p>
+<pre>
+http://www.kaxaml.com<</pre>
+<p>Kaxaml is helpful in that it has no clue about C# source code, event handlers or implementation
+logic and is a much more straightforward way to test XAML snippets than using a full-blown Visual
+Studio 2010 WPF project template. As well, kaxaml has a number of integrated tools, such as a color
+chooser, XAML snippet manager, and even a "XAML scrubber" option that will format your XAML based
+on your settings.</p>
+<p>When you first open kaxaml, you will find simple markup for a &lt;Page&gt; control:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Page</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Grid</span><span class="kwrd">&gt;</span>
+        <span class="rem">&lt;!-- Add your XAML here! --&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Grid</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Page</span><span class="kwrd">&gt;</span></pre>
+    <p>Like a Window, a Page contains various layout managers and controls. However, unlike a Window, Page
+objects cannot run as standalone entities. Rather, they must be placed inside of a suitable host such as a
+NavigationWindow, Frame or a web browser (and in that case, you have just made an XBAP!). The good
+news is that you can type identical markup within a &lt;Page&gt; or &lt;Window&gt; scope.</p>
+<p><b>Note</b> If you change the &lt;Page&gt; and &lt;/Page&gt; elements in the kaxaml markup window to &lt;Window&gt; and
+&lt;/Window&gt;, you can press the F5 key to load a new window onto the screen.</p>
+<p>As an initial test, enter the following markup into the XAML pane at the bottom of the tool:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Page</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Grid</span><span class="kwrd">&gt;</span>
+        <span class="rem">&lt;!-- A button with custom content --&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">Height</span><span class="kwrd">="100"</span> <span class="attr">Width</span><span class="kwrd">="100"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Ellipse</span> <span class="attr">Fill</span><span class="kwrd">="Green"</span> <span class="attr">Height</span><span class="kwrd">="50"</span> <span class="attr">Width</span><span class="kwrd">="50"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">Button</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Grid</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Page</span><span class="kwrd">&gt;</span></pre>
+    <p>You should now see your page render at the upper part of the kaxaml editor (Figure 27-13).</p>
+<img src="../Images/Figure27_13.png" alt="Figure 27-13" />
+<p><b>Figure 27-13</b> Kaxaml is a very helpful (and free) tool used to learn the grammar of XAML</p>
+<p>As you work with kaxaml, remember that this tool does not allow you to author any markup that
+entails code compilation (however, using x:Name is allowed). This includes defining a x:Class attribute
+(for specifying a code file), entering event handler names in markup, or using any XAML keywords that
+also entail code compilation (such as FieldModifier or ClassModifier). Any attempt to do so will result
+in a markup error.</p>
+<h2>XAML XML Namespaces and XAML "Keywords"</h2>
+<p>The root element of a WPF XAML document (such as a &lt;Window&gt;, &lt;Page&gt;, &lt;&gt; or
+&lt;Application&gt; definition) will almost always make reference to two predefined XML namespaces:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Page</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Grid</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Grid</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Page</span><span class="kwrd">&gt;</span></pre>
+    <p>The first XML namespace, http://schemas.microsoft.com/winfx/2006/xaml/presentation, maps a
+slew of WPF .NET namespaces for use by the current *.xaml file (System.Windows, System.Windows.Controls, System.Windows.Data, System.Windows.Ink, System.Windows.Media,
+System.Windows.Navigation, etc.).</p>
+<p>This one-to-many mapping is actually hard-coded within the WPF assemblies (WindowsBase.dll,
+PresentationCore.dll, and PresentationFramework.dll) using the assembly-level [XmlnsDefinition]
+attribute. Here is one such listing, which essentially imports System.Windows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+[assembly: XmlnsDefinition("http://schemas.microsoft.com/winfx/2006/xaml/presentation",
+"System.Windows")]</pre>
+ <p>If you load these WPF assemblies into reflector.exe, you can view these mappings firsthand. For
+example, if you select the PresentationCore.dll assembly (see Figure 27-14), and press the Space key,
+you will see numerous instances of the [XmlnsDefinition] attribute.</p>
+<img src="../Images/Figure27_14.png" alt="Figure 27-14" />
+<p><b>Figure 27-14</b> The http://schemas.microsoft.com/winfx/2006/xaml/presentation namespace maps to the
+core WPF namespaces</p>
+<p>The second XML namespace, http://schemas.microsoft.com/winfx/2006/xaml, is used to include
+XAML-specific "keywords" (for lack of a better term) as well as the inclusion of the
+System.Windows.Markup namespace:</p>
+<pre>
+[assembly: XmlnsDefinition("http://schemas.microsoft.com/winfx/2006/xaml", "System.Windows.Markup")]</pre>
+ <p>One rule of any well-formed XML document (remember, XAML is an XML-based grammar) is that
+the opening root element designates one XML namespace as the primary namespace, which typically is
+the namespace that contains the most commonly used items. If a root element requires the inclusion of
+additional secondary namespaces (as seen here), they must be defined using a unique tag prefix (to
+resolve any possible name clashes). As a convention, the prefix is simply x; however, this can be any
+unique token you require, such as XamlSpecificStuff:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Page</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:XamlSpecificStuff</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Grid</span><span class="kwrd">&gt;</span>
+        <span class="rem">&lt;!-- A button with custom content --&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">XamlSpecificStuff:Name</span><span class="kwrd">="button1"</span> <span class="attr">Height</span><span class="kwrd">="100"</span> <span class="attr">Width</span><span class="kwrd">="100"</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">Ellipse</span> <span class="attr">Fill</span><span class="kwrd">="Green"</span> <span class="attr">Height</span><span class="kwrd">="50"</span> <span class="attr">Width</span><span class="kwrd">="50"</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">Button</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Grid</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Page</span><span class="kwrd">&gt;</span></pre>
+    <p>The obvious downside of defining wordy XML namespace prefixes is you would be required to type
+XamlSpecificStuff each time your XAML file needs to refer to one of the items defined within this
+XAML-centric XML namespace . Given that XamlSpecificStuff requires many additional keystrokes, just
+stick with x.</p>
+<p>In any case, beyond the x:Name, x:Class and x:Code keywords, the
+http://schemas.microsoft.com/winfx/2006/xaml XML namespace also provides access to additional
+XAML keywords, the most common of which are shown in Table 27-9.</p>
+<p><b>Table 27-9.</b> XAML Keywords</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    XAML Keyword
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    x:Array
+   </td>
+   <td>
+    Represents a .NET array type in XAML.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    x:ClassModifier
+   </td>
+   <td>
+    Allows you to define the visibility of the C# class (internal or public)
+denoted by the Class keyword.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    x:FieldModifier
+   </td>
+   <td>
+    Allows you to define the visibility of a type member (internal, public,
+private, or protected) for any named subelement of the root (e.g., a
+&lt;Button&gt; within a &lt;Window&gt; element). A named element is defined using
+the Name XAML keyword.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    x:Key
+   </td>
+   <td>
+    Allows you to establish a key value for an XAML item that will be placed
+into a dictionary element.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    x:Name
+   </td>
+   <td>
+    Allows you to specify the generated C# name of a given XAML element.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    x:Null
+   </td>
+   <td>
+    Represents a null reference.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    x:Static
+   </td>
+   <td>
+    Allows you to make reference to a static member of a type.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    x:Type
+   </td>
+   <td>
+    The XAML equivalent of the C# typeof operator (it will yield a System.Type
+based on the supplied name).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    x:TypeArguments
+   </td>
+   <td>
+    Allows you to establish an element as a generic type with a specific type
+parameter (e.g., List&lt;int&gt; vs. List&lt;bool&gt;).
+   </td>
+  </tr>
+</table>
+<p>In addition to these two necessary XML namespace declarations, it is possible, and sometimes
+necessary, to define additional tag prefixes in the opening element of a XAML document. You will
+typically do so whenever you need to describe in XAML a .NET class defined in an external assembly.
+For example, say you have built a few custom WPF controls and packaged them in a library named
+MyControls.dll.</p>
+<p>Now, if you wish to create a new Window that uses these controls, you can establish a custom XML
+namespace that maps to your library using the clr-namespace and assembly tokens. Here is some
+example markup that creates a tag prefix named myCtrls, which can be used to access members in your
+library:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span> <span class="attr">x:Class</span><span class="kwrd">="WpfApplication1.MainWindow"</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">xmlns:myCtrls</span><span class="kwrd">="clr-namespace:MyControls;assembly=MyControls"</span>
+    <span class="attr">Title</span><span class="kwrd">="MainWindow"</span> <span class="attr">Height</span><span class="kwrd">="350"</span> <span class="attr">Width</span><span class="kwrd">="525"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Grid</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">myCtrls:MyCustomControl</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Grid</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+    <p>The clr-namespace token is assigned to the name of the .NET namespace in the assembly, while the
+assembly token is set to the friendly name of the external *.dll assembly. You can use this syntax for any
+external .NET library you wish to manipulate in markup.</p>
+<h2>Controlling Class and Member Variable Declarations</h2>
+<p>You will see many of these keywords in action where required in the chapters to come; however, by way
+of a simple example, consider the following XAML &lt;Window&gt; definition that makes use of the
+ClassModifier and FieldModifier keywords as well as x:Name and x:Class (remember that kaxaml.exe
+will not allow you to make use of any XAML keyword that entails code compilation, such as x:Code,
+x:FieldModifier, or x:ClassModifier):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">&lt;!-- This class will now be declared internal in the *.g.cs file --&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Window</span> <span class="attr">x:Class</span><span class="kwrd">="MyWPFApp.MainWindow"</span> <span class="attr">x:ClassModifier</span> <span class="kwrd">="internal"</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span><span class="kwrd">&gt;</span>
+
+    <span class="rem">&lt;!-- This button will be public in the *.g.cs file --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span> <span class="kwrd">="myButton"</span> <span class="attr">x:FieldModifier</span> <span class="kwrd">="public"</span> <span class="attr">Content</span> = <span class="kwrd">"OK"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+    <p>By default, all C#/XAML type definitions are public, while members default to internal. However,
+based on your XAML definition, the resulting autogenerated file contains an internal class type with a
+public Button tButton type:</p>
+internal partial class MainWindow : System.Windows.Window,
+System.Windows.Markup.IComponentConnector
+{
+	public System.Windows.Controls.Button myButton;
+	...
+}
+<h2>XAML Elements, XAML Attributes and Type Converters</h2>
+<p>Once you have established your root element and any required XML namespaces, your next task is to
+populate the root with a child element. In a real-world WPF application, the child will be a layout
+manager (such as a Grid or StackPanel) which contains, in turn, any number of additional UI elements
+that describe the user interface. The next chapter examines these layout managers in detail, so for now
+just assume that your &lt;Window&gt; type will contain a single Button element.</p>
+<p>As you have already seen over the course of this chapter, XAML elements map to a class or structure
+type within a given .NET namespace, while the attributes within the opening element tag map to
+properties or events of the type.</p>
+<p>To illustrate, enter the following &lt;Button&gt; definition into kaxaml:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Page</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Grid</span><span class="kwrd">&gt;</span>
+        <span class="rem">&lt;!-- Configure the look and feel of a Button --&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">Height</span><span class="kwrd">="50"</span> <span class="attr">Width</span><span class="kwrd">="100"</span> <span class="attr">Content</span><span class="kwrd">="OK!"</span>
+            <span class="attr">FontSize</span><span class="kwrd">="20"</span> <span class="attr">Background</span><span class="kwrd">="Green"</span> <span class="attr">Foreground</span><span class="kwrd">="Yellow"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Grid</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Page</span><span class="kwrd">&gt;</span></pre>
+<p>Notice that the values assigned to each property have been captured as a simple text value. This
+may seem like a complete mismatch of data types because if you were to make this Button in C# code,
+you would not assign string objects to these properties but would make use of specific data types. For
+example, here is the same button authored in code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">void</span> MakeAButton()
+{
+    Button myBtn = <span class="kwrd">new</span> Button();
+    myBtn.Height = 50;
+    myBtn.Width = 100;
+    myBtn.FontSize = 20;
+    myBtn.Content = <span class="str">"OK!"</span>;
+    myBtn.Background = <span class="kwrd">new</span> SolidColorBrush(Colors.Green);
+    myBtn.Foreground = <span class="kwrd">new</span> SolidColorBrush(Colors.Yellow);
+}</pre>
+<p>As it turns out, WPF ships with a number of type converter classes, which will be used to transform
+simple text values into the correct underlying data type. This process happens transparently (and
+automatically).</p>
+<p>While this is all well and good, there will be many times when you need to assign a much more
+complex value to a XAML attribute, which cannot be captured as a simple string. For example, let's say
+you want to build a custom brush to set the Background property of the Button. If you are building the
+brush in code, it is quite straightforward:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">void</span> MakeAButton()
+{
+...
+    <span class="rem">// A fancy brush for the background.</span>
+    LinearGradientBrush fancyBruch =
+        <span class="kwrd">new</span> LinearGradientBrush(Colors.DarkGreen, Colors.LightGreen, 45);
+    myBtn.Background = fancyBruch;
+    myBtn.Foreground = <span class="kwrd">new</span> SolidColorBrush(Colors.Yellow);
+}</pre>
+<p>How, however, can you represent your complex brush as a string? Well, you can't! Thankfully
+XAML provides a special syntax that can be used whenever you need to assign a property value to a
+complex object, termed property-element syntax.</p>
+<h2>Understanding XAML Property-Element Syntax</h2>
+<p>Property-element syntax allows you to assign complex objects to a property. Here is an XAML description
+for a Button that makes use of a LinearGradientBrush to set its Background property:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">Height</span><span class="kwrd">="50"</span> <span class="attr">Width</span><span class="kwrd">="100"</span> <span class="attr">Content</span><span class="kwrd">="OK!"</span>
+    <span class="attr">FontSize</span><span class="kwrd">="20"</span> <span class="attr">Foreground</span><span class="kwrd">="Yellow"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Button.Background</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">LinearGradientBrush</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">GradientStop</span> <span class="attr">Color</span><span class="kwrd">="DarkGreen"</span> <span class="attr">Offset</span><span class="kwrd">="0"</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">GradientStop</span> <span class="attr">Color</span><span class="kwrd">="LightGreen"</span> <span class="attr">Offset</span><span class="kwrd">="1"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">LinearGradientBrush</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Button.Background</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Button</span><span class="kwrd">&gt;</span></pre>
+    <p>Notice that within the scope of the &lt;Button&gt; and &lt;/Button&gt; tags, you have defined a sub-scope
+named &lt;Button.Background&gt;. Within this scope, you have defined a custom &lt;LinearGradientBrush&gt;.
+(Don't worry about the exact code for the brush; you'll learn about WPF graphics in Chapter 30.)</p>
+<p>Generally speaking, any property can be set using property-element syntax, that always breaks
+down to the following pattern:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">DefiningClass</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">DefiningClass.PropertyOnDefiningClass</span><span class="kwrd">&gt;</span>
+        <span class="rem">&lt;!-- Value for Property here! --&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">DefiningClass.PropertyOnDefiningClass</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">DefiningClass</span><span class="kwrd">&gt;</span></pre>
+    <p>While any property could be set using this syntax, if you can capture a value as a simple string, you
+will save yourself typing time. For example, here would be a much more verbose way to set the Width of
+your Button:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">Height</span><span class="kwrd">="50"</span> <span class="attr">Content</span><span class="kwrd">="OK!"</span>
+    <span class="attr">FontSize</span><span class="kwrd">="20"</span> <span class="attr">Foreground</span><span class="kwrd">="Yellow"</span><span class="kwrd">&gt;</span>
+...
+    <span class="kwrd">&lt;</span><span class="html">Button.Width</span><span class="kwrd">&gt;</span>
+        100
+    <span class="kwrd">&lt;/</span><span class="html">Button.Width</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Button</span><span class="kwrd">&gt;</span></pre>
+    <h2>Understanding XAML Attached Properties</h2>
+<p>In addition to property-element syntax, XAML defines a special syntax used to set a value to an attached
+property. Essentially, an attached property allows a child element to set the value for a property that is
+actually defined in a parent element. The general template to follow looks like this:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">ParentElement</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">ChildElement</span> <span class="attr">ParentElement</span>.<span class="attr">PropertyOnParent</span> = <span class="kwrd">"Value"</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">ParentElement</span><span class="kwrd">&gt;</span></pre>
+    <p>The most common use of attached property syntax is to position UI elements within one of the WPF
+layout managers classes (Grid, DockPanel, etc.). The next chapter dives into these panels in some detail;
+for now, enter the following in kaxaml:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Page</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Canvas</span> <span class="attr">Height</span><span class="kwrd">="200"</span> <span class="attr">Width</span><span class="kwrd">="200"</span> <span class="attr">Background</span><span class="kwrd">="LightBlue"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Ellipse</span> <span class="attr">Canvas</span>.<span class="attr">Top</span><span class="kwrd">="40"</span> <span class="attr">Canvas</span>.<span class="attr">Left</span><span class="kwrd">="40"</span> <span class="attr">Height</span><span class="kwrd">="20"</span> <span class="attr">Width</span><span class="kwrd">="20"</span> <span class="attr">Fill</span><span class="kwrd">="DarkBlue"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Canvas</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Page</span><span class="kwrd">&gt;</span></pre>
+    <p>Here, you have defined a Canvas layout manager that contains an Ellipse. Notice that the Ellipse is
+able to inform its parent (the Canvas) where to position its top/left position using attached property
+syntax.</p>
+<p>There are a few items to be aware of regarding attached properties. First and foremost, this is not an
+all-purpose syntax that can be applied to any property of any parent. For example, the following XAML
+cannot be parsed without error:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">&lt;!-- Error! Set Background property on Canvas via attached property? --&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Canvas</span> <span class="attr">Height</span><span class="kwrd">="200"</span> <span class="attr">Width</span><span class="kwrd">="200"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Ellipse</span> <span class="attr">Canvas</span>.<span class="attr">Background</span><span class="kwrd">="LightBlue"</span>
+        <span class="attr">Canvas</span>.<span class="attr">Top</span><span class="kwrd">="40"</span> <span class="attr">Canvas</span>.<span class="attr">Left</span><span class="kwrd">="90"</span>
+        <span class="attr">Height</span><span class="kwrd">="20"</span> <span class="attr">Width</span><span class="kwrd">="20"</span> <span class="attr">Fill</span><span class="kwrd">="DarkBlue"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Canvas</span><span class="kwrd">&gt;</span></pre>
+    <p>In reality, attached properties are a specialized form of a WPF-specific concept termed a dependency
+property. Unless a property was implemented in a very specific manner, you cannot set its value using
+attached property syntax. You will explore dependency properties in a detail in Chapter 31.</p>
+<p><b>Note</b> Kaxaml, Visual Studio 2010, and Expression Blend all have IntelliSense, which will show you valid
+attached properties that can be set by a given element.</p>
+<h2>Understanding XAML Markup Extensions</h2>
+<p>As explained, property values are most often represented using a simple string or via property-element
+syntax. There is, however, another way to specify the value of a XAML attribute, using markup
+extensions. Markup extensions allow a XAML parser to obtain the value for a property from a dedicated,
+external class. This can be very beneficial, given that some property values require a number of code
+statements to execute to figure out the value.</p>
+<p>Markup extensions provide a way to cleanly extend the grammar of XAML with new functionality. A
+markup extension is represented internally as a class that derives from MarkupExtension. Note that the
+chances of your ever needing to build a custom markup extension will be slim to none. However, a
+subset of XAML keywords (such as x:Array, x:Null, x:Static, and x:Type) are markup extensions in
+disguise!</p>
+<p>A markup extension is sandwiched between curly brackets, like so:</p>
+<p>CODE GOES HERE</p>
+
+<p>To see a markup extensions in action, author the following into kaxaml:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Page</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">xmlns:CorLib</span><span class="kwrd">="clr-namespace:System;assembly=mscorlib"</span><span class="kwrd">&gt;</span>
+
+    <span class="kwrd">&lt;</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+        <span class="rem">&lt;!-- The Static markup extension lets us obtain a value</span>
+<span class="rem">            from a static member of a class --&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">Content</span> <span class="kwrd">="{x:Static CorLib:Environment.OSVersion}"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">Content</span> <span class="kwrd">="{x:Static CorLib:Environment.ProcessorCount}"</span><span class="kwrd">/&gt;</span>
+
+        <span class="rem">&lt;!-- The Type markup extension is a XAML verion of</span>
+<span class="rem">            the C# typeof operator --&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">Content</span> <span class="kwrd">="{x:Type Button}"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">Content</span> <span class="kwrd">="{x:Type CorLib:Boolean}"</span> <span class="kwrd">/&gt;</span>
+
+        <span class="rem">&lt;!-- Fill a ListBox with an array of strings! --&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">ListBox</span> <span class="attr">Width</span><span class="kwrd">="200"</span> <span class="attr">Height</span><span class="kwrd">="50"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">ListBox.ItemsSource</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">x:Array</span> <span class="attr">Type</span><span class="kwrd">="CorLib:String"</span><span class="kwrd">&gt;</span>
+                    <span class="kwrd">&lt;</span><span class="html">CorLib:String</span><span class="kwrd">&gt;</span>Sun Kil Moon<span class="kwrd">&lt;/</span><span class="html">CorLib:String</span><span class="kwrd">&gt;</span>
+                    <span class="kwrd">&lt;</span><span class="html">CorLib:String</span><span class="kwrd">&gt;</span>Red House Painters<span class="kwrd">&lt;/</span><span class="html">CorLib:String</span><span class="kwrd">&gt;</span>
+                    <span class="kwrd">&lt;</span><span class="html">CorLib:String</span><span class="kwrd">&gt;</span>Besnard Lakes<span class="kwrd">&lt;/</span><span class="html">CorLib:String</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;/</span><span class="html">x:Array</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">ListBox.ItemsSource</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">ListBox</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Page</span><span class="kwrd">&gt;</span></pre>
+    <p>First of all, notice that the &lt;Page&gt; definition has a new XML namespace declaration, which allows
+you to gain access to the System namespace of mscorlib.dll. With this XML namespace established, you
+first make use of the x:Static markup extension and grab values from OSVersion and ProcessorCount of
+the System.Environment class.</p>
+<p>The x:Type markup extension allows you to gain access to the metadata description of the specified
+item. Here, you are simply assigning the fully qualified names of the WPF Button and System.Boolean
+types.</p>
+<p>The most interesting part of this markup is the ListBox. Here, you are setting the ItemsSource
+property to an array of strings declared entirely in markup! Notice how the x:Array markup extension
+allows you to specify a set of sub-items within its scope:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">x:Array</span> <span class="attr">Type</span><span class="kwrd">="CorLib:String"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">CorLib:String</span><span class="kwrd">&gt;</span>Sun Kil Moon<span class="kwrd">&lt;/</span><span class="html">CorLib:String</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">CorLib:String</span><span class="kwrd">&gt;</span>Red House Painters<span class="kwrd">&lt;/</span><span class="html">CorLib:String</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">CorLib:String</span><span class="kwrd">&gt;</span>Besnard Lakes<span class="kwrd">&lt;/</span><span class="html">CorLib:String</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">x:Array</span><span class="kwrd">&gt;</span></pre>
+    <p><b>Note</b> The previous XAML example is only used to illustrate a markup extension in action. As you will see in
+Chapter 28, there are much easier ways to populate ListBox controls!</p>
+<p>Figure 27-15 shows the mark up of this &lt;Page&gt; in kaxaml.</p>
+<img src="../Images/Figure27_15.png" alt="Figure 27-15" />
+<p><b>Figure 27-15</b> Markup extensions allow you to set values via the functionality of a dedicated class</p>
+<p>So! At this point, you have seen numerous examples that showcase each of the core aspects of XAML
+syntax. As you might agree, XAML is very interesting in that it allows you to describe a tree of .NET
+objects in a declarative manner. While this is extremely helpful when configuring graphical user
+interfaces, do remember that XAML can describe any type from any assembly provided it is a
+nonabstract type containing a default constructor.</p>
+</body></html>
+   

@@ -1,0 +1,328 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Understanding the Role of WPF Styles</h1>
+    <p>When you are building the UI of a WPF application, it is not uncommon for a family of controls to
+require a shared look and feel. For example, you may want all button types have the same height, width,
+background color, and font size for their string content. Though you could handle this by setting each
+button’s individual properties to identical values, such an approach makes it difficult to implement
+changes down the road, as you’d need to reset the same set of properties on multiple objects for every
+change.</p>
+<p>Thankfully, WPF offers a simple way to constrain the look and feel of related controls using styles.
+Simply put, a WPF style is an object that maintains a collection of property/value pairs.</p>
+<p>Programmatically speaking, an individual style is represented using the System.Windows.Style class. This
+class has a property named Setters, which exposes a strongly typed collection of Setter objects. It is the
+Setter object that allows you to define the property/value pairs.</p>
+<p>In addition to the Setters collection, the Style class also defines a few other important members
+that allow you to incorporate triggers, restrict where a style can be applied, and even create a new style
+based on an existing style (think of it as “style inheritance“). In particular, be aware of the following
+members of the Style class:</p>
+<ul>
+ <li>Triggers: Exposes a collection of trigger objects, which allow you to capture various event
+conditions within a style.</li>
+ <li>BasedOn: Allows you to build a new style based on an existing style.</li>
+ <li>TargetType: Allows you to constrain where a style can be applied.</li>
+</ul>
+<h2>Defining and Applying a Style</h2>
+<p>In almost every case, a Style object will be packaged as an object resource. Like any object resource, you
+can package it at the window or application level, as well as within a dedicated resource dictionary (this
+is great, because it makes the Style object easily accessible throughout your application). Now recall
+that the goal is to define a Style object that fills (at minimum) the Setters collection with a set of
+property/value pairs.</p>
+<p>Create a new WPF application named WpfStyles using Visual Studio 2010. Let’s build a style that
+captures the basic font characteristics of a control in our application. Open your App.xaml file and define
+the following named style:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Application</span> <span class="attr">x:Class</span><span class="kwrd">="WpfStyles.App"</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">StartupUri</span><span class="kwrd">="MainWindow.xaml"</span><span class="kwrd">&gt;</span>
+
+    <span class="kwrd">&lt;</span><span class="html">Application.Resources</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Style</span> <span class="attr">x:Key</span> <span class="kwrd">="BasicControlStyle"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Control.FontSize"</span> <span class="attr">Value</span> <span class="kwrd">="14"</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Control.Height"</span> <span class="attr">Value</span> = <span class="kwrd">"40"</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Control.Cursor"</span> <span class="attr">Value</span> = <span class="kwrd">"Hand"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">Style</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Application.Resources</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Application</span><span class="kwrd">&gt;</span></pre>
+<p>Notice that our “BasicControlStyle” adds three Setter objects to the internal collection. Now, let’s
+apply this style to a few controls in our main window. Because this style is an object resource, the
+controls that wish to use it still need to use the {StaticResource} or {DynamicResource} markup
+extension to locate the style. When they find the style, they will set the resource item to the identically
+named Style property. Consider the following &lt;Window&gt; definition:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span> <span class="attr">x:Class</span><span class="kwrd">="WpfStyles.MainWindow"</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">Title</span><span class="kwrd">="A Window with Style!"</span> <span class="attr">Height</span><span class="kwrd">="229"</span>
+    <span class="attr">Width</span><span class="kwrd">="525"</span> <span class="attr">WindowStartupLocation</span><span class="kwrd">="CenterScreen"</span><span class="kwrd">&gt;</span>
+
+    <span class="kwrd">&lt;</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblInfo"</span> <span class="attr">Content</span><span class="kwrd">="This style is boring..."</span>
+            <span class="attr">Style</span><span class="kwrd">="{StaticResource BasicControlStyle}"</span> <span class="attr">Width</span><span class="kwrd">="150"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnTestButton"</span> <span class="attr">Content</span><span class="kwrd">="Yes, but we are reusing settings!"</span>
+            <span class="attr">Style</span><span class="kwrd">="{StaticResource BasicControlStyle}"</span> <span class="attr">Width</span><span class="kwrd">="250"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+<p>If you run this application, you’ll find that both controls support the same cursor, height, and fontsize.</p>
+<h2>Overriding Style Settings</h2>
+<p>Here we have a Button and Label that have both opted in to the constraints enforced by our style. Of
+course, if a control wishes to apply a style and then change some of the defined settings, that’s fine. For
+example, the Button will now use the Help cursor (rather than the Hand cursor defined in the style):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnTestButton"</span> <span class="attr">Content</span><span class="kwrd">="Yes, but we are reusing settings!"</span>
+    <span class="attr">Cursor</span><span class="kwrd">="Help"</span> <span class="attr">Style</span><span class="kwrd">="{StaticResource BasicControlStyle}"</span> <span class="attr">Width</span><span class="kwrd">="250"</span> <span class="kwrd">/&gt;</span></pre>
+    <p>Styles are processed before the individual property settings of the control using the style; therefore
+controls can “override” settings on a case-by-case basis.</p> 
+<h2>Automatically Applying a Style with TargetType</h2>
+<p>Currently, our style is defined in such a way that any control can adopt it (and has to do so explicitly by
+setting the control’s Style property), given that each property is qualified by the Control class. For a
+program that defines dozens of settings, this would entail a good amount of repeated code. One way to
+clean this style up a bit is to use the TargetType attribute. When you add this attribute to a Style’s
+opening element, you can mark exactly once where it can be applied:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Style</span> <span class="attr">x:Key</span> <span class="kwrd">="BasicControlStyle"</span> <span class="attr">TargetType</span><span class="kwrd">="Control"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"FontSize"</span> <span class="attr">Value</span> <span class="kwrd">="14"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Height"</span> <span class="attr">Value</span> = <span class="kwrd">"40"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Cursor"</span> <span class="attr">Value</span> = <span class="kwrd">"Hand"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Style</span><span class="kwrd">&gt;</span></pre>
+    <p><b>Note</b> When you are building a style that is using a base class type, you needn’t be concerned if you assign a
+value to a dependency property not supported by derived types. If the derived type does not support a given
+dependency property, it is ignored.</p>
+<p>This is somewhat helpful, but we still have a style that can apply to any control. The TargetType
+attribute is more useful when you wish to define a style that can only be applied to a particular type of
+control. Add the following new style to the application’s resource dictionary:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Style</span> <span class="attr">x:Key</span> <span class="kwrd">="BigGreenButton"</span> <span class="attr">TargetType</span><span class="kwrd">="Button"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"FontSize"</span> <span class="attr">Value</span> <span class="kwrd">="20"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Height"</span> <span class="attr">Value</span> = <span class="kwrd">"100"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Width"</span> <span class="attr">Value</span> = <span class="kwrd">"100"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Background"</span> <span class="attr">Value</span> = <span class="kwrd">"DarkGreen"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Foreground"</span> <span class="attr">Value</span> = <span class="kwrd">"Yellow"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Style</span><span class="kwrd">&gt;</span></pre>
+    <p>This style will work only on Button controls (or a sub-class of Button) and if you apply it on an
+incompatible element, you will get markup and compiler errors. If the Button uses this new style like so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnTestButton"</span> <span class="attr">Content</span><span class="kwrd">="This Style ROCKS!"</span>
+    <span class="attr">Cursor</span><span class="kwrd">="Help"</span> <span class="attr">Style</span><span class="kwrd">="{StaticResource BigGreenButton}"</span> <span class="attr">Width</span><span class="kwrd">="250"</span> <span class="kwrd">/&gt;</span></pre>
+ <p>you’d see the output like that shown in Figure 30-17.</p>
+<img src="../Images/Figure30_17.png" alt="Figure 30-17" />
+<p><b>Figure 30-17</b> Controls with different styles</p>
+<h2>Subclassing Existing Styles</h2>
+<p>You can also build new styles using an existing style, via the BasedOn property. The style you are
+extending must have been given a proper x:Key in the dictionary, as the derived style will reference it by
+name using the {StaticResource} markup extension. Here is a new style based on “BigGreenButton”,
+which rotates the button element by 20 degrees:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">&lt;!-- This style is based on BigGreenButton --&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Style</span> <span class="attr">x:Key</span> <span class="kwrd">="TiltButton"</span> <span class="attr">TargetType</span><span class="kwrd">="Button"</span> <span class="attr">BasedOn</span> = <span class="kwrd">"{StaticResource BigGreenButton}"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Foreground"</span> <span class="attr">Value</span> = <span class="kwrd">"White"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"RenderTransform"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Setter.Value</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">RotateTransform</span> <span class="attr">Angle</span> = <span class="kwrd">"20"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">Setter.Value</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Setter</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Style</span><span class="kwrd">&gt;</span></pre>
+<p>This time, the output appears as in Figure 30-18.</p>
+<img src="../Images/Figure30_18.png" alt="Figure 30-18" />
+<p><b>Figure 30-18</b> Using a derived style</p>
+<h2>The Role of Unnamed Styles</h2>
+<p>Assume you need to ensure that all TextBox controls have the same look and feel. Now assume you have
+defined a style as an application-level resource, so all windows in the program have access to it. While
+this is a step in the right direction, if you have numerous windows with numerous TextBox controls,
+you’ll need to set the Style property numerous times!</p>
+<p>WPF styles can be implicitly applied to all controls within a given XAML scope. To create such a
+style, you use the TargetType property but you don’t assign the Style resource an x:Key value. This
+“unnamed style” now applies to all controls of the correct type. Here is another application-level style
+that will apply automatically to all TextBox controls in the current application.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">&lt;!-- The default style for all text boxes --&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Style</span> <span class="attr">TargetType</span><span class="kwrd">="TextBox"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"FontSize"</span> <span class="attr">Value</span> <span class="kwrd">="14"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Width"</span> <span class="attr">Value</span> = <span class="kwrd">"100"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Height"</span> <span class="attr">Value</span> = <span class="kwrd">"30"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"BorderThickness"</span> <span class="attr">Value</span> = <span class="kwrd">"5"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"BorderBrush"</span> <span class="attr">Value</span> = <span class="kwrd">"Red"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"FontStyle"</span> <span class="attr">Value</span> = <span class="kwrd">"Italic"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Style</span><span class="kwrd">&gt;</span></pre>
+    <p>We can now define any number of TextBox controls and they will automatically get the defined look.
+If a given TextBox does not want this default look and feel, it can opt out by setting the Style property to
+{x:Null}. For example, txtTest will get the default unnamed style, while txtTest2 is doing things its own
+way:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtTest"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtTest2"</span> <span class="attr">Style</span><span class="kwrd">="{x:Null}"</span> <span class="attr">BorderBrush</span><span class="kwrd">="Black"</span>
+    <span class="attr">BorderThickness</span><span class="kwrd">="5"</span> <span class="attr">Height</span><span class="kwrd">="60"</span> <span class="attr">Width</span><span class="kwrd">="100"</span> <span class="attr">Text</span><span class="kwrd">="Ha!"</span><span class="kwrd">/&gt;</span></pre>
+     <h2>Defining Styles with Triggers</h2>
+ <p>WPF styles can also contain triggers, by packaging up Trigger objects within the Triggers collection of
+the Style object. Using triggers in a style allows you to define certain &lt;Setter&gt; elements in such a way
+that they will be applied only if a given trigger condition is true. For example, perhaps you want to
+increase the size of a font when the mouse is over a button. Or maybe you want to make sure that the
+text box with the current focus is highlighted with a given color. Triggers are very useful for these sorts of
+situations, in that they allow you to take specific actions when a property changes without the need to
+author explicit C# code in a code-behind file.</p>
+<p>Here is an update to the TextBox style that ensures that when a TextBox has the input focus, it will
+receive a yellow background:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">&lt;!-- The default style for all text boxes --&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Style</span> <span class="attr">TargetType</span><span class="kwrd">="TextBox"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"FontSize"</span> <span class="attr">Value</span> <span class="kwrd">="14"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Width"</span> <span class="attr">Value</span> = <span class="kwrd">"100"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Height"</span> <span class="attr">Value</span> = <span class="kwrd">"30"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"BorderThickness"</span> <span class="attr">Value</span> = <span class="kwrd">"5"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"BorderBrush"</span> <span class="attr">Value</span> = <span class="kwrd">"Red"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"FontStyle"</span> <span class="attr">Value</span> = <span class="kwrd">"Italic"</span><span class="kwrd">/&gt;</span>
+    <span class="rem">&lt;!-- The following setter will only be applied when the text box is</span>
+<span class="rem">        in focus. --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Style.Triggers</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Trigger</span> <span class="attr">Property</span> = <span class="kwrd">"IsFocused"</span> <span class="attr">Value</span> = <span class="kwrd">"True"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Background"</span> <span class="attr">Value</span> = <span class="kwrd">"Yellow"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">Trigger</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Style.Triggers</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Style</span><span class="kwrd">&gt;</span></pre>
+<p>If you test this style, you’ll find that as you tab between various TextBox objects, the currently
+selected TextBox has a bright yellow background (provided it has not opted out by assigning {x:Null} to
+the Style property).</p>
+<p>Property triggers are also very smart, in that when the trigger’s condition is not true, the property
+automatically receives the default assigned value. Therefore, as soon as a TextBox loses focus, it also
+automatically becomes the default color without any work on your part. In contrast, event triggers
+(examined when we looked at WPF animations) do not automatically revert to a previous condition.</p>
+<h2>Defining Styles with Multiple Triggers</h2>
+<p>Triggers can also be designed in such a way that the defined &lt;Setter&gt; elements will be applied when
+multiple conditions are true (similar to building an if statement for multiple conditions). Let’s say we
+want to set the background of a TextBox to Yellow only if it has the active focus and the mouse is
+hovering within its boundaries. To do so, we can make use of the &lt;MultiTrigger&gt; element to define each
+condition:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">&lt;!-- The default style for all text boxes --&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Style</span> <span class="attr">TargetType</span><span class="kwrd">="TextBox"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"FontSize"</span> <span class="attr">Value</span> <span class="kwrd">="14"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Width"</span> <span class="attr">Value</span> = <span class="kwrd">"100"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Height"</span> <span class="attr">Value</span> = <span class="kwrd">"30"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"BorderThickness"</span> <span class="attr">Value</span> = <span class="kwrd">"5"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"BorderBrush"</span> <span class="attr">Value</span> = <span class="kwrd">"Red"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"FontStyle"</span> <span class="attr">Value</span> = <span class="kwrd">"Italic"</span><span class="kwrd">/&gt;</span>
+    <span class="rem">&lt;!-- The following setter will only be applied when the text box is</span>
+<span class="rem">    in focus AND the mouse is over the text box. --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Style.Triggers</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">MultiTrigger</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">MultiTrigger.Conditions</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">Condition</span> <span class="attr">Property</span> = <span class="kwrd">"IsFocused"</span> <span class="attr">Value</span> = <span class="kwrd">"True"</span><span class="kwrd">/&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">Condition</span> <span class="attr">Property</span> = <span class="kwrd">"IsMouseOver"</span> <span class="attr">Value</span> = <span class="kwrd">"True"</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">MultiTrigger.Conditions</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Background"</span> <span class="attr">Value</span> = <span class="kwrd">"Yellow"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">MultiTrigger</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Style.Triggers</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Style</span><span class="kwrd">&gt;</span></pre>
+<h2>Animated Styles</h2>
+<p>Styles can also incorporate triggers that kick off an animation sequence. Here is one final style that,
+when applied to Button controls, will cause the control to grow and shrink in size when the mouse is
+inside the button’s surface area:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">&lt;!-- The growing button style! --&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Style</span> <span class="attr">x:Key</span> = <span class="kwrd">"GrowingButtonStyle"</span> <span class="attr">TargetType</span><span class="kwrd">="Button"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Height"</span> <span class="attr">Value</span> = <span class="kwrd">"40"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Setter</span> <span class="attr">Property</span> = <span class="kwrd">"Width"</span> <span class="attr">Value</span> = <span class="kwrd">"100"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Style.Triggers</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Trigger</span> <span class="attr">Property</span> = <span class="kwrd">"IsMouseOver"</span> <span class="attr">Value</span> = <span class="kwrd">"True"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Trigger.EnterActions</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">BeginStoryboard</span><span class="kwrd">&gt;</span>
+                    <span class="kwrd">&lt;</span><span class="html">Storyboard</span> <span class="attr">TargetProperty</span> = <span class="kwrd">"Height"</span><span class="kwrd">&gt;</span>
+                        <span class="kwrd">&lt;</span><span class="html">DoubleAnimation</span> <span class="attr">From</span> = <span class="kwrd">"40"</span> <span class="attr">To</span> = <span class="kwrd">"200"</span>
+                            <span class="attr">Duration</span> = <span class="kwrd">"0:0:2"</span> <span class="attr">AutoReverse</span><span class="kwrd">="True"</span><span class="kwrd">/&gt;</span>
+                    <span class="kwrd">&lt;/</span><span class="html">Storyboard</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;/</span><span class="html">BeginStoryboard</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">Trigger.EnterActions</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">Trigger</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Style.Triggers</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Style</span><span class="kwrd">&gt;</span></pre>
+<p>Here, our triggers collection is on the lookout for the IsMouseOver property to return true. When this
+occurs, we define a &lt;Trigger.EnterActions&gt; element to execute a simple storyboard that forces the
+button to grow to a Height value of 200 (and then return to a Height of 40) over 2 seconds. If you wish to
+perform other property changes, you could also define a &lt;Trigger.ExitActions&gt; scope to define any
+custom actions to take when IsMouseOver is false.</p>
+<h2>Assigning Styles Programmatically</h2>
+<p>Recall that a style can be applied at runtime as well. This can be helpful if you want to let end users
+choose how their UI looks and feels, or if you need to enforce a look and feel based on security settings
+(e.g., the “DisableAllButton” style) or what have you.</p>
+<p>During this project, you have defined a number of styles, many of which can apply to Button
+controls. So, let’s retool the UI of our main window to allow the user to pick from some of these styles by
+selecting names in a ListBox. Based on the user’s selection, we will apply the appropriate style. Here is
+the new (and final) markup for the &lt;Window&gt; element:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span> <span class="attr">x:Class</span><span class="kwrd">="WpfStyles.MainWindow"</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">Height</span><span class="kwrd">="350"</span> <span class="attr">Title</span><span class="kwrd">="A Window with Style!"</span>
+    <span class="attr">Width</span><span class="kwrd">="525"</span> <span class="attr">WindowStartupLocation</span><span class="kwrd">="CenterScreen"</span><span class="kwrd">&gt;</span>
+
+    <span class="kwrd">&lt;</span><span class="html">DockPanel</span> <span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">StackPanel</span> <span class="attr">Orientation</span><span class="kwrd">="Horizontal"</span> <span class="attr">DockPanel</span>.<span class="attr">Dock</span><span class="kwrd">="Top"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">Content</span><span class="kwrd">="Please Pick a Style for this Button"</span> <span class="attr">Height</span><span class="kwrd">="50"</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">ListBox</span> <span class="attr">x:Name</span> <span class="kwrd">="lstStyles"</span> <span class="attr">Height</span> <span class="kwrd">="80"</span> <span class="attr">Width</span> <span class="kwrd">="150"</span> <span class="attr">Background</span><span class="kwrd">="LightBlue"</span>
+                <span class="attr">SelectionChanged</span> <span class="kwrd">="comboStyles_Changed"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnStyle"</span> <span class="attr">Height</span><span class="kwrd">="40"</span> <span class="attr">Width</span><span class="kwrd">="100"</span> <span class="attr">Content</span><span class="kwrd">="OK!"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">DockPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+    <p>The ListBox control (named lstStyles) will be filled dynamically within the window’s constructor like so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> MainWindow()
+{
+    InitializeComponent();
+
+    <span class="rem">// Fill the list box with all the Button</span>
+    <span class="rem">// styles.</span>
+    lstStyles.Items.Add(<span class="str">"GrowingButtonStyle"</span>);
+    lstStyles.Items.Add(<span class="str">"TiltButton"</span>);
+    lstStyles.Items.Add(<span class="str">"BigGreenButton"</span>);
+    lstStyles.Items.Add(<span class="str">"BasicControlStyle"</span>);
+}</pre>
+<p>The final task is to handle the SelectionChanged event in the related code file. Notice in the following
+code how we are able to extract the current resource by name, using the inherited TryFindResource()
+method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> comboStyles_Changed(<span class="kwrd">object</span> sender, SelectionChangedEventArgs e)
+{
+    <span class="rem">// Get the selected style name from the list box.</span>
+    Style currStyle = (Style)
+        TryFindResource(lstStyles.SelectedValue);
+
+    <span class="kwrd">if</span> (currStyle != <span class="kwrd">null</span>)
+    {
+        <span class="rem">// Set the style of the button type.</span>
+        <span class="kwrd">this</span>.btnStyle.Style = currStyle;
+    }
+}</pre>
+<p>When you run this application, you can pick from one of these four button styles on the fly. Figure
+30-19 shows our completed application.</p>
+<img src="../Images/Figure30_19.png" alt="Figure 30-19" />
+<p><b>Figure 30-19</b> Controls with different styles</p>
+    <p><b>Source Code </b>The WpfStyles project can be found under the Chapter 30 subdirectory.</p>
+    </body>
+    </html>
+    
+      
+   

@@ -1,0 +1,94 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Reflecting on Attributes Using Late Binding</h1>
+<p>The previous example made use of early binding to print out the vehicle description data for the
+Winnebago type. This was possible due to the fact that the VehicleDescriptionAttribute class type was
+defined as a public member in the AttributedCarLibrary assembly. It is also possible to make use of
+dynamic loading and late binding to reflect over attributes.</p>
+<p>Create a new project called VehicleDescriptionAttributeReaderLateBinding and copy
+AttributedCarLibrary.dll to the project’s \bin\Debug directory. Now, update your Program class as
+follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System;
+<span class="kwrd">using</span> System.Collections.Generic;
+<span class="kwrd">using</span> System.Linq;
+<span class="kwrd">using</span> System.Text;
+<span class="kwrd">using</span> System.Reflection;
+
+<span class="kwrd">namespace</span> VehicleDescriptionAttributeReaderLateBinding
+{
+    <span class="kwrd">class</span> Program
+    {
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            Console.WriteLine(<span class="str">"***** Value of VehicleDescriptionAttribute *****\n"</span>);
+            ReflectAttributesUsingLateBinding();
+            Console.ReadLine();
+        }
+
+        <span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> ReflectAttributesUsingLateBinding()
+        {
+            <span class="kwrd">try</span>
+            {
+                <span class="rem">// Load the local copy of AttributedCarLibrary.</span>
+                Assembly asm = Assembly.Load(<span class="str">"AttributedCarLibrary"</span>);
+
+                <span class="rem">// Get type info of VehicleDescriptionAttribute.</span>
+                Type vehicleDesc =
+                    asm.GetType(<span class="str">"AttributedCarLibrary.VehicleDescriptionAttribute"</span>);
+
+                <span class="rem">// Get type info of the Description property.</span>
+                PropertyInfo propDesc = vehicleDesc.GetProperty(<span class="str">"Description"</span>);
+
+                <span class="rem">// Get all types in the assembly.</span>
+                Type[] types = asm.GetTypes();
+
+                <span class="rem">// Iterate over each type and obtain any VehicleDescriptionAttributes.</span>
+                <span class="kwrd">foreach</span> (Type t <span class="kwrd">in</span> types)
+                {
+                    <span class="kwrd">object</span>[] objs = t.GetCustomAttributes(vehicleDesc, <span class="kwrd">false</span>);
+                    
+                    <span class="rem">// Iterate over each VehicleDescriptionAttribute and print</span>
+                    <span class="rem">// the description using late binding.</span>
+                    <span class="kwrd">foreach</span> (<span class="kwrd">object</span> o <span class="kwrd">in</span> objs)
+                    {
+                        Console.WriteLine(<span class="str">"-&gt; {0}: {1}\n"</span>,
+                        t.Name, propDesc.GetValue(o, <span class="kwrd">null</span>));
+                    }
+                }
+            }
+            <span class="kwrd">catch</span> (Exception ex)
+            {            
+                Console.WriteLine(ex.Message);
+            }
+        }
+    }
+}</pre>
+<p>If you were able to follow along with the examples in this chapter, this code should be (more or less)
+self-explanatory. The only point of interest is the use of the PropertyInfo.GetValue() method, which is
+used to trigger the property’s accessor. Here is the output of the current example:</p>
+<pre class="csharpcode">
+***** Value of VehicleDescriptionAttribute *****
+
+-&gt; Motorcycle: My rocking Harley
+
+-&gt; HorseAndBuggy: The old gray mare, she ain't what she used to be...
+
+-&gt; Winnebago: A very long, slow, but feature-rich auto</pre>
+    <p><b>Source Code</b> The VehicleDescriptionAttributeReaderLateBinding project is included under the Chapter 15
+subdirectory.</p>
+</body>
+    </html>
+
+
+     
+      
+   

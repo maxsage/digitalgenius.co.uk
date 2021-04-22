@@ -1,0 +1,316 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Customizing the Soap/Binary Serialization Process</h1>
+<p>In a majority of cases, the default serialization scheme provided by the .NET platform will be exactly
+what you require. Simply apply the [Serializable] attribute to your related types and pass the tree of
+objects to your formatter of choice for processing. In some cases, however, you might wish to become
+more involved with how a tree is constructed and handled during the serialization process. For example,
+perhaps you have a business rule that says all field data must be persisted using a particular format, or
+perhaps you wish to add additional bits of data to the stream that do not map directly to fields in the
+object being persisted (e.g., timestamps and unique identifiers).</p>
+<p>When you wish to become more involved with the process of object serialization, the
+System.Runtime.Serialization namespace provides several types that allow you to do so. Table 20-13
+describes some of the core types you should be aware of.</p>
+<p><b>Table 20-13.</b> System.Runtime.Serialization Namespace Core Types</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Type
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    ISerializable
+   </td>
+   <td>
+    You can implement this interface on a [Serializable] type to control
+its serialization and deserialization.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ObjectIDGenerator
+   </td>
+   <td>
+    This type generates IDs for members in an object graph.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [OnDeserialized]
+   </td>
+   <td>
+    This attribute allows you to specify a method that will be called
+immediately after the object has been deserialized.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [OnDeserializing]
+   </td>
+   <td>
+    This attribute allows you to specify a method that will be called before
+the deserialization process.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [OnSerialized]
+   </td>
+   <td>
+    This attribute allows you to specify a method that will be called
+immediately after the object has been serialized.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [OnSerializing]
+   </td>
+   <td>
+    This attribute allows you to specify a method that will be called before
+the serialization process.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [OptionalField]
+   </td>
+   <td>
+    This attribute allows you to define a field on a type that can be missing
+from the specified stream.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    [SerializationInfo]
+   </td>
+   <td>
+    In essence, this class is a property bag that maintains name/value pairs
+representing the state of an object during the serialization process.
+   </td>
+  </tr>
+</table>
+<h2>A Deeper Look at Object Serialization</h2>
+<p>Before you examine various ways that you can customize the serialization process, you will find it
+helpful to take a deeper look at what takes place behind the scenes. When the BinaryFormatter serializes
+an object graph, it is in charge of transmitting the following information into the specified stream:</p>
+<ul>
+ <li>The fully qualified name of the objects in the graph (e.g., MyApp.JamesBondCar)</li>
+ <li>The name of the assembly defining the object graph (e.g., MyApp.exe)</li>
+ <li>An instance of the SerializationInfo class that contains all stateful data
+maintained by the members in the object graph</li>
+</ul>
+<p>During the deserialization process, the BinaryFormatter uses this same information to build an
+identical copy of the object, using the information extracted from the underlying stream. SoapFormatter
+uses a quite similar process.</p>
+<p><b>Note</b> Recall that the XmlSerializer does not persist a type’s fully qualified name or the name of the defining
+assembly; this behavior helps keep the state of the object as mobile as possible. This type is concerned only with
+persisting exposed public data.</p>
+<p>Beyond moving the required data into and out of a stream, formatters also analyze the members in
+the object graph for the following pieces of infrastructure:</p>
+<ul>
+ <li>A check is made to determine whether the object is marked with the
+[Serializable] attribute. If the object is not, a SerializationException is thrown.</li>
+ <li>If the object is marked [Serializable], a check is made to determine whether the
+object implements the ISerializable interface. If this is the case, GetObjectData()
+is called on the object.</li>
+ <li>If the object does not implement ISerializable, the default serialization process
+is used, serializing all fields not marked as [NonSerialized].</li>
+</ul>
+<p>In addition to determining whether the type supports ISerializable, formatters are also
+responsible for discovering whether the types in question support members that have been adorned
+with the [OnSerializing], [OnSerialized], [OnDeserializing], or [OnDeserialized] attributes. You’ll
+examine the role of these attributes in mometarily, but first you need to look at the role of ISerializable.</p>
+<h2>Customizing Serialization Using ISerializable</h2>
+<p>Objects that are marked [Serializable] have the option of implementing the ISerializable interface.
+Doing so lets you get “involved” with the serialization process and perform any pre- or post-data
+formatting.</p>
+<p><b>Note</b> Since the release of .NET 2.0, the preferred way to customize the serialization process is to use the
+serialization attributes (described next). However, knowledge of ISerializable is important for the purpose of
+maintaining existing systems.</p>
+<p>The ISerializable interface is quite simple, given that it defines only a single method,
+GetObjectData():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// When you wish to tweak the serialization process,</span>
+<span class="rem">// implement ISerializable.</span>
+<span class="kwrd">public</span> <span class="kwrd">interface</span> ISerializable
+{
+    <span class="kwrd">void</span> GetObjectData(SerializationInfo info,
+        StreamingContext context);
+}</pre>
+<p>The GetObjectData() method is called automatically by a given formatter during the serialization
+process. The implementation of this method populates the incoming SerializationInfo parameter with
+a series of name/value pairs that (typically) map to the field data of the object being persisted.
+SerializationInfo defines numerous variations on the overloaded AddValue() method, as well as a small
+set of properties that allow the type to get and set the type’s name, defining assembly, and member
+count. Here is a partial snapshot:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">sealed</span> <span class="kwrd">class</span> SerializationInfo
+{
+    <span class="kwrd">public</span> SerializationInfo(Type type, IFormatterConverter converter);
+    <span class="kwrd">public</span> <span class="kwrd">string</span> AssemblyName { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">string</span> FullTypeName { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">int</span> MemberCount { <span class="kwrd">get</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">void</span> AddValue(<span class="kwrd">string</span> name, <span class="kwrd">short</span> value);
+    <span class="kwrd">public</span> <span class="kwrd">void</span> AddValue(<span class="kwrd">string</span> name, <span class="kwrd">ushort</span> value);
+    <span class="kwrd">public</span> <span class="kwrd">void</span> AddValue(<span class="kwrd">string</span> name, <span class="kwrd">int</span> value);
+...
+}</pre>
+<p>Types that implement the ISerializable interface must also define a special constructor that takes
+the following signature:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// You must supply a custom constructor with this signature</span>
+<span class="rem">// to allow the runtime engine to set the state of your object.</span>
+[Serializable]
+<span class="kwrd">class</span> SomeClass : ISerializable
+{
+    <span class="kwrd">protected</span> SomeClass (SerializationInfo si, StreamingContext ctx) {...}
+    ...
+}</pre>
+<p>Notice that the visibility of this constructor is set as protected. This is permissible because the
+formatter will have access to this member, regardless of its visibility. These special constructors tend to
+be marked as protected (or private for that matter) to ensure that the casual object user can never create
+an object in this manner. The first parameter of this constructor is an instance of the SerializationInfo
+type (which you’ve seen previously).</p>
+<p>The second parameter of this special constructor is a StreamingContext type, which contains
+information regarding the source of the bits. The most informative member of StreamingContext is the
+State property, which represents a value from the StreamingContextStates enumeration. The values of
+this enumeration represent the basic composition of the current stream.</p>
+<p>Unless you intend to implement some low-level custom remoting services, you will seldom need to
+deal with this enumeration directly. Nevertheless, here are the possible names of the
+StreamingContextStates enum (consult the .NET Framework 4.0 SDK documentation for full details):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">enum</span> StreamingContextStates
+{
+    CrossProcess,
+    CrossMachine,
+    File,
+    Persistence,
+    Remoting,
+    Other,
+    Clone,
+    CrossAppDomain,
+    All
+}</pre>
+<p>Now let’s look at how to customize the serialization process using ISerializable. Assume you have
+a new Console Application project (named CustomSerialization) that defines a class type containing
+two points of string data. Also assume that you must ensure that the string objects are serialized to the
+stream all uppercase and deserialized from the stream in lowercase. To account for such rules, you could
+implement ISerializable like this (be sure to import the System.Runtime.Serialization namespace):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+[Serializable]
+<span class="kwrd">class</span> StringData : ISerializable
+{
+    <span class="kwrd">private</span> <span class="kwrd">string</span> dataItemOne = <span class="str">"First data block"</span>;
+    <span class="kwrd">private</span> <span class="kwrd">string</span> dataItemTwo= <span class="str">"More data"</span>;
+
+    <span class="kwrd">public</span> StringData(){}
+    <span class="kwrd">protected</span> StringData(SerializationInfo si, StreamingContext ctx)
+    {
+        <span class="rem">// Rehydrate member variables from stream.</span>
+        dataItemOne = si.GetString(<span class="str">"First_Item"</span>).ToLower();
+        dataItemTwo = si.GetString(<span class="str">"dataItemTwo"</span>).ToLower();
+    }
+
+    <span class="kwrd">void</span> ISerializable.GetObjectData(SerializationInfo info, StreamingContext ctx)
+    {
+        <span class="rem">// Fill up the SerializationInfo object with the formatted data.</span>
+        info.AddValue(<span class="str">"First_Item"</span>, dataItemOne.ToUpper());
+        info.AddValue(<span class="str">"dataItemTwo"</span>, dataItemTwo.ToUpper());
+    }
+}</pre>
+<p>Notice that when you fill the SerializationInfo type with the GetObjectData() method, you are not
+required to name the data points identically to the type’s internal member variables. This can obviously
+be helpful if you need to further decouple the type’s data from the persisted format. Be aware, however,
+that you will need to obtain the values from the special, protected constructor using the same names
+assigned within GetObjectData().</p>
+<p>To test your customization, assume that you want to persist an instance of MyStringData using a
+SoapFormatter (so update your assembly references and imports accordingly):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Custom Serialization *****"</span>);
+
+    <span class="rem">// Recall that this type implements ISerializable.</span>
+    StringData myData = <span class="kwrd">new</span> StringData();
+
+    <span class="rem">// Save to a local file in SOAP format.</span>
+    SoapFormatter soapFormat = <span class="kwrd">new</span> SoapFormatter();
+    <span class="kwrd">using</span>(Stream fStream = <span class="kwrd">new</span> FileStream(<span class="str">"MyData.soap"</span>,
+        FileMode.Create, FileAccess.Write, FileShare.None))
+    {
+        soapFormat.Serialize(fStream, myData);
+    }
+    Console.ReadLine();
+}</pre>
+<p>When you view the resulting *.soap file, you will see that the string fields have been persisted in
+uppercase (see Figure 20-7).</p>
+<img src="../Images/Figure20_07.png" alt="Figure 20-7" />
+<p><b>Figure 20-7</b> Customizing your serialization with ISerializable</p>
+<h2>Customizing Serialization Using Attributes</h2>
+<p>Although implementing the ISerializable interface is one way to customize the serialization process,
+the preferred way to customize the serialization process since the release of .NET 2.0 is to define
+methods that are attributed with any of the new serialization-centric attributes: [OnSerializing],
+[OnSerialized], [OnDeserializing], or [OnDeserialized]. Using these attributes is less cumbersome
+than implementing ISerializable because you do not need to interact manually with an incoming
+SerializationInfo parameter. Instead, you can modify your state data directly, while the formatter
+operates on the type.</p>
+<p><b>Note</b> You can find these serialization attributes defined in the System.Runtime.Serialization
+namespace.</p>
+<p>When you define method decorated with these attributes, you must define the methods so they
+receive a StreamingContext parameter and return nothing (otherwise, you will receive a runtime
+exception). Note that you are not required to account for each of the serialization-centric attributes, and
+you can simply contend with the stages of serialization you want to intercept. The following snippet
+illustrates this. Here, a new [Serializable] type has the same requirements as StringData, but this time
+you account for using the [OnSerializing] and [OnDeserialized] attributes:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+[Serializable]
+<span class="kwrd">class</span> MoreData
+{
+    <span class="kwrd">private</span> <span class="kwrd">string</span> dataItemOne = <span class="str">"First data block"</span>;
+    <span class="kwrd">private</span> <span class="kwrd">string</span> dataItemTwo= <span class="str">"More data"</span>;
+
+    [OnSerializing]
+    <span class="kwrd">private</span> <span class="kwrd">void</span> OnSerializing(StreamingContext context)
+    {
+        <span class="rem">// Called during the serialization process.</span>
+        dataItemOne = dataItemOne.ToUpper();
+        dataItemTwo = dataItemTwo.ToUpper();
+    }
+
+    [OnDeserialized]
+    <span class="kwrd">private</span> <span class="kwrd">void</span> OnDeserialized(StreamingContext context)
+    {
+        <span class="rem">// Called once the deserialization process is complete.</span>
+        dataItemOne = dataItemOne.ToLower();
+        dataItemTwo = dataItemTwo.ToLower();
+    }
+}</pre>
+<p>If you were to serialize this new type, you would again find that the data has been persisted as
+uppercase and deserialized as lowercase.</p>
+    <p><b>Source Code</b> You can find the CustomSerialization project under the Chapter 20 subdirectory.</p>
+<p>With this example behind you, your exploration of the core details of object serialization services,
+including various ways to customize the process, is complete. As you have seen, the serialization and
+deserialization process makes it easy to persist large amounts of data, and it can be less labor-intensive
+than working with the various reader/writer classes of the System.IO namespace.</p>
+      </body>
+    </html>
+      
+   

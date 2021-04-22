@@ -1,0 +1,159 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>A Tale of Two XML APIs</h1>
+    <p>When the .NET platform was first introduced, programmers were able to manipulate XML documents
+using the types within the System.Xml.dll assembly. Using the contained namespaces and types, you
+were able to generate XML data in memory and save it to disk storage. As well, the System.Xml.dll
+assembly provided types allowing you to load XML documents into memory, search an XML document
+for specific nodes, validate a document against a given schema, and other common programming tasks.</p>
+<p>While this original library has been used successfully in many .NET projects, working with these
+types was a tad bit cumbersome (to put it politely), as the programming model bore no relationship to
+the structure of the XML document itself. For example, assume you needed to build an XML file in
+memory and save it to the file system. If you were to use the types of System.Xml.dll, you might author
+code like the following (if you want to follow along, create a new Console Application project named
+LinqToXmlFirstLook, and import the System.Xml namespace):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> BuildXmlDocWithDOM()
+{
+    <span class="rem">// Make a new XML document in memory.</span>
+    XmlDocument doc = <span class="kwrd">new</span> XmlDocument();
+
+    <span class="rem">// Fill this document with a root element</span>
+    <span class="rem">// named &lt;Inventory&gt;.</span>
+    XmlElement inventory = doc.CreateElement(<span class="str">"Inventory"</span>);
+
+    <span class="rem">// Now, make a sub element named &lt;Car&gt; with</span>
+    <span class="rem">// an ID attribute.</span>
+    XmlElement car = doc.CreateElement(<span class="str">"Car"</span>);
+    car.SetAttribute(<span class="str">"ID"</span>, <span class="str">"1000"</span>);
+    
+    <span class="rem">// Build the data within the &lt;Car&gt; element.</span>
+    XmlElement name = doc.CreateElement(<span class="str">"PetName"</span>);
+    name.InnerText = <span class="str">"Jimbo"</span>;
+    XmlElement color = doc.CreateElement(<span class="str">"Color"</span>);
+    color.InnerText = <span class="str">"Red"</span>;
+    XmlElement make = doc.CreateElement(<span class="str">"Make"</span>);
+    make.InnerText = <span class="str">"Ford"</span>;
+
+    <span class="rem">// Add &lt;PetName&gt;, &lt;Color&gt; and &lt;Make&gt; to the &lt;Car&gt;</span>
+    <span class="rem">// element.</span>
+    car.AppendChild(name);
+    car.AppendChild(color);
+    car.AppendChild(make);
+
+    <span class="rem">// Add the &lt;Car&gt; element to the &lt;Inventory&gt; element.</span>
+    inventory.AppendChild(car);
+
+    <span class="rem">// Insert the complete XML into the XmlDocument object,</span>
+    <span class="rem">// and save to file.</span>
+    doc.AppendChild(inventory);
+    doc.Save(<span class="str">"Inventory.xml"</span>);
+}</pre>
+<p>If you were to call this method, you could be able to see that the Inventory.xml file (located in the
+bin\Debug folder) contains the following data:</p>
+<p>CODE GOES HERE</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Inventory</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Car</span> <span class="attr">ID</span><span class="kwrd">="1000"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">PetName</span><span class="kwrd">&gt;</span>Jimbo<span class="kwrd">&lt;/</span><span class="html">PetName</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Color</span><span class="kwrd">&gt;</span>Red<span class="kwrd">&lt;/</span><span class="html">Color</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Make</span><span class="kwrd">&gt;</span>Ford<span class="kwrd">&lt;/</span><span class="html">Make</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Car</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Inventory</span><span class="kwrd">&gt;</span></pre>
+<p>While this method works as expected, a few observations are in order. First, the programming model
+of System.Xml.dll is Microsoft’s implementation of the W3C Document Object Model (DOM)
+specification. Under this model, an XML document is created from the bottom up. First you create a
+document, then you create sub-elements, and finally you add the elements to the document. To account
+for this in code, you need to author quite a bit of function calls off the XmlDocument, and XmlElement
+classes (among others).</p>
+<p>For this example, it took 16 lines of code (not including code comments) to build even this very
+simple XML document. If you needed to build a more complex document with the System.Xml.dll
+assembly, you could end up with a great deal of code. While you could certainly streamline this code, by
+building nodes via various looping or decision constructs, the fact remains that the body of code has
+little visual indicators regarding the final XML tree.</p>
+<h2>LINQ to XML As a Better DOM</h2>
+<p>The LINQ to XML API is an alternative manner to create, manipulate, and query XML documents, which
+uses a much more functional approach than the System.Xml DOM model. Rather than building an XML
+document by assembling elements individually and updating the XML tree through a set of function
+calls, you can author top-down code such as the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> BuildXmlDocWithLINQToXml()
+{
+    <span class="rem">// Create a XML document in a more 'functional' manner.</span>
+    XElement doc =
+        <span class="kwrd">new</span> XElement(<span class="str">"Inventory"</span>,
+            <span class="kwrd">new</span> XElement(<span class="str">"Car"</span>, <span class="kwrd">new</span> XAttribute(<span class="str">"ID"</span>, <span class="str">"1000"</span>),
+                <span class="kwrd">new</span> XElement(<span class="str">"PetName"</span>, <span class="str">"Jimbo"</span>),
+                <span class="kwrd">new</span> XElement(<span class="str">"Color"</span>, <span class="str">"Red"</span>),
+                <span class="kwrd">new</span> XElement(<span class="str">"Make"</span>, <span class="str">"Ford"</span>)
+            )    
+        );
+
+    <span class="rem">// Save to file.</span>
+    doc.Save(<span class="str">"InventoryWithLINQ.xml"</span>);
+}</pre>
+<p>Here, you are using a new set of types from the System.Xml.Linq namespace, specifically XElement
+and XAttribute. If you were to call this method, you will find the same XML data has been created, this
+time with much less fuss and bother. Notice how, through some careful indentation, your source code
+has the same overall structure of the resulting XML document. This is very useful in and of itself, but also
+notice that you have a much smaller body of code than the previous example (based on how you space
+your code, you saved about 10 lines!)</p>
+<p>Here, you have not made use of any LINQ query expressions, but have simply used the types of the
+System.Xml.Linq namespace to generate an in-memory XML document which is then saved to file.
+Effectively, you have used LINQ to XML as a better DOM. As you will see later in this chapter, the classes
+of System.Xml.Linq are LINQ-aware, and can be the target for the same sort of LINQ queries you learned
+about in Chapter 13.</p>
+<p>As you learn more about LINQ to XML, you will most likely find it much easier to work with than the
+initial XML libraries of .NET. However, this is not to say you will never use the namespaces of the original
+System.Xml.dll library. But chances are the times you will opt to use System.Xml.dll for new projects
+will be significantly reduced.</p>
+<h2>VB Literal Syntax As a Better LINQ to XML</h2>
+<p>Before you begin your formal examination into LINQ to XML as seen through C#, I do want to briefly
+mention that the Visual Basic language takes the functional approach of this API to the next level. In VB,
+you can define XML literals, which allow you to assign an XElement to a stream of inline XML markup,
+directly in code. Assuming you had a VB project, you could build the following method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">Public</span> <span class="kwrd">Class</span> XmlLiteralExample
+    <span class="kwrd">Public</span> <span class="kwrd">Sub</span> MakeXmlFileUsingLiterals()
+        <span class="rem">' Notice that we can inline XML data</span>
+        <span class="rem">' to an XElement.</span>
+        <span class="kwrd">Dim</span> doc <span class="kwrd">As</span> XElement = _
+            &lt;Inventory&gt;
+                &lt;Car ID=<span class="str">"1000"</span>&gt;
+                    &lt;PetName&gt;Jimbo&lt;/PetName&gt;
+                    &lt;Color&gt;Red&lt;/Color&gt;
+                    &lt;Make&gt;Ford&lt;/Make&gt;
+                &lt;/Car&gt;
+            &lt;/Inventory&gt;
+        <span class="rem">' Save to file.</span>
+        doc.Save(<span class="str">"InventoryVBStyle.xml"</span>)
+    <span class="kwrd">End</span> <span class="kwrd">Sub</span>
+<span class="kwrd">End</span> Class</pre>
+<p>Once the VB compiler processes the XML literal, it will map the XML data into the correct
+underlying LINQ to XML object model. In fact, when you are working with LINQ to XML within a VB
+project, the IDE already understands that your XML literal syntax is just a shorthand notation for the
+related code. In Figure 24-1, notice how you can apply the dot operator to the &lt;/Inventory&gt; end tag and
+see the same members as you would find if you apply the dot operator to a strongly typed XElement.</p>
+<img src="../Images/Figure24_01.png" alt="Figure 24-1" />
+<p><b>Figure 24-1</b> VB XML literal syntax is a shorthand notation for working with the LINQ to XML object model</p>
+<p>Although this book is about the C# programming language, few developers can argue that VB’s XML
+support is quite awesome. Even if you are the sort of developer who can’t imagine using a language from
+the BASIC family for your data to day development, I encourage you to check out VB literal syntax using
+the .NET Framework 4.0 SDK documentation. You may find yourself isolating your XML data
+manipulation routines to a dedicated *.dll, just so you can make use of VB to do so!</p>
+    </body>
+    </html>
+
+   
+

@@ -1,0 +1,161 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>DG</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="../master.css" />	
+</head>
+<body>
+<h1>Building Finalizable Objects</h1>
+ <p>In Chapter 6, you learned that the supreme base class of .NET, System.Object, defines a virtual method
+named Finalize(). The default implementation of this method does nothing whatsoever:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+// System.<span class="kwrd">Object</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> <span class="kwrd">Object</span>
+{
+    ...
+    <span class="kwrd">protected</span> virtual void Finalize() {}
+}</pre>
+<p>When you override Finalize() for your custom classes, you establish a specific location to perform
+any necessary cleanup logic for your type. Given that this member is defined as protected, it is not
+possible to directly call an object’s Finalize() method from a class instance via the dot operator. Rather,
+the garbage collector will call an object’s Finalize() method (if supported) before removing the object
+from memory.</p>
+<p><b>Note</b> It is illegal to override Finalize() on structure types. This makes perfect sense given that structures are
+value types, which are never allocated on the heap to begin with and therefore are not garbage collected!
+However, if you create a structure that contains unmanaged resources that need to be cleaned up, you can
+implement the IDisposable interface (described shortly).</p>
+<p>Of course, a call to Finalize() will (eventually) occur during a “natural” garbage collection or when
+you programmatically force a collection via GC.Collect(). In addition, a type’s finalizer method will
+automatically be called when the application domain hosting your application is unloaded from
+memory. Depending on your background in .NET, you may know that application domains (or simply
+AppDomains) are used to host an executable assembly and any necessary external code libraries. If you
+are not familiar with this .NET concept, you will be by the time you’ve finished Chapter 16. For now, note
+that when your AppDomain is unloaded from memory, the CLR automatically invokes finalizers for
+every finalizable object created during its lifetime.</p>
+<p>Now, despite what your developer instincts may tell you, the vast majority of your C# classes will not
+require any explicit cleanup logic or a custom finalizer. The reason is simple: if your classes are just
+making use of other managed objects, everything will eventually be garbage-collected. The only time
+you would need to design a class that can clean up after itself is when you are using unmanaged
+resources (such as raw OS file handles, raw unmanaged database connections, chunks of unmanaged
+memory, or other unmanaged resources). Under the .NET platform, unmanaged resources are obtained
+by directly calling into the API of the operating system using Platform Invocation Services (PInvoke) or
+as a result of some very elaborate COM interoperability scenarios. Given this, consider the next rule of
+garbage collection:</p>
+<p><b>Note</b> The only reason to override Finalize() is if your C# class is making use of unmanaged resources via
+PInvoke or complex COM interoperability tasks (typically via various members defined by the
+System.Runtime.InteropServices.Marshal type).</p>
+<h2>Overriding System.Object.Finalize()</h2>
+<p>In the rare case that you do build a C# class that uses unmanaged resources, you will obviously want to
+ensure that the underlying memory is released in a predictable manner. Suppose you have created a new
+C# Console Application named SimpleFinalize and inserted a class named MyResourceWrapper that uses
+an unmanaged resource (whatever that may be) and you want to override Finalize(). The odd thing
+about doing so in C# is that you can’t do it using the expected override keyword:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> MyResourceWrapper
+{
+    // Compile-time <span class="kwrd">error</span>!
+    <span class="kwrd">protected</span> override void Finalize(){ }
+}</pre>
+<p>Rather, when you want to configure your custom C# class types to override the Finalize() method,
+you make use of a (C++-like) destructor syntax to achieve the same effect. The reason for this alternative
+form of overriding a virtual method is that when the C# compiler processes the finalizer syntax, it
+automatically adds a good deal of required infrastructure within the implicitly overridden Finalize()
+method (shown in just a moment).</p>
+<p>C# finalizers look very similar to constructors in that they are named identically to the class they are
+defined within. In addition, finalizers are prefixed with a tilde symbol (~). Unlike a constructor, however,
+a finalizer never takes an access modifier (they are implicitly protected), never takes parameters, and
+can’t be overloaded (only one finalizer per class).</p>
+<p>Here is a custom finalizer for MyResourceWrapper that will issue a system beep when invoked.
+Obviously, this example is only for instructional purposes. A real-world finalizer would do nothing more
+than free any unmanaged resources and would not interact with other managed objects, even those
+referenced by the current object, as you can’t assume they are still alive at the point the garbage collector
+invokes your Finalize() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+// Override System.<span class="kwrd">Object</span>.Finalize() via finalizer syntax.
+<span class="kwrd">class</span> MyResourceWrapper
+{
+    ~MyResourceWrapper()
+    {
+        // Clean up unmanaged resources here.
+
+        // Beep <span class="kwrd">when</span> destroyed (testing purposes only!)
+        Console.Beep();
+    }
+}</pre>
+<p>If you were to examine this C# destructor using ildasm.exe, you would see that the compiler inserts
+some necessary error-checking code. First, the code statements within the scope of your Finalize()
+method are placed within a try block (see Chapter 7). The related finally block ensures that your base
+classes’ Finalize() method will always execute, regardless of any exceptions encountered within the try
+scope:</p>
+<pre class="csharpcode">
+.method family hidebysig virtual instance void
+	Finalize() cil managed
+{
+	// Code size 13 (0xd)
+	.maxstack 1
+	.try
+	{
+		IL_0000: ldc.i4 0x4e20
+		IL_0005: ldc.i4 0x3e8
+		IL_000a: call
+		void [mscorlib]System.Console::Beep(int32, int32)
+		IL_000f: nop
+		IL_0010: nop
+		IL_0011: leave.s IL_001b
+	} // end .try
+	finally
+	{
+		IL_0013: ldarg.0
+		IL_0014:
+			call instance void [mscorlib]System.Object::Finalize()
+		IL_0019: nop
+		IL_001a: endfinally
+	} // end handler
+	IL_001b: nop
+	IL_001c: ret
+} // end of method MyResourceWrapper::Finalize
+    </pre>
+    <p>If you then tested the MyResourceWrapper type, you would find that a system beep occurs when the
+application terminates, given that the CLR will automatically invoke finalizers upon AppDomain
+shutdown:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> void Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Finalizers *****\n"</span>);
+    Console.WriteLine(<span class="str">"Hit the return key to shut down this app"</span>);
+    Console.WriteLine(<span class="str">"and force the GC to invoke Finalize()"</span>);
+    Console.WriteLine(<span class="str">"for finalizable objects created in this AppDomain."</span>);
+    Console.ReadLine();
+    MyResourceWrapper rw = <span class="kwrd">new</span> MyResourceWrapper();
+}</pre>
+    <p><b>Source Code</b> The SimpleFinalize project is included under the Chapter 8 subdirectory.</p>
+<h2>Detailing the Finalization Process</h2>
+<p>Not to beat a dead horse, but always remember that the role of the Finalize() method is to ensure that a
+.NET object can clean up unmanaged resources when it is garbage-collected. Thus, if you are building a
+class that does not make use of unmanaged entities (by far the most common case), finalization is of
+little use. In fact, if at all possible, you should design your types to avoid supporting a Finalize() method
+for the very simple reason that finalization takes time.</p>
+<p>When you allocate an object onto the managed heap, the runtime automatically determines
+whether your object supports a custom Finalize() method. If so, the object is marked as finalizable, and
+a pointer to this object is stored on an internal queue named the finalization queue. The finalization
+queue is a table maintained by the garbage collector that points to each and every object that must be
+finalized before it is removed from the heap.</p>
+<p>When the garbage collector determines it is time to free an object from memory, it examines each
+entry on the finalization queue and copies the object off the heap to yet another managed structure
+termed the finalization reachable table (often abbreviated as freachable, and pronounced “effreachable”).
+At this point, a separate thread is spawned to invoke the Finalize() method for each object
+on the freachable table at the next garbage collection. Given this, it will take at the very least two garbage
+collections to truly finalize an object.</p>
+<p>The bottom line is that while finalization of an object does ensure an object can clean up
+unmanaged resources, it is still nondeterministic in nature, and due to the extra behind-the-curtains
+processing, considerably slower.</p>
+ </body>
+    </html>
+   
+

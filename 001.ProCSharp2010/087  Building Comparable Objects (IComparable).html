@@ -1,0 +1,273 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>Understanding the Common Language Specification</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="../master.css" />	
+</head>
+<body>
+<h1>Building Comparable Objects (IComparable)</h1>
+<p>The System.IComparable interface specifies a behavior that allows an object to be sorted based on some
+specified key. Here is the formal definition:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This interface allows an object to specify its</span>
+<span class="rem">// relationship between other like objects.</span>
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IComparable
+{
+    <span class="kwrd">int</span> CompareTo(<span class="kwrd">object</span> o);
+}
+</pre>
+<p><b>Note</b> The generic version of this interface (IComparable&lt;T&gt;) provides a more type-safe manner to handle
+comparisons between objects. You’ll examine generics in Chapter 10.</p>
+<p>Let’s assume you have a new Console Application named ComparableCar that defines the following
+updated Car class (notice that we have basically just added a new property to represent a unique ID for
+each car and a modified constructor):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> Car
+{
+...
+    <span class="kwrd">public</span> <span class="kwrd">int</span> CarID {<span class="kwrd">get</span>; <span class="kwrd">set</span>;}
+    <span class="kwrd">public</span> Car(<span class="kwrd">string</span> name, <span class="kwrd">int</span> currSp, <span class="kwrd">int</span> id)
+    {
+        CurrentSpeed = currSp;
+        PetName = name;
+        CarID = id;
+    }
+...
+}</pre>
+<p>Now assume you have an array of Car objects as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Object Sorting *****\n"</span>);
+
+    <span class="rem">// Make an array of Car objects.</span>
+    Car[] myAutos = <span class="kwrd">new</span> Car[5];
+    myAutos[0] = <span class="kwrd">new</span> Car(<span class="str">"Rusty"</span>, 80, 1);
+    myAutos[1] = <span class="kwrd">new</span> Car(<span class="str">"Mary"</span>, 40, 234);
+    myAutos[2] = <span class="kwrd">new</span> Car(<span class="str">"Viper"</span>, 40, 34);
+    myAutos[3] = <span class="kwrd">new</span> Car(<span class="str">"Mel"</span>, 40, 4);
+    myAutos[4] = <span class="kwrd">new</span> Car(<span class="str">"Chucky"</span>, 40, 5);
+    
+    Console.ReadLine();
+}</pre>
+<p>The System.Array class defines a static method named Sort(). When you invoke this method on an
+array of intrinsic types (int, short, string, etc.), you are able to sort the items in the array in
+numeric/alphabetic order as these intrinsic data types implement IComparable. However, what if you
+were to send an array of Car types into the Sort() method as follows?</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Sort my cars?</span>
+Array.Sort(myAutos);</pre>
+<p>If you run this test, you would get a runtime exception, as the Car class does not support the
+necessary interface. When you build custom types, you can implement IComparable to allow arrays of
+your types to be sorted. When you flesh out the details of CompareTo(), it will be up to you to decide what
+the baseline of the ordering operation will be. For the Car type, the internal CarID seems to be the logical
+candidate:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// The iteration of the Car can be ordered</span>
+<span class="rem">// based on the CarID.</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> Car : IComparable
+{
+...
+    <span class="rem">// IComparable implementation.</span>
+    <span class="kwrd">int</span> IComparable.CompareTo(<span class="kwrd">object</span> obj)
+    {
+        Car temp = obj <span class="kwrd">as</span> Car;
+        <span class="kwrd">if</span> (temp != <span class="kwrd">null</span>)
+        {
+            <span class="kwrd">if</span> (<span class="kwrd">this</span>.CarID &gt; temp.CarID)
+                <span class="kwrd">return</span> 1;
+            <span class="kwrd">if</span> (<span class="kwrd">this</span>.CarID &lt; temp.CarID)
+                <span class="kwrd">return</span> -1;
+            <span class="kwrd">else</span>
+                <span class="kwrd">return</span> 0;
+        }
+        <span class="kwrd">else</span>
+            <span class="kwrd">throw</span> <span class="kwrd">new</span> ArgumentException(<span class="str">"Parameter is not a Car!"</span>);
+    }
+}</pre>
+<p>As you can see, the logic behind CompareTo() is to test the incoming object against the current
+instance based on a specific point of data. The return value of CompareTo() is used to discover whether
+this type is less than, greater than, or equal to the object it is being compared with (see Table 9-1).</p>
+<p><b>Table 9-1. </b>CompareTo() Return Values</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Compare To() Return Value
+   </th>
+   <th>
+    Description
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Any number less than zero
+   </td>
+   <td>
+    This instance comes before the specified object in the sort
+order.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Zero
+   </td>
+   <td>
+    This instance is equal to the specified object.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Any number greater than zero
+   </td>
+   <td>
+    This instance comes after the specified object in the sort order.
+   </td>
+  </tr>
+</table>
+<p>We can streamline the previous implementation of CompareTo() given the fact that the C# int data
+type (which is just a shorthand notation for the CLR System.Int32) implements IComparable. You could
+implement the Car’s CompareTo() as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">int</span> IComparable.CompareTo(<span class="kwrd">object</span> obj)
+{
+    Car temp = obj <span class="kwrd">as</span> Car;
+    <span class="kwrd">if</span> (temp != <span class="kwrd">null</span>)
+        <span class="kwrd">return</span> <span class="kwrd">this</span>.CarID.CompareTo(temp.CarID);
+    <span class="kwrd">else</span>
+        <span class="kwrd">throw</span> <span class="kwrd">new</span> ArgumentException(<span class="str">"Parameter is not a Car!"</span>);
+}</pre>
+<p>In either case, so that your Car type understands how to compare itself to like objects, you can write
+the following user code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Exercise the IComparable interface.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    <span class="rem">// Make an array of Car objects.</span>
+...
+    <span class="rem">// Display current array.</span>
+    Console.WriteLine(<span class="str">"Here is the unordered set of cars:"</span>);
+    <span class="kwrd">foreach</span>(Car c <span class="kwrd">in</span> myAutos)
+        Console.WriteLine(<span class="str">"{0} {1}"</span>, c.CarID, c.PetName);
+
+    <span class="rem">// Now, sort them using IComparable!</span>
+    Array.Sort(myAutos);
+    Console.WriteLine();
+
+    <span class="rem">// Display sorted array.</span>
+    Console.WriteLine(<span class="str">"Here is the ordered set of cars:"</span>);
+    <span class="kwrd">foreach</span>(Car c <span class="kwrd">in</span> myAutos)
+        Console.WriteLine(<span class="str">"{0} {1}"</span>, c.CarID, c.PetName);
+    Console.ReadLine();
+}</pre>
+<p>Here is the output from the previous Main() method:</p>
+<pre class="csharpcode">
+***** Fun with Object Sorting *****
+Here is the unordered set of cars:
+1 Rusty
+234 Mary
+34 Viper
+4 Mel
+5 Chucky
+
+Here is the ordered set of cars:
+1 Rusty
+4 Mel
+5 Chucky
+34 Viper
+234 Mary
+</pre>
+<h2>Specifying Multiple Sort Orders (IComparer)</h2>
+<p>In this version of the Car type, you used the car’s ID as the base of the sort order. Another design might
+have used the pet name of the car as the basis of the sorting algorithm (to list cars alphabetically). Now,
+what if you wanted to build a Car that could be sorted by ID as well as by pet name? If this is the type of
+behavior you are interested in, you need to make friends with another standard interface named
+IComparer, defined within the System.Collections namespace as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// A general way to compare two objects.</span>
+<span class="kwrd">interface</span> IComparer
+{
+    <span class="kwrd">int</span> Compare(<span class="kwrd">object</span> o1, <span class="kwrd">object</span> o2);
+}</pre>
+<p><b>Note </b>The generic version of this interface (IComparer&lt;T&gt;) provides a more type-safe manner to handle
+comparisons between objects. You’ll examine generics in Chapter 10.</p>
+<p>Unlike the IComparable interface, IComparer is typically not implemented on the type you are trying
+to sort (i.e., the Car). Rather, you implement this interface on any number of helper classes, one for each
+sort order (pet name, car ID, etc.). Currently, the Car type already knows how to compare itself against
+other cars based on the internal car ID. Therefore, allowing the object user to sort an array of Car object
+by pet name will require an additional helper class that implements IComparer. Here’s the code (be sure
+to import the System.Collections namespace in the code file):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This helper class is used to sort an array of Cars by pet name.</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> PetNameComparer : IComparer
+{
+    <span class="rem">// Test the pet name of each object.</span>
+    <span class="kwrd">int</span> IComparer.Compare(<span class="kwrd">object</span> o1, <span class="kwrd">object</span> o2)
+    {
+        Car t1 = o1 <span class="kwrd">as</span> Car;
+        Car t2 = o2 <span class="kwrd">as</span> Car;
+        <span class="kwrd">if</span>(t1 != <span class="kwrd">null</span> &amp;&amp; t2 != <span class="kwrd">null</span>)
+            <span class="kwrd">return</span> String.Compare(t1.PetName, t2.PetName);
+        <span class="kwrd">else</span>
+            <span class="kwrd">throw</span> <span class="kwrd">new</span> ArgumentException(<span class="str">"Parameter is not a Car!"</span>);
+    }
+}</pre>
+<p>The object user code is able to make use of this helper class. System.Array has a number of
+overloaded Sort() methods, one that just happens to take an object implementing IComparer.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+...
+    <span class="rem">// Now sort by pet name.</span>
+    Array.Sort(myAutos, <span class="kwrd">new</span> PetNameComparer());
+
+    <span class="rem">// Dump sorted array.</span>
+    Console.WriteLine(<span class="str">"Ordering by pet name:"</span>);
+    <span class="kwrd">foreach</span>(Car c <span class="kwrd">in</span> myAutos)
+        Console.WriteLine(<span class="str">"{0} {1}"</span>, c.CarID, c.PetName);
+    ...
+}</pre>
+<h2>Custom Properties, Custom Sort Types</h2>
+<p>It is worth pointing out that you can make use of a custom static property in order to help the object user
+along when sorting your Car types by a specific data point. Assume the Car class has added a static readonly
+property named SortByPetName that returns an instance of an object implementing the IComparer
+interface (PetNameComparer, in this case):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// We now support a custom property to return</span>
+<span class="rem">// the correct IComparer interface.</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> Car : IComparable
+{
+    ...
+    <span class="rem">// Property to return the SortByPetName comparer.</span>
+    <span class="kwrd">public</span> <span class="kwrd">static</span> IComparer SortByPetName
+    { <span class="kwrd">get</span> { <span class="kwrd">return</span> (IComparer)<span class="kwrd">new</span> PetNameComparer(); } }
+}</pre>
+<p>The object user code can now sort by pet name using a strongly associated property, rather than just
+“having to know” to use the stand-alone PetNameComparer class type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Sorting by pet name made a bit cleaner.</span>
+Array.Sort(myAutos, Car.SortByPetName);</pre>
+<p><b>Source Code</b> The ComparableCar project is located under the Chapter 9 subdirectory.</p>
+<p>Hopefully, at this point you not only understand how to define and implement your own interfaces,
+but also understand their usefulness. To be sure, interfaces are found within every major .NET
+namespace, and you will continue working with various standard interfaces over the remainder of this
+text.</p>
+</body>
+</html>
+
+ 
+   
+

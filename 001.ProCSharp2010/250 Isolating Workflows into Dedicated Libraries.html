@@ -1,0 +1,231 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Isolating Workflows into Dedicated Libraries</h1>
+    <p>While making a Workflow Console Application is great for experimenting with the WF API, a productionready
+workflow will certainly need to be packaged up into a custom .NET *.dll assembly. By doing so,
+you can reuse your workflows at a binary level across multiple projects.</p>
+<p>While you could begin using a C# Class Library project as a starting point, the easiest way to build a
+workflow library is to start with the Activity Library project, under the Workflow node of the New Project
+dialog. The benefits of this project type are that it will set the required WF assembly references
+automatically and give you a *.xaml file to create your initial workflow.</p>
+<p>This workflow will model the process of querying the AutoLot database to see if a given car of the
+correct make and color is in the Inventory table. If the requested car is in stock, you will build a nicely
+formatted response to the host via an output parameter. If the item in not in stock, you will generate a
+memo to the head of the sales division requesting that they find a car of the correct color.</p>
+<h2>Defining the Initial Project</h2>
+<p>Create a new Activity Library project named CheckInventoryWorkflowLib (Figure 26-18). Once the
+project is created, rename the initial Activity1.xaml file to CheckInventory.xaml.</p>
+<img src="../Images/Figure26_18.png" alt="Figure 26-18" />
+<p><b>Figure 26-18</b> Building an Activity Library</p>
+<p>Now, before you continue, close down the visual workflow designer, and view the underlying XAML
+definition by right clicking on your XAML file and selecting the View Code menu option. Make sure that
+the x:Class attribute in the root &lt;Activity&gt; element has been updated as so (if not, replace Activity1
+with CheckInventory):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Activity</span> <span class="attr">x:Class</span><span class="kwrd">="CheckInventoryWorkflowLib.CheckInventory"</span> ... <span class="kwrd">&gt;</span></pre>
+<p><b>Note</b> It is always a good idea to check the x:Class value of your root activity when making a workflow library,
+as client programs will use this name to create an instance of the workflow.</p>
+<p>This workflow will make use of a Sequence activity as the primary activity, rather than Flowchart.
+Drag a new Sequence activity onto your designer (you’ll find it under the Control Flow area of your
+Toolbox) and change the DisplayName property to Look Up Product.</p>
+<p>As the name suggests, a Sequence activity allows you to easily create sequential tasks, which occur
+one after the other. This does not necessarily mean the children activities must follow a strict linear path,
+however. Your sequence could contain flow charts, other sequences, parallel processing of data, if/else
+branches and whatever else might make good sense for the business process you are designing.</p>
+<h2>Importing Assemblies and Namespaces</h2>
+<p>Because your workflow will be communicating with the AutoLot database, the next step is to reference
+your AutoLot.dll assembly using the Add Reference dialog box of Visual Studio 2010. This example will
+make use of the disconnected layer, so I’d suggest you reference the final version of this assembly
+created in Chapter 22 (if you set a reference to the final version created in Chapter 23, you’ll also need to
+set a reference to System.Data.Entity.dll, as this is required by the ADO.NET Entity Framework).</p>
+<p>This workflow will also be making use of LINQ to DataSet to query the returned DataTable in order
+to discover if you have the requested item in stock. Therefore, you should also set a reference to
+System.Data.DataSetExtensions.dll.</p>
+<p>Once you have referenced these assemblies, click on the Imports button located at the bottom of the
+workflow designer. Here you will see a listing of all of the .NET namespaces that you can make use of in
+your workflow designer (think of this area as a declarative version of the C# using keyword).</p>
+<p>You can add namespaces from any referenced assembly by typing in the text box mounted on the
+top of the Imports editor. For convenience, import AutoLotDisconnectedLayer and
+System.Data.DataSetExtensions. By doing so, you can reference the contained types without needing to
+use fully qualified names. Figure 26-19 shows some new listings of the Imports area once you are
+finished.</p>
+<img src="../Images/Figure26_19.png" alt="Figure 26-19" />
+<p><b>Figure 26-19</b> Similar to the C# using keyword, the Imports area allows you to include .NET namespaces</p>
+<h2>Defining the Workflow Arguments</h2>
+<p>Next, define two new workflow wide input arguments, named RequestedMake and RequestedColor, both
+of which will be of type String. Like the previous example, the host of the workflow will create a
+Dictionary object that contains data that maps to these arguments, so there is no need to assign a
+default value to these items using the Arguments editor. As you might guess, the workflow will use these
+values to perform the database query.</p>
+<p>As well, you can use this same Arguments editor to define an output argument named
+FormattedResponse of type String. When you need to return data from the workflow back to the host, you
+can create any number of output arguments which can be enumerated by the host when the workflow
+has completed. Figure 26-20 shows the current workflow designer.</p>
+<img src="../Images/Figure26_20.png" alt="Figure 26-20" />
+<p><b>Figure 26-20</b> Recall that workflow arguments provide a way send data to and return data from the
+workflow</p>
+<h2>Defining Workflow Variables</h2>
+<p>At this point, you need to declare a member variable in your workflow which corresponds to the
+InventoryDALDisLayer class of AutoLot.dll. You might recall from Chapter 22 that this class allows you
+to get all data from the Inventory returned as a DataTable. Select your Sequence activity on the designer,
+and using the Variables button, create a variable named AutoLotInventory. In the Variable Type
+dropdown list box, pick the Browse For Types... menu option, and type in InventoryDALDisLayer
+(Figure 26-21).</p>
+<img src="../Images/Figure26_21.png" alt="Figure 26-21" />
+<p><b>Figure 26-21</b> Recall that workflow variables provide a way to declarativly define variables within a scope</p>
+<p>Now, making sure your new variable is selected, go to the Visual Studio 2010 Properties window and
+click on the ellipse button of the Default property. This will open up a code editor which you can resize
+as you see fit (very helpful when entering lengthy code). This editor is much easier to use when entering
+complex code for a variable assignment. Enter the following (VB) code, which allocates your
+InventoryDALDisLayer variable:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+New InventoryDALDisLayer(<span class="str">"Data Source=(local)\SQLEXPRESS;"</span> +
+    <span class="str">"Initial Catalog=AutoLot;Integrated Security=True"</span>)</pre>
+<p>Declare a second workflow variable of type System.Data.DataTable named Inventory, again using
+the Browse For Types... menu option (set the default value of this variable to Nothing). You will be
+assigning the Inventory variable to the result of calling GetAllInventory() on the InventoryDALDisLayer
+variable in a later step.</p>
+<h2>Working with the Assign Activity</h2>
+<p>The Assign activity allows you to set a variable to a value, which can be the result of any sort of valid code
+statements. Drag an Assign activity (located in the Primitives area of your Toolbox) into your Sequence
+activity. In the To edit box, specify your Inventory variable. Using the Properties window, click on the
+ellipse button of the Value property and enter the following code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+AutoLotInventory.GetAllInventory()</pre>
+<p>Once the Assign activity has been encountered in your workflow, you will have a DataTable that
+contains all records of the Inventory table. However, you need to discover if the correct item is in stock
+using the values of the RequestedMake and RequestedColor arguments sent by the host. To determine if
+this is the case, you will make use of LINQ to DataSet. Once you know if you have the item in stock, you
+will use an If activity to perform the XAML equivalent of an if/else/then statement.</p>
+<h2>Working with the If and Switch Activities</h2>
+<p>Drag an If activity onto your Sequence node directly under the Assign activity. Because this activity is the
+XAML based way to make a simple runtime decision, you first need to configure the If activity to test
+against a Boolean expression. In the Condition editor, enter the following check LINQ to DataSet query:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+(From car In Inventory.AsEnumerable()
+    Where CType(car(<span class="str">"Color"</span>), String) = RequestedColor And
+    CType(car(<span class="str">"Make"</span>), String) = RequestedMake Select car).Any()</pre>
+    <p>This query will use the host supplied RequestedColor and RequestedMake data to fetch all records in
+the DataTable of correct make and color (note that the CType operator is the C# equivalent of an explicit
+cast operation). The call to the Any() extension method will return a true or false value based on if the
+result of the query contains any results.</p>
+<p>Your next task is to configure the set of activities that will execute when the specified condition is
+true or false. Recall that your ultimate goal here is to send a formatted message to the user if you do
+indeed have the car in question. However, to spice things up a tad, you will return a unique message
+based on which make of automobile the caller has requested (BMW, Yugo, or anything else).</p>
+<p>Drag a Switch&lt;T&gt; activity (located in the Flow Control area of the Toolbox) into the Then area of the
+If activity. As soon as you drop this activity, Visual Studio displays a dialog box asking for the type of the
+generic type parameter-specify String here. In the Expression area of your Switch activity, type
+RequestedMake.</p>
+<p>You will see that a default option for the switch is already in place and is inviting you to add an
+activity to represent how to respond. You only need a single Assign activity; however, if you wanted to
+perform more complex actions, your default area might very well be a new Sequence or Flowchart.</p>
+<p>Once you have added the Assign activity to the Default edit area (by clicking “Add Activity”), assign
+the FormattedResponse argument to the following code statement:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+String.Format(<span class="str">"Yes, we have a {0} {1} you can purchase"</span>,
+    RequestedColor, RequestedMake)</pre>
+ <p>At this point, your Switch editor will look like this (Figure 26-22).</p>
+<img src="../Images/Figure26_22.png" alt="Figure 26-22" />
+<p><b>Figure 26-22</b> Defining the default task for a Switch activity</p> 
+<p>Now, click on the “Add New Case” link and enter BMW (without any double quotes) for the first case,
+and once again for a final case of Yugo (again, no double quotes). Within each of these case areas, drop
+an Assign activity, both of which assign a value to the FormattedResponse variable. For the case of BMW,
+assign a value such as:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+String.Format(<span class="str">"Yes sir! We can send you {0} {1} as soon as {2}!"</span>, _
+    RequestedColor, RequestedMake, DateTime.Now)</pre>
+ <p>For the case of the Yugo, use the following expression:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+String.Format(<span class="str">"Please, we will pay you to get this {0} off our lot!"</span>, _
+    RequestedMake)</pre>
+<p>The Switch activity will now look something like the following (Figure 26-23).</p> 
+<img src="../Images/Figure26_23.png" alt="Figure 26-23" />
+<p><b>Figure 26-23</b> The final Switch activity</p>
+<h2>Building a Custom Code Activity</h2>
+<p>As expressive as the workflow designer experience is with its ability to embed complex code statements
+(and LINQ queries) in your XAML file, there will certainly be times when you just need to write code in a
+dedicated class. There are a number of ways to do so with the WF API, but the most straightforward way
+is to create a class extending CodeActivity, or if your activity needs to return a value, CodeActivity&lt;T&gt;
+(where T is the type of return value).</p>
+<p>Here, you will make a simple custom activity which will dump out data to a text file, informing the
+sales staff that a request has come in for a car that is currently not in the inventory system. First, activate
+the Project | Add New Item menu option and insert a new Code Activity named
+CreateSalesMemoActivity.cs (Figure 26-24).</p>
+<img src="../Images/Figure26_24.png" alt="Figure 26-24" />
+<p><b>Figure 26-24</b> Inserting a new Code Activity</p>
+<p>If your custom activity requires inputs to process, they will each be represented by a property
+encapsulating an InArgument&lt;T&gt; object. The InArgument&lt;T&gt; class type is a WF API specific entity, which
+provides a way to pass through data supplied by a workflow to the custom activity class itself. Your
+activity will need two such properties representing the make and color of the item not in stock.</p>
+<p>As well, a custom code activity will need to override the virtual Execute() method, which will be
+called by the WF runtime when this activity is encountered. Typically, this method will use the
+InArgument&lt;&gt; properties to get the workload accomplished. To get the real underlying value, you will
+need to do so indirectly using the GetValue() method of the incoming CodeActivityContext.</p>
+<p>Here then is the code for your custom activity, which generates a new *.txt file describing the
+situation to the sales team:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">sealed</span> <span class="kwrd">class</span> CreateSalesMemoActivity : CodeActivity
+{
+    <span class="rem">// Two properties for the custom activity</span>
+    <span class="kwrd">public</span> InArgument&lt;<span class="kwrd">string</span>&gt; Make { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">public</span> InArgument&lt;<span class="kwrd">string</span>&gt; Color { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="rem">// If the activity returns a value, derive from CodeActivity&lt;TResult&gt;</span>
+    <span class="rem">// and return the value from the Execute method.</span>
+    <span class="kwrd">protected</span> <span class="kwrd">override</span> <span class="kwrd">void</span> Execute(CodeActivityContext context)
+    {
+        <span class="rem">// Dump a message to a local text file.</span>
+        StringBuilder salesMessage = <span class="kwrd">new</span> StringBuilder();
+        salesMessage.AppendLine(<span class="str">"***** Attention sales team! *****"</span>);
+        salesMessage.AppendLine(<span class="str">"Please order the following ASAP!"</span>);
+        salesMessage.AppendFormat(<span class="str">"1 {0} {1}\n"</span>,
+            context.GetValue(Color), context.GetValue(Make));
+        salesMessage.AppendLine(<span class="str">"*********************************"</span>);
+        
+        System.IO.File.WriteAllText(<span class="str">"SalesMemo.txt"</span>, salesMessage.ToString());
+    }
+}</pre>
+<p>Now that you have a custom code activity, how should you make use of it? Well, if you really wanted
+to deliver a polished activity, WF 4.0 does allow a way to build a custom designer for your custom code
+activities. However, doing so requires an understanding of WPF, as the custom designer uses many of
+the same techniques as you would use when building a WPF Window or . You’ll begin learning
+about WPF in the next chapter, so for now I’ll show you a simpler approach.</p>
+<p>First, compile your workflow assembly. Ensuring your workflow designer is the active window
+within the Visual Studio 2010 IDE, examine the top area of your toolbox. You should see your custom
+activity is present and accounted for (Figure 26-25).</p>
+<img src="../Images/Figure26_25.png" alt="Figure 26-25" />
+<p><b>Figure 26-25</b> Custom code activities appear in the Visual Studio 2010 toolbox</p>
+<p>First, drag a new Sequence activity into the Else branch of your If activity. Next, drag your custom
+activity into the Sequence. At this point, you can assign values to each of the exposed properties using the
+Properties window. Using your RequestedMake and RequestedMake variables, set the Make and Color
+properties of your activity as shown in Figure 26-26.</p>
+<img src="../Images/Figure26_26.png" alt="Figure 26-26" />
+<p><b>Figure 26-26</b> Setting the properties of your custom code activity</p>
+<p>To complete this workflow, drag a final Assign activity into the Sequence activity of the Else branch,
+and set the FormattedResponse to the string value “Sorry, out of stock”. Figure 26-27 shows the final
+workflow design.</p>
+<img src="../Images/Figure26_27.png" alt="Figure 26-27" />
+<p><b>Figure 26-27</b> The completed sequential workflow</p>
+<p>Compile your project and move onto the final part of this chapter, where you will build a client host
+to make use of the workflow.</p>
+    <p><b>Source Code</b> The CheckInventoryWorkflowLib project is included under the Chapter 26 subdirectory.</p>
+    </body>
+    </html>
+ 
+      
+   

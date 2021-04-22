@@ -1,0 +1,364 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Building a Single File ASP.NET Web Page</h1>
+    <p>As it turns out, an ASP.NET web page can be constructed using one of two approaches, the first of which
+is to build a single *.aspx file that contains a blend of server-side code and HTML. Using this single-file
+page model approach, the server-side code is placed within a &lt;script&gt; scope, but the code itself is not
+script code proper (e.g., VBScript/JavaScript). Rather, the code within a &lt;script&gt; block are written in
+your .NET language of choice (C#, Visual Basic, etc.).</p>
+<p>If you are building a web page that contains very little code (but a good deal of static HTML), a
+single-file page model may be easier to work with, as you can see the code and the markup in one
+unified *.aspx file. In addition, placing your procedural code and HTML markup into a single *.aspx file
+provides a few other advantages:</p>
+<ul>
+ <li>Pages written using the single-file model are slightly easier to deploy or to send to
+another developer.</li>
+ <li>Because there is no dependency between multiple files, a single-file page is easier
+to rename.</li>
+ <li>Managing files in a source code control system is slightly easier, as all the action is
+taking place in a single file.</li>
+</ul>
+<p>On the downside, the single file page model can lead to the same problems you had under classic
+COM-based ASP: a single file that is doing too much (defining UI markup and programming logic in one
+place). Nevertheless, you’ll begin your journey of ASP.NET by examining the single-file page model.</p>
+<p>Your goal is to build an *.aspx file that displays the Inventory table of the AutoLot database (created
+in Chapter 21) using the connected layer (but, as you would guess, you could also use the disconnected
+layer or the Entity Framework). To begin, launch Visual Studio 2010 and create a new Web Form using
+the File &gt; New &gt; File menu option (see Figure 32-8).</p>
+<img src="../Images/Figure32_08.png" alt="Figure 32-8" />
+<p><b>Figure 32-8</b> Creating a new single file ASP.NET page</p>
+<p>Once you have done so, save this file as Default.aspx under a new directory on your hard drive that
+you can easily find later (for example, C:\MyCode\SinglePageModel).</p>
+<h2>Referencing AutoLotDAL.dll</h2>
+<p>Next, use Windows Explorer to create a subdirectory under the SinglePageModel folder named bin. The
+specially named bin subdirectory is a registered name with the ASP.NET runtime engine. Into the \bin
+folder of a website’s root, you are able to deploy any private assemblies used by the web application. For
+this example, place a copy of AutoLotDAL.dll (see Chapter 21) into the C:\MyCode\SinglePageModel\bin
+folder.</p>
+<p><b>Note</b> As shown later in this chapter, when you use Visual Studio 2010 to create a ASP.NET web project, the IDE
+will maintain the \bin folder on your behalf.</p>
+<h2>Designing the UI</h2>
+<p>Now, using the Visual Studio 2010 Toolbox, select the Standard tab and drag and drop a Button, Label,
+and GridView control (the GridView widget can be found under the Data tab of the Toolbox) onto the page
+designer between the opening and closing form elements. Feel free to make use of the Properties window
+to set various visual properties settings as you choose. Also, be sure to give each web widget a proper name
+via the ID attribute. Figure 32-9 shows one possible design. (I kept the example’s look and feel intentionally
+bland to minimize the amount of control markup, but feel free to spruce things up to your liking.)</p>
+<img src="../Images/Figure32_09.png" alt="Figure 32-9" />
+<p><b>Figure 32-9</b> The Defau&gt;t.aspx GUI</p>
+<p>Now, locate the &lt;form&gt; section of your page. Notice how each web control has been defined using
+an &lt;asp:> tag. After this tag prefix, you will find the name of an ASP.NET web control (Label, GridView
+and Button). Before the closing tag of a given element, you will find a series of name/value pairs that
+correspond to the settings you made in the Properties window, for example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">form</span> <span class="attr">id</span><span class="kwrd">="form1"</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">div</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">asp:Label</span> <span class="attr">ID</span><span class="kwrd">="lblInfo"</span> <span class="attr">runat</span><span class="kwrd">="server"</span>
+        <span class="attr">Text</span><span class="kwrd">="Click on the Button to Fill the Grid"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">asp:Label</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">br</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">br</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">asp:GridView</span> <span class="attr">ID</span><span class="kwrd">="carsGridView"</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">asp:GridView</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">br</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">asp:Button</span> <span class="attr">ID</span><span class="kwrd">="btnFillData"</span> <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">Text</span><span class="kwrd">="Fill Grid"</span> <span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">div</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">form</span><span class="kwrd">&gt;</span></pre>
+    <p>You will dig into the full details of ASP.NET web controls later in Chapter 33. Until then, recall that
+web controls are objects processed on the web server that emit back their HTML representation into the
+outgoing HTTP response automatically. Beyond this major benefit, ASP.NET web controls mimic a
+desktop-like programming model in that the names of the properties, methods, and events typically
+echo a Windows Forms/WPF counterpart.</p>
+<h2>Adding the Data Access Logic</h2>
+<p>Handle the Click event for the Button type using either the Visual Studio Properties window (via the
+lightning bolt icon) or the drop-down boxes mounted at the top of the designer window (like you did for
+this chapter’s HTML review section). Once you do, you will find your Button’s definition has been
+updated with an OnClick attribute that is assigned to the name of the Click event handler you entered:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:Button</span> <span class="attr">ID</span><span class="kwrd">="btnFillData"</span> <span class="attr">runat</span><span class="kwrd">="server"</span>
+    <span class="attr">Text</span><span class="kwrd">="Fill Grid"</span> <span class="attr">OnClick</span><span class="kwrd">="btnFillData_Click"</span><span class="kwrd">/&gt;</span></pre>
+ <p>Now, within the *.aspx server side &lt;script&gt; block author the Click event handler. Add the following
+code, noticing that the incoming parameters are a dead-on match for the target of the
+System.EventHandler delegate, which you have seen in many examples in this book:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">script</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> btnFillData_Click(<span class="kwrd">object</span> sender, EventArgs args)
+{
+}
+<span class="kwrd">&lt;/</span><span class="html">script</span><span class="kwrd">&gt;</span></pre>
+<p>The next step is to populate the GridView using the functionality of your AutoLotDAL.dll assembly.
+To do so, you must use the &lt;%@ Import %&gt; directive to specify that you are using the
+AutoLotConnectedLayer namespace.</p>
+<p><b>Note</b> You will only need to use the &lt;%@ Import %&gt; directive if you are building a page with the single file
+code model. If you are using the default code file approach, you will simply use the using keyword of C# to
+include namespaces in your code file. The same is true for the &lt;%@ Assembly %&gt; directive, described next.</p>
+<p>In addition, you need to inform the ASP.NET runtime that this single-file page is referencing the
+AutoLotDAL.dll assembly via the &lt;%@ Assembly %&gt; directive (more details on directives in just a
+moment). Here is the remaining relevant page logic of the Default.aspx file (modify your connection
+string as required):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="asp">&lt;%@ Page Language="C#" %&gt;</span>
+<span class="asp">&lt;%@ Import Namespace = "AutoLotConnectedLayer" %&gt;</span>
+<span class="asp">&lt;%@ Assembly Name ="AutoLotDAL" %&gt;</span>
+
+<span class="kwrd">&lt;!</span><span class="html">DOCTYPE</span> <span class="attr">html</span> <span class="attr">PUBLIC</span> <span class="kwrd">"-//W3C//DTD XHTML 1.0 Transitional//EN"</span>
+    <span class="kwrd">"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"</span><span class="kwrd">&gt;</span>
+
+<span class="kwrd">&lt;</span><span class="html">script</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">void</span> btnFillData_Click(<span class="kwrd">object</span> sender, EventArgs args)
+    {
+        InventoryDAL dal = <span class="kwrd">new</span> InventoryDAL();
+        dal.OpenConnection(<span class="str">@"Data Source=(local)\SQLEXPRESS;"</span> +
+            <span class="str">"Initial Catalog=AutoLot;Integrated Security=True"</span>);
+        carsGridView.DataSource = dal.GetAllInventory();
+        carsGridView.DataBind();
+        dal.CloseConnection();
+    }
+<span class="kwrd">&lt;/</span><span class="html">script</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">html</span> <span class="attr">xmlns</span><span class="kwrd">="http://www.w3.org/1999/xhtml"</span> <span class="kwrd">&gt;</span>
+...
+<span class="kwrd">&lt;/</span><span class="html">html</span><span class="kwrd">&gt;</span></pre>
+    <p>Before you dive into the details behind the format of this *.aspx file, let’s try a test run. First, save
+your *.aspx file. Now, right click anywhere on the *.aspx designer and select the View in Browser menu
+option, which will launch the ASP .NET Development web server, which, in turn, hosts your page.</p>
+<p>When the page is served, you will initially see your Label and Button controls. However, when you
+click your button control, a postback occurs to the web server, at which point the web controls render
+back their corresponding HTML tags. Figure 32-10 shows the output once you click the Fill Grid button.</p>
+<img src="../Images/Figure32_10.png" alt="Figure 32-10" />
+<p><b>Figure 32-10</b> ASP.NET provides a declarative data binding model</p>
+<p>Given, the current UI is quite bland. To spice up the current example, select the GridView control on
+the designer, and using the context menu (that tiny arrow on the upper left of the control), select the
+Auto Format option (Figure 32-11).</p>
+<img src="../Images/Figure32_11.png" alt="Figure 32-11" />
+    <p><b>Figure 32-11</b> A richer GridView control!</p>
+<p>From the resulting dialog box, pick a template that suits your fancy (I picked “Slate”). Once you click
+OK, view the generated control declaration, which is quite a bit richer than before:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">asp:GridView</span> <span class="attr">ID</span><span class="kwrd">="carsGridView"</span> <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">BackColor</span><span class="kwrd">="White"</span>
+        <span class="attr">BorderColor</span><span class="kwrd">="#E7E7FF"</span> <span class="attr">BorderStyle</span><span class="kwrd">="None"</span> <span class="attr">BorderWidth</span><span class="kwrd">="1px"</span> <span class="attr">CellPadding</span><span class="kwrd">="3"</span>
+        <span class="attr">GridLines</span><span class="kwrd">="Horizontal"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">AlternatingRowStyle</span> <span class="attr">BackColor</span><span class="kwrd">="#F7F7F7"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">FooterStyle</span> <span class="attr">BackColor</span><span class="kwrd">="#B5C7DE"</span> <span class="attr">ForeColor</span><span class="kwrd">="#4A3C8C"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">HeaderStyle</span> <span class="attr">BackColor</span><span class="kwrd">="#4A3C8C"</span> <span class="attr">Font-Bold</span><span class="kwrd">="True"</span> <span class="attr">ForeColor</span><span class="kwrd">="#F7F7F7"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">PagerStyle</span> <span class="attr">BackColor</span><span class="kwrd">="#E7E7FF"</span> <span class="attr">ForeColor</span><span class="kwrd">="#4A3C8C"</span> <span class="attr">HorizontalAlign</span><span class="kwrd">="Right"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">RowStyle</span> <span class="attr">BackColor</span><span class="kwrd">="#E7E7FF"</span> <span class="attr">ForeColor</span><span class="kwrd">="#4A3C8C"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">SelectedRowStyle</span> <span class="attr">BackColor</span><span class="kwrd">="#738A9C"</span> <span class="attr">Font-Bold</span><span class="kwrd">="True"</span> <span class="attr">ForeColor</span><span class="kwrd">="#F7F7F7"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">SortedAscendingCellStyle</span> <span class="attr">BackColor</span><span class="kwrd">="#F4F4FD"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">SortedAscendingHeaderStyle</span> <span class="attr">BackColor</span><span class="kwrd">="#5A4C9D"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">SortedDescendingCellStyle</span> <span class="attr">BackColor</span><span class="kwrd">="#D8D8F0"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">SortedDescendingHeaderStyle</span> <span class="attr">BackColor</span><span class="kwrd">="#3E3277"</span> <span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">asp:GridView</span><span class="kwrd">&gt;</span></pre>
+<p>If you view your application again and click on your button, you will now see a more interesting UI
+(Figure 32-12), shown via Apple Safari on my Windows 7 install.</p>
+<img src="../Images/Figure32_12.png" alt="Figure 32-12" />
+<p><b>Figure 32-12</b> Your simple web page in Apple Safari</p>
+<p>That was simple, yes? Of course, as they say, the devil is in the details, so let’s dig a bit deeper into
+the composition of this *.aspx file, beginning with examining the role of the &lt;%@Page… %&gt; directive. Do be
+aware that the topics you examine will apply directly to the more preferred code file model examined
+next.</p>
+<h2>The Role of ASP.NET Directives</h2>
+<p>A given *.aspx file will typically open with a set of directives. ASP.NET directives are always denoted with
+&lt;%@ ... %&gt; markers and may be qualified with various attributes to inform the ASP.NET runtime how to
+process the attribute in question.</p>
+<p>Every *.aspx file must have at minimum a &lt;%@Page%&gt; directive that is used to define the managed
+language used within the page (via the language attribute). Also, the &lt;%@Page%&gt; directive may define the
+name of the related code-behind file (examined soon), and so on. Table 32-1 documents some of the
+more interesting &lt;%@Page%&gt;-centric attributes.</p>
+<p><b>Table 32-1.</b> Select Attributes of the &lt;%@Page%&gt; Directive</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Attribute
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    CodePage
+   </td>
+   <td>
+    Specifies the name of the related code-behind file
+   </td>
+  </tr>
+  <tr>
+   <td>
+    EnableTheming
+   </td>
+   <td>
+    Establishes whether the controls on the *.aspx page support ASP.NET themes
+   </td>
+  </tr>
+  <tr>
+   <td>
+    EnableViewState
+   </td>
+   <td>
+    Indicates whether view state is maintained across page requests (more details
+on this property in Chapter 33)
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Inherits
+   </td>
+   <td>
+    Defines a class in the code-behind page the *.aspx file derives from, which
+can be any class derived from System.Web.UI.Page
+   </td>
+  </tr>
+  <tr>
+   <td>
+    MasterPageFile
+   </td>
+   <td>
+    Sets the master page used in conjunction with the current *.aspx page
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Trace
+   </td>
+   <td>
+    Indicates whether tracing is enabled
+   </td>
+  </tr>
+</table>
+<p>In addition to the &lt;%@Page%&gt; directive, a given *.aspx file may specify various &lt;%@Import%&gt; directives
+to explicitly state the namespaces required by the current page and &lt;%@Assembly%&gt; directives to specify
+the external code libraries used by the site (typically placed under the \bin folder of the website).</p>
+<p>In this example, you specified you were making use of the types within the AutoLotConnectedLayer
+namespace within the AutoLotDAL.dll assembly. As you would guess, if you need to make use of
+additional .NET namespaces, you simply specify multiple &lt;%@Import%&gt;/&lt;%@Assembly%&gt; directives.</p>
+<p>Given your current knowledge of .NET, you may wonder how this *.aspx file avoided specifying
+additional &lt;%@Import%&gt; directives to gain access to the System namespace in order to gain access to the
+System.Object and System.EventHandler types (among others). The reason is that all *.aspx pages
+automatically have access to a set of key namespaces that are defined within the web.config file under
+your installation path of the .NET platform. Within this XML-based file, you would find a number of
+autoimported namespaces, including the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">pages</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">namespaces</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Collections"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Collections.Generic"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Collections.Specialized"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Configuration"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Data.Entity.Design"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Data.Linq"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Linq"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Text"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Text.RegularExpressions"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Web"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Web.Caching"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Web.SessionState"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Web.Security"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Web.Profile"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Web.UI"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Web.UI.WebControls"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Web.UI.WebControls.WebParts"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">add</span> <span class="attr">namespace</span><span class="kwrd">="System.Web.UI.HtmlControls"</span><span class="kwrd">/&gt;</span>
+...
+    <span class="kwrd">&lt;/</span><span class="html">namespaces</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">pages</span><span class="kwrd">&gt;</span></pre>
+    <p>To be sure, ASP.NET does define a number of other directives that may appear in an *.aspx file
+above and beyond &lt;%@Page%&gt;, &lt;%@Import%&gt;, and &lt;%@Assembly%&gt;; however, I’ll reserve commenting on
+those for the time being. You’ll see examples of other directives as you progress through the remaining
+chapters.</p>
+<h2>Analyzing the “Script” Block</h2>
+<p>Under the single-file page model, an *.aspx file may contain server-side scripting logic that executes on
+the web server. In this case, it is critical that all of your server-side code blocks are defined to execute at
+the server, using the runat="server" attribute. If the runat="server" attribute is not supplied, the
+runtime assumes you have authored a block of client-side script to be emitted into the outgoing HTTP
+response, and it will throw an exception. That being said, here is a proper server side &lt;script&gt; block:</p>
+<p><b>Note</b> All ASP.NET web controls will need to have the runat="server" attribute in their opening declaration. If
+not, they will not render their HTML into the outbound HTTP response.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">script</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">void</span> btnFillData_Click(<span class="kwrd">object</span> sender, EventArgs args)
+    {
+        InventoryDAL dal = <span class="kwrd">new</span> InventoryDAL();
+        dal.OpenConnection(<span class="str">@"Data Source=(local)\SQLEXPRESS;"</span> +
+        <span class="str">"Initial Catalog=AutoLot;Integrated Security=True"</span>);
+        carsGridView.DataSource = dal.GetAllInventory();
+        carsGridView.DataBind();
+        dal.CloseConnection();
+    }
+<span class="kwrd">&lt;/</span><span class="html">script</span><span class="kwrd">&gt;</span></pre>
+    <p>The signature of this helper method should look strangely familiar. Recall that a given control event
+handler must match the pattern defined by a related .NET delegate. The delegate in question is
+System.EventHandler that can only call methods that take System.Object as the first parameter and
+System.EventArgs as the second.</p>
+<h2>Analyzing the ASP.NET Control Declarations</h2>
+<p>The final point of interest in this first example is the declaration of the Button, Label, and GridView web
+controls. Like classic ASP and raw HTML, ASP.NET web widgets are scoped within &lt;form&gt; elements. This
+time, however, the opening &lt;form&gt; element is marked with the runat="server" attribute and is qualified
+with the asp: tag prefix. Any control which takes this prefix is a member of the ASP.NET control library
+and has a corresponding C# class representation in a given .NET namespace of the .NET base class
+libraries. Here you find:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">form</span> <span class="attr">id</span><span class="kwrd">="form1"</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">div</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">asp:Label</span> <span class="attr">ID</span><span class="kwrd">="lblInfo"</span> <span class="attr">runat</span><span class="kwrd">="server"</span>
+        <span class="attr">Text</span><span class="kwrd">="Click on the Button to Fill the Grid"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">asp:Label</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">br</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">br</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">asp:GridView</span> <span class="attr">ID</span><span class="kwrd">="carsGridView"</span> <span class="attr">runat</span><span class="kwrd">="server"</span><span class="kwrd">&gt;</span>
+        ...
+    <span class="kwrd">&lt;/</span><span class="html">asp:GridView</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">br</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">asp:Button</span> <span class="attr">ID</span><span class="kwrd">="btnFillData"</span> <span class="attr">runat</span><span class="kwrd">="server"</span> <span class="attr">Text</span><span class="kwrd">="Fill Grid"</span> <span class="attr">OnClick</span><span class="kwrd">="btnFillData_Click"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">div</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">form</span><span class="kwrd">&gt;</span></pre>
+    <p>The System.Web.UI.WebControls namespace of the System.Web.dll assembly contains a majority of
+the ASP.NET web controls. If you were to open the Visual Studio 2010 Object Browser, you could, for
+example, locate the Label control (Figure 32-13).</p>
+<img src="../Images/Figure32_13.png" alt="Figure 32-13" />
+<p><b>Figure 32-13</b> All ASP.NET control declarations map to a .NET class type</p>
+<p>As you can see, an ASP.NET web control has an inheritance chain with System.Object at the very
+top. The WebControl parent class is a common base to all ASP.NET controls and defines all the common
+UI properties you would expect (BackColor, Height, etc.). The Control class is also very common within
+the framework; however, it defines more infrastructure-centric members (data binding, view state, etc)
+rather than a child’s graphical look and feel. You’ll learn more about these classes in Chapter 33.</p>
+<h2>Compilation Cycle for Single-File Pages</h2>
+<p>If you are making use of the single-file page model, the HTML markup, server side &lt;script&gt; blocks, and
+web control definitions are dynamically compiled into a class type deriving from System.Web.UI.Page
+when the first request is made. The name of this class is based on the name of the *.aspx file and takes
+an _aspx suffix (e.g., a page named MyPage.aspx becomes a class named MyPage_aspx). Figure 32-14
+illustrates the basic process.</p>
+<img src="../Images/Figure32_14.png" alt="Figure 32-14" />
+    <p><b>Figure 32-14</b> The compilation model for single-file pages</p>
+<p>This dynamically compiled assembly is deployed to a runtime-defined subdirectory under the
+C:\Windows\Microsoft.NET\Framework\v4.0\Temporary ASP.NET Files root directory. The path
+beneath this root will differ based on a number of factors (hash codes, etc.), but if you are determined,
+eventually you will find the *.dll (and supporting files) in question. Figure 32-15 shows the generated
+assembly for the SinglePageModel example shown earlier in this chapter.</p>
+<img src="../Images/Figure32_15.png" alt="Figure 32-15" />
+    <p><b>Figure 32-15</b> The ASP.NET autogenerated assembly</p>
+<p>If you were to open this assembly into a tool such as ildasm.exe or reflector.exe, sure enough you
+will find a class extending Page, which each web control defined as a member of the class. Now, do be
+aware that you will typically never need to manually find, or in any way modify, these autogenerated
+assemblies. However, it is important to point out that if you change any aspect of your *.aspx file, it will
+be dynamically recompiled when a browser request the web page.</p>
+    </body>
+    </html>
+   
+      
+   

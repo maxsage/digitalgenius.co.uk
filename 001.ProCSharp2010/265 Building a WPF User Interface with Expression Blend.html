@@ -1,0 +1,156 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Building a WPF User Interface with Expression Blend</h1>
+    <p>Visual Studio 2010 provides a solid WPF-editing experience; and, if you so choose, you can use the IDE
+for all of your XAML editing. However, for complex applications, your work load will often decrease
+considerably if you use Blend to generate the markup, and then open the same project in Visual Studio
+to tweak the markup (if needed) and author code.</p>
+<p>On a related node, Blend 3.0 ships with a simple code editor; while it is not anywhere near as
+powerful as Visual Studio, you can use this built-in C# editor to add code quickly to the UI event
+handlers during development.</p>
+<h2>Getting to know the Key Aspects of the Blend IDE</h2>
+<p>To begin learning about Blend, load the product and click the New Project button from the Welcome
+dialog (if you don’t see the dialog, you can activate it from the File &gt; New project menu command). In
+the New Project dialog (see Figure 28-17), create a new WPF Application named WpfControlsAndAPIs.</p>
+<img src="../Images/Figure28_17.png" alt="Figure 28-17" />
+<p><b>Figure 28-17</b> Creating a new WPF Application with Expression Blend</p>
+<p>Once you open the project, activate the Projects tab mounted on the upper-left area of the IDE (if
+you don’t see it, activate the Window &gt; Projects menu option). As you can see in Figure 28-18, a WPF
+Application generated with Blend is identical to a WPF project generated with Visual Studio.</p>
+<img src="../Images/Figure28_18.png" alt="Figure 28-18" />
+<p><b>Figure 28-18</b> An Expression Blend WPF project is identical to a Visual Studio WPF project</p>
+<p>Now locate the Properties tab on the right-hand side of the Blend IDE. Similar to Visual Studio 2010,
+this aspect of the tool allows you to assign property values to an item selected on the designer. However,
+it looks quite different from its Visual Studio 2010 counterpart. For example, notice that similar
+properties are grouped together in collapsible panes (see Figure 28-19).</p>
+<img src="../Images/Figure28_19.png" alt="Figure 28-19" />
+<p><b>Figure 28-19</b> The Blend Properties editor</p>
+<p>Perhaps the most obvious part of the Blend IDE is its window designer, which takes up a majority of
+the real estate. Notice that you can see three small buttons in the upper-right area of the window
+designer; these buttons allow you to open the designer itself, the underlying XAML, or a split view. Figure
+28-20 shows the designer in split view.</p>
+<img src="../Images/Figure28_20.png" alt="Figure 28-20" />
+<p><b>Figure 28-20</b> The Blend Designer allows you to view the underlying XAML</p>
+<p>The XAML editor is quite feature-rich. For example, as you start typing, you will activate IntelliSense
+and find support for auto completion, as well as a useful help system. You won’t have to enter much
+XAML manually in this example, but you can see the editor at work in Figure 28-21.</p>
+<img src="../Images/Figure28_21.png" alt="Figure 28-21" />
+<p><b>Figure 28-21</b> The Blend XAML editor is as rich as the editor in Visual Studio</p>
+<p>Another key aspect of Blend to be aware of is the Objects and Timeline area (located in the bottomleft
+area of the Blend window). As you will learn in Chapter 30, the timeline aspect of this tool allows you
+to capture animation sequences. For now, suffice it to say that this aspect of the IDE allows you to view
+the logical tree of markup, much as the Document Viewer in Visual Studio 2010 does. Currently, your
+Objects and Timeline window should look like what you see in Figure 28-22.</p>
+<img src="../Images/Figure28_22.png" alt="Figure 28-22" />
+<p><b>Figure 28-22</b> You can view the tree of XAML using the Objects and Timeline editor</p>
+<p>Here, you can see that your top-most node is the Window itself, which has an item named
+LayoutRoot as content. If you view the XAML of your initial window, you see this is the name given to the
+default &lt;Grid&gt; layout manager:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">x:Class</span><span class="kwrd">="WpfControlsAndAPIs.MainWindow"</span>
+    <span class="attr">x:Name</span><span class="kwrd">="Window"</span>
+    <span class="attr">Title</span><span class="kwrd">="MainWindow"</span>
+    <span class="attr">Width</span><span class="kwrd">="559"</span> <span class="attr">Height</span><span class="kwrd">="288"</span> <span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Grid</span> <span class="attr">x:Name</span><span class="kwrd">="LayoutRoot"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+<p>If you do not want to use a Grid as your default layout manager, you can edit the XAML file directly.
+Or, if you prefer, you can right-click the LayoutRoot icon in the Objects and Timeline window and select
+the Change Layout Type menu option.</p>
+<p><b>Note</b> When you wish to use the Properties editor to change the look-and-feel of a UI item, select it from the
+Objects and Timeline tree first. This will automatically select the correct item on the designer.</p>
+<p>One final key aspect of Blend you should know about for now is the Tools editor, mounted on the
+far-left side of the IDE. Here you will find an assortment of WPF controls to select and place on your
+designer. Figure 28-23 shows that some of these buttons have a small triangle in the bottom-right area. If
+you click and hold such buttons, you will find a selection of related choices.</p>
+<p><b>Note</b> I have my Tools window mounted at the top of the Blend IDE, so my controls appear in a horizontal, rather
+than vertical strip. You can dock almost any Blend window using a standard mouse drag-and-drop command.
+Also, the Window &gt; Reset Current Workspace menu option automatically restores the default location of each
+Blend window.</p>
+<img src="../Images/Figure28_23.png" alt="Figure 28-23" />
+<p><b>Figure 28-23</b> The Tools editor allows you to select a WPF control to place on the designer</p>
+<p>Also notice that one of the buttons on the Tools window looks like a double greater-than sign (&gt;&gt;).
+Clicking this button opens up the Assets Library (see Figure 28-24). Here you will find many additional
+WPF controls that don’t appear on the Tools window by default. Selecting items from the Assets Library
+moves them into the Tools area for use.</p>
+<img src="../Images/Figure28_24.png" alt="Figure 28-24" />
+<p><b>Figure 28-24</b> The Assets Library gives you access to additional WPF controls</p>
+<p>Another important topic related to the Tools window is a common point of confusion for people
+who work with Blend for the first time; specifically, people are often confused about the difference
+between the Selection and Direct Selection buttons.</p>
+<p>When you want to select an item on the designer (such as a Button) to change its size or relocate it in
+the container, you do so using the Selection button, which is the black arrow button (see Figure 28-25).</p>
+<img src="../Images/Figure28_25.png" alt="Figure 28-25" />
+<p><b>Figure 28-25</b> A Selection allows you to resize and reposition content on the designer</p>
+<p>You use the Direct Selection arrow button (white in color) to drill into the content of a content
+control. Thus, if you direct select a Button, you can drill into its interior to build complex content visually
+(e.g., add a StackPanel and graphical items). You will revisit direct selection in Chapter 31 when you look
+at building custom controls. For this chapter, make sure you choose Select items, rather than Direct
+Select, when you build your GUIs.</p>
+<h2>Using the TabControl</h2>
+<p>Your window will contain a TabControl with four different tabs, each of which shows off a set of related
+controls and/or WPF APIs. Begin by ensuring that LayoutRoot is the selected node in your Objects and
+Timeline editor; this ensures that the control will be added to the panel. Next, use the Assets Library (the
+>> button) to locate the TabControl control. Now select the new item on your Tools window and draw
+the control onto the window designer so it takes up the majority of the surface. You should now see a tab
+system on your window with two default tabs.</p>
+<p>Select your new TabControl in the Objects and Timeline editor, and then use the Properties window
+to name your new control myTabSystem using the Name edit area at the top of the property editor. Next,
+right-click the TabControl in the Objects and Timeline editor and select Add TabItem (see Figure 28-26).</p>
+<img src="../Images/Figure28_26.png" alt="Figure 28-26" />
+<p><b>Figure 28-26</b> Visually adding TabItems</p>
+<p>Add another tab to your control and use the Properties editor to locate the Common Properties area
+of the Properties window. Next, change the Header property for each tab, naming them Ink API,
+Documents, Data Binding, and DataGrid (see Figure 28-27).</p>
+<img src="../Images/Figure28_27.png" alt="Figure 28-27" />
+<p><b>Figure 28-27</b> Visually editing the TabItem controls</p>
+<p>At this point, your window designer should look like what you see in Figure 28-28.</p>
+<img src="../Images/Figure28_29.png" alt="Figure 28-29" />
+<p><b>Figure 28-28</b> The initial layout of the tab system</p>
+<p>Now click each tab again and use the Properties window to give each tab a unique, proper name
+(you can also select each tab item using the Objects and Timeline editor). Be aware that when you click a
+tab using either approach, that tab becomes the active tab, and you can design that tab by dragging
+controls from the Tools area. Before you begin to design each tab, take a peek at the XAML that the IDE
+generates on your behalf by clicking the XAML button. You should see markup similar to the following
+(your markup might differ based on the properties you set):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">x:Class</span><span class="kwrd">="WpfControlsAndAPIs.MainWindow"</span>
+    <span class="attr">x:Name</span><span class="kwrd">="Window"</span>
+    <span class="attr">Title</span><span class="kwrd">="MainWindow"</span>
+    <span class="attr">Width</span><span class="kwrd">="628"</span> <span class="attr">Height</span><span class="kwrd">="383"</span> <span class="kwrd">&gt;</span>
+
+    <span class="kwrd">&lt;</span><span class="html">Grid</span> <span class="attr">x:Name</span><span class="kwrd">="LayoutRoot"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">TabControl</span> <span class="attr">x:Name</span><span class="kwrd">="myTabSystem"</span> <span class="attr">Margin</span><span class="kwrd">="8"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">TabItem</span> <span class="attr">x:Name</span><span class="kwrd">="tabInk"</span> <span class="attr">Header</span><span class="kwrd">="Ink API"</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">Grid</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">TabItem</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">TabItem</span> <span class="attr">x:Name</span><span class="kwrd">="tabDocuments"</span> <span class="attr">Header</span><span class="kwrd">="Documents"</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">Grid</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">TabItem</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">TabItem</span> <span class="attr">x:Name</span><span class="kwrd">="tabDataBinding"</span> <span class="attr">Header</span><span class="kwrd">="Data Binding"</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">Grid</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">TabItem</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">TabItem</span> <span class="attr">x:Name</span><span class="kwrd">="tabDataGrid"</span> <span class="attr">Header</span><span class="kwrd">="DataGrid"</span><span class="kwrd">&gt;</span>
+                <span class="kwrd">&lt;</span><span class="html">Grid</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;/</span><span class="html">TabItem</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">TabControl</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Grid</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+    </body></html>
+   
+      
+   

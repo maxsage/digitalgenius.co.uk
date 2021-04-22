@@ -1,0 +1,433 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Working with Pointer Types</h1>
+ <p>And now, the final topic of the chapter, which most likely will be the least-used of all C# features for the
+vast majority of your .NET projects. In Chapter 4, you learned that the .NET platform defines two major
+categories of data: value types and reference types. Truth be told, however, there is a third category:
+pointer types. To work with pointer types, we get specific operators and keywords that allow us to bypass
+the CLR’s memory-management scheme and take matters into our own hands (see Table 12-3).</p>
+<p><b>Table 12-3. </b>Pointer-Centric C# Operators and Keywords</p>
+<table class="gridtable">
+  <tr>
+   <th>Operator/Keyword</th>
+   <th>Meaning in Life</th>
+  </tr>
+  <tr>
+   <td>
+    *
+   </td>
+   <td>
+    This operator is used to create a pointer variable (i.e., a variable that
+represents a direct location in memory). As in C(++), this same operator is
+used for pointer indirection.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    &amp;
+   </td>
+   <td>
+    This operator is used to obtain the address of a variable in memory.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    -&gt;
+   </td>
+   <td>
+    This operator is used to access fields of a type that is represented by a
+pointer (the unsafe version of the C# dot operator).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    []
+   </td>
+   <td>
+    This operator (in an unsafe context) allows you to index the slot pointed to
+by a pointer variable (if you’re a C++ programmer, you will recall the
+interplay between a pointer variable and the [] operator).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ++, --
+   </td>
+   <td>
+    In an unsafe context, the increment and decrement operators can be
+applied to pointer types.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    +, -
+   </td>
+   <td>
+    In an unsafe context, the addition and subtraction operators can be
+applied to pointer types.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ==, !=, &lt;, &gt;, &lt;=, =&gt;
+   </td>
+   <td>
+    In an unsafe context, the comparison and equality operators can be
+applied to pointer types.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    stackalloc
+   </td>
+   <td>
+    In an unsafe context, the stackalloc keyword can be used to allocate C#
+arrays directly on the stack.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    fixed
+   </td>
+   <td>
+    In an unsafe context, the fixed keyword can be used to temporarily fix a
+variable so that its address may be found.
+   </td>
+  </tr>
+</table>
+<p>Now, before we dig into the details, let me again point out that you will seldom if ever need to make
+use of pointer types. Although C# does allow you to drop down to the level of pointer manipulations,
+understand that the .NET runtime has absolutely no clue of your intentions. Thus, if you mismanage a
+pointer, you are the one in charge of dealing with the consequences. Given these warnings, when exactly
+would you need to work with pointer types? There are two common situations:</p>
+<ul>
+ <li>You are looking to optimize select parts of your application by directly
+manipulating memory outside the management of the CLR.</li>
+ <li>You are calling methods of a C-based .dll or COM server that demand pointer
+types as parameters. Even in this case, you can often bypass pointer types in favor
+of the System.IntPtr type and members of the System.Runtime.InteropServices.Marshal type.</li>
+</ul>
+<p>In the event that you do decide to make use of this C# language feature, you are required to inform
+the C# compiler (csc.exe) of your intentions by enabling your project to support “unsafe code.” To do so
+at the command line, simply supply the /unsafe flag as an argument:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+csc /<span class="kwrd">unsafe</span> *.cs</pre>
+<p>From Visual Studio 2010, you will need to access your project’s Properties page and check the Allow
+Unsafe Code box from the Build tab (see Figure 12-7). To experiment with pointer types, create a new
+Console Application project named UnsafeCode and enable unsafe code.</p>
+<img src="../Images/Figure12_07.png" alt="Figure 12-7" />
+<p><b>Figure 12-7. </b>Enabling unsafe code using Visual Studio 2010</p>
+<p><b>Note </b>In the examples that follow, I’m assuming you have some background in C(++) pointer manipulation. If
+this is not true, feel free to skip this topic entirely. Again, writing unsafe code will not be a common task for the
+vast majority of C# applications.</p>
+<h2>The unsafe Keyword</h2>
+  <p>When you wish to work with pointers in C#, you must specifically declare a block of “unsafe code” using
+the unsafe keyword (any code that is not marked with the unsafe keyword is considered “safe”
+automatically). For example, the following Program class declares a scope of unsafe code within the safe
+Main() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+        <span class="kwrd">unsafe</span>
+        {
+            <span class="rem">// Work with pointer types here!</span>
+        }
+        <span class="rem">// Can't work with pointers here!</span>
+    }
+}</pre>
+<p>In addition to declaring a scope of unsafe code within a method, you can build structures, classes,
+type members, and parameters that are “unsafe.” Here are a few examples to gnaw on (no need to define
+these types in your current project):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This entire structure is "unsafe" and can</span>
+<span class="rem">// be used only in an unsafe context.</span>
+<span class="kwrd">public</span> <span class="kwrd">unsafe</span> <span class="kwrd">struct</span> Node
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Value;
+    <span class="kwrd">public</span> Node* Left;
+    <span class="kwrd">public</span> Node* Right;
+}
+
+<span class="rem">// This struct is safe, but the Node2* members</span>
+<span class="rem">// are not. Technically, you may access "Value" from</span>
+<span class="rem">// outside an unsafe context, but not "Left" and "Right".</span>
+<span class="kwrd">public</span> <span class="kwrd">struct</span> Node2
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Value;
+
+    <span class="rem">// These can be accessed only in an unsafe context!</span>
+    <span class="kwrd">public</span> <span class="kwrd">unsafe</span> Node2* Left;
+    <span class="kwrd">public</span> <span class="kwrd">unsafe</span> Node2* Right;
+}</pre>
+<p>Methods (static or instance level) may be marked as unsafe as well. For example, assume that you
+know a particular static method will make use of pointer logic. To ensure that this method can be called
+only from an unsafe context, you could define the method as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">unsafe</span> <span class="kwrd">static</span> <span class="kwrd">void</span> SquareIntPointer(<span class="kwrd">int</span>* myIntPointer)
+{
+    <span class="rem">// Square the value just for a test.</span>
+    *myIntPointer *= *myIntPointer;
+}</pre>
+<p>The configuration of our method demands that the caller invoke SquareIntPointer() as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    <span class="kwrd">unsafe</span>
+    {
+        <span class="kwrd">int</span> myInt = 10;
+
+        <span class="rem">// OK, because we are in an unsafe context.</span>
+        SquareIntPointer(&amp;myInt);
+        Console.WriteLine(<span class="str">"myInt: {0}"</span>, myInt);
+    }
+
+    <span class="kwrd">int</span> myInt2 = 5;
+    
+    <span class="rem">// Compiler error! Must be in unsafe context!</span>
+    SquareIntPointer(&amp;myInt2);
+    Console.WriteLine(<span class="str">"myInt: {0}"</span>, myInt2);
+}</pre>
+<p>If you would rather not force the caller to wrap the invocation within an unsafe context, you could
+update Main() with the unsafe keyword. In this case, the following code would compile:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">unsafe</span> <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    <span class="kwrd">int</span> myInt2 = 5;
+    SquareIntPointer(&amp;myInt2);
+    Console.WriteLine(<span class="str">"myInt: {0}"</span>, myInt2);
+}</pre>
+<h2>Working with the * and &amp; Operators</h2>
+  <p>Once you have established an unsafe context, you are then free to build pointers to data types using the
+* operator and obtain the address of said pointer using the &amp; operator. Unlike in C or C++, in C# the *
+operator is applied to the underlying type only, not as a prefix to each pointer variable name. For
+example, consider the following code, which illustrates both the correct and incorrect ways to declare
+pointers to integer variables:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// No! This is incorrect under C#!</span>
+<span class="kwrd">int</span> *pi, *pj;
+
+<span class="rem">// Yes! This is the way of C#.</span>
+<span class="kwrd">int</span>* pi, pj;</pre>
+<p>Consider the following unsafe method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">unsafe</span> <span class="kwrd">static</span> <span class="kwrd">void</span> PrintValueAndAddress()
+{
+    <span class="kwrd">int</span> myInt;
+
+    <span class="rem">// Define an int pointer, and</span>
+    <span class="rem">// assign it the address of myInt.</span>
+    <span class="kwrd">int</span>* ptrToMyInt = &amp;myInt;
+    
+    <span class="rem">// Assign value of myInt using pointer indirection.</span>
+    *ptrToMyInt = 123;
+
+    <span class="rem">// Print some stats.</span>
+    Console.WriteLine(<span class="str">"Value of myInt {0}"</span>, myInt);
+    Console.WriteLine(<span class="str">"Address of myInt {0:X}"</span>, (<span class="kwrd">int</span>)&amp;ptrToMyInt);
+}</pre>
+<h2>An Unsafe (and Safe) Swap Function</h2>
+  <p>Of course, declaring pointers to local variables simply to assign their value (as in the previous example)
+is never required and not altogether useful. To illustrate a more practical example of unsafe code,
+assume you wish to build a swap function using pointer arithmetic:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">unsafe</span> <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> UnsafeSwap(<span class="kwrd">int</span>* i, <span class="kwrd">int</span>* j)
+{
+    <span class="kwrd">int</span> temp = *i;
+    *i = *j;
+    *j = temp;
+}</pre>
+<p>Very C-like, don’t you think? However, given your work in Chapter, you should be aware that you
+could write the following safe version of your swap algorithm using the C# ref keyword:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> SafeSwap(<span class="kwrd">ref</span> <span class="kwrd">int</span> i, <span class="kwrd">ref</span> <span class="kwrd">int</span> j)
+{
+    <span class="kwrd">int</span> temp = i;
+    i = j;
+    j = temp;
+}</pre>
+<p>The functionality of each method is identical, thus reinforcing the point that direct pointer
+manipulation is not a mandatory task under C#. Here is the calling logic using a safe Main(), with an
+unsafe context:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Calling method with unsafe code *****"</span>);
+
+    <span class="rem">// Values for swap.</span>
+    <span class="kwrd">int</span> i = 10, j = 20;
+
+    <span class="rem">// Swap values "safely."</span>
+    Console.WriteLine(<span class="str">"\n***** Safe swap *****"</span>);
+    Console.WriteLine(<span class="str">"Values before safe swap: i = {0}, j = {1}"</span>, i, j);
+    SafeSwap(<span class="kwrd">ref</span> i, <span class="kwrd">ref</span> j);
+    Console.WriteLine(<span class="str">"Values after safe swap: i = {0}, j = {1}"</span>, i, j);
+
+    <span class="rem">// Swap values "unsafely."</span>
+    Console.WriteLine(<span class="str">"\n***** Unsafe swap *****"</span>);
+    Console.WriteLine(<span class="str">"Values before unsafe swap: i = {0}, j = {1}"</span>, i, j);
+    
+    <span class="kwrd">unsafe</span> { UnsafeSwap(&amp;i, &amp;j); }
+    
+    Console.WriteLine(<span class="str">"Values after unsafe swap: i = {0}, j = {1}"</span>, i, j);
+    Console.ReadLine();
+}</pre>
+<h2>Field Access via Pointers (the -> Operator)</h2>
+  <p>Now assume you have defined a simple, safe Point structure as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">struct</span> Point
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> x;
+    <span class="kwrd">public</span> <span class="kwrd">int</span> y;
+    
+    <span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">string</span> ToString()
+    {
+        <span class="kwrd">return</span> <span class="kwrd">string</span>.Format(<span class="str">"({0}, {1})"</span>, x, y);
+    }
+}</pre>
+ <p>If you declare a pointer to a Point type, you will need to make use of the pointer field-access
+operator (represented by -&gt;) to access its public members. As shown in Table 12-3, this is the unsafe
+version of the standard (safe) dot operator (.). In fact, using the pointer indirection operator (*), it is
+possible to dereference a pointer to (once again) apply the dot operator notation. Check out the unsafe
+method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">unsafe</span> <span class="kwrd">static</span> <span class="kwrd">void</span> UsePointerToPoint()
+{
+    <span class="rem">// Access members via pointer.</span>
+    Point point;
+    Point* p = &amp;point;
+    p-&gt;x = 100;
+    p-&gt;y = 200;
+    Console.WriteLine(p-&gt;ToString());
+    
+    <span class="rem">// Access members via pointer indirection.</span>
+    Point point2;
+    Point* p2 = &amp;point2;
+    (*p2).x = 100;
+    (*p2).y = 200;
+    Console.WriteLine((*p2).ToString());
+}</pre>
+<h2>The stackalloc Keyword</h2>
+  <p>In an unsafe context, you may need to declare a local variable that allocates memory directly from the
+call stack (and is therefore not subject to .NET garbage collection). To do so, C# provides the stackalloc
+keyword, which is the C# equivalent to the _alloca function of the C runtime library. Here is a simple
+example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">unsafe</span> <span class="kwrd">static</span> <span class="kwrd">void</span> UnsafeStackAlloc()
+{
+    <span class="kwrd">char</span>* p = <span class="kwrd">stackalloc</span> <span class="kwrd">char</span>[256];
+    <span class="kwrd">for</span> (<span class="kwrd">int</span> k = 0; k &lt; 256; k++)
+        p[k] = (<span class="kwrd">char</span>)k;
+}</pre>
+<h2>Pinning a Type via the fixed Keyword</h2>
+  <p>As you saw in the previous example, allocating a chunk of memory within an unsafe context may be
+facilitated via the stackalloc keyword. By the very nature of this operation, the allocated memory is
+cleaned up as soon as the allocating method has returned (as the memory is acquired from the stack).
+However, assume a more complex example. During our examination of the -&gt; operator, you created a
+value type named Point. Like all value types, the allocated memory is popped off the stack once the
+executing scope has terminated. For the sake of argument, assume Point was instead defined as a
+reference type:</p>  
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> PointRef <span class="rem">// &lt;= Renamed and retyped.</span>
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> x;
+    <span class="kwrd">public</span> <span class="kwrd">int</span> y;
+    <span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">string</span> ToString()
+    {
+        <span class="kwrd">return</span> <span class="kwrd">string</span>.Format(<span class="str">"({0}, {1})"</span>, x, y);
+    }
+}</pre>
+<p>As you are aware, if the caller declares a variable of type Point, the memory is allocated on the
+garbage-collected heap. The burning question then becomes, “What if an unsafe context wishes to
+interact with this object (or any object on the heap)?” Given that garbage collection can occur at any
+moment, imagine the problems encountered when accessing the members of Point at the very point in
+time such a sweep of the heap is under way. Theoretically, it is possible that the unsafe context is
+attempting to interact with a member that is no longer accessible or has been repositioned on the heap
+after surviving a generational sweep (which is an obvious problem).</p>
+<p>To lock a reference type variable in memory from an unsafe context, C# provides the fixed keyword.
+The fixed statement sets a pointer to a managed type and “pins” that variable during the execution of
+the code. Without fixed, pointers to managed variables would be of little use, since garbage collection
+could relocate the variables unpredictably. (In fact, the C# compiler will not allow you to set a pointer to
+a managed variable except in a fixed statement.)</p>
+<p>Thus, if you create a PointRef type and want to interact with its members, you must write the
+following code (or receive a compiler error):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">unsafe</span> <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> UseAndPinPoint()
+{
+    PointRef pt = <span class="kwrd">new</span> PointRef ();
+    pt.x = 5;
+    pt.y = 6;
+
+    <span class="rem">// pin pt in place so it will not</span>
+    <span class="rem">// be moved or GC-ed.</span>
+    <span class="kwrd">fixed</span> (<span class="kwrd">int</span>* p = &amp;pt.x)
+    {
+        <span class="rem">// Use int* variable here!</span>
+    }
+
+    <span class="rem">// pt is now unpinned, and ready to be GC-ed once</span>
+    <span class="rem">// the method completes.</span>
+    Console.WriteLine (<span class="str">"Point is: {0}"</span>, pt);
+}</pre>
+<p>In a nutshell, the fixed keyword allows you to build a statement that locks a reference variable in
+memory, such that its address remains constant for the duration of the statement (or scope block). Any
+time you interact with a reference type from within the context of unsafe code, pinning the reference is a
+must.</p>
+<h2>The sizeof Keyword</h2>
+  <p>The final unsafe-centric C# keyword to consider is sizeof. As in C(++), the C# sizeof keyword is used to
+obtain the size in bytes of a value type (never a reference type), and it may only be used within an unsafe
+context. As you may imagine, this ability can prove helpful when you’re interacting with unmanaged Cbased
+APIs. Its usage is straightforward:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">unsafe</span> <span class="kwrd">static</span> <span class="kwrd">void</span> UseSizeOfOperator()
+{
+    Console.WriteLine(<span class="str">"The size of short is {0}."</span>, <span class="kwrd">sizeof</span>(<span class="kwrd">short</span>));
+    Console.WriteLine(<span class="str">"The size of int is {0}."</span>, <span class="kwrd">sizeof</span>(<span class="kwrd">int</span>));
+    Console.WriteLine(<span class="str">"The size of long is {0}."</span>, <span class="kwrd">sizeof</span>(<span class="kwrd">long</span>));
+}</pre>
+<p>As sizeof will evaluate the number of bytes for any System.ValueType-derived entity, you can obtain
+the size of custom structures as well. For example, we could pass the Point structure into sizeof as
+follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">unsafe</span> <span class="kwrd">static</span> <span class="kwrd">void</span> UseSizeOfOperator()
+{
+...
+    Console.WriteLine(<span class="str">"The size of Point is {0}."</span>, <span class="kwrd">sizeof</span>(Point));
+}</pre>
+    <p><b>Source Code</b> The UnsafeCode project can be found under the Chapter 12 subdirectory.</p>
+<p>That wraps up our look at some of the more powerful features of the C# programming language. In
+the next chapter, you will see some of these concepts (specifically extension methods and anonymous
+types) doing very useful things in the context of LINQ to Objects.</p>
+</body>
+    </html>
+
+
+   
+   
+

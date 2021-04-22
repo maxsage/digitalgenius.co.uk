@@ -1,0 +1,243 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Building a WCF Service</h1>
+   <p>Now that you have a better understanding about the building blocks of a WCF application, it’s time to
+create your first sample application and see how the ABCs are accounted for in code and configuration.
+This first example avoids using the Visual Studio 2010 WCF project templates, so you can focus on the
+specific steps involved in making a WCF service.</p>
+<p>Begin by creating a new C# Class Library project named MagicEightBallServiceLib. Next, rename
+your initial file from Class1.cs to MagicEightBallService.cs, and then add a reference to the
+System.ServiceModel.dll assembly. In the initial code file, specify that you are using the
+System.ServiceModel namespace. At this point, your C# file should look like this:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System;
+<span class="kwrd">using</span> System.Collections.Generic;
+<span class="kwrd">using</span> System.Linq;
+<span class="kwrd">using</span> System.Text;
+
+<span class="rem">// The key WCF namespace.</span>
+<span class="kwrd">using</span> System.ServiceModel;
+
+<span class="kwrd">namespace</span> MagicEightBallServiceLib
+{
+    <span class="kwrd">public</span> <span class="kwrd">class</span> MagicEightBallService
+    {
+    }
+}</pre>
+<p>Your class type implements a single WCF service contract represented by a strongly typed CLR
+interface named IEightBall. As you most likely know, the Magic 8-Ball is a toy that allows you to view
+one of a handful of fixed answers to a question you might ask. Your interface here will define a single
+method that allows the caller to pose a question to the Magic 8-Ball to obtain a random answer.</p>
+<p>WCF service interfaces are adorned with the [ServiceContract] attribute, while each interface
+member is decorated with the [OperationContract] attribute (you’ll learn more details regarding these
+two attributes in just a moment). Here is the definition of the IEightBall interface:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+[ServiceContract]
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IEightBall
+{
+    <span class="rem">// Ask a question, receive an answer!</span>
+    [OperationContract]
+    <span class="kwrd">string</span> ObtainAnswerToQuestion(<span class="kwrd">string</span> userQuestion);
+}</pre>
+<p><b>Note</b> It is permissible to define a service contract interface that contains methods not adorned with the
+[OperationContract] attribute; however, such members will not be exposed through the WCF runtime.</p>
+<p>As you know from your study of the interface type (see Chapter 9), interfaces are quite useless until
+they are implemented by a class or structure that fleshes out their functionality. Like a real Magic 8-Ball,
+the implementation of your service type (MagicEightBallService) will randomly return a canned answer
+from an array of strings. Also, your default constructor will display an information message that will be
+(eventually) displayed within the host’s console window (for diagnostic purposes):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> MagicEightBallService : IEightBall
+{
+    <span class="rem">// Just for display purposes on the host.</span>
+    <span class="kwrd">public</span> MagicEightBallService()
+    {
+        Console.WriteLine(<span class="str">"The 8-Ball awaits your question..."</span>);
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">string</span> ObtainAnswerToQuestion(<span class="kwrd">string</span> userQuestion)
+    {
+        <span class="kwrd">string</span>[] answers = { <span class="str">"Future Uncertain"</span>, <span class="str">"Yes"</span>, <span class="str">"No"</span>,
+            <span class="str">"Hazy"</span>, <span class="str">"Ask again later"</span>, <span class="str">"Definitely"</span> };
+
+        <span class="rem">// Return a random response.</span>
+        Random r = <span class="kwrd">new</span> Random();
+        <span class="kwrd">return</span> answers[r.Next(answers.Length)];
+    }
+}</pre>
+<p>At this point, your WCF service library is complete. However, before you construct a host for this
+service, you need to examine some additional details of the [ServiceContract] and [OperationContract]
+attributes.</p>
+<h2>The [ServiceContract] Attribute</h2>
+<p>For a CLR interface to participate in the services provided by WCF, it must be adorned with the
+[ServiceContract] attribute. Like many other .NET attributes, the ServiceContractAttribute type
+supports many properties that further qualify its intended purpose. You can set two properties, Name and
+Namespace, to control the name of the service type and the name of the XML namespace that defines the
+service type. If you use a web service–specific binding, you use these values to define the &lt;portType&gt;
+elements of the related WSDL document.</p>
+<p>Here, you do not bother to assign a Name value because the default name of the service type is
+directly based on the C# class name. However, the default name for the underlying XML namespace is
+simply http://tempuri.org (you should change this for all of your WCF services).</p>
+<p>When you build a WCF service that will send and receive custom data types (which you are not
+currently doing), it is important that you establish a meaningful value to the underlying XML namespace
+because this ensures that your custom types are unique. As you might know from your experience
+building XML web services, XML namespaces provide a way to wrap your custom types in a unique
+container to ensure that your types do not clash with types in another organization.</p>
+<p>For this reason, you can update your interface definition with a more fitting definition, which, much
+like the process of defining an XML namespace in a .NET Web Service project, is typically the URI of the
+service’s point of origin, as in the following example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+[ServiceContract(Namespace = <span class="str">"http://MyCompany.com"</span>)]
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IEightBall
+{
+    ...
+}</pre>
+<p>Beyond Namespace and Name, the [ServiceContract] attribute can be configured with the additional
+properties shown in Table 25-6. Be aware that some of these settings will be ignored, depending on your
+binding selection.</p>
+<p><b>Table 25-6.</b> Various Named Properties of the [ServiceContract] Attribute</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Property
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    CallbackContract
+   </td>
+   <td>
+    Establishes whether this service contract requires callback functionality for
+two-way message exchange (e.g., duplex bindings).
+   </td>
+  </tr>
+    <tr>
+   <td>
+    ConfigurationName
+   </td>
+   <td>
+    You use this name to locate the service element in an application
+configuration file. The default is the name of the service implementation
+class.
+   </td>
+  </tr>  
+  <tr>
+   <td>
+    ProtectionLevel
+   </td>
+   <td>
+    Allows you to specify the degree to which the contract binding requires
+encryption, digital signatures, or both for endpoints that expose the
+contract.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    SessionMode
+   </td>
+   <td>
+    You use this to establish whether sessions are allowed, not allowed, or
+required by this service contract.
+   </td>
+  </tr>  
+</table>
+<h2>The [OperationContract] Attribute</h2>
+<p>Methods that you wish to use within the WCF framework must be attributed with the
+[OperationContract] attribute, which can also be configured with various named properties. You can
+use the properties shown in Table 25-7 to declare that a given method is intended to be one-way in
+nature, supports asynchronous invocation, requires encrypted message data, and so forth (again, many
+of these values might be ignored based on your binding selection).</p>
+<p><b>Table 25-7.</b> Various Named Properties of the [OperationContract] Attribute</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Property
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    AsyncPattern
+   </td>
+   <td>
+    Indicates whether the operation is implemented asynchronously using a
+Begin/End method pair on the service. This allows the service to offload
+processing to another server-side thread; this has nothing to do with the client
+calling the method asynchronously!
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IsInitiating
+   </td>
+   <td>
+    Specifies whether this operation can be the initial operation in a session.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IsOneWay
+   </td>
+   <td>
+    Indicates whether the operation consists of only a single input message (and no
+associated output).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IsTerminating
+   </td>
+   <td>
+    Specifies whether the WCF runtime should attempt to terminate the current
+session after the operation completes.
+   </td>
+  </tr>
+</table>
+<p>For the initial example, you don’t need to configure the ObtainAnswerToQuestion() method with
+additional traits; this means you can use the [OperationContract] attribute as currently defined.</p>
+<h2>Service Types As Operational Contracts</h2>
+<p>Finally, recall that the use of interfaces is not required when building WCF service types. In fact, it is
+possible to apply the [ServiceContract] and [OperationContract] attributes directly to the service type
+itself:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This is only for illustrative purposes</span>
+<span class="rem">// and not used for the current example.</span>
+[ServiceContract(Namespace = <span class="str">"http://MyCompany.com"</span>)]
+<span class="kwrd">public</span> <span class="kwrd">class</span> ServiceTypeAsContract
+{    
+    [OperationContract]
+    <span class="kwrd">void</span> SomeMethod() { }
+
+    [OperationContract]
+    <span class="kwrd">void</span> AnotherMethod() { }
+}</pre>
+<p>You can take this approach; however, you receive many benefits if you explicitly define an interface
+type to represent the service contract. The most obvious benefit is that you can apply a given interface to
+multiple service types (authored in a variety of languages and architectures) to achieve a high degree of
+polymorphism. Another benefit: You can use a service contract interface as the basis of new contracts
+(using interface inheritance), without having to carry any implementation baggage.</p>
+<p>In any case, your first WCF service library is now complete. Compile your project to ensure you do
+not have any typos.</p>
+ <p><b>Source Code</b> You can find the MagicEightBallServiceLib project under the MagicEightBallServiceHTTP
+directory of Chapter 25.</p>
+    </body>
+    </html>
+   
+

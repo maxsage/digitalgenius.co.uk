@@ -1,0 +1,126 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Understanding Generic Delegates</h1>
+  <p>Recall from the previous chapter that C# does allow you to define generic delegate types. For example,
+assume you wish to define a delegate type that can call any method returning void and receiving a single
+parameter. If the argument in question may differ, you could model this using a type parameter. To
+illustrate, consider the following code within a new Console Application named GenericDelegate:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">namespace</span> GenericDelegate
+{
+    <span class="rem">// This generic delegate can call any method</span>
+    <span class="rem">// returning void and taking a single type parameter.</span>
+    <span class="kwrd">public</span> <span class="kwrd">delegate</span> <span class="kwrd">void</span> MyGenericDelegate&lt;T&gt;(T arg);
+
+    <span class="kwrd">class</span> Program
+    {
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            Console.WriteLine(<span class="str">"***** Generic Delegates *****\n"</span>);
+
+            <span class="rem">// Register targets.</span>
+            MyGenericDelegate&lt;<span class="kwrd">string</span>&gt; strTarget =
+                <span class="kwrd">new</span> MyGenericDelegate&lt;<span class="kwrd">string</span>&gt;(StringTarget);
+            strTarget(<span class="str">"Some string data"</span>);
+
+            MyGenericDelegate&lt;<span class="kwrd">int</span>&gt; intTarget =
+                <span class="kwrd">new</span> MyGenericDelegate&lt;<span class="kwrd">int</span>&gt;(IntTarget);
+            intTarget(9);    
+            Console.ReadLine();
+        }
+        
+        <span class="kwrd">static</span> <span class="kwrd">void</span> StringTarget(<span class="kwrd">string</span> arg)
+        {
+            Console.WriteLine(<span class="str">"arg in uppercase is: {0}"</span>, arg.ToUpper());
+        }
+
+        <span class="kwrd">static</span> <span class="kwrd">void</span> IntTarget(<span class="kwrd">int</span> arg)
+        {
+            Console.WriteLine(<span class="str">"++arg is: {0}"</span>, ++arg);
+        }
+    }
+}</pre>
+<p>Notice that MyGenericDelegate&lt;T&gt; defines a single type parameter that represents the argument to
+pass to the delegate target. When creating an instance of this type, you are required to specify the value
+of the type parameter as well as the name of the method the delegate will invoke. Thus, if you specified a
+string type, you send a string value to the target method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Create an instance of MyGenericDelegate&lt;T&gt;</span>
+<span class="rem">// with string as the type parameter.</span>
+MyGenericDelegate&lt;<span class="kwrd">string</span>&gt; strTarget =
+    <span class="kwrd">new</span> MyGenericDelegate&lt;<span class="kwrd">string</span>&gt;(StringTarget);
+strTarget(<span class="str">"Some string data"</span>);</pre>
+<p>Given the format of the strTarget object, the StringTarget() method must now take a single string
+as a parameter:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> StringTarget(<span class="kwrd">string</span> arg)
+{
+    Console.WriteLine(<span class="str">"arg in uppercase is: {0}"</span>, arg.ToUpper());
+}</pre>
+<h2>Simulating Generic Delegates Without Generics</h2>
+  <p>Generic delegates offer a more flexible way to specify the method to be invoked in a type-safe manner.
+Before the introduction of generics in .NET 2.0, you could achieve a similar end result using a
+System.Object parameter:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">delegate</span> <span class="kwrd">void</span> MyDelegate(<span class="kwrd">object</span> arg);</pre>
+    <p>Although this allows you to send any type of data to a delegate target, you do so without type safety
+and with possible boxing penalties. For instance, assume you have created two instances of MyDelegate,
+both of which point to the same method, MyTarget. Note the boxing/unboxing penalties as well as the
+inherent lack of type safety:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Program
+{
+    <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+    {
+...
+    <span class="rem">// Register target with "traditional" delegate syntax.</span>
+    MyDelegate d = <span class="kwrd">new</span> MyDelegate(MyTarget);
+    d(<span class="str">"More string data"</span>);
+
+    <span class="rem">// Method group conversion syntax.</span>
+    MyDelegate d2 = MyTarget;
+    d2(9); <span class="rem">// Boxing penalty.</span>
+    Console.ReadLine();
+}
+
+    <span class="rem">// Due to a lack of type safety, we must</span>
+    <span class="rem">// determine the underlying type before casting.</span>
+    <span class="kwrd">static</span> <span class="kwrd">void</span> MyTarget(<span class="kwrd">object</span> arg)
+    {
+        <span class="kwrd">if</span>(arg <span class="kwrd">is</span> <span class="kwrd">int</span>)
+        {
+            <span class="kwrd">int</span> i = (<span class="kwrd">int</span>)arg; <span class="rem">// Unboxing penalty.</span>
+            Console.WriteLine(<span class="str">"++arg is: {0}"</span>, ++i);
+        }
+        <span class="kwrd">if</span>(arg <span class="kwrd">is</span> <span class="kwrd">string</span>)
+        {
+            <span class="kwrd">string</span> s = (<span class="kwrd">string</span>)arg;
+            Console.WriteLine(<span class="str">"arg in uppercase is: {0}"</span>, s.ToUpper());
+        }
+    }
+}</pre>
+<p>When you send out a value type to the target site, the value is boxed and unboxed once it is received
+by the target method. As well, given that the incoming parameter could be anything at all, you must
+dynamically check the underlying type before casting. Using generic delegates, you can still obtain the
+desired flexibility without the issues.</p>
+    <p><b>Source Code</b> The GenericDelegate project is located under the Chapter 11 directory.</p>
+<p>That wraps up our first look at the .NET delegate type. We will look at some additional details of
+working with delegates at the conclusion of this chapter and again in Chapter 19 during our examination
+of multithreading. Now let’s move on to the related topic of the C# event keyword.</p>
+</body>
+    </html>
+ 
+   
+

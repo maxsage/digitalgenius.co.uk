@@ -1,0 +1,111 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>The Various Flavors of WPF</h1>
+<p>The WPF API can be used to build a variety of GUI-centric applications that basically differ in their
+navigational structure and deployment models. The sections that follow present a high-level walk
+through each option.</p>
+<h2>Traditional Desktop Applications</h2>
+<p>The first (and most familiar) option is to use WPF to build a traditional executable assembly that runs on
+a local machine. For example, you could use WPF to build a text editor, painting program, or multimedia
+program such as a digital music player, photo viewer, and so forth. Like any other desktop applications,
+these *.exe files can be installed using traditional means (setup programs, Windows Installer packages,
+etc.) or via ClickOnce technology to allow desktop applications to be distributed and installed via a
+remote web server.</p>
+<p>Programmatically speaking, this type of WPF application will make use (at a minimum) of the
+Window and Application types, in addition to the expected set of dialog boxes, toolbars, status bars, menu
+systems, and other UI elements.</p>
+<p>Now, you can certainly use WPF to build your basic, bland business application that does not
+support any bells and whistles, but WPF really shines when you do incorporate such features. Consider
+Figure 27-1, which shows a WPF sample desktop application for viewing patient records in a medical
+environment.</p>
+<img src="../Images/Figure27_01.png" alt="Figure 27-1" />
+<p><b>Figure 27-1</b> This WPF desktop application makes use of several WPF APIs</p>
+<p>Sadly, the printed page does not show the full feature set of this window. Note that the upper right
+of the main window is displaying a real time graph of the patient's sinus rhythm. If you click on Patient
+Details button on the lower right, several animations take place to flip, rotate and transform the UI to the
+following look and feel (Figure 27-2).</p>
+<img src="../Images/Figure27_02.png" alt="Figure 27-2" />
+<p><b>Figure 27-2</b> Transformations and animations are very simple under WPF</p>
+<p>Could you build this same application without WPF? Absolutely. However, the amount of code—
+and the complexity of the code—would be much higher.</p>
+<p><b>Note</b>This example application can be downloaded (with source code) from the office WPF web site,
+http://windowsclient.net. Here you will find numerous WPF (and Windows Forms) sample projects, technology
+walkthroughs and forums.</p>
+<h2>Navigation-Based WPF Applications</h2>
+<p>WPF applications can optionally choose to make use of a navigation-based structure, which makes a
+traditional desktop application take on the basic behavior of a web browser application. Using this
+model, you can build a desktop *.exe that provides a “forward” and “back” button that allows the end
+user to move back and forth between various UI displays called pages.</p>
+<p>The application itself maintains a list of each page and provides the necessary infrastructure to
+navigate between them, pass data across pages (similar to a web-based application variable), and
+maintain a history list. By way of a concrete example, consider Windows Explorer (see Figure 27-3),
+which makes use of such functionality. Notice the navigation buttons (and history list) mounted on the
+upper-left corner of the window.</p>
+<img src="../Images/Figure27_03.png" alt="Figure 27-3" />
+<p><b>Figure 27-3</b> A navigation-based desktop program</p>
+<p>Regardless of the fact that a WPF desktop application can take on a weblike navigational structure,
+understand that this is simply a UI design issue. The application itself is still little more than a local
+executable assembly running on a desktop machine, and it has little to do with a web application
+beyond a slightly similar look and feel. Programmatically speaking, this type of WPF application is
+constructed using classes such as Application, Page, NavigationWindow, and Frame.</p>
+<h2>XBAP Applications</h2>
+<p>WPF also allows you to build applications that can be hosted within a web browser. This flavor of WPF
+application is termed an XAML browser application, or XBAP. Under this model, the end user navigates
+to a given URL, at which point the XBAP (which is essentially a collection of Page objects) is transparently
+downloaded and installed to the local machine. Unlike a traditional ClickOnce installation for an
+executable application, however, the XBAP program is hosted directly within the browser and adopts the
+browser’s intrinsic navigational system. Figure 27-4 illustrates an XBAP program in action (specifically,
+the ExpenseIt WPF sample program that ships with the .NET Framework 4.0 SDK).</p>
+<img src="../Images/Figure27_04.png" alt="Figure 27-4" />
+<p><b>Figure 27-4</b> XBAP programs are downloaded to a local machine and hosted within a web browser</p>
+<p>The benefit of an XBAP is that it allows you to create sophisticated UIs which are much more
+expressive than a typical web page built with HTML and JavaScript. An XBAP Page object can make use
+of the same WPF services as a desktop WPF application, including animations, 2D and 3D graphics,
+themes and whatnot. In effect, the web browser is just a container for WPF Page objects, and is not
+displaying ASP.NET web pages.</p>
+<p>However, given that these Page objects are deployed to a remote web server, XBAPs can be easily
+versioned and updated without the need to redeploy executables to the user's desktop. Like a traditional
+web program, you can simply update the Page objects in the web server, and the user will get the 'latest
+and greatest' when they access the URL.</p>
+<p>One downside to this flavor of WPF is that XBAPs must be hosted within Microsoft Internet Explorer
+or Firefox web browsers. If you are deploying XBAPs across a company intranet, browser compatibility
+should not be a problem, given that system administrators can play dictator regarding which browser
+should be installed on users’ machines. However, if you want the outside world to make use of your
+XBAP, it is not possible to ensure each end user is making use of Internet Explorer/Firefox, and therefore
+some external users may not be able to view your WPF XBAP.</p>
+<p>Another issue to be aware of is the machine which is viewing an XBAP must have a local installation
+of the .NET framework, as the Page objects will be using the same .NET assemblies as an application
+running natively on the machine. Given this particular point, XBAPs are limited to Windows operating
+systems and thus cannot be viewed on a system running Mac OS X or Linux.</p>
+<h2>The WPF/Silverlight Relationship</h2>
+<p>WPF and XAML also provide the foundation for a cross-platform, cross-browser WPF-based technology
+termed Silverlight. From a high level, you can consider Silverlight as a competitor to Adobe Flash, with
+the benefit of using C# and XAML rather than a new set of tools and languages. Silverlight is a subset of
+WPF functionality, which is used to build highly interactive plug-ins for a larger HTML-based web page.
+In reality, however, Silverlight is a completely unique distribution of the .NET platform, which ships with
+a "mini" CLR and "mini" version of the .NET base class libraries.</p>
+<p>Unlike an XBAP, the user's machine does not need a full installation of the .NET Framework. As long
+as the target machine has the Silverlight runtime installed, the browser will load the Silverlight runtime
+and display the Silverlight application automatically. Best of all, Silverlight plug-ins are not limited to the
+Windows operating systems! Microsoft has also created a Silverlight runtime for Mac OS X.</p>
+<p><b>Note</b> The Mono project (see Appendix B) provides an open source version of Silverlight for Linux based OSs
+named Moonlight. This API, in conjunction with Silverlight, provides the fabric for a true cross-platform model for
+extremely rich web pages.</p>
+<p>With Silverlight, you are able to build extremely feature-rich (and interactive) web applications. For
+example, like WPF, Silverlight has a vector-based graphical system, animation support, and multimedia
+support. Furthermore, you are able to incorporate a subset of the .NET base class library into your
+applications. This subset includes a number of WPF controls, LINQ support, generic collection types,
+web service support, and a healthy subset of mscorlib.dll (file I/O, XML manipulation, etc.).</p>
+<p><b>Note</b> This edition of the text does not address Silverlight; however, a majority of your WPF knowledge will map
+directly to the construction of Silverlight web plug-ins. If you are interested in learning more about this API, check
+out http://www.silverlight.net.</p>
+</body>
+    </html>
+   

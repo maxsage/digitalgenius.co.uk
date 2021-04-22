@@ -1,0 +1,231 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Working with DataColumns</h1>
+<p>The DataColumn type represents a single column within a DataTable. Collectively speaking, the set of all
+DataColumn types bound to a given DataTable represents the foundation of a table’s schema information.
+For example, if you were to model the Inventory table of the AutoLot database (see Chapter 21), you
+would create four DataColumns, one for each column (CarID, Make, Color, and PetName). Once you create
+your DataColumn objects, you typically add them into the columns collection of the DataTable type (using
+the Columns property).</p>
+<p>Based on your background, you might know that you can assign a given column in a database table
+a set of constraints (e.g., configured as a primary key, assigned a default value, or configured to contain
+read-only information). Also, every column in a table must map to an underlying data type. For example,
+the Inventory table’s schema requires that the CarID column map to an integer, while Make, Color, and
+PetName map to an array of characters. The DataColumn class has numerous properties that allow you to
+configure precisely these things. Table 22-3 provides a rundown of some core properties.</p>
+<p><b>Table 22-3.</b> Properties of the DataColumn</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Properties
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    AllowDBNull
+   </td>
+   <td>
+    You use this property to indicate whether a row can specify null values
+in this column. The default value is true.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    AutoIncrement AutoIncrementSeed AutoIncrementStep
+   </td>
+   <td>
+    You use these properties to configure the autoincrement behavior for a
+given column. This can be helpful when you wish to ensure unique
+values in a given DataColumn (such as a primary key). By default, a
+DataColumn does not support autoincrement behavior.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Caption
+   </td>
+   <td>
+    This property gets or sets the caption you want to display for this
+column. This allows you to define a user-friendly version of a literal
+database column name.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ColumnMapping
+   </td>
+   <td>
+    This property determines how a DataColumn is represented when a
+DataSet is saved as an XML document using the DataSet.WriteXml()
+method. You can specify that the data column should be written out as
+an XML element, an XML attribute, simple text content, or ignored
+altogether.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ColumnName
+   </td>
+   <td>
+    This property gets or sets the name of the column in the Columns
+collection (meaning how it is represented internally by the DataTable).
+If you do not set the ColumnName explicitly, the default values are
+Column with (n+1) numerical suffixes (e.g., Column1, Column2, and
+Column3).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DataType
+   </td>
+   <td>
+    This property defines the data type (e.g., Boolean, string, or float)
+stored in the column.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DefaultValue
+   </td>
+   <td>
+    This property gets or sets the default value assigned to this column
+when you insert new rows.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Expression
+   </td>
+   <td>
+    This property gets or sets the expression used to filter rows, calculate a
+column’s value, or create an aggregate column.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Ordinal
+   </td>
+   <td>
+    This property gets the numerical position of the column in the Columns
+collection maintained by the DataTable.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ReadOnly
+   </td>
+   <td>
+    This property determines whether this column is read only once a row
+has been added to the table. The default is false.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Table
+   </td>
+   <td>
+    This property gets the DataTable that contains this DataColumn.
+   </td>
+  </tr>
+    <tr>
+   <td>
+    Unique
+   </td>
+   <td>
+    This property gets or sets a value indicating whether the values in each
+row of the column must be unique or if repeating values are
+permissible. If you assign a column a primary key constraint, then you
+must set the Unique property to true.
+   </td>
+  </tr>
+</table>
+<h2>Building a DataColumn</h2>
+<p>To continue with the SimpleDataSet project (and illustrate the use of the DataColumn), assume you wish
+to model the columns of the Inventory table. Given that the CarID column will be the table’s primary key,
+you will configure this DataColumn object as read-only, unique, and non-null (using the ReadOnly, Unique,
+and AllowDBNull properties). Next, update the Program class with a new method named FillDataSet(),
+which you use to build four DataColumn objects. Note this method takes a DataSet object as its only
+parameter:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> FillDataSet(DataSet ds)
+{
+    <span class="rem">// Create data columns that map to the</span>
+    <span class="rem">// 'real' columns in the Inventory table</span>
+    <span class="rem">// of the AutoLot database.</span>
+    DataColumn carIDColumn = <span class="kwrd">new</span> DataColumn(<span class="str">"CarID"</span>, <span class="kwrd">typeof</span>(<span class="kwrd">int</span>));
+    carIDColumn.Caption = <span class="str">"Car ID"</span>;
+    carIDColumn.ReadOnly = <span class="kwrd">true</span>;
+    carIDColumn.AllowDBNull = <span class="kwrd">false</span>;
+    carIDColumn.Unique = <span class="kwrd">true</span>;
+    
+    DataColumn carMakeColumn = <span class="kwrd">new</span> DataColumn(<span class="str">"Make"</span>, <span class="kwrd">typeof</span>(<span class="kwrd">string</span>));
+    DataColumn carColorColumn = <span class="kwrd">new</span> DataColumn(<span class="str">"Color"</span>, <span class="kwrd">typeof</span>(<span class="kwrd">string</span>));
+    DataColumn carPetNameColumn = <span class="kwrd">new</span> DataColumn(<span class="str">"PetName"</span>, <span class="kwrd">typeof</span>(<span class="kwrd">string</span>));
+    carPetNameColumn.Caption = <span class="str">"Pet Name"</span>;
+}</pre>
+<p>Notice that when you configure the carIDColumn object, you assign a value to the Caption property.
+This property is helpful because it allows you to define a string value for display purposes, which can be
+distinct from the literal database table column name (column names in a literal database table are
+typically better suited for programming purposes [e.g., au_fname] than display purposes [e.g., Author
+First Name]). Here, you set the caption for the PetName column for the same reason, because Pet Name
+looks nicer than PetName to the end user.</p>
+<h2>Enabling Autoincrementing Fields</h2>
+<p>One aspect of the DataColumn you can choose to configure is its ability to autoincrement. You use an
+autoincrementing column to ensure that when a new row is added to a given table, the value of this
+column is assigned automatically, based on the current step of the increase. This can be helpful when
+you wish to ensure that a column has no repeating values (e.g., a primary key).</p>
+<p>You control this behavior using the AutoIncrement, AutoIncrementSeed, and AutoIncrementStep
+properties. You use the seed value to mark the starting value of the column; you use the step value to
+identify the number to add to the seed when incrementing. Consider the following update to the
+construction of the carIDColumn DataColumn:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> FillDataSet(DataSet ds)
+{
+    DataColumn carIDColumn = <span class="kwrd">new</span> DataColumn(<span class="str">"CarID"</span>, <span class="kwrd">typeof</span>(<span class="kwrd">int</span>));
+    carIDColumn.ReadOnly = <span class="kwrd">true</span>;
+    carIDColumn.Caption = <span class="str">"Car ID"</span>;
+    carIDColumn.AllowDBNull = <span class="kwrd">false</span>;
+    carIDColumn.Unique = <span class="kwrd">true</span>;
+    carIDColumn.AutoIncrement = <span class="kwrd">true</span>;
+    carIDColumn.AutoIncrementSeed = 0;
+    carIDColumn.AutoIncrementStep = 1;
+...
+}</pre>
+<p>Here, you configure the carIDColumn object to ensure that, as rows are added to the respective table,
+the value for this column is incremented by 1. You set the seed at 0, so this column would be numbered
+0, 1, 2, 3, and so forth.</p>
+<h2>Adding DataColumn Objects to a DataTable</h2>
+<p>The DataColumn type does not typically exist as a stand-alone entity; however, you do typically insert it
+into a related DataTable. For example, create a new DataTable object (fully detailed in a moment) and
+insert each DataColumn object in the columns collection using the Columns property:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> FillDataSet(DataSet ds):
+{
+...
+    <span class="rem">// Now add DataColumns to a DataTable.</span>
+    DataTable inventoryTable = <span class="kwrd">new</span> DataTable(<span class="str">"Inventory"</span>);
+    inventoryTable.Columns.AddRange(<span class="kwrd">new</span> DataColumn[]
+        { carIDColumn, carMakeColumn, carColorColumn, carPetNameColumn });
+}</pre>
+<p>At this point, the DataTable object contains four DataColumn objects that represent the schema of the
+in-memory Inventory table. However, the table is currently devoid of data, and the table is currently
+outside of the table collection maintained by the DataSet. You will deal with both of these shortcomings,
+beginning by populating the table with data using a DataRow objects.</p>
+    </body>
+    </html>
+ 
+   
+

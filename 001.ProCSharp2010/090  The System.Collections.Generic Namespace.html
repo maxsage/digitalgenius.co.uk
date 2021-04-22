@@ -1,0 +1,606 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>The System.Collections.Generic Namespace</h1>
+<p>You can find the bulk of the System.Collections.Generic namespace in the mscorlib.dll and
+System.dll assemblies. At the opening of this chapter, I briefly mentioned some of the core non-generic
+interfaces implemented by the non-generic collection classes. Not too surprisingly, the
+System.Collections.Generic namespace defines generic replacements for many of them.</p>
+<p>In fact, you can find a number of the generic interfaces that extend their non-generic counterparts!
+This might seem odd; however, by doing so, implementing classes will also support the legacy
+functionally found in their non-generic siblings. For example, IEnumerable&lt;T&gt; extends IEnumerable.
+Table 10-3 documents the core generic interfaces you’ll encounter when working with the generic
+collection classes.</p>
+<p><b>Note </b> If you have worked with generics prior to .NET 4.0, you should be aware of the new ISet&lt;T&gt; and
+SortedSet&lt;T&gt; types, which you’ll learn more about later in this chapter.</p>
+<p><b>Table 10-3.</b>  Key Interfaces Supported by Classes of System.Collections.Generic</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    System.Collections Interface
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    ICollection&lt;T&gt;
+   </td>
+   <td>
+    Defines general characteristics (e.g., size, enumeration, and
+thread safety) for all generic collection types.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IComparer&lt;T&gt;
+   </td>
+   <td>
+    Defines a way to compare to objects.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IDictionary&lt;TKey, TValue&gt;
+   </td>
+   <td>
+    Allows a generic collection object to represent its contents
+using key/value pairs.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IEnumerable&lt;T&gt;
+   </td>
+   <td>
+    Returns the IEnumerator&lt;T&gt; interface for a given object.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IEnumerator&lt;T&gt;
+   </td>
+   <td>
+    Enables foreach-style iteration over a generic collection.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    IList&lt;T&gt;
+   </td>
+   <td>
+    Provides behavior to add, remove, and index items in a
+sequential list of objects.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ISet&lt;T&gt;
+   </td>
+   <td>
+    Provides the base interface for the abstraction of sets.
+   </td>
+  </tr>
+</table>
+<p>The System.Collections.Generic namespace also defines several classes that implement many of
+these key interfaces. Table 10-4 describes some commonly used classes of this namespace, the interfaces
+they implement, and their basic functionality.</p>
+<p><b>Table 10-4.</b> Classes of System.Collections.Generic</p>
+<table class="gridtable">
+  <tr>
+   <th>
+      Generic Class
+   </th>
+   <th>
+    
+      Supported Key Interfaces
+    
+   </th>
+   <th>
+    
+      Meaning in Life
+    
+   </th>
+  </tr>
+  <tr>
+   <td>
+    
+      Dictionary&lt;TKey, TValue&gt;
+    
+   </td>
+   <td>
+    
+      ICollection&lt;T&gt;,
+      IDictionary&lt;TKey, TValue&gt;,
+      IEnumerable&lt;T&gt;
+    
+   </td>
+   <td>
+    
+      This represents a generic
+      collection of keys and values.
+    
+   </td>
+  </tr>
+  <tr>
+   <td>
+    
+      List&lt;T&gt;
+    
+   </td>
+   <td>
+    
+      ICollection&lt;T&gt;, IEnumerable&lt;T&gt;, IList&lt;T&gt;
+    
+   </td>
+   <td>
+    
+      This is a dynamically resizable sequential list of items.
+    
+   </td>
+  </tr>
+  <tr>
+   <td>
+    
+      LinkedList&lt;T&gt;
+    
+   </td>
+   <td>
+    
+      ICollection&lt;T&gt;, IEnumerable&lt;T&gt;
+    
+   </td>
+   <td>
+    
+      This represents a doubly linked list.
+    
+   </td>
+  </tr>
+  <tr>
+   <td>
+    
+      Queue&lt;T&gt;
+    
+   </td>
+   <td>
+    
+      ICollection (not a typo! This is
+      the non-generic collection
+      interface), IEnumerable&lt;T&gt;
+    
+   </td>
+   <td>
+    
+      This is a generic
+      implementation of a first-in,
+      first-out (FIFO) list.
+    
+   </td>
+  </tr>
+  <tr>
+   <td>
+    
+     SortedDictionary&lt;TKey, TValue&gt;
+    
+   </td>
+   <td>
+    
+     ICollection&lt;T&gt;, IDictionary&lt;TKey, TValue&gt;, IEnumerable&lt;T&gt;
+    
+   </td>
+   <td>
+    
+     This is a generic implementation of a sorted set of key/value pairs.
+    
+   </td>
+  </tr>
+  <tr>
+   <td>
+    
+     SortedSet&lt;T&gt;
+    
+   </td>
+   <td>
+    
+     ICollection&lt;T&gt;, IEnumerable&lt;T&gt;, ISet&lt;T&gt;
+    
+   </td>
+   <td>
+    
+     This represents a collection of objects that is maintained in sorted order with no duplication.
+    
+   </td>
+  </tr>
+  <tr>
+   <td>
+    
+     Stack&lt;T&gt;
+    
+   </td>
+   <td>
+    
+     ICollection (not a typo! This is the non-generic collection interface), IEnumerable&lt;T&gt;
+    
+   </td>
+   <td>
+    
+     This is a generic implementation of a last-in, first-out (LIFO) list.
+    
+   </td>
+  </tr>
+</table>
+<p>The System.Collections.Generic namespace also defines many auxiliary classes and structures that
+work in conjunction with a specific container. For example, the LinkedListNode&lt;T&gt; type represents a
+node within a generic LinkedList&lt;T&gt;, the KeyNotFoundException exception is raised when attempting to
+grab an item from a container using a nonexistent key, and so forth.</p>
+<p>It is also worth pointing out that mscorlib.dll and System.dll are not the only assemblies which
+add new types to the System.Collections.Generic namespace. For example, System.Core.dll adds the
+HashSet&lt;T&gt; class to the mix. Be sure to consult the .NET Framework 4.0 SDK documentation for full
+details of the System.Collections.Generic namespace.</p>
+<p>In any case, your next task is to learn how to use some of these generic collection classes. Before you
+do however, allow me to illustrate a C# language feature (first introduced in .NET 3.5) that simplifies the
+way you populate generic (and non-generic) collection containers with data.</p>
+<h2>Understanding Collection Initialization Syntax</h2>
+<p>In Chapter 4, you learned about object initialization syntax, which allows you to set properties on a new
+variable at the time of construction. Closely related to this is collection initialization syntax. This C#
+language feature makes it possible to populate many containers (such as ArrayList or List&lt;T&gt;) with
+items by using syntax similar to what you use to populate a basic array.</p>
+<p>Note You can only apply collection initialization syntax to classes that support an Add() method, which is
+formalized by the ICollection&lt;T&gt;/ICollection interfaces.</p>
+<p>Consider the following examples:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Init a standard array.</span>
+<span class="kwrd">int</span>[] myArrayOfInts = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+<span class="rem">// Init a generic List&lt;&gt; of ints.</span>
+List&lt;<span class="kwrd">int</span>&gt; myGenericList = <span class="kwrd">new</span> List&lt;<span class="kwrd">int</span>&gt; { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
+<span class="rem">// Init an ArrayList with numerical data.</span>
+ArrayList myList = <span class="kwrd">new</span> ArrayList { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };</pre>
+<p>If your container is managing a collection of classes or a structure, you can blend object
+initialization syntax with collection initialization syntax to yield some functional code. You might recall
+the Point class from Chapter 5, which defined two properties named X and Y. If you wish to build a
+generic List&lt;T&gt; of Point objects, you can write the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+List&lt;Point&gt; myListOfPoints = <span class="kwrd">new</span> List&lt;Point&gt;
+{
+    <span class="kwrd">new</span> Point { X = 2, Y = 2 },
+    <span class="kwrd">new</span> Point { X = 3, Y = 3 },
+    <span class="kwrd">new</span> Point(PointColor.BloodRed){ X = 4, Y = 4 }
+};
+
+<span class="kwrd">foreach</span> (<span class="kwrd">var</span> pt <span class="kwrd">in</span> myListOfPoints)
+{
+    Console.WriteLine(pt);
+}</pre>
+<p>Again, the benefit of this syntax is that you save yourself numerous keystrokes. While the nested
+curly brackets can become difficult to read if you don’t mind your formatting, imagine the amount of
+code that would be required to fill the following List&lt;T&gt; of Rectangles if you did not have collection
+initialization syntax (you might recall from Chapter 4 that you created a Rectangle class that contained
+two properties encapsulating Point objects):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+List&lt;Rectangle&gt; myListOfRects = <span class="kwrd">new</span> List&lt;Rectangle&gt;
+{
+    <span class="kwrd">new</span> Rectangle {TopLeft = <span class="kwrd">new</span> Point { X = 10, Y = 10 },
+        BottomRight = <span class="kwrd">new</span> Point { X = 200, Y = 200}},
+    <span class="kwrd">new</span> Rectangle {TopLeft = <span class="kwrd">new</span> Point { X = 2, Y = 2 },
+        BottomRight = <span class="kwrd">new</span> Point { X = 100, Y = 100}},
+    <span class="kwrd">new</span> Rectangle {TopLeft = <span class="kwrd">new</span> Point { X = 5, Y = 5 },
+        BottomRight = <span class="kwrd">new</span> Point { X = 90, Y = 75}}
+};
+
+<span class="kwrd">foreach</span> (<span class="kwrd">var</span> r <span class="kwrd">in</span> myListOfRects)
+{
+    Console.WriteLine(r);
+}</pre>
+<h2>Working with the List&lt;T&gt; Class</h2>
+<p>Create a brand new Console Application project named FunWithGenericCollections. This project type
+automatically references mscorlib.dll and System.dll, so you have access to a majority of the common
+generic collection classes. Also note that your initial C# code file already imports the
+System.Collections.Generic namespace.</p>
+<p>The first generic class you will examine is the List&lt;T&gt;, which you’ve already seen once or twice in
+this chapter. The List&lt;T&gt; class is bound to be your most frequently used type in the
+System.Collections.Generic namespace because it allows you to resize the contents dynamically. To
+illustrate the basics of this type, ponder the following method in your Program class, which leverages
+List&lt;T&gt; to manipulate the set of Person objects seen earlier in this chapter; you might recall that these
+Person objects defined three properties (Age, FirstName, and LastName) and a custom ToString()
+implementation:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> UseGenericList()
+{
+    <span class="rem">// Make a List of Person objects, filled with</span>
+    <span class="rem">// collection / object init syntax.</span>
+    List&lt;Person&gt; people = <span class="kwrd">new</span> List&lt;Person&gt;()
+    {
+        <span class="kwrd">new</span> Person {FirstName= <span class="str">"Homer"</span>, LastName=<span class="str">"Simpson"</span>, Age=47},
+        <span class="kwrd">new</span> Person {FirstName= <span class="str">"Marge"</span>, LastName=<span class="str">"Simpson"</span>, Age=45},
+        <span class="kwrd">new</span> Person {FirstName= <span class="str">"Lisa"</span>, LastName=<span class="str">"Simpson"</span>, Age=9},
+        <span class="kwrd">new</span> Person {FirstName= <span class="str">"Bart"</span>, LastName=<span class="str">"Simpson"</span>, Age=8}
+    };
+
+    <span class="rem">// Print out # of items in List.</span>
+    Console.WriteLine(<span class="str">"Items in list: {0}"</span>, people.Count);
+
+    <span class="rem">// Enumerate over list.</span>
+    <span class="kwrd">foreach</span> (Person p <span class="kwrd">in</span> people)
+        Console.WriteLine(p);
+
+    <span class="rem">// Insert a new person.</span>
+    Console.WriteLine(<span class="str">"\n-&gt;Inserting new person."</span>);
+    people.Insert(2, <span class="kwrd">new</span> Person { FirstName = <span class="str">"Maggie"</span>, LastName = <span class="str">"Simpson"</span>, Age = 2 });
+
+    Console.WriteLine(<span class="str">"Items in list: {0}"</span>, people.Count);
+
+    <span class="rem">// Copy data into a new array.</span>
+    Person[] arrayOfPeople = people.ToArray();
+    <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; arrayOfPeople.Length; i++)
+    {
+        Console.WriteLine(<span class="str">"First Names: {0}"</span>, arrayOfPeople[i].FirstName);
+    }
+}</pre>
+    <p>Here you use initialization syntax to populate your List&lt;T&gt; with objects, as a shorthand notation for
+calling Add() n number of times. Once you print out the number of items in the collection (as well as
+enumerate over each item), you invoke Insert(). As you can see, Insert() allows you to plug a new item
+into the List&lt;T&gt; at a specified index.</p>
+<p>Finally, notice the call to the ToArray() method, which returns an array of Person objects based on
+the contents of the original List&lt;T&gt;. From this array, you loop over the items again using the array’s
+indexer syntax. If you call this method from within Main(), you get the following output:</p>
+<pre>
+***** Fun with Generic Collections *****
+
+Items in list: 4
+Name: Homer Simpson, Age: 47
+Name: Marge Simpson, Age: 45
+Name: Lisa Simpson, Age: 9
+Name: Bart Simpson, Age: 8
+
+->Inserting new person.
+Items in list: 5
+First Names: Homer
+First Names: Marge
+First Names: Maggie
+First Names: Lisa
+First Names: Bart
+</pre>
+<p>The List&lt;T&gt; class defines many additional members of interest, so be sure to consult the .NET
+Framework 4.0 SDK documentation for more information. Next, let’s look at a few more generic
+collections, specifically Stack&lt;T&gt;, Queue&lt;T&gt; and SortedSet&lt;T&gt;. This should get you in a great position to
+understand your basic choices regarding how to hold your custom application data.</p>
+<h2>Working with the Stack&lt;T&gt; Class</h2>
+<p>The Stack&lt;T&gt; class represents a collection that maintains items using a last-in, first-out manner. As you
+might expect, Stack&lt;T&gt; defines members named Push() and Pop() to place items onto or remove items
+from the stack. The following method creates a stack of Person objects:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> UseGenericStack()
+{
+    Stack&lt;Person&gt; stackOfPeople = <span class="kwrd">new</span> Stack&lt;Person&gt;();
+    stackOfPeople.Push(<span class="kwrd">new</span> Person
+        { FirstName = <span class="str">"Homer"</span>, LastName = <span class="str">"Simpson"</span>, Age = 47 });
+    stackOfPeople.Push(<span class="kwrd">new</span> Person
+        { FirstName = <span class="str">"Marge"</span>, LastName = <span class="str">"Simpson"</span>, Age = 45 });
+    stackOfPeople.Push(<span class="kwrd">new</span> Person
+        { FirstName = <span class="str">"Lisa"</span>, LastName = <span class="str">"Simpson"</span>, Age = 9 });
+
+    <span class="rem">// Now look at the top item, pop it, and look again.</span>
+    Console.WriteLine(<span class="str">"First person is: {0}"</span>, stackOfPeople.Peek());
+    Console.WriteLine(<span class="str">"Popped off {0}"</span>, stackOfPeople.Pop());
+
+    Console.WriteLine(<span class="str">"\nFirst person is: {0}"</span>, stackOfPeople.Peek());
+    Console.WriteLine(<span class="str">"Popped off {0}"</span>, stackOfPeople.Pop());
+
+    Console.WriteLine(<span class="str">"\nFirst person item is: {0}"</span>, stackOfPeople.Peek());
+    Console.WriteLine(<span class="str">"Popped off {0}"</span>, stackOfPeople.Pop());
+
+    <span class="kwrd">try</span>
+    {
+        Console.WriteLine(<span class="str">"\nnFirst person is: {0}"</span>, stackOfPeople.Peek());
+        Console.WriteLine(<span class="str">"Popped off {0}"</span>, stackOfPeople.Pop());
+    }
+    <span class="kwrd">catch</span> (InvalidOperationException ex)
+    {
+        Console.WriteLine(<span class="str">"\nError! {0}"</span>, ex.Message);
+    }
+}</pre>
+<p>Here, you build a stack that contains three people, added in the order of their first names: Homer,
+Marge, and Lisa. As you peek into the stack, you will always see the object at the top first; therefore, the
+first call to Peek() reveals the third Person object. After a series of Pop() and Peek() calls, the stack
+eventually empties, at which time additional Peek() and Pop() calls raise a system exception. You can
+see the output for this here:</p>
+<pre class="csharpcode">
+***** Fun with Generic Collections *****
+
+First person is: Name: Lisa Simpson, Age: 9
+Popped off Name: Lisa Simpson, Age: 9
+
+First person is: Name: Marge Simpson, Age: 45
+Popped off Name: Marge Simpson, Age: 45
+
+First person item is: Name: Homer Simpson, Age: 47
+Popped off Name: Homer Simpson, Age: 47
+
+Error! Stack empty.</pre>
+<h2>Working with the Queue&lt;T&gt; Class</h2>
+<p>Queues are containers that ensure items are accessed in a first-in, first-out manner. Sadly, we humans
+are subject to queues all day long: lines at the bank, lines at the movie theater, and lines at the morning
+coffeehouse. When you need to model a scenario in which items are handled on a first-come, firstserved
+basis, you will find the Queue&lt;T&gt; class fits the bill. In addition to the functionality provided by the
+supported interfaces, Queue defines the key members shown in Table 10-5.</p>
+<p><b>Table 10-5. </b>Members of the Queue&lt;T&gt; Type</p>
+<table class="gridtable">
+  <tr>
+   <th>Select Member of Queue&lt;T&gt;</th>
+   <th>Meaning in Life</th>
+  </tr>
+  <tr>
+   <td>
+    Dequeue() 
+   </td>
+   <td>
+    Removes and returns the object at the beginning of the Queue&lt;T&gt;. 
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Enqueue() 
+   </td>
+   <td>
+    Adds an object to the end of the Queue&lt;T&gt;. 
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Peek() 
+   </td>
+   <td>
+    Returns the object at the beginning of the Queue&lt;T&gt; without removing it. 
+   </td>
+  </tr>
+</table>
+<p>Now let’s put these methods to work. You can begin by leveraging your Person class again and
+building a Queue&lt;T&gt; object that simulates a line of people waiting to order coffee. First, assume you have
+the following static helper method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> GetCoffee(Person p)
+{
+    Console.WriteLine(<span class="str">"{0} got coffee!"</span>, p.FirstName);
+}</pre>
+<p>Now assume you have this additional helper method, which calls GetCoffee() internally:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> UseGenericQueue()
+{
+    <span class="rem">// Make a Q with three people.</span>
+    Queue&lt;Person&gt; peopleQ = <span class="kwrd">new</span> Queue&lt;Person&gt;();
+    peopleQ.Enqueue(<span class="kwrd">new</span> Person {FirstName= <span class="str">"Homer"</span>,
+        LastName=<span class="str">"Simpson"</span>, Age=47});
+    peopleQ.Enqueue(<span class="kwrd">new</span> Person {FirstName= <span class="str">"Marge"</span>,
+        LastName=<span class="str">"Simpson"</span>, Age=45});
+    peopleQ.Enqueue(<span class="kwrd">new</span> Person {FirstName= <span class="str">"Lisa"</span>,
+        LastName=<span class="str">"Simpson"</span>, Age=9});
+
+    <span class="rem">// Peek at first person in Q.</span>
+    Console.WriteLine(<span class="str">"{0} is first in line!"</span>, peopleQ.Peek().FirstName);
+
+    <span class="rem">// Remove each person from Q.</span>
+    GetCoffee(peopleQ.Dequeue());
+    GetCoffee(peopleQ.Dequeue());
+    GetCoffee(peopleQ.Dequeue());
+
+    <span class="rem">// Try to de-Q again?</span>
+    <span class="kwrd">try</span>
+    {
+        GetCoffee(peopleQ.Dequeue());
+    }
+    <span class="kwrd">catch</span>(InvalidOperationException e)
+    {
+        Console.WriteLine(<span class="str">"Error! {0}"</span>, e.Message);
+    }
+}</pre>
+<p>Here you insert three items into the Queue&lt;T&gt; class using its Enqueue() method. The call to Peek()
+allows you to view (but not remove) the first item currently in the Queue. Finally, the call to Dequeue()
+removes the item from the line and sends it into the GetCoffee() helper function for processing. Note
+that if you attempt to remove items from an empty queue, a runtime exception is thrown. Here is the
+output you receive when calling this method:</p>
+<pre class="csharpcode">
+***** Fun with Generic Collections *****
+
+Homer is first in line!
+Homer got coffee!
+Marge got coffee!
+Lisa got coffee!
+Error! Queue empty.
+</pre>
+<h2>Working with the SortedSet&lt;T&gt; Class</h2>
+<p>The final generic collection class you will look was introduced with the release of .NET 4.0. The
+SortedSet&lt;T&gt; class is useful because it automatically ensures that the items in the set are sorted when
+you insert or remove items. However, you do need to inform the SortedSet&lt;T&gt; class exactly how you
+want it to sort the objects, by passing in as a constructor argument an object that implements the
+generic IComparer&lt;T&gt; interface.</p>
+<p>Begin by creating a brand new class named SortPeopleByAge, which implements IComparer&lt;T&gt;,
+where T is of type Person. Recall that this interface defines a single method named Compare(), where you
+can author whatever logic you require for the comparison. Here is a simple implementation of this class:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> SortPeopleByAge : IComparer&lt;Person&gt;
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Compare(Person firstPerson, Person secondPerson)
+    {
+        <span class="kwrd">if</span> (firstPerson.Age &gt; secondPerson.Age)
+            <span class="kwrd">return</span> 1;
+        <span class="kwrd">if</span> (firstPerson.Age &lt; secondPerson.Age)
+            <span class="kwrd">return</span> -1;
+        <span class="kwrd">else</span>
+            <span class="kwrd">return</span> 0;
+    }
+}</pre>
+<p>Now update your Program class with the following new method, which I assume you will call from
+Main():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">void</span> UseSortedSet()
+{
+    <span class="rem">// Make some people with different ages.</span>
+    SortedSet&lt;Person&gt; setOfPeople = <span class="kwrd">new</span> SortedSet&lt;Person&gt;(<span class="kwrd">new</span> SortPeopleByAge())
+    {
+        <span class="kwrd">new</span> Person {FirstName= <span class="str">"Homer"</span>, LastName=<span class="str">"Simpson"</span>, Age=47},
+        <span class="kwrd">new</span> Person {FirstName= <span class="str">"Marge"</span>, LastName=<span class="str">"Simpson"</span>, Age=45},
+        <span class="kwrd">new</span> Person {FirstName= <span class="str">"Lisa"</span>, LastName=<span class="str">"Simpson"</span>, Age=9},
+        <span class="kwrd">new</span> Person {FirstName= <span class="str">"Bart"</span>, LastName=<span class="str">"Simpson"</span>, Age=8}
+    };
+
+    <span class="rem">// Note the items are sorted by age!</span>
+    <span class="kwrd">foreach</span> (Person p <span class="kwrd">in</span> setOfPeople)
+    {
+        Console.WriteLine(p);
+    }
+    Console.WriteLine();
+
+    <span class="rem">// Add a few new people, with various ages.</span>
+    setOfPeople.Add(<span class="kwrd">new</span> Person { FirstName = <span class="str">"Saku"</span>, LastName = <span class="str">"Jones"</span>, Age = 1 });
+    setOfPeople.Add(<span class="kwrd">new</span> Person { FirstName = <span class="str">"Mikko"</span>, LastName = <span class="str">"Jones"</span>, Age = 32 });
+
+        <span class="rem">// Still sorted by age!</span>
+    <span class="kwrd">foreach</span> (Person p <span class="kwrd">in</span> setOfPeople)
+    {
+        Console.WriteLine(p);
+    }
+}</pre>
+<p>When you run your application, the listing of objects is now always ordered based on the value of
+the Age property, regardless of the order you inserted or removed objects:</p>
+<pre class="csharpcode">
+***** Fun with Generic Collections *****
+
+Name: Bart Simpson, Age: 8
+Name: Lisa Simpson, Age: 9
+Name: Marge Simpson, Age: 45
+Name: Homer Simpson, Age: 47
+
+Name: Saku Jones, Age: 1
+Name: Bart Simpson, Age: 8
+Name: Lisa Simpson, Age: 9
+Name: Mikko Jones, Age: 32
+Name: Marge Simpson, Age: 45
+Name: Homer Simpson, Age: 47
+</pre>
+<p>Awesome! At this point, you should feel more comfortable, but just about the benefits of generic
+programming, but also with using generic types in the .NET base class libraries. To conclude this
+chapter, you will learn how to build your own custom generic types and generic methods, as well as why
+you might want to.</p>
+    </body>
+    </html>
+ 
+   
+

@@ -1,0 +1,306 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Invoking a Method Asynchronously</h1>
+<p>To instruct the BinaryOp delegate to invoke Add() asynchronously, you will modify the logic in the
+previous project (feel free to add code to the existing project, however in your lab downloads, you will
+find a new Console Application named AsyncDelegate). Update the previous Main() method as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Async Delegate Invocation *****"</span>);
+
+    <span class="rem">// Print out the ID of the executing thread.</span>
+    Console.WriteLine(<span class="str">"Main() invoked on thread {0}."</span>,
+        Thread.CurrentThread.ManagedThreadId);
+    
+    <span class="rem">// Invoke Add() on a secondary thread.</span>
+    BinaryOp b = <span class="kwrd">new</span> BinaryOp(Add);
+    IAsyncResult iftAR = b.BeginInvoke(10, 10, <span class="kwrd">null</span>, <span class="kwrd">null</span>);
+    
+    <span class="rem">// Do other work on primary thread...</span>
+    Console.WriteLine(<span class="str">"Doing more work in Main()!"</span>);
+    
+    <span class="rem">// Obtain the result of the Add()</span>
+    <span class="rem">// method when ready.</span>
+    <span class="kwrd">int</span> answer = b.EndInvoke(iftAR);
+    Console.WriteLine(<span class="str">"10 + 10 is {0}."</span>, answer);
+    Console.ReadLine();
+}</pre>
+<p>If you run this application, you will find that two unique thread IDs are displayed, given that there
+are in fact multiple threads working within the current AppDomain:</p>
+<pre class="csharpcode">
+***** Async Delegate Invocation *****
+Main() invoked on thread 1.
+Doing more work in Main()!
+Add() invoked on thread 3.
+10 + 10 is 20.
+</pre>
+<p>In addition to the unique ID values, you will also notice upon running the application that the Doing
+more work in Main()! message displays immediately, while the secondary thread is occupied attending
+to its business.</p>
+<h2>Synchronizing the Calling Thread</h2>
+<p>If you think carefully about the current implementation of Main(), you might have realized that the time
+span between calling BeginInvoke() and EndInvoke() is clearly less than five seconds. Therefore, once
+Doing more work in Main()! prints to the console, the calling thread is now blocked and waiting for the
+secondary thread to complete before being able to obtain the result of the Add() method. Therefore, you
+are effectively making yet another synchronous call:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+...
+    BinaryOp b = <span class="kwrd">new</span> BinaryOp(Add);
+
+    <span class="rem">// Once the next statement is processed,</span>
+    <span class="rem">// the calling thread is now blocked until</span>
+    <span class="rem">// BeginInvoke() completes.</span>
+    IAsyncResult iftAR = b.BeginInvoke(10, 10, <span class="kwrd">null</span>, <span class="kwrd">null</span>);
+
+    <span class="rem">// This call takes far less than five seconds!</span>
+    Console.WriteLine(<span class="str">"Doing more work in Main()!"</span>);
+    <span class="kwrd">int</span> answer = b.EndInvoke(iftAR);
+...
+}</pre>
+<p>Obviously, asynchronous delegates would lose their appeal if the calling thread had the potential of
+being blocked under various circumstances. To allow the calling thread to discover if the
+asynchronously invoked method has completed its work, the IAsyncResult interface provides the
+IsCompleted property. Using this member, the calling thread is able to determine whether the
+asynchronous call has indeed completed before calling EndInvoke().</p>
+<p>If the method has not completed, IsCompleted returns false, and the calling thread is free to carry
+on its work. If IsCompleted returns true, the calling thread is able to obtain the result in the “least
+blocking manner” possible. Ponder the following update to the Main() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+...
+    BinaryOp b = <span class="kwrd">new</span> BinaryOp(Add);
+    IAsyncResult iftAR = b.BeginInvoke(10, 10, <span class="kwrd">null</span>, <span class="kwrd">null</span>);
+
+    <span class="rem">// This message will keep printing until</span>
+    <span class="rem">// the Add() method is finished.</span>
+    while(!iftAR.IsCompleted)
+    {
+        Console.WriteLine(<span class="str">"Doing more work in Main()!"</span>);
+        Thread.Sleep(1000);
+    }
+    <span class="rem">// Now we know the Add() method is complete.</span>
+    <span class="kwrd">int</span> answer = b.EndInvoke(iftAR);
+...
+}</pre>
+<p>Here, you enter a loop that will continue processing the Console.WriteLine() statement until the
+secondary thread has completed. Once this has occurred, you can obtain the result of the Add() method
+knowing full well the method has indeed completed. The call to Thread.Sleep(1000) is not necessary for
+this particular application to function correctly; however, by forcing the primary thread to wait for
+approximately one second during each iteration, it prevents the same message from printing hundreds
+of times. Here is the output (your output may differ slightly, based on the speed of your machine and
+when threads come to life):</p>
+<pre class="csharpcode">
+***** Async Delegate Invocation *****
+Main() invoked on thread 1.
+Doing more work in Main()!
+Add() invoked on thread 3.
+Doing more work in Main()!
+Doing more work in Main()!
+Doing more work in Main()!
+Doing more work in Main()!
+Doing more work in Main()!
+10 + 10 is 20.
+</pre>
+<p>In addition to the IsCompleted property, the IAsyncResult interface provides the AsyncWaitHandle
+property for more flexible waiting logic. This property returns an instance of the WaitHandle type, which
+exposes a method named WaitOne(). The benefit of WaitHandle.WaitOne() is that you can specify the
+maximum wait time. If the specified amount of time is exceeded, WaitOne() returns false. Ponder the
+following updated while loop, which no longer makes use of a call to Thread.Sleep():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+while (!iftAR.AsyncWaitHandle.WaitOne(1000, <span class="kwrd">true</span>))
+{
+    Console.WriteLine(<span class="str">"Doing more work in Main()!"</span>);
+}</pre>
+<p>While these properties of IAsyncResult do provide a way to synchronize the calling thread, they are
+not the most efficient approach. In many ways, the IsCompleted property is much like a really annoying
+manager (or classmate) who is constantly asking, “Are you done yet?” Thankfully, delegates provide a
+number of additional (and more elegant) techniques to obtain the result of a method that has been
+called asynchronously.</p>
+<p><b>Source Code</b> The AsyncDelegate project is located under the Chapter 19 subdirectory.</p>
+<h2>The Role of the AsyncCallback Delegate</h2>
+<p>Rather than polling a delegate to determine whether an asynchronously invoked method has completed,
+it would be more efficient to have the secondary thread inform the calling thread when the task is
+finished. When you wish to enable this behavior, you will need to supply an instance of the
+System.AsyncCallback delegate as a parameter to BeginInvoke(), which up until this point has been null.
+However, when you do supply an AsyncCallback object, the delegate will call the specified method
+automatically when the asynchronous call has completed.</p>
+<p><b>Note</b> The callback method will be called on the secondary thread not the primary thread. This has important
+implications when using threads within a graphical user interface (WPF or Windows Forms) as controls have
+thread-affinity, meaning they can only be manipulated by the thread which created them. You’ll see some
+examples of working the threads from a GUI later in this chapter during the examination of the Task Parallel
+Library (TPL).</p>
+<p>Like any delegate, AsyncCallback can only invoke methods that match a specific pattern, which in
+this case is a method taking IAsyncResult as the sole parameter and returning nothing:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Targets of AsyncCallback must match the following pattern.</span>
+<span class="kwrd">void</span> MyAsyncCallbackMethod(IAsyncResult itfAR)</pre>
+<p>Assume you have another Console Application (AsyncCallbackDelegate ) making use of the
+BinaryOp delegate. This time, however, you will not poll the delegate to determine whether the Add()
+method has completed. Rather, you will define a static method named AddComplete() to receive the
+notification that the asynchronous invocation is finished. Also, this example makes use of a class level
+static bool field, which will be used to keep the primary thread in Main() running a task until the
+secondary thread is finished.</p>
+<p><b>Note</b> The use of this Boolean variable in this example is strictly speaking, not thread safe, as there are two
+different threads which have access to its value. This will be permissible for the current example; however, as a
+very good rule of thumb, you must ensure data that can be shared among multiple threads is locked down. You’ll
+see how to do so later in this chapter.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">namespace</span> AsyncCallbackDelegate
+{
+    <span class="kwrd">public</span> <span class="kwrd">delegate</span> <span class="kwrd">int</span> BinaryOp(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y);
+
+    <span class="kwrd">class</span> Program
+    {
+        <span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">bool</span> isDone = <span class="kwrd">false</span>;
+
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            Console.WriteLine(<span class="str">"***** AsyncCallbackDelegate Example *****"</span>);
+            Console.WriteLine(<span class="str">"Main() invoked on thread {0}."</span>,
+                Thread.CurrentThread.ManagedThreadId);
+
+            BinaryOp b = <span class="kwrd">new</span> BinaryOp(Add);
+            IAsyncResult iftAR = b.BeginInvoke(10, 10,
+                <span class="kwrd">new</span> AsyncCallback(AddComplete), <span class="kwrd">null</span>);
+
+            <span class="rem">// Assume other work is performed here...</span>
+            while (!isDone)
+            {
+                Thread.Sleep(1000);
+                Console.WriteLine(<span class="str">"Working...."</span>);
+            }
+            Console.ReadLine();
+        }
+
+        <span class="kwrd">static</span> <span class="kwrd">int</span> Add(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y)
+        {
+            Console.WriteLine(<span class="str">"Add() invoked on thread {0}."</span>,
+            Thread.CurrentThread.ManagedThreadId);
+            Thread.Sleep(5000);
+            <span class="kwrd">return</span> x + y;
+        }
+
+        <span class="kwrd">static</span> <span class="kwrd">void</span> AddComplete(IAsyncResult itfAR)
+        {
+            Console.WriteLine(<span class="str">"AddComplete() invoked on thread {0}."</span>,
+            Thread.CurrentThread.ManagedThreadId);
+            Console.WriteLine(<span class="str">"Your addition is complete"</span>);
+            isDone = <span class="kwrd">true</span>;
+        }
+    }
+}</pre>
+<p>Again, the static AddComplete() method will be invoked by the AsyncCallback delegate when the
+Add() method has completed. If you run this program, you can confirm that the secondary thread is the
+thread invoking the AddComplete() callback:</p>
+<pre class="csharpcode">
+***** AsyncCallbackDelegate Example *****
+Main() invoked on thread 1.
+Add() invoked on thread 3.
+Working....
+Working....
+Working....
+Working....
+Working....
+AddComplete() invoked on thread 3.
+Your addition complete</pre>
+<p>Like other examples in this chapter, your output may be slightly different. In fact, you may see one
+final “Working…” printout occur after the addition is complete. This is just a byproduct of the forced 1-
+second delay in Main().</p>
+<h2>The Role of the AsyncResult Class</h2>
+<p>Currently, the AddComplete() method is not printing out the actual result of the operation (adding two
+numbers). The reason is that the target of the AsyncCallback delegate (AddComplete() in this example)
+does not have access to the original BinaryOp delegate created in the scope of Main(), and therefore you
+can’t call EndInvoke() from within AddComplete()!</p>
+<p>While you could simply declare the BinaryOp variable as a static member variable in the class to
+allow both methods to access the same object, a more elegant solution is to use the incoming
+IAsyncResult parameter.</p>
+<p>The incoming IAsyncResult parameter passed into the target of the AsyncCallback delegate is
+actually an instance of the AsyncResult class (note the lack of an I prefix) defined in the System.
+Runtime.Remoting.Messaging namespace. The static AsyncDelegate property returns a reference to the
+original asynchronous delegate that was created elsewhere.</p>
+<p>Therefore, if you wish to obtain a reference to the BinaryOp delegate object allocated within Main(),
+simply cast the System.Object returned by the AsyncDelegate property into type BinaryOp. At this point,
+you can trigger EndInvoke() as expected:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Don't forget to import</span>
+<span class="rem">// System.Runtime.Remoting.Messaging!</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> AddComplete(IAsyncResult itfAR)
+{
+    Console.WriteLine(<span class="str">"AddComplete() invoked on thread {0}."</span>,
+        Thread.CurrentThread.ManagedThreadId);
+    Console.WriteLine(<span class="str">"Your addition is complete"</span>);
+
+    <span class="rem">// Now get the result.</span>
+    AsyncResult ar = (AsyncResult)itfAR;
+    BinaryOp b = (BinaryOp)ar.AsyncDelegate;
+    Console.WriteLine(<span class="str">"10 + 10 is {0}."</span>, b.EndInvoke(itfAR));
+    isDone = <span class="kwrd">true</span>;
+}</pre>
+<h2>Passing and Receiving Custom State Data</h2>
+<p>The final aspect of asynchronous delegates you need to address is the final argument to the
+BeginInvoke() method (which has been null up to this point). This parameter allows you to pass
+additional state information to the callback method from the primary thread. Because this argument is
+prototyped as a System.Object, you can pass in any type of data whatsoever, as long as the callback
+method knows what to expect. Assume for the sake of demonstration that the primary thread wishes to
+pass in a custom text message to the AddComplete() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+...
+    IAsyncResult iftAR = b.BeginInvoke(10, 10,
+    <span class="kwrd">new</span> AsyncCallback(AddComplete),
+    <span class="str">"Main() thanks you for adding these numbers."</span>);
+...
+}</pre>
+<p>To obtain this data within the scope of AddComplete(), make use of the AsyncState property of the
+incoming IAsyncResult parameter. Notice that an explicit cast will be required; therefore the primary
+and secondary threads must agree on the underlying type returned from AsyncState.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> AddComplete(IAsyncResult itfAR)
+{
+...
+    <span class="rem">// Retrieve the informational object and cast it to string.</span>
+    <span class="kwrd">string</span> msg = (<span class="kwrd">string</span>)itfAR.AsyncState;
+    Console.WriteLine(msg);
+    isDone = <span class="kwrd">true</span>;
+}</pre>
+<p>Here is the output of the final iteration:</p>
+<pre class="csharpcode">
+***** AsyncCallbackDelegate Example *****
+Main() invoked on thread 1.
+Add() invoked on thread 3.
+Working....
+Working....
+Working....
+Working....
+Working....
+AddComplete() invoked on thread 3.
+Your addition is complete
+10 + 10is 20.
+Main() thanks you for adding these numbers.
+Working....</pre>
+<p>Now that you understand how a .NET delegate can be used to automatically spin off a secondary
+thread of execution to handle an asynchronous method invocation, let’s turn attention to directly
+interacting with threads using the System.Threading namespace.</p>
+    <p><b>Source Code</b> The AsyncCallbackDelegate project is located under the Chapter 19 subdirectory.</p>
+    </body></html>   

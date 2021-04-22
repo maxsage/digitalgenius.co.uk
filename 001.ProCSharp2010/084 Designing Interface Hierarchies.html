@@ -1,0 +1,168 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>DG</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="../csharp.css" />	
+    <link rel="stylesheet" type="text/css" href="../master.css" />	
+</head>
+<body>
+<h1>Designing Interface Hierarchies</h1>
+<p>Interfaces can be arranged in an interface hierarchy. Like a class hierarchy, when an interface extends an
+existing interface, it inherits the abstract members defined by the parent(s). Of course, unlike classbased
+inheritance, derived interfaces never inherit true implementation. Rather, a derived interface
+simply extends its own definition with additional abstract members.</p>
+<p>Interface hierarchies can be useful when you wish to extend the functionality of an existing interface
+without breaking existing code bases. To illustrate, create a new Console Application named
+InterfaceHierarchy. Now, let’s design a new set of rendering-centric interfaces such that IDrawable is the
+root of the family tree:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IDrawable
+{
+    <span class="kwrd">void</span> Draw();
+}</pre>
+<p>Given that IDrawable defines a basic drawing behavior, we could now create a derived interface that
+extends this interface with the ability to render in modified formats, for example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IAdvancedDraw : IDrawable
+{
+    <span class="kwrd">void</span> DrawInBoundingBox(<span class="kwrd">int</span> top, <span class="kwrd">int</span> left, <span class="kwrd">int</span> bottom, <span class="kwrd">int</span> right);
+    <span class="kwrd">void</span> DrawUpsideDown();
+}</pre>
+<p>Given this design, if a class were to implement IAdvancedDraw, it would now be required to
+implement each and every member defined up the chain of inheritance (specifically, the Draw(),
+DrawInBoundingBox(), and DrawUpsideDown() methods):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> BitmapImage : IAdvancedDraw
+{
+    <span class="kwrd">public</span> <span class="kwrd">void</span> Draw()
+    {
+        Console.WriteLine(<span class="str">"Drawing..."</span>);
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> DrawInBoundingBox(<span class="kwrd">int</span> top, <span class="kwrd">int</span> left, <span class="kwrd">int</span> bottom, <span class="kwrd">int</span> right)
+    {
+        Console.WriteLine(<span class="str">"Drawing in a box..."</span>);
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> DrawUpsideDown()
+    {
+        Console.WriteLine(<span class="str">"Drawing upside down!"</span>);
+    }
+}</pre>
+<p>Now, when we make use of the BitmapImage, we are able to invoke each method at the object level
+(as they are all public), as well as extract out a reference to each supported interface explicitly via
+casting:</p>
+ <!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Simple Interface Hierarchy *****"</span>);
+
+    <span class="rem">// Call from object level.</span>
+    BitmapImage myBitmap = <span class="kwrd">new</span> BitmapImage();
+    myBitmap.Draw();
+    myBitmap.DrawInBoundingBox(10, 10, 100, 150);
+    myBitmap.DrawUpsideDown();
+
+    <span class="rem">// Get IAdvancedDraw explicitly.</span>
+    IAdvancedDraw iAdvDraw;
+    iAdvDraw = (IAdvancedDraw)myBitmap;
+    iAdvDraw.DrawUpsideDown();
+    Console.ReadLine();
+}</pre>
+<h2>Multiple Inheritance with Interface Types</h2>
+    <p>Unlike class types, a single interface can extend multiple base interfaces, allowing us to design some very
+powerful and flexible abstractions. Create a new Console Application project named
+MIInterfaceHierarchy. Here is another collection of interfaces that model various rendering and shape
+abstractions. Notice that the IShape interface is extending both IDrawable and IPrintable:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Multiple inheritance for interface types is a-okay.</span>
+<span class="kwrd">interface</span> IDrawable
+{
+    <span class="kwrd">void</span> Draw();
+}
+
+<span class="kwrd">interface</span> IPrintable
+{
+    <span class="kwrd">void</span> Print();
+    <span class="kwrd">void</span> Draw(); <span class="rem">// &lt;-- Note possible name clash here!</span>
+}
+
+<span class="rem">// Multiple interface inheritance. OK!</span>
+<span class="kwrd">interface</span> IShape : IDrawable, IPrintable
+{
+    <span class="kwrd">int</span> GetNumberOfSides();
+}</pre>
+    <p><b>Figure 9-7</b> illustrates the current interface hierarchy.</p>
+ <img src="../Images/Figure09_07.png" alt="Figure 9-7" />
+<p><b>Figure 9-7.</b> Unlike classes, interfaces can extend multiple interface types</p>
+ <p>Now, the million dollar question is, if you have a class supporting IShape, how many methods will it
+be required to implement? The answer: it depends. If you want to provide a simple implementation of
+the Draw() method, you need only provide three members, as shown in the following Rectangle type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Rectangle : IShape
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> GetNumberOfSides()
+    { <span class="kwrd">return</span> 4; }
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> Draw()
+    { Console.WriteLine(<span class="str">"Drawing..."</span>); }
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> Print()
+    { Console.WriteLine(<span class="str">"Prining..."</span>); }
+}</pre>
+<p>If you’d rather have specific implementations for each Draw() method (which in this case would
+make the most sense), you can resolve the name clash using explicit interface implementation, as shown
+in the following Square type:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Square : IShape
+{
+    <span class="rem">// Using explicit implementation to handle member name clash.</span>
+    <span class="kwrd">void</span> IPrintable.Draw()
+    {
+        <span class="rem">// Draw to printer ...</span>
+    }
+
+    <span class="kwrd">void</span> IDrawable.Draw()
+    {
+        <span class="rem">// Draw to screen ...</span>
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> Print()
+    {
+        <span class="rem">// Print ...</span>
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">int</span> GetNumberOfSides()
+    { <span class="kwrd">return</span> 4; }
+}</pre>
+<p>Hopefully, at this point you feel more comfortable with the process of defining and implementing
+custom interfaces using the C# syntax. To be honest, interface-based programming can take awhile to
+get comfortable with, so if you are in fact still scratching your head just a bit, this is a perfectly normal
+reaction.</p>
+<p>Do be aware, however, that interfaces are a fundamental aspect of the .NET Framework. Regardless
+of the type of application you are developing (web-based, desktop GUIs, data-access libraries, etc.),
+working with interfaces will be part of the process. To summarize the story thus far, remember that
+interfaces can be extremely useful when</p>
+<ul>
+ <li>You have a single hierarchy where only a subset of the derived types supports a
+    common behavior.</li>
+ <li>You need to model a common behavior that is found across multiple hierarchies
+    with no common parent class beyond System.Object.
+ </li>
+</ul>
+<p>Now that you have drilled into the specifics of building and implementing custom interfaces, the
+remainder of the chapter examines a number of predefined interfaces contained within the .NET base
+class libraries.</p>
+<p><b>Source Code</b> The MIInterfaceHierarchy project is located under the Chapter 9 subdirectory.</p>
+    </body></html>
+ 
+   
+

@@ -1,0 +1,275 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Processing Multiple Exceptions</h1>
+ <p>In its simplest form, a try block has a single catch block. In reality, though, you often run into situations
+where the statements within a try block could trigger numerous possible exceptions. Create a new C#
+Console Application project named ProcessMultipleExceptions, add the Car.cs, Radio.cs, and
+CarIsDeadException.cs files from the previous CustomException example into the new project (via
+Project ? Add Existing Item), and update your namespace names accordingly.</p>
+<p>Now, update the Car’s Accelerate() method to also throw a predefined base class library
+ArgumentOutOfRangeException if you pass an invalid parameter (which we will assume is any value less
+than zero). Note the constructor of this exception class takes the name of the offending argument as the
+first string, followed by a message describing the error.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Test for invalid argument before proceeding.</span>
+<span class="kwrd">public</span> <span class="kwrd">void</span> Accelerate(<span class="kwrd">int</span> delta)
+{
+    <span class="kwrd">if</span>(delta &lt; 0)
+        <span class="kwrd">throw</span> <span class="kwrd">new</span>
+            ArgumentOutOfRangeException(<span class="str">"delta"</span>, <span class="str">"Speed must be greater than zero!"</span>);
+    ...
+}</pre>
+<p>The catch logic could now specifically respond to each type of exception:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Handling Multiple Exceptions *****\n"</span>);
+    Car myCar = <span class="kwrd">new</span> Car(<span class="str">"Rusty"</span>, 90);
+    <span class="kwrd">try</span>
+    {
+        <span class="rem">// Trip Arg out of range exception.</span>
+        myCar.Accelerate(-10);
+    }
+    <span class="kwrd">catch</span> (CarIsDeadException e)
+    {
+        Console.WriteLine(e.Message);
+    }
+    <span class="kwrd">catch</span> (ArgumentOutOfRangeException e)
+    {
+        Console.WriteLine(e.Message);
+    }
+    Console.ReadLine();
+}</pre>
+<p>When you are authoring multiple catch blocks, you must be aware that when an exception is
+thrown, it will be processed by the “first available” catch. To illustrate exactly what the “first available”
+catch means, assume you retrofitted the previous logic with an additional catch scope that attempts to
+handle all exceptions beyond CarIsDeadException and ArgumentOutOfRangeException by catching a
+general System.Exception as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This code will not compile!</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Handling Multiple Exceptions *****\n"</span>);
+    Car myCar = <span class="kwrd">new</span> Car(<span class="str">"Rusty"</span>, 90);
+
+    <span class="kwrd">try</span>
+    {
+        <span class="rem">// Trigger an argument out of range exception.</span>
+        myCar.Accelerate(-10);
+    }
+    <span class="kwrd">catch</span>(Exception e)
+    {
+        <span class="rem">// Process all other exceptions?</span>
+        Console.WriteLine(e.Message);
+    }
+    <span class="kwrd">catch</span> (CarIsDeadException e)
+    {
+        Console.WriteLine(e.Message);
+    }
+    <span class="kwrd">catch</span> (ArgumentOutOfRangeException e)
+    {
+        Console.WriteLine(e.Message);
+    }
+    Console.ReadLine();
+}</pre>
+<p>This exception-handling logic generates compile-time errors. The problem is due to the fact that the
+first catch block can handle anything derived from System.Exception (given the “is-a” relationship),
+including the CarIsDeadException and ArgumentOutOfRangeException types. Therefore, the final two
+catch blocks are unreachable!</p>
+<p>The rule of thumb to keep in mind is to make sure your catch blocks are structured such that the
+very first catch is the most specific exception (i.e., the most derived type in an exception-type
+inheritance chain), leaving the final catch for the most general (i.e., the base class of a given exception
+inheritance chain, in this case System.Exception).</p>
+<p>Thus, if you wish to define a catch block that will handle any errors beyond CarIsDeadException and
+ArgumentOutOfRangeException, you could write the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// This code compiles just fine.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Handling Multiple Exceptions *****\n"</span>);
+    Car myCar = <span class="kwrd">new</span> Car(<span class="str">"Rusty"</span>, 90);
+    <span class="kwrd">try</span>
+    {
+        <span class="rem">// Trigger an argument out of range exception.</span>
+        myCar.Accelerate(-10);
+    }
+    <span class="kwrd">catch</span> (CarIsDeadException e)
+    {
+        Console.WriteLine(e.Message);
+    }
+    <span class="kwrd">catch</span> (ArgumentOutOfRangeException e)
+    {
+        Console.WriteLine(e.Message);
+    }
+    <span class="rem">// This will catch any other exception</span>
+    <span class="rem">// beyond CarIsDeadException or</span>
+    <span class="rem">// ArgumentOutOfRangeException.</span>
+    <span class="kwrd">catch</span> (Exception e)
+    {
+        Console.WriteLine(e.Message);
+    }
+    Console.ReadLine();
+}</pre>
+<p><b>Note </b>Where at all possible, always favor catching specific exception classes, rather than a general
+System.Exception. Though it might appear to make life simple in the short term (you may think, “Ah! This catches
+all the other things I don’t care about.”), in the long term you could end up with strange runtime crashes, as a
+more serious error was not directly dealt with in your code. Remember, a final catch block that deals with
+System.Exception tends to be very general indeed.</p>
+<h2>General catch Statements</h2>
+<p>C# also supports a “general” catch scope that does not explicitly receive the exception object thrown by
+a given member:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// A generic catch.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Handling Multiple Exceptions *****\n"</span>);
+    Car myCar = <span class="kwrd">new</span> Car(<span class="str">"Rusty"</span>, 90);
+    <span class="kwrd">try</span>
+    {
+        myCar.Accelerate(90);
+    }
+    <span class="kwrd">catch</span>
+    {
+        Console.WriteLine(<span class="str">"Something bad happened..."</span>);
+    }
+    Console.ReadLine();
+}</pre>
+<p>Obviously, this is not the most informative way to handle exceptions, since you have no way to
+obtain meaningful data about the error that occurred (such as the method name, call stack, or custom
+message). Nevertheless, C# does allow for such a construct, which can be helpful when you want to
+handle all errors in a very, very general fashion.</p>
+<h2>Rethrowing Exceptions</h2>
+ <p>When you catch an exception, it is permissible for the logic in a try block to rethrow the exception up the
+call stack to the previous caller. To do so, simply use the throw keyword within a catch block. This passes
+the exception up the chain of calling logic, which can be helpful if your catch block is only able to
+partially handle the error at hand:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Passing the buck.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+...
+    <span class="kwrd">try</span>
+    {
+        <span class="rem">// Speed up car logic...</span>
+    }
+    <span class="kwrd">catch</span>(CarIsDeadException e)
+    {
+        <span class="rem">// Do any partial processing of this error and pass the buck.</span>
+        <span class="kwrd">throw</span>;
+    }
+...
+}</pre>
+<p>Be aware that in this example code, the ultimate receiver of CarIsDeadException is the CLR, since it
+is the Main() method rethrowing the exception. Because of this, your end user is presented with a
+system-supplied error dialog box. Typically, you would only rethrow a partial handled exception to a
+caller that has the ability to handle the incoming exception more gracefully.</p>
+<p>Notice as well that we are not explicitly rethrowing the CarIsDeadException object, but rather
+making use of the throw keyword with no argument. We’re not creating a new exception object; we’re
+just rethrowing the original exception object (with all its original information). Doing so preserves the
+context of the original target.</p>
+<h2>Inner Exceptions</h2>
+  <p>As you may suspect, it is entirely possible to trigger an exception at the time you are handling another
+exception. For example, assume you are handling a CarIsDeadException within a particular catch scope,
+and during the process you attempt to record the stack trace to a file on your C: drive named
+carErrors.txt (you must specify you are using the System.IO namespace to gain access to these I/Ocentric
+types):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">catch</span>(CarIsDeadException e)
+{
+    <span class="rem">// Attempt to open a file named carErrors.txt on the C drive.</span>
+    FileStream fs = File.Open(<span class="str">@"C:\carErrors.txt"</span>, FileMode.Open);
+    ...
+}</pre>
+<p>Now, if the specified file is not located on your C: drive, the call to File.Open() results in a
+FileNotFoundException! Later in this text, you will learn all about the System.IO namespace where you’ll
+discover how to programmatically determine whether a file exists on the hard drive before attempting to
+open the file in the first place (thereby avoiding the exception altogether). However, to stay focused on
+the topic of exceptions, assume the exception has been raised.</p>
+<p>When you encounter an exception while processing another exception, best practice states that you
+should record the new exception object as an “inner exception” within a new object of the same type as
+the initial exception. (That was a mouthful!) The reason you need to allocate a new object of the
+exception being handled is that the only way to document an inner exception is via a constructor
+parameter. Consider the following code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">catch</span> (CarIsDeadException e)
+{
+    <span class="kwrd">try</span>
+    {
+        FileStream fs = File.Open(<span class="str">@"C:\carErrors.txt"</span>, FileMode.Open);
+        ...
+    }
+    <span class="kwrd">catch</span> (Exception e2)
+    {
+        <span class="rem">// Throw an exception that records the new exception,</span>
+        <span class="rem">// as well as the message of the first exception.</span>
+        <span class="kwrd">throw</span> <span class="kwrd">new</span> CarIsDeadException(e.Message, e2);
+    }
+}</pre>
+<p>Notice in this case, we have passed in the FileNotFoundException object as the second parameter to
+the CarIsDeadException constructor. Once we have configured this new object, we throw it up the call
+stack to the next caller, which in this case would be the Main() method.</p>
+<p>Given that there is no “next caller” after Main() to catch the exception, we would be again presented
+with an error dialog box. Much like the act of rethrowing an exception, recording inner exceptions is
+usually only useful when the caller has the ability to gracefully catch the exception in the first place. If
+this is the case, the caller’s catch logic can make use of the InnerException property to extract the details
+of the inner exception object.</p>
+<h2>The Finally Block</h2>
+  <p>A try/catch scope may also define an optional finally block. The purpose of a finally block is to ensure
+that a set of code statements will always execute, exception (of any type) or not. To illustrate, assume
+you wish to always power down the car’s radio before exiting Main(), regardless of any handled
+exception:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Handling Multiple Exceptions *****\n"</span>);
+    Car myCar = <span class="kwrd">new</span> Car(<span class="str">"Rusty"</span>, 90);
+    myCar.CrankTunes(<span class="kwrd">true</span>);
+
+    <span class="kwrd">try</span>
+    {
+        <span class="rem">// Speed up car logic.</span>
+    }
+    <span class="kwrd">catch</span>(CarIsDeadException e)
+    {
+        <span class="rem">// Process CarIsDeadException.</span>
+    }
+    <span class="kwrd">catch</span>(ArgumentOutOfRangeException e)
+    {
+        <span class="rem">// Process ArgumentOutOfRangeException.</span>
+    }
+    <span class="kwrd">catch</span>(Exception e)
+    {
+        <span class="rem">// Process any other Exception.</span>
+    }
+    <span class="kwrd">finally</span>
+    {
+        <span class="rem">// This will always occur. Exception or not.</span>
+        myCar.CrankTunes(<span class="kwrd">false</span>);
+    }
+    Console.ReadLine();
+}</pre>
+<p>If you did not include a finally block, the radio would not be turned off if an exception is
+encountered (which may or may not be problematic). In a more real-world scenario, when you need to
+dispose of objects, close a file, detach from a database (or whatever), a finally block ensures a location
+for proper cleanup.</p>
+    </body>
+    </html>
+ 
+   
+

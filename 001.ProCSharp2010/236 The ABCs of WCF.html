@@ -1,0 +1,333 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>The ABCs of WCF</h1>
+   <p>Hosts and clients communicate with each other by agreeing on the ABCs, a friendly mnemonic for
+remembering the core building blocks of a WCF application address, binding, and contract:</p>
+<ul>
+ <li>Address: Describes the location of the service. In code, you represent this with a
+System.Uri type; however, you typically store the value in *.config files.</li>
+ <li>Binding: WCF ships with a many different bindings that specify network protocols,
+encoding mechanisms, and the transport layer.</li>
+ <li>Contract: Provides a description of each method exposed from the WCF service.  </li>
+</ul>
+  <p>You should realize that the ABC abbreviation does not imply that a developer must define the
+address first, followed by binding, and ending with the contract. In many cases, a WCF developer begins
+by defining a contract for the service, followed by establishing an address and bindings (any order will
+do, as long as each aspect is accounted for). Before you build your first WCF application, you will take a
+more detailed walk through of the ABCs.</p>
+<h2>Understanding WCF Contracts</h2>
+<p>Understanding the notion of a contract is the key to building a WCF service. While not mandatory, the
+vast majority of your WCF applications will begin by defining a set of .NET interface types that are used
+to represent the set of members a given WCF service will support. Specifically, interfaces that represent a
+WCF contract are called service contracts. The classes (or structures) that implement them are called
+service types.</p>
+<p>WCF service contracts are adorned with various attributes, the most common of which are defined
+in the System.ServiceModel namespace. When the members of a service contract (the methods in the
+interface) contain only simple data types (e.g., numerical data, Booleans, and string data), you can build
+a complete WCF service using nothing more than the [ServiceContract] and [OperationContract]
+attributes.</p>
+<p>However, if your members expose custom types, you will need to use types in the
+System.Runtime.Serialization namespace (see Figure 25-5) of the System.Runtime.Serialization.dll
+assembly. Here you will find additional attributes (e.g., [DataMember] and [DataContract]) to fine-tune
+the process of defining how your composite types are serialized to and from XML when they are passed
+to and from service operations.</p>
+<p>Strictly speaking, you are not required to use CLR interfaces to define a WCF contract. Many of these
+same attributes can be applied on public members of a public class (or structure). However, given the
+many benefits of interface-based programming (e.g., polymorphism and elegant versioning), it is safe to
+consider using CLR interfaces to describe a WCF contract a best practice.</p>
+<img src="../Images/Figure25_05.png" alt="Figure 25-5" />
+<p><b>Figure 25-5</b> System.Runtime.Serialization defines a number of attributes used when building WCF data
+contracts</p>
+<h2>Understanding WCF Bindings</h2>
+<p>Once you define and implement a contract (or a set of contracts) in your service library, the next logical
+step is to build a hosting agent for the WCF service itself. As mentioned previously, you have a variety of
+possible hosts to choose from, all of which must specify the bindings used by remote callers to gain
+access to the service type’s functionality.</p>
+<p>Choosing a set of bindings is one area that makes WCF development quite different from .NET
+remoting and/or XML web service development. WCF ships with many of binding choices, each of
+which is tailored to a specific need. If none of the out-of-the-box bindings fits the bill, you can create
+your own by extending the CustomBinding type (something you will not do in this chapter). A WCF
+binding can specify the following characteristics:</p>
+<ul>
+ <li>The transport layer used to move data (HTTP, MSMQ, named pipes, and TCP)</li>
+ <li>The channels used by the transport (one-way, request-reply, and duplex)</li>
+ <li>The encoding mechanism used to deal with the data itself (e.g., XML and binary)</li>
+ </ul>
+  <p>Any supported web service protocols (if permitted by the binding), such as WSSecurity,
+WS-Transactions, WS-Reliability, and so on</p>
+<p>Let’s take a look at your basic choices.</p>
+<h2>HTTP-Based Bindings</h2>
+<p>The BasicHttpBinding, WSHttpBinding, WSDualHttpBinding, and WSFederationHttpBinding options are
+geared toward exposing contract types through XML web service protocols. If you require the furthest
+reach possible for your service (e.g., multiple operating systems and multiple programming
+architectures), you want to focus on these bindings because all of these binding types encode data based
+on XML representation and use HTTP on the wire.</p>
+<p>Table 25-3 shows note how you can represent a WCF binding in code (using class types within the
+System.ServiceModel namespace) or as XML attributes defined within *.config files.</p>
+<p><b>Table 25-3.</b> The HTTP-Centric WCF Bindings</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Binding Class
+   </th>
+   <th>
+    Binding Element
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    BasicHttpBinding
+   </td>
+   <td>
+    &lt;basicHttpBinding&gt;
+   </td>
+   <td>
+    You use this to build a WS-Basic Profile–
+conformant (WS-I Basic Profile 1.1) WCF
+service. This binding uses HTTP as the
+transport and Text/XML as the default
+message encoding
+   </td>
+  </tr>
+  <tr>
+   <td>
+    WSHttpBinding
+   </td>
+   <td>
+    &lt;wsHttpBinding&gt;
+   </td>
+   <td>
+    This is similar to BasicHttpBinding, but
+provides more web service features. This
+binding adds support for transactions,
+reliable messaging, and WS-Addressing.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    WSDualHttpBinding
+   </td>
+   <td>
+    &lt;wsDualHttpBinding&gt;
+   </td>
+   <td>
+    This is similar to WSHttpBinding, but
+intended for use with duplex contracts
+(e.g., the service and client can send
+messages back and forth). This binding
+supports only SOAP security and
+requires reliable messaging.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    WSFederationHttpBinding
+   </td>
+   <td>
+    &lt;wsFederationHttpBinding&gt;
+   </td>
+   <td>
+    This is a secure and interoperable
+binding that supports the WSFederation
+protocol, enabling
+organizations that are in a federation to
+authenticate and authorize users
+efficiently.
+   </td>
+  </tr>
+</table>
+<p>As its name suggests, BasicHttpBinding is the simplest of all web service–centric protocols.
+Specifically, this binding ensures that your WCF service conforms to a specification named WS-I Basic
+Profile 1.1 (defined by WS-I). The main reason to use this binding is for maintaining backward
+compatibility with applications that were previously built to communicate with ASP.NET web services
+(which have been part of the .NET libraries since version 1.0).</p>
+<p>The WSHttpBinding protocol not only incorporates support for a subset of the WS-* specification
+(transactions, security, and reliable sessions), but also supports the ability to handle binary data
+encoding using Message Transmission Optimization Mechanism (MTOM).</p>
+<p>The main benefit of WSDualHttpBinding is that it adds the ability to allow the caller and sender to
+communicate using duplex messaging, which is a fancy way of saying they can engage in a two-way
+conversation. When selecting WSDualHttpBinding, you can hook into the WCF publish/subscribe event
+model.</p>
+<p>Finally, WSFederationHttpBinding is the web service–based protocol you might wish to consider
+when security among a group of organizations is of the utmost importance. This binding supports the
+WS-Trust, WS-Security, and WS-SecureConversation specifications, which are represented by the WCF
+CardSpace APIs.</p>
+<h2>TCP-Based Bindings</h2>
+<p>If you build a distributed application involving machines that are configured with the .NET 4.0 libraries
+(in other words, all machines are running the Windows operating system), you can gain performance
+benefits by bypassing web service bindings and opting for a TCP binding, which ensures that all data is
+encoded in a compact binary format, rather than XML. Again, when you use the bindings shown in
+Table 25-4, the client and host must be .NET applications.</p>
+<p><b>Table 25-4.</b> The TCP-Centric WCF Bindings</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Binding Class
+   </th>
+   <th>
+    Binding Element
+   </th>
+    <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    NetNamedPipeBinding
+   </td>
+   <td>
+    &lt;netNamedPipeBinding&gt;
+   </td>
+      <td>
+    Serves as a secure, reliable, optimized binding
+for on-the-same-machine communication
+between .NET applications.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    NetPeerTcpBinding
+   </td>
+   <td>
+    &lt;netPeerTcpBinding&gt;
+   </td>
+      <td>
+    Provides a secure binding for P2P network
+applications.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    NetTcpBinding
+   </td>
+   <td>
+    &lt;netTcpBinding&gt;
+   </td>
+      <td>
+    Serves as a secure and optimized binding
+suitable for cross-machine communication
+between .NET applications.
+   </td>
+  </tr>
+</table>
+<p>The NetTcpBinding class uses TCP to move binary data between the client and WCF service. As
+mentioned previously, this will result in higher performance than the web service protocols, but limits
+you to an in-house Windows solution. On the plus side, NetTcpBinding supports transactions, reliable
+sessions, and secure communications.</p>
+<p>Like NetTcpBinding, NetNamedPipeBinding supports transactions, reliable sessions, and secure
+communications; however, it has no ability to make cross-machine calls. If you want to find the fastest
+way to push data between WCF applications on the same machine (e.g., cross-application domain
+communications), NetNamedPipeBinding is the binding choice of champions. For more information on
+NetPeerTcpBinding, consult the .NET Framework 4.0 documentation for details regarding P2P
+networking.</p>
+<h2>MSMQ-Based Bindings</h2>
+<p>Finally, the NetMsmqBinding and MsmqIntegrationBinding bindings are of immediate interest if you want
+to integrate with a Microsoft MSMQ server. This chapter will not examine the details of using MSMQ
+bindings, but Table 25-5 documents the basic role of each.</p>
+<p><b>Table 25-5.</b> The MSMQ-Centric WCF Bindings</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Binding Class
+   </th>
+   <th>
+    Binding Element
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    MsmqIntegrationBinding
+   </td>
+   <td>
+    &lt;msmqIntegrationBinding&gt;
+   </td>
+   <td>
+    You can use this binding to enable WCF
+applications to send and receive messages to
+and from existing MSMQ applications that
+use COM, native C++, or the types defined in
+the System. Messaging namespace.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    NetMsmqBinding
+   </td>
+   <td>
+    &lt;netMsmqBinding&gt;
+   </td>
+   <td>
+    You can use this queued binding for crossmachine
+communication between .NET
+applications. This is the preferred approach
+among the MSMQ-centric bindings.
+   </td>
+  </tr>
+</table>
+<h2>Understanding WCF Addresses</h2>
+<p>Once you establish the contracts and bindings, the final piece of the puzzle is to specify an address for
+the WCF service. This is important because remote callers will be unable to communicate with the
+remote types if they cannot locate them! Like most aspects of WCF, an address can be hard-coded in an
+assembly (using the System.Uri type) or offloaded to a *.config file.</p>
+<p>In either case, the exact format of the WCF address will differ based on your choice of binding
+(HTTP based, named pipes, TCP based, or MSMQ based). From a high level, WCF addresses can specify
+the following bits of information:</p>
+<ul>
+ <li>Scheme: The transport protocol (e.g., HTTP)</li>
+  <li>MachineName: The fully qualified domain of the machine</li>
+  <li>Port: This is optional in many cases; for example, the default for HTTP bindings is port 80.</li>
+  <li>Path: The path to the WCF service</li>
+</ul>
+<p>This information can be represented by the following generalized template (the Port value is
+optional because some bindings don’t use them):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+scheme://<span class="kwrd">&lt;</span><span class="html">MachineName</span><span class="kwrd">&gt;</span>[:Port]/Path</pre>
+<p>When you use a web service–based binding (e.g., basicHttpBinding, wsHttpBinding,
+wsDualHttpBinding, or wsFederationHttpBinding), the address breaks down like this (recall that HTTPbased
+protocols default to port 80 if you do not specify a port number):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+http://localhost:8080/MyWCFService</pre>
+<p>If you use TCP-centric bindings (e.g., NetTcpBinding or NetPeerTcpBinding), the URI takes the
+following format:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+net.tcp://localhost:8080/MyWCFService</pre>
+<p>The MSMQ-centric bindings (NetMsmqBinding and MsmqIntegrationBinding) are unique in their URI
+format because MSMQ can use public or private queues (which are available only on the local machine),
+and port numbers have no meaning in an MSMQ-centric URI. Consider the following URI, which
+describes a private queue named MyPrivateQ:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+net.msmq://localhost/private$/MyPrivateQ</pre>
+<p>Last but not least, the address format used for the named-pipe binding, NetNamedPipeBinding,
+breaks down like this (recall that named pipes allow for interprocess communication for applications on
+the same physical machine):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+net.pipe://localhost/MyWCFService</pre>
+<p>While a single WCF service might expose only a single address (based on a single binding), it is
+possible to configure a collection of unique addresses (with different bindings). You can do this in a
+*.config file by defining multiple &lt;endpoint7gt; elements. Here, you can specify any number of ABCs for
+the same service. This approach can be helpful when you want to allow callers to select which protocol
+they would like to use when communicating with the service.</p>
+    </body>
+    </html>
+
+ 
+   
+

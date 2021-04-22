@@ -1,0 +1,133 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Dynamically Loading Assemblies</h1>
+    <p>In the previous chapter, you learned all about how the CLR consults the assembly manifest when
+probing for an externally referenced assembly. However, there will be many times when you need to
+load assemblies on the fly programmatically, even if there is no record of said assembly in the manifest.
+Formally speaking, the act of loading external assemblies on demand is known as a dynamic load.</p>
+<p>System.Reflection defines a class named Assembly. Using this class, you are able to dynamically
+load an assembly as well as discover properties about the assembly itself. Using the Assembly type, you
+are able to dynamically load private or shared assemblies, as well as load an assembly located at an
+arbitrary location. In essence, the Assembly class provides methods (Load() and LoadFrom() in particular)
+that allow you to programmatically supply the same sort of information found in a client-side *.config
+file.</p>
+<p>To illustrate dynamic loading, create a brand-new Console Application named
+ExternalAssemblyReflector. Your task is to construct a Main() method that prompts for the friendly name
+of an assembly to load dynamically. You will pass the Assembly reference into a helper method named
+DisplayTypes(), which will simply print the names of each class, interface, structure, enumeration, and
+delegate it contains. The code is refreshingly simple:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> System;
+<span class="kwrd">using</span> System.Collections.Generic;
+<span class="kwrd">using</span> System.Linq;
+<span class="kwrd">using</span> System.Text;
+
+<span class="kwrd">using</span> System.Reflection;
+<span class="kwrd">using</span> System.IO; <span class="rem">// For FileNotFoundException definition.</span>
+
+<span class="kwrd">namespace</span> ExternalAssemblyReflector
+{
+    <span class="kwrd">class</span> Program
+    {
+        <span class="kwrd">static</span> <span class="kwrd">void</span> DisplayTypesInAsm(Assembly asm)
+        {
+            Console.WriteLine(<span class="str">"\n***** Types in Assembly *****"</span>);
+            Console.WriteLine(<span class="str">"-&gt;{0}"</span>, asm.FullName);
+            Type[] types = asm.GetTypes();
+            <span class="kwrd">foreach</span> (Type t <span class="kwrd">in</span> types)
+                Console.WriteLine(<span class="str">"Type: {0}"</span>, t);
+            Console.WriteLine(<span class="str">""</span>);
+        }
+        
+        <span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+        {
+            Console.WriteLine(<span class="str">"***** External Assembly Viewer *****"</span>);
+        
+            <span class="kwrd">string</span> asmName = <span class="str">""</span>;
+            Assembly asm = <span class="kwrd">null</span>;
+        
+            <span class="kwrd">do</span>
+            {
+                Console.WriteLine(<span class="str">"\nEnter an assembly to evaluate"</span>);
+                Console.Write(<span class="str">"or enter Q to quit: "</span>);
+
+                <span class="rem">// Get name of assembly.</span>
+                asmName = Console.ReadLine();
+
+                <span class="rem">// Does user want to quit?</span>
+                <span class="kwrd">if</span> (asmName.ToUpper() == <span class="str">"Q"</span>)
+                {
+                    <span class="kwrd">break</span>;
+                }
+                
+                <span class="rem">// Try to load assembly.</span>
+                <span class="kwrd">try</span>
+                {
+                    asm = Assembly.Load(asmName);
+                    DisplayTypesInAsm(asm);
+                }        
+                <span class="kwrd">catch</span>
+                {
+                    Console.WriteLine(<span class="str">"Sorry, can't find assembly."</span>);
+                }
+            } while (<span class="kwrd">true</span>);
+        }
+    }
+}</pre>
+<p>Notice that the static Assembly.Load() method has been passed only the friendly name of the
+assembly you are interested in loading into memory. Thus, if you wish to reflect over CarLibrary.dll,
+you will need to copy the CarLibrary.dll binary to the \bin\Debug directory of the
+ExternalAssemblyReflector application to run this program. Once you do, you will find output similar to
+the following:</p>
+<pre class="csharpcode">
+***** External Assembly Viewer *****
+
+Enter an assembly to evaluate
+or enter Q to quit: CarLibrary
+
+***** Types in Assembly *****
+-&gt;CarLibrary, Version=2.0.0.0, Culture=neutral, PublicKeyToken=33a2bc294331e8b9
+Type: CarLibrary.MusicMedia
+Type: CarLibrary.EngineState
+Type: CarLibrary.Car
+Type: CarLibrary.SportsCar
+Type: CarLibrary.MiniVan</pre>
+<p>If you wish to make ExternalAssemblyReflector more flexible, you can update your code to load the
+external assembly using Assembly.LoadFrom() rather than Assembly.Load():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">try</span>
+{
+    asm = Assembly.LoadFrom(asmName);
+    DisplayTypesInAsm(asm);
+}</pre>
+<p>By doing so, you can enter an absolute path to the assembly you wish to view (e.g.,
+C:\MyApp\MyAsm.dll). Essentially, Assembly.LoadFrom() allows you to programmatically supply a
+&lt;codeBase&gt; value. With this adjustment, you can now pass in a full path to your console application.
+Thus, if CarLibrary.dll was located under C:\MyCode, you could enter the following:</p>
+<pre class="csharpcode">
+***** External Assembly Viewer *****
+
+Enter an assembly to evaluate
+or enter Q to quit: C:\MyCode\CarLibrary.dll
+
+***** Types in Assembly *****
+-&gt;CarLibrary, Version=2.0.0.0, Culture=neutral, PublicKeyToken=33a2bc294331e8b9
+Type: CarLibrary.EngineState
+Type: CarLibrary.Car
+Type: CarLibrary.SportsCar
+Type: CarLibrary.MiniVan</pre>
+    <p><b>Source Code</b> The ExternalAssemblyReflector project is included in the Chapter 15 subdirectory.</p>
+    </body>
+    </html>
+     
+      
+   

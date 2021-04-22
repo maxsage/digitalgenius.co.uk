@@ -1,0 +1,216 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>The Life Cycle of an ASP.NET Web Page</h1>
+    <p>Every ASP.NET web page has a fixed life cycle. When the ASP.NET runtime receives an incoming request
+for a given *.aspx file, the associated System.Web.UI.Page-derived type is allocated into memory using
+the type’s default constructor. After this point, the framework will automatically fire a series of events. By
+default, the Load event is automatically accounted for, where you can add your custom code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> _Default : System.Web.UI.Page
+{
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> Page_Load(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+        Response.Write(<span class="str">"Load event fired!"</span>);
+    }
+}</pre>
+<p>Beyond the Load event, a given Page is able to intercept any of the core events in Table 32-8, which
+are listed in the order in which they are encountered (consult the .NET Framework 4.0 SDK
+documentation for details on all possible events that may fire during a page’s lifetime).</p>
+<p><b>Table 32-8.</b> Select Events of the Page Type</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Event
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    PreInit
+   </td>
+   <td>
+    The framework uses this event to allocate any web controls, apply themes,
+establish the master page, and set user profiles. You may intercept this
+event to customize the process.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Init
+   </td>
+   <td>
+    The framework uses this event to set the properties of web controls to their
+previous values via postback or view state data.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Load
+   </td>
+   <td>
+    When this event fires, the page and its controls are fully initialized, and their
+previous values are restored. At this point, it is safe to interact with each
+web widget.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    “Event that triggered
+the postback”
+   </td>
+   <td>
+    There is, of course, no event of this name. This “event” simply refers to
+whichever event caused the browser to perform the postback to the web
+server (such as a Button click).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    PreRender
+   </td>
+   <td>
+    All control data binding and UI configuration has occurred and the controls
+are ready to render their data into the outbound HTTP response.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Unload
+   </td>
+   <td>
+    The page and its controls have finished the rendering process, and the page
+object is about to be destroyed. At this point, it is a runtime error to interact
+with the outgoing HTTP response. You may, however, capture this event to
+perform any page-level cleanup (close file or database connections,
+perform any form of logging activity, dispose of objects, etc.).
+   </td>
+  </tr>
+</table>
+<p>When a C# programmer needs to handle events beyond Load, you may be surprised to find that
+there is no IDE support to do so! Rather, you must manually author a method in your code file taking the
+name Page_NameOfEvent. For example, here is how you can handle the Unload event:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> _Default : System.Web.UI.Page
+{
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> Page_Load(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+        Response.Write(<span class="str">"Load event fired!"</span>);
+    }
+
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> Page_Unload(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+        <span class="rem">// No longer possible to emit data to the HTTP</span>
+        <span class="rem">// response, so we will write to a local file.</span>
+        System.IO.File.WriteAllText(<span class="str">@"C:\MyLog.txt"</span>, <span class="str">"Page unloading!"</span>);
+    }
+}</pre>
+<p><b>Note</b> Each event of the Page type works in conjunction with the System.EventHandler delegate; therefore,
+the subroutines that handle these events always take an Object as the first parameter and an EventArgs as the
+second parameter.</p>
+<h2>The Role of the AutoEventWireup Attribute</h2>
+<p>When you wish to handle events for your page, you will need to update your &lt;script&gt; block or codebehind
+file with an appropriate event handler. However, if you examine the &lt;%@Page%&gt; directive, you will
+notice a specific attribute named AutoEventWireUp, which, by default, is set to true:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="asp">&lt;%@ Page Language="C#" AutoEventWireup="true"
+    CodeFile="Default.aspx.cs" Inherits="_Default" %&gt;</span></pre>
+<p>With this default behavior, each page-level event handler will automatically be handled if you enter
+the appropriately named method. However, if you disable AutoPageWireUp by setting this attribute to
+false</p> 
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="asp">&lt;%@ Page Language="C#" AutoEventWireup="false"
+    CodeFile="Default.aspx.cs" Inherits="_Default" %&gt;</span></pre>
+    <p>the page-level events will no longer be captured. As its name suggests, this attribute (when enabled) will
+generate the necessary event riggings within the autogenerated partial class described earlier in this
+chapter. Even if you disable AutoEventWireup, you can still process page-level events by making use of C#
+event-handling logic, for example:</p> 
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> _Default()
+{
+    <span class="rem">// Explicitly hook into the Load and Unload events.</span>
+    <span class="kwrd">this</span>.Load += <span class="kwrd">new</span> Page_Load;
+    <span class="kwrd">this</span>.Unload += <span class="kwrd">new</span> Page_Unload;
+}</pre>
+    <p>As you might suspect, you will usually leave AutoEventWireup enabled.</p>
+<h2>The Error Event</h2>
+<p>Another event that may occur during your page’s life cycle is Error. This event will be fired if a method
+on the Page-derived type triggered an exception that was not explicitly handled. Assume that you have
+handled the Click event for a given Button on your page, and within the event handler (which I named
+btnGetFile_Click), you attempt to write out the contents of a local file to the HTTP response.</p>
+<p>Also assume you have failed to test for the presence of this file via standard structured exception
+handling. If you have rigged up the page’s Error event in the default constructor, you have one final
+chance to deal with the problem on this page before the end user finds an ugly error. Consider the
+following code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> _Default : System.Web.UI.Page
+{
+    <span class="kwrd">void</span> Page_Error(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+        Response.Clear();
+        Response.Write(<span class="str">"I am sorry...I can't find a required file.&lt;br&gt;"</span>);
+        Response.Write(<span class="kwrd">string</span>.Format(<span class="str">"The error was: &lt;b&gt;{0}&lt;/b&gt;"</span>,
+            Server.GetLastError().Message));
+        Server.ClearError();
+    }
+
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> Page_Load(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+        Response.Write(<span class="str">"Load event fired!"</span>);
+    }
+    
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> Page_Unload(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+        <span class="rem">// No longer possible to emit data to the HTTP</span>
+        <span class="rem">// response at this point, so we will write to a local file.</span>
+        System.IO.File.WriteAllText(<span class="str">@"C:\MyLog.txt"</span>, <span class="str">"Page unloading!"</span>);
+    }
+
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> btnPostback_Click(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+        <span class="rem">// Nothing happens here, this is just to ensure a</span>
+        <span class="rem">// postback to the page.</span>
+    }
+
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> btnTriggerError_Click(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+        System.IO.File.ReadAllText(<span class="str">@"C:\IDontExist.txt"</span>);
+    }
+}</pre>
+<p>Notice that your Error event handler begins by clearing out any content currently within the HTTP
+response and emits a generic error message. If you wish to gain access to the specific System.Exception
+object, you may do so using the HttpServerUtility.GetLastError() method exposed by the inherited
+Server property:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Exception e = Server.GetLastError();</pre>
+    <p>Finally, note that before exiting this generic error handler, you are explicitly calling the
+HttpServerUtility.ClearError() method via the Server property. This is required, as it informs the
+runtime that you have dealt with the issue at hand and require no further processing. If you forget to do
+so, the end user will be presented with the runtime’s error page. Figure 32-24 shows the result of this
+error-trapping logic.</p>
+<img src="../Images/Figure32_24.png" alt="Figure 32-24" />
+<p><b>Figure 32-24</b> Page-level error handling</p>
+<p>At this point, you should feel confident with the composition of an ASP.NET Page type. Now that you
+have such a foundation, you can turn your attention to the role of ASP.NET web controls, themes, and
+master pages, all of which are the subject of remaining chapters. To wrap up this chapter, however, let’s
+examine the role of the Web.config file.</p>
+    </body>
+    </html>
+   
+      
+   

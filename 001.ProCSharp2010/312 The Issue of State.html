@@ -1,0 +1,106 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>The Issue of State</h1>
+    <p>At the beginning of the Chapter 32, I pointed out that HTTP on the Web results in a stateless wire
+protocol. This very fact makes web development extremely different from the process of building an
+executable assembly. For example, when you are building a Windows Forms application, you can rest
+assured that any member variables defined in the Form-derived class will typically exist in memory until
+the user explicitly shuts down the executable:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> MainWindow : Form
+{
+    <span class="rem">// State data!</span>
+    <span class="kwrd">private</span> <span class="kwrd">string</span> userFavoriteCar = <span class="str">"Yugo"</span>;
+}</pre>
+    <p>In the World Wide Web environment, however, you are not afforded the same luxurious
+assumption. To prove the point, create a new Empty Web Site project named SimpleStateExample and
+insert a new Web Form. In the code-behind file of your *.aspx file, define a page-level string variable
+named userFavoriteCar:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> _Default : System.Web.UI.Page
+{
+    <span class="rem">// State data?</span>
+    <span class="kwrd">private</span> <span class="kwrd">string</span> userFavoriteCar = <span class="str">"Yugo"</span>;
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> Page_Load(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+    }
+}</pre>
+<p>Next, construct the web UI as shown in Figure 34-1.</p>
+<img src="../Images/Figure34_01.png" alt="Figure 34-01" />
+<p><b>Figure 34-1</b> The UI for the simple state page</p>
+<p>The server-side Click event handler for the Set button (named btnSetCar) allows the user to assign
+the string member variable to the value within the TextBox (named txtFavCar):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">protected</span> <span class="kwrd">void</span> btnSetCar_Click(<span class="kwrd">object</span> sender, EventArgs e)
+{
+    <span class="rem">// Store fave car in member variable.</span>
+    userFavoriteCar = txtFavCar.Text;
+}</pre>
+<p>The Click event handler for the Get button (btnGetCar) displays the current value of the member
+variable within the page’s Label widget (lblFavCar):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">protected</span> <span class="kwrd">void</span> btnGetCar_Click(<span class="kwrd">object</span> sender, EventArgs e)
+{
+    <span class="rem">// Show value of member variable.</span>
+    lblFavCar.Text = userFavoriteCar;
+}</pre>
+<p>Now, if you were building a Windows Forms application, you would be right to assume that once
+the user sets the initial value, it would be remembered throughout the life of the desktop application.
+Sadly, when you run this web application, you find that each time you post back to the web server (by
+clicking either button), the value of the userFavoriteCar string variable is set back to the initial value of
+“Yugo”; therefore, the Label’s text is continuously fixed.</p>
+<p>Again, given that HTTP has no clue how to automatically remember data once the HTTP response
+has been sent, it stands to reason that the Page object is destroyed almost instantly. As a result, when the
+client posts back to the *.aspx file, a new Page object is constructed that will reset any page-level
+member variables. This is clearly a major issue. Imagine how useless online shopping would be if every
+time you posted back to the web server, any and all information you previously entered (such as the
+items you wished to purchase) were discarded. When you wish to remember information regarding the
+users who are logged on to your site, you need to make use of various state management techniques.</p>
+<p><b>Note</b> This issue is in no way limited to ASP.NET. Java web applications, CGI applications, classic ASP
+applications, and PHP applications all must contend with the thorny issue of state management.</p>
+<p>To remember the value of the userFavoriteCar string type between postbacks, one approach is to
+store the value of this string type in a session variable. We will examine the details of session state in the
+pages that follow. For the sake of completion, however, here are the necessary updates for the current
+page (note that you are no longer using the private string member variable, so feel free to comment out
+or remove the definition altogether):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> _Default : System.Web.UI.Page
+{
+    <span class="rem">// State data?</span>
+    <span class="rem">// private string userFavoriteCar = "Yugo";</span>
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> Page_Load(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+    }
+
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> btnSetCar_Click(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+        <span class="rem">// Store value to be remembered in session variable.</span>
+        Session[<span class="str">"UserFavCar"</span>] = txtFavCar.Text;
+    }
+
+    <span class="kwrd">protected</span> <span class="kwrd">void</span> btnGetCar_Click(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+        <span class="rem">// Get session variable value.</span>
+        lblFavCar.Text = (<span class="kwrd">string</span>)Session[<span class="str">"UserFavCar"</span>];
+    }
+}</pre>
+<p>If you now run the application, the value of your favorite automobile will be preserved across
+postbacks, thanks to the HttpSessionState object manipulated indirectly by the inherited Session
+property.</p>
+   <p><b>Source Code</b> The SimpleStateExample web site is included under the Chapter 34 subdirectory.</p>
+    </body>
+    </html>
+      
+   

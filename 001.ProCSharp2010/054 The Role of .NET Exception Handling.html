@@ -1,0 +1,215 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>The Role of .NET Exception Handling</h1>
+ <p>Prior to .NET, error handling under the Windows operating system was a confused mishmash of
+techniques. Many programmers rolled their own error-handling logic within the context of a given
+application. For example, a development team could define a set of numerical constants that
+represented known error conditions, and make use of them as method return values. By way of an
+example, consider the following partial C code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">/* A very C-style error trapping mechanism. */</span>
+<span class="preproc">#define</span> E_FILENOTFOUND 1000
+
+<span class="kwrd">int</span> SomeFunction()
+{
+    <span class="rem">// Assume something happens in this function</span>
+    <span class="rem">// that causes the following return value.</span>
+    <span class="kwrd">return</span> E_FILENOTFOUND;
+}
+
+<span class="kwrd">void</span> main()
+{
+    <span class="kwrd">int</span> retVal = SomeFunction();
+    <span class="kwrd">if</span>(retVal == E_FILENOTFOUND)
+    printf(<span class="str">"Cannot find file..."</span>);
+}</pre>
+<p>This approach is less than ideal, given the fact that the constant E_FILENOTFOUND is little more than a
+numerical value, and is far from being a helpful agent regarding how to deal with the problem. Ideally,
+you would like to wrap the error’s name, a descriptive message, and other helpful information about this
+error condition into a single, well-defined package (which is exactly what happens under structured
+exception handling).</p>
+<p>In addition to a developer’s ad hoc techniques, the Windows API defines hundreds of error codes
+that come by way of #defines, HRESULTs, and far too many variations on the simple Boolean (bool, BOOL,
+VARIANT_BOOL, and so on). Furthermore, many C++ COM developers (and indirectly, many VB6 COM
+developers) made use of a small set of standard COM interfaces (e.g., ISupportErrorInfo, IErrorInfo,
+ICreateErrorInfo) to return meaningful error information to a COM client.</p>
+<p>The obvious problem with these older techniques is the tremendous lack of symmetry. Each
+approach is more or less tailored to a given technology, a given language, and perhaps even a given
+project. To put an end to this madness, the .NET platform provides a standard technique to send and
+trap runtime errors: structured exception handling (SEH).</p>
+<p>The beauty of this approach is that developers now have a unified approach to error handling,
+which is common to all languages targeting the .NET platform. Therefore, the way in which a C#
+programmer handles errors is syntactically similar to that of a VB programmer, or a C++ programmer
+using C++/CLI.</p>
+<p>As an added bonus, the syntax used to throw and catch exceptions across assemblies and machine
+boundaries is identical. For example, if you use C# to build a Windows Communication Foundation
+(WCF) service, you can throw a SOAP fault to a remote caller, using the same keywords that allow you to
+throw an exception between methods in the same application.</p>
+<p>Another bonus of .NET exceptions is that rather than receiving a cryptic numerical value that simply
+identifies the problem at hand, exceptions are objects that contain a human-readable description of the
+problem, as well as a detailed snapshot of the call stack that triggered the exception in the first place.
+Furthermore, you are able to give the end user help-link information that points the user to a URL that
+provides details about the error, as well as custom programmer-defined data.</p>
+      <h2>The Atoms of .NET Exception Handling</h2>
+ <p>Programming with structured exception handling involves the use of four interrelated entities:</p>
+ <ul>
+  <li>
+   A class type that represents the details of the exception.
+  </li>
+  <li>
+    A member that throws an instance of the exception class to the caller under the correct circumstances
+  </li>
+  <li>
+   A block of code on the caller’s side that invokes the exception-prone member
+  </li>
+  <li>
+   <p>A block of code on the caller’s side that will process (or catch) the exception should it occur</p>
+  </li>
+ </ul>
+ <p>The C# programming language offers four keywords (try, catch, throw, and finally) that allow you
+to throw and handle exceptions. The object that represents the problem at hand is a class extending
+System.Exception (or a descendent thereof). Given this fact, let’s check out the role of this exceptioncentric
+base class.</p>
+<h2>The System.Exception Base Class</h2>
+ <p>All user- and system-defined exceptions ultimately derive from the System.Exception base class, which
+in turn derives from System.Object. Here is the crux of this class (note that some of these members are
+virtual and may thus be overridden by derived classes):</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">class</span> Exception : ISerializable, _Exception
+{
+    <span class="rem">// Public constructors</span>
+    <span class="kwrd">public</span> Exception(<span class="kwrd">string</span> message, Exception innerException);
+    <span class="kwrd">public</span> Exception(<span class="kwrd">string</span> message);
+    <span class="kwrd">public</span> Exception();
+...
+
+    <span class="rem">// Methods</span>
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> Exception GetBaseException();
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> <span class="kwrd">void</span> GetObjectData(SerializationInfo info,
+        StreamingContext context);
+
+    <span class="rem">// Properties</span>
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> IDictionary Data { <span class="kwrd">get</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> <span class="kwrd">string</span> HelpLink { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">public</span> Exception InnerException { <span class="kwrd">get</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> <span class="kwrd">string</span> Message { <span class="kwrd">get</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> <span class="kwrd">string</span> Source { <span class="kwrd">get</span>; <span class="kwrd">set</span>; }
+    <span class="kwrd">public</span> <span class="kwrd">virtual</span> <span class="kwrd">string</span> StackTrace { <span class="kwrd">get</span>; }
+    <span class="kwrd">public</span> MethodBase TargetSite { <span class="kwrd">get</span>; }
+...
+}</pre>
+<p>As you can see, many of the properties defined by System.Exception are read-only in nature. This is
+due to the fact that derived types will typically supply default values for each property. For example, the
+default message of the IndexOutOfRangeException type is “Index was outside the bounds of the array.”</p>
+<p><b>Note </b>The Exception class implements two .NET interfaces. Although we have yet to examine interfaces (see
+Chapter 9), just understand that the _Exception interface allows a .NET exception to be processed by an
+unmanaged code base (such as a COM application), while the ISerializable interface allows an exception
+object to be persisted across boundaries (such as a machine boundary).</p>
+<p>Table 7-1 describes the most important members of System.Exception.</p>
+<p><b>Table 7-1. </b>Core Members of the System.Exception Type</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    System.Exception Property
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    
+     Data
+    
+   </td>
+   <td>
+    
+     This read-only property retrieves a collection of key/value pairs
+(represented by an object implementing IDictionary) that provide
+additional, programmer-defined information about the exception. By
+default, this collection is empty.
+    
+   </td>
+  </tr>
+  <tr>
+   <td>
+    
+     InnerException
+    
+   </td>
+   <td>
+    
+     This read-only property can be used to obtain information about the
+previous exception(s) that caused the current exception to occur. The
+previous exception(s) are recorded by passing them into the constructor
+of the most current exception.
+    
+   </td>
+  </tr>
+  <tr>
+   <td>
+    
+     Message
+    
+   </td>
+   <td>
+    
+     This read-only property returns the textual description of a given error.
+The error message itself is set as a constructor parameter.
+    
+   </td>
+  </tr>
+  <tr>
+   <td>
+    
+     Source
+    
+   </td>
+   <td>
+    
+     This property gets or sets the name of the assembly, or the object, that
+     threw the current exception.
+    
+   </td>
+  </tr>
+  <tr>
+   <td>
+    
+     StackTrace
+    
+   </td>
+   <td>
+    
+     This read-only property contains a string that identifies the sequence of
+     calls that triggered the exception. As you might guess, this property is
+     very useful during debugging or if you wish to dump the error to an
+     external error log.
+    
+   </td>
+  </tr>
+  <tr>
+   <td>
+    TargetSite
+   </td>
+   <td>
+    This read-only property returns a MethodBase object, which describes
+numerous details about the method that threw the exception (invoking
+ToString() will identify the method by name).
+   </td>
+  </tr>
+</table>
+</body>
+    </html>
+
+ 
+   
+

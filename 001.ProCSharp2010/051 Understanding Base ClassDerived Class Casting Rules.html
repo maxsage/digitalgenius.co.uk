@@ -1,0 +1,166 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Understanding Base Class/Derived Class Casting Rules</h1>
+<p>Now that you can build a family of related class types, you need to learn the rules of class casting
+operations. To do so, let’s return to the Employees hierarchy created earlier in this chapter. Under the
+.NET platform, the ultimate base class in the system is System.Object. Therefore, everything “is-a”
+Object and can be treated as such. Given this fact, it is legal to store an instance of any type within an
+object variable:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">void</span> CastingExamples()
+{
+    <span class="rem">// A Manager "is-a" System.Object, so we can</span>
+    <span class="rem">// store a Manager reference in an object variable just fine.</span>
+    <span class="kwrd">object</span> frank = <span class="kwrd">new</span> Manager(<span class="str">"Frank Zappa"</span>, 9, 3000, 40000, <span class="str">"111-11-1111"</span>, 5);
+}</pre>
+<p>In the Employees example, Managers, SalesPerson, and PTSalesPerson types all extend Employee, so
+you can store any of these objects in a valid base class reference. Therefore, the following statements are
+also legal:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> CastingExamples()
+{
+    <span class="rem">// A Manager "is-a" System.Object, so we can</span>
+    <span class="rem">// store a Manager reference in an object variable just fine.</span>
+    <span class="kwrd">object</span> frank = <span class="kwrd">new</span> Manager(<span class="str">"Frank Zappa"</span>, 9, 3000, 40000, <span class="str">"111-11-1111"</span>, 5);
+
+    <span class="rem">// A Manager "is-an" Employee too.</span>
+    Employee moonUnit = <span class="kwrd">new</span> Manager(<span class="str">"MoonUnit Zappa"</span>, 2, 3001, 20000, <span class="str">"101-11-1321"</span>, 1);
+
+    <span class="rem">// A PTSalesPerson "is-a" SalesPerson.</span>
+    SalesPerson jill = <span class="kwrd">new</span> PTSalesPerson(<span class="str">"Jill"</span>, 834, 3002, 100000, <span class="str">"111-12-1119"</span>, 90);
+}</pre>
+<p>The first law of casting between class types is that when two classes are related by an “is-a”
+relationship, it is always safe to store a derived object within a base class reference. Formally, this is
+called an implicit cast, as “it just works” given the laws of inheritance. This leads to some powerful
+programming constructs. For example, assume you have defined a new method within your current
+Program class:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> GivePromotion(Employee emp)
+{
+    <span class="rem">// Increase pay...</span>
+    <span class="rem">// Give new parking space in company garage...</span>
+    
+    Console.WriteLine(<span class="str">"{0} was promoted!"</span>, emp.Name);
+}</pre>
+<p>Because this method takes a single parameter of type Employee, you can effectively pass any
+descendent from the Employee class into this method directly, given the "is-a" relationship:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> CastingExamples()
+{
+    <span class="rem">// A Manager "is-a" System.Object, so we can</span>
+    <span class="rem">// store a Manager reference in an object variable just fine.</span>
+    <span class="kwrd">object</span> frank = <span class="kwrd">new</span> Manager(<span class="str">"Frank Zappa"</span>, 9, 3000, 40000, <span class="str">"111-11-1111"</span>, 5);
+
+    <span class="rem">// A Manager "is-an" Employee too.</span>
+    Employee moonUnit = <span class="kwrd">new</span> Manager(<span class="str">"MoonUnit Zappa"</span>, 2, 3001, 20000, <span class="str">"101-11-1321"</span>, 1);
+    GivePromotion(moonUnit);
+
+    <span class="rem">// A PTSalesPerson "is-a" SalesPerson.</span>
+    SalesPerson jill = <span class="kwrd">new</span> PTSalesPerson(<span class="str">"Jill"</span>, 834, 3002, 100000, <span class="str">"111-12-1119"</span>, 90);
+    GivePromotion(jill);
+}</pre>
+<p>The previous code compiles given the implicit cast from the base class type (Employee) to the derived
+type. However, what if you also wanted to fire Frank Zappa (currently stored in a general System.Object
+reference)? If you pass the frank object directly into this method, you will find a compiler error as
+follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Error!</span>
+<span class="kwrd">object</span> frank = <span class="kwrd">new</span> Manager(<span class="str">"Frank Zappa"</span>, 9, 3000, 40000, <span class="str">"111-11-1111"</span>, 5);
+GivePromotion(frank);</pre>
+<p>The problem is that you are attempting to pass in a variable which Is-NOT-A Employee, but a more
+general System.Object. Given the fact that object is higher up the inheritance chain than Employee, the
+compiler will not allow for an implicit cast, in an effort to keep your code as type safe as possible.</p>
+<p>Even though you can figure out that the object reference is pointing to an Employee compatible
+class in memory, the compiler cannot, as that will not be known until runtime. You can satisfy the
+compiler by performing an explicit cast. This is the second law of casting: you can in such cases explicitly
+downcast using the C# casting operator. The basic template to follow when performing an explicit cast
+looks something like the following:</p>
+<pre class="csharpcode">(ClassIWantToCastTo)referenceIHave</pre>
+<p>Thus, to pass the object variable into the GivePromotion() method, you must author the following
+code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// OK!</span>
+GivePromotion((Manager)frank);</pre>
+<h2>The C# as Keyword</h2>
+  <p>Be very aware that explicit casting is evaluated at runtime, not compile time. Therefore, if you were to
+author the following C# code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Ack! You can't cast frank to a Hexagon, but this compiles fine!</span>
+Hexagon hex = (Hexagon)frank;</pre>
+<p>you would compile without error, but would receive a runtime error, or more formally a runtime
+exception. Chapter 7 will examine the full details of structured exception handling; however, it is worth
+pointing out for the time being when you are performing an explicit cast, you can trap the possibility of
+an invalid cast using the try and catch keywords (again, see Chapter 7 for full details):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Catch a possible invalid cast.</span>
+<span class="kwrd">try</span>
+{
+    Hexagon hex = (Hexagon)frank;
+}
+<span class="kwrd">catch</span> (InvalidCastException ex)
+{
+    Console.WriteLine(ex.Message);
+}</pre>
+<p>While this is a fine example of defensive programming, C# provides the as keyword to quickly
+determine at runtime whether a given type is compatible with another. When you use the as keyword,
+you are able to determine compatibility by checking against a null return value. Consider the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Use 'as' to test compatability.</span>
+Hexagon hex2 = frank <span class="kwrd">as</span> Hexagon;
+<span class="kwrd">if</span> (hex2 == <span class="kwrd">null</span>)
+    Console.WriteLine(<span class="str">"Sorry, frank is not a Hexagon..."</span>);</pre>
+<h2>The C# is Keyword</h2>
+  <p>Given that the GivePromotion() method has been designed to take any possible type derived from
+Employee, one question on your mind may be how this method can determine which derived type was
+sent into the method. On a related note, given that the incoming parameter is of type Employee, how can
+you gain access to the specialized members of the SalesPerson and Manager types?</p>
+<p>In addition to the as keyword, the C# language provides the is keyword to determine whether two
+items are compatible. Unlike the as keyword, however, the is keyword returns false, rather than a null
+reference, if the types are incompatible. Consider the following implementation of the GivePromotion()
+method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> GivePromotion(Employee emp)
+{
+    Console.WriteLine(<span class="str">"{0} was promoted!"</span>, emp.Name);
+
+    <span class="kwrd">if</span> (emp <span class="kwrd">is</span> SalesPerson)
+    {
+        Console.WriteLine(<span class="str">"{0} made {1} sale(s)!"</span>, emp.Name,
+            ((SalesPerson)emp).SalesNumber);
+        Console.WriteLine();
+    }
+    <span class="kwrd">if</span> (emp <span class="kwrd">is</span> Manager)
+    {
+        Console.WriteLine(<span class="str">"{0} had {1} stock options..."</span>, emp.Name,
+        ((Manager)emp).StockOptions);
+        Console.WriteLine();
+    }
+}</pre>
+<p>Here you are performing a runtime check to determine what the incoming base class reference is
+actually pointing to in memory. Once you determine whether you received a SalesPerson or Manager
+type, you are able to perform an explicit cast to gain access to the specialized members of the class. Also
+notice that you are not required to wrap your casting operations within a try/catch construct, as you
+know that the cast is safe if you enter either if scope, given your conditional check.</p>
+</body>
+    </html>
+
+ 
+   
+

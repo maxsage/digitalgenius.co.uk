@@ -1,0 +1,52 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>ASP.NET Web Sites and ASP.NET Web Applications</h1>
+    <p>When you are about to build a new ASP.NET web application, you will need to make a choice regard
+which of two project formats you will make use of, specifically an ASP.NET Web Site or an ASP.NET Web
+Application. Your choice of web project will control the way in which Visual Studio organizes and
+processes your web application starter files, the type of initial project files that are created, and how
+much control you have over the resulting composition of the compiled .NET assembly.</p>
+<p>When ASP.NET was first released with .NET 1.0, the only option was to build what is now termed a
+web application. Under this model, you have direct control over the name and location of the compiled
+output assembly. As well, under this model, the in-memory partial class which contains control
+declarations and configurations is not in memory but rather found within another physical C# code file.</p>
+<p>Web applications are useful when you are migrating older .NET 1.1 web sites into .NET 2.0 and
+higher projects. Web applications are also helpful when you wish to build a single Visual Studio 2010
+Solution that can contain multiple projects (for example, the web application and three related .NET
+code libraries). To build an ASP.NET Web Application, you activate the File &gt; New Project... menu item
+and pick a template from the Web category (Figure 32-21).</p>
+<img src="../Images/Figure32_21.png" alt="Figure 32-21" />
+<p><b>Figure 32-21</b> The Visual Studio Web Application Templates</p>
+<p>You have no need to do so now; however, assume you did create a new ASP.NET Web Application
+project. You will find a large number of starter files (which will make sense as you work through the
+chapters to come), but most importantly note that each ASP.NET web page is composed of three files;
+the *.aspx file (for markup), the *.Designer.cs file (for designer-generated C# code), and the primary
+C# code file (for your event handlers, custom methods and whatnot). See Figure 32-22.</p>
+<img src="../Images/Figure32_22.png" alt="Figure 32-22" />
+<p><b>Figure 32-22</b> Under the Web Application model, each web page is composed of three files</p>
+<p>In stark contrast, the Visual Studio 2010 ASP.NET Web Site project templates (found under the File
+&gt; New Web Site... menu option) hides the *.Designer.cs file in favor of an in-memory partial class.
+Moreover, ASP.NET Web Site projects support a number of specially named folders, such as App_Code.
+Within this folder, you can place any C# (or VB) code files that are not directly mapped to your web
+pages, and the runtime compiler will dynamically compile them as required. This is a great
+simplification to the normal act of building a dedicated .NET code library and referencing it in new
+projects. On a related note, a Web Site project can be pushed as-is to a production web server without
+the need to precompile the site as you would need to do with an ASP.NET Web Application.</p>
+<p>In this book, I’ll make use of ASP.NET Web Site project types, as they do offer some simplifications
+to the process of building web applications under the .NET platform. However, regardless of which
+approach you take, you will have access to the same overall programming model.</p>
+<p><b>Note</b> Because the Visual Studio 2010 ASP.NET project templates generate a great deal of starter code (master
+pages, content pages, script libraries, a log in page, etc), this book will opt to use the Blank web site template.
+However, once you have completed reading the ASP.NET chapters of this text, make sure you create a new
+ASP.NET web site project and examine this starter code first hand.</p>
+    </body></html>
+   
+      
+   

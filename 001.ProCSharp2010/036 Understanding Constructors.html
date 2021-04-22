@@ -1,0 +1,173 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+    <h1>Understanding Constructors</h1>
+    <p>Given that objects have state (represented by the values of an object's member variables), a programmer
+    will typically want to assign relevant values to the object's field data before use. Currently, the Car 
+    class demands that the petName and currSpeed fields be assigned on a field-by-field basis. For the 
+    current example, this is not too problematic, given that we have only two public data points. However, 
+    it is not uncommon for a class to have dozens of fields to contend with. Clearly, it would be undesirable 
+    to author 20 initialization statements to set 20 points of data!</p>
+    <p>Thankfully, C# supports the use of constructors, which allow the state of an object to be established #
+    at the time of creation. A constructor is a special method of a class that is called indirectly when 
+    creating an object using the new keyword. However, unlike a "normal" method, constructors never have 
+    a return value (not even void) and are always named identically to the class they are constructing.</p>
+    <h2>The Role of the Default Constructor</h2>
+    <p>Every C# class is provided with a freebee default constructor that you may redefine if need be. By
+    definition, a default constructor never takes arguments. After allocating the new object into memory, the
+    default constructor ensures that all field data of the class is set to an appropriate default value (see
+    Chapter 3 for information regarding the default values of C# data types).</p>
+    <p>If you are not satisfied with these default assignments, you may redefine the default constructor to
+    suit your needs. To illustrate, update your C# Car class as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Car
+{
+    <span class="rem">// The 'state' of the Car.</span>
+    <span class="kwrd">public</span> <span class="kwrd">string</span> petName;
+    <span class="kwrd">public</span> <span class="kwrd">int</span> currSpeed;
+
+    <span class="rem">// A custom default constructor.</span>
+    <span class="kwrd">public</span> Car()
+    {
+        petName = <span class="str">"Chuck"</span>;
+        currSpeed = 10;
+    }
+...
+}</pre>
+    <p>In this case, we are forcing all Car objects to begin life named Chuck at a rate of 10 mph. With this,
+    you are able to create a Car object set to these default values as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Class Types *****\n"</span>);
+
+    <span class="rem">// Invoking the default constructor.</span>
+    Car chuck = <span class="kwrd">new</span> Car();
+
+    <span class="rem">// Prints "Chuck is going 10 MPH."</span>
+    chuck.PrintState();
+...
+}</pre>
+    <h2>Defining Custom Constructors</h2>
+    <p>Typically, classes define additional constructors beyond the default. In doing so, you provide the object
+    user with a simple and consistent way to initialize the state of an object directly at the time of creation.
+    Ponder the following update to the Car class, which now supports a total of three constructors:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Car
+{
+    <span class="rem">// The 'state' of the Car.</span>
+    <span class="kwrd">public</span> <span class="kwrd">string</span> petName;
+    <span class="kwrd">public</span> <span class="kwrd">int</span> currSpeed;
+
+    <span class="rem">// A custom default constructor.</span>
+    <span class="kwrd">public</span> Car()
+    {
+        petName = <span class="str">"Chuck"</span>;
+        currSpeed = 10;
+    }
+
+    <span class="rem">// Here, currSpeed will receive the</span>
+    <span class="rem">// default value of an int (zero).</span>
+    <span class="kwrd">public</span> Car(<span class="kwrd">string</span> pn)
+    {
+        petName = pn;
+    }
+
+    <span class="rem">// Let caller set the full state of the Car.</span>
+    <span class="kwrd">public</span> Car(<span class="kwrd">string</span> pn, <span class="kwrd">int</span> cs)
+    {
+        petName = pn;
+        currSpeed = cs;
+    }
+...
+}</pre>
+    <p>Keep in mind that what makes one constructor different from another (in the eyes of the C#
+    compiler) is the number of and type of constructor arguments. Recall from Chapter 4, when you define a
+    method of the same name that differs by the number or type of arguments, you have overloaded the
+    method. Thus, the Car class has overloaded the constructor to provide a number of ways to create an
+    object at the time of declaration. In any case, you are now able to create Car objects using any of the
+    public constructors. For example:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Class Types *****\n"</span>);
+
+    <span class="rem">// Make a Car called Chuck going 10 MPH.</span>
+    Car chuck = <span class="kwrd">new</span> Car();
+    chuck.PrintState();
+
+    <span class="rem">// Make a Car called Mary going 0 MPH.</span>
+    Car mary = <span class="kwrd">new</span> Car(<span class="str">"Mary"</span>);
+    mary.PrintState();
+
+    <span class="rem">// Make a Car called Daisy going 75 MPH.</span>
+    Car daisy = <span class="kwrd">new</span> Car(<span class="str">"Daisy"</span>, 75);
+    daisy.PrintState();
+...
+}</pre>
+    <h2>The Default Constructor Revisited</h2>
+    <p>As you have just learned, all classes are provided with a free default constructor. Thus, if you 
+    insert a new class into your current project named Motorcycle, defined like so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Motorcycle
+{
+    <span class="kwrd">public</span> <span class="kwrd">void</span> PopAWheely()
+    {
+        Console.WriteLine(<span class="str">"Yeeeeeee Haaaaaeewww!"</span>);
+    }
+}</pre>
+   <p>you are able to create an instance of the Motorcycle type via the default constructor out of the box:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Class Types *****\n"</span>);
+    Motorcycle mc = <span class="kwrd">new</span> Motorcycle();
+    mc.PopAWheely();
+...
+}</pre>
+   <p>However, as soon as you define a custom constructor, the default constructor is silently removed from 
+   the class and is no longer available! Think of it this way: if you do not define a custom constructor, 
+   the C# compiler grants you a default in order to allow the object user to allocate an instance of your 
+   type with field data set to the correct default values. However, when you define a unique constructor, 
+   the compiler assumes you have taken matters into your own hands.</p>
+   <p>Therefore, if you wish to allow the object user to create an instance of your type with the default 
+   constructor, as well as your custom constructor, you must explicitly redefine the default. To this end, 
+   understand that in a vast majority of cases, the implementation of the default constructor of a class 
+   is intentionally empty, as all you require is the ability to create an object with default values. 
+   Consider the following update to the Motorcycle class:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Motorcycle
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> driverIntensity;
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> PopAWheely()
+    {
+        <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt;= driverIntensity; i++)
+        {
+            Console.WriteLine(<span class="str">"Yeeeeeee Haaaaaeewww!"</span>);
+        }
+    }
+
+    <span class="rem">// Put back the default constructor, which will</span>
+    <span class="rem">// set all data members to default vaules.</span>
+    <span class="kwrd">public</span> Motorcycle() {}
+    
+    <span class="rem">// Our custom constructor.</span>
+    <span class="kwrd">public</span> Motorcycle(<span class="kwrd">int</span> intensity)
+    { driverIntensity = intensity; }
+}</pre>
+</body>
+</html>

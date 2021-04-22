@@ -1,0 +1,79 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Understanding WPF's Graphical Rendering Services</h1>
+    <p>WPF uses a particular flavor of graphical rendering that goes by the term retained-mode graphics. Simply
+put, this means that as you are using XAML or procedural code to generate graphical renderings, it is the
+responsibility of WPF to persist these visual items and ensure they are correctly redrawn and refreshed
+in an optimal manner. Thus, when you render graphical data, it is always present, even when the end
+user hides the image by resizing or minimizing the window, by covering the window with another, and
+so forth.</p>
+<p>In stark contrast, previous Microsoft graphical rendering APIs (including Windows Form’s GDI+)
+were immediate-mode graphical systems. In this model, it was up to the programmer to ensure that
+rendered visuals were correctly “remembered” and updated during the life of the application. For
+example, in a Windows Forms application, rendering a shape such as a rectangle involves handling the
+Paint event (or overriding the virtual OnPaint() method), obtaining a Graphics object to draw the
+rectangle and, most important, adding the infrastructure to ensure that the image was persisted when
+the user resized the window (for example, creating member variables to represent the position of the
+rectangle and calling Invalidate() throughout your program).</p>
+<p>The shift from immediate-mode to retained-mode graphics is indeed a good thing, as programmers
+have far less grungy graphics code to author and maintain. However, I’m not suggesting that the WPF
+graphics API is completely different from earlier rendering toolkits. For example, like GDI+, WPF
+supports various brush types and pen objects, techniques for hit-testing, clipping regions, graphical
+transformations, and so on. So, if you currently have a background in GDI+ (or C/C++-based GDI), you
+already know a good deal about how to perform basic renderings under WPF.</p>
+<h2>WPF Graphical Rendering Options</h2>
+<p>As with other aspects of WPF development, you have a number of choices regarding how to perform
+your graphical rendering, beyond the decision to do so via XAML or procedural C# code (or perhaps a
+combination of both). Specifically, WPF provides three distinct ways to render graphical data:</p>
+<ul>
+ <li><b>Shapes:</b> WPF provides the System.Windows.Shapes namespace, which defines a
+        small number of classes for rendering 2D geometric objects (rectangles, ellipses,
+        polygons, etc.). While these types are very simple to use, and very powerful, they
+        do come with a fair amount of memory overhead if used with reckless abandon.</li>
+ <li><b>Drawings and Geometries:</b> The WPF API provides a second way to render
+        graphical data, using descendants from the System.Windows.Media.Drawing
+        abstract class. Using classes such as GeometryDrawing or ImageDrawing (in addition
+        to various geometry objects) you can render graphical data in a more lightweight
+        (but less feature-rich) manner.</li>
+ <li><p><b>Visuals:</b> The fastest and most lightweight way to render graphical data under WPF
+        is using the visual layer, which is accessible only through C# code. Using
+        descendants of System.Windows.Media.Visual, you can speak directly to the WPF
+        graphical subsystem.</li>
+</ul>
+<p>The reason for offering different ways to do the exact same thing (i.e., render graphical data) has to
+do with memory use and ultimately application performance. Because WPF is such a graphically
+intensive system, it is not unreasonable for an application to render hundreds or even thousands of
+different images on a window’s surface, and the choice of implementation (shapes, drawings, or visuals)
+could have a huge impact.</p>
+<p>Do understand that when you build a WPF application, chances are good you’ll use all three
+options. As a rule of thumb, if you need a modest amount of interactive graphical data that can be
+manipulated by the user (receive mouse input, display tooltips, etc), you’ll want to use members in the
+System.Windows.Shapes namespace.</p>
+<p>In contrast, drawings and geometries are more appropriate when you need to model complex,
+generally non-interactive, vector-based graphical data using XAML or C#. While drawings and
+geometries can still respond to mouse events, hit-testing, and drag-and-drop operations, you will
+typically need to author more code to do so.</p>
+<p>Last but not least, if you require the fastest possible way to render massive amounts of graphical
+data, the visual layer is the way to go. For example, let’s say you are using WPF to build a scientific
+application that can plot out thousands of points of data. Using the visual layer, you can render the plot
+points in the most optimal way possible. As you will see later in this chapter, the visual layer is only
+accessible via C# code, and is not XAML-friendly.</p>
+<p>No matter which approach you take (shapes, drawings and geometries, or visuals) you will make use
+of common graphical primitives such as brushes (which fill interiors), pens (which draw exteriors) and
+transformation objects (which, well, transform the data). To begin the journey, we will begin working
+with the classes of System.Windows.Shapes.</p>
+<p><b>Note</b> WPF also ships with a full-blown API that can be used to render and manipulate 3D graphics, which is not
+addressed in this edition of the text. Please consult the .NET Framework 4.0 SDK documentation if you are
+interested in incorporating 3D graphics in your applications.</p>
+
+    </body>
+    </html>
+      
+   

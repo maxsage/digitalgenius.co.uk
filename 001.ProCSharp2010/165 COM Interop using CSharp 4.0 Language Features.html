@@ -1,0 +1,216 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>COM Interop using C# 4.0 Language Features</h1>
+<p>Assume you have a Windows Form GUI application (named ExportDataToOfficeApp), whose main Form
+defines a DataGridView named dataGridCars. This same form has two Button controls, one of which will
+bring up a dialog box to insert a new row of data to the grid, and the other of which needs to export the
+grid’s data to an Excel spreadsheet. Given the fact that the Excel application exposes a programming
+model via COM, you can hook into this object model using the interoperability layer. Figure 18-9 shows
+the completed GUI.</p>
+<img src="../Images/Figure18_09.png" alt="Figure 18-9" />
+<p><b>Figure 18-9</b> The GUI of the COM interop example</p>
+<p>You will fill the grid with some initial data by handling the form’s Load event as so (the Car class used
+as the type parameter for the generic List&lt;T&gt; is a simple class in the project with Color, Make, and
+PetName properties):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> MainForm : Form
+{
+    List&lt;Car&gt; carsInStock = <span class="kwrd">null</span>;
+
+    <span class="kwrd">public</span> MainForm()
+    {
+        InitializeComponent();
+    }
+
+    <span class="kwrd">private</span> <span class="kwrd">void</span> MainForm_Load(<span class="kwrd">object</span> sender, EventArgs e)
+    {
+        carsInStock = <span class="kwrd">new</span> List&lt;Car&gt;
+        {
+            <span class="kwrd">new</span> Car {Color=<span class="str">"Green"</span>, Make=<span class="str">"VW"</span>, PetName=<span class="str">"Mary"</span>},
+            <span class="kwrd">new</span> Car {Color=<span class="str">"Red"</span>, Make=<span class="str">"Saab"</span>, PetName=<span class="str">"Mel"</span>},
+            <span class="kwrd">new</span> Car {Color=<span class="str">"Black"</span>, Make=<span class="str">"Ford"</span>, PetName=<span class="str">"Hank"</span>},
+            <span class="kwrd">new</span> Car {Color=<span class="str">"Yellow"</span>, Make=<span class="str">"BMW"</span>, PetName=<span class="str">"Davie"</span>}
+        };
+        UpdateGrid();
+    }
+
+    <span class="kwrd">private</span> <span class="kwrd">void</span> UpdateGrid()
+    {
+        <span class="rem">// Reset the source of data.</span>
+        dataGridCars.DataSource = <span class="kwrd">null</span>;
+        dataGridCars.DataSource = carsInStock;
+    }
+}</pre>
+<p>The Click event for the “Add” button will launch a custom dialog box to allow the user to enter new
+data for a Car object, and if they click the OK button, the data is added to the grid. I won’t bother to show
+the code behind the dialog box, so please see the provided solution for details. If you are following
+however, include the NewCarDialog.cs, NewCarDialog.designer.cs and NewCarDialog.resx files into your
+project (all of which are part of the code download for this text). Once you have done so, implement the
+“Add” button click hander as so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> btnAddNewCar_Click(<span class="kwrd">object</span> sender, EventArgs e)
+{
+    NewCarDialog d = <span class="kwrd">new</span> NewCarDialog();
+    <span class="kwrd">if</span> (d.ShowDialog() == DialogResult.OK)
+    {
+        <span class="rem">// Add new car to list.</span>
+        carsInStock.Add(d.theCar);
+        UpdateGrid();
+    }
+}</pre>
+<p>The Click event handler for the , “Export” button is the heart of this example. Using the .NET tab of
+the Add Reference… dialog box, add a reference to the Microsoft.Office.Interop.Excel.dll primary
+interop assembly (as shown previously in Figure 18-7). Add the following namespace alias to the form’s
+primary code file. Be aware that this is not mandatory to define an alias when interacting with COM
+libraries. However, by doing so, you have a handy qualifier for all of the imported COM objects, which is
+very handy if some of these COM objects have names which would clash with your .NET types:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Create an alias to the Excel object model.</span>
+<span class="kwrd">using</span> Excel = Microsoft.Office.Interop.Excel;</pre>
+<p>Implement this button Click event hander to call a private helper function named ExportToExcel():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> btnExportToExcel_Click(<span class="kwrd">object</span> sender, EventArgs e)
+{
+    ExportToExcel(carsInStock);
+}</pre>
+<p>Because you imported the COM library using Visual Studio 2010, the PIA has been automatically
+configured so that the used metadata will be embedded into the .NET application (recall the role of the
+Embed Interop Types property). Therefore, all COM Variants are realized as dynamic data types.
+Furthermore, because you are compiling your code with C# 4.0, you can make use of optional arguments
+and named arguments. This being said consider the following implementation of ExportToExcel():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ExportToExcel(List&lt;Car&gt; carsInStock)
+{
+    <span class="rem">// Load up Excel, then make a new empty workbook.</span>
+    Excel.Application excelApp = <span class="kwrd">new</span> Excel.Application();
+    excelApp.Workbooks.Add();
+
+    <span class="rem">// This example uses a single workSheet.</span>
+    Excel._Worksheet workSheet = excelApp.ActiveSheet;
+
+    <span class="rem">// Establish column headings in cells.</span>
+    workSheet.Cells[1, <span class="str">"A"</span>] = <span class="str">"Make"</span>;
+    workSheet.Cells[1, <span class="str">"B"</span>] = <span class="str">"Color"</span>;
+    workSheet.Cells[1, <span class="str">"C"</span>] = <span class="str">"Pet Name"</span>;
+
+    <span class="rem">// Now, map all data in List&lt;Car&gt; to the cells of the spread sheet.</span>
+    <span class="kwrd">int</span> row = 1;
+    <span class="kwrd">foreach</span> (Car c <span class="kwrd">in</span> carsInStock)
+    {
+        row++;
+        workSheet.Cells[row, <span class="str">"A"</span>] = c.Make;
+        workSheet.Cells[row, <span class="str">"B"</span>] = c.Color;
+        workSheet.Cells[row, <span class="str">"C"</span>] = c.PetName;
+    }
+
+    <span class="rem">// Give our table data a nice look and feel.</span>
+    workSheet.Range[<span class="str">"A1"</span>].AutoFormat(
+        Excel.XlRangeAutoFormat.xlRangeAutoFormatClassic2);
+
+    <span class="rem">// Save the file, quit Excel and display message to user.</span>
+    workSheet.SaveAs(<span class="kwrd">string</span>.Format(<span class="str">@"{0}\Inventory.xlsx"</span>, Environment.CurrentDirectory));
+    excelApp.Quit();
+    MessageBox.Show(<span class="str">"The Inventory.xslx file has been saved to your app folder"</span>,
+        <span class="str">"Export complete!"</span>);
+}</pre>
+<p>This method begins by loading Excel into memory, however you won’t see it visible on your
+computer desktop. For this application, you are only interested in using the internal Excel object model.
+However, if you do want to actually display the UI of Excel, update your method with this additional line
+of code:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ExportToExcel(List&lt;Car&gt; carsInStock)
+{
+    <span class="rem">// Load up Excel, then make a new empty workbook.</span>
+    Excel.Application excelApp = <span class="kwrd">new</span> Excel.Application();
+
+    <span class="rem">// Go ahead and make Excel visible on the computer.</span>
+    excelApp.Visible = <span class="kwrd">true</span>;
+...
+}</pre>
+<p>Once you create an empty worksheet, you add three columns which are named similar to the
+properties of the Car class. After this point, you fill the cells with the data of the List&lt;Car&gt;, and save your
+file under the (hard coded) name Inventory.xlsx.</p>
+<p>At this point if you run your application, add a few new records, and export your data to Excel, you
+will then be able to open up the Inventory.xlsx file, which will be saved to the \bin\Debug folder of your
+Windows Forms application. Figure 18-10 shows a possible export.</p>
+<img src="../Images/Figure18_10.png" alt="Figure 18-10" />
+<p><b>Figure 18-10</b> Exporting your data to an Excel file</p>
+<h2>COM interop without C# 4.0 Language Features</h2>
+<p>Now, if you were to select the Microsoft.Office.Interop.Excel.dll assembly (in Solution Explorer), and
+set its Embed Interop Type property to False, you would have new compiler errors, as the COM Variant
+data is no longer realized as dynamic data, but as System.Object variables. This will require you to
+update ExportToExcel() with a number of casting operations. As well, if this project were compiled
+under Visual Studio 2008, you no longer have the benefit of optional/named parameters, and must
+explicitly marked all missing arguments. Here is a version of the ExportToExcel() method which would
+be required in earlier versions of C#:</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> ExportToExcel2008(List&lt;Car&gt; carsInStock)
+{
+    Excel.Application excelApp = <span class="kwrd">new</span> Excel.Application();
+
+    <span class="rem">// Must mark missing params!</span>
+    excelApp.Workbooks.Add(Type.Missing);
+
+    <span class="rem">// Must cast Object as _Worksheet!</span>
+    Excel._Worksheet workSheet = (Excel._Worksheet)excelApp.ActiveSheet;
+
+    <span class="rem">// Must cast each Object as Range object then call</span>
+    <span class="rem">// call low level Value2 property!</span>
+    ((Excel.Range)excelApp.Cells[1, <span class="str">"A"</span>]).Value2 = <span class="str">"Make"</span>;
+    ((Excel.Range)excelApp.Cells[1, <span class="str">"B"</span>]).Value2 = <span class="str">"Color"</span>;
+    ((Excel.Range)excelApp.Cells[1, <span class="str">"C"</span>]).Value2 = <span class="str">"Pet Name"</span>;
+
+    <span class="kwrd">int</span> row = 1;
+    <span class="kwrd">foreach</span> (Car c <span class="kwrd">in</span> carsInStock)
+    {
+        row++;
+        <span class="rem">// Must cast each Object as Range and call low level Value2 prop!</span>
+        ((Excel.Range)workSheet.Cells[row, <span class="str">"A"</span>]).Value2 = c.Make;
+        ((Excel.Range)workSheet.Cells[row, <span class="str">"B"</span>]).Value2 = c.Color;
+        ((Excel.Range)workSheet.Cells[row, <span class="str">"C"</span>]).Value2 = c.PetName;
+    }
+
+    <span class="rem">// Must call get_Range method and then specify all missing args!.</span>
+    excelApp.get_Range(<span class="str">"A1"</span>, Type.Missing).AutoFormat(
+        Excel.XlRangeAutoFormat.xlRangeAutoFormatClassic2,
+        Type.Missing, Type.Missing, Type.Missing,
+        Type.Missing, Type.Missing, Type.Missing);
+
+    <span class="rem">// Must specify all missing optional args!</span>
+    workSheet.SaveAs(<span class="kwrd">string</span>.Format(<span class="str">@"{0}\Inventory.xlsx"</span>, Environment.CurrentDirectory),
+        Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing,
+        Type.Missing, Type.Missing, Type.Missing);
+
+    excelApp.Quit();
+    MessageBox.Show(<span class="str">"The Inventory.xslx file has been saved to your app folder"</span>,
+        <span class="str">"Export complete!"</span>);
+}</pre>
+<p>While the end result is identical, as I am sure you agree, this version of the method is much more
+verbose. As well, since earlier versions of C# (prior to .NET 4.0, to be specific) don’t allow you to embedd
+the COM interop data, you would find that your output directory now contains local copies of a number
+of interop assemblies, which you would be required to ship to the end user’s machine (Figure 18-11).</p>
+<img src="../Images/Figure18_11.png" alt="Figure 18-11" />
+<p>Figure 18-11. Not embedding interop data requires you to ship standalone interoperability assemblies
+That wraps up our look at the C# dynamic keyword and the DLR. Hopefully you can see how these
+new .NET 4.0 features can simplify complex programming tasks, and (perhaps more importantly)
+understand the trade offs. When you opt into dynamic data, you do lose a good amount of type safety,
+and your code base is prone to many more runtime errors.</p>
+    <p><b>Source Code</b> The ExportDataToOfficeApp project is included under the Chapter 18 subdirectory.</p>
+    </body>
+    </html>
+      
+   

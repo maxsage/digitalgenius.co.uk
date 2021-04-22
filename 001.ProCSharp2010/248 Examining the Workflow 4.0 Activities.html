@@ -1,0 +1,441 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Examining the Workflow 4.0 Activities</h1>
+<p>Recall that the purpose of WF is to allow you to model a business process in a declarative manner, which
+is then executed by the WF runtime engine. In the vernacular of WF, a business process is composed of
+any number of activities. Simply put, a WF activity is an atomic “step” in the overall process. When you
+create a new workflow application, you will find the Toolbox contains iconic representations of the builtin
+activities grouped by category.</p>
+<p>These out-of-the-box activities are used to model your business process. Each activity in the
+Toolbox maps to a real class within the System.Activities.dll assembly (most often contained within
+the System.Activities.Statements namespace). You’ll make use of several of these baked-in activities
+over the course of this chapter; however, here is a walkthrough of many of these default activities. As
+always, consult the .NET Framework 4.0 SDK documentation for full details.</p>
+<h2>Control Flow Activities</h2>
+<p>The first category of activities in the toolbox allow you to represent looping and decision tasks in a larger
+workflow. Their usefulness should be easy to understand, given that we do similar tasks in C# code quite
+often. In Table 26-1, notice that some of these control flow activities allow for parallel processing of
+activities using the Task Parallel Library behind the scenes (see Chapter 19).</p>
+<p><b>Table 26-1.</b> The control flow activities of WF 4.0</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Activities
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    DoWhile
+   </td>
+   <td>
+    A looping activity that executes contained activities at least
+once, until a condition is no longer true.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ForEach&lt;T&gt;
+   </td>
+   <td>
+    Executes an activity action once for each value provided in
+the ForEach&lt;T&gt;.Values collection.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    If
+   </td>
+   <td>
+    Models an If-Then-Else condition.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Parallel
+   </td>
+   <td>
+    An activity that executes all child activities simultaneously
+and asynchronously.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ParallelForEach&lt;T&gt;
+   </td>
+   <td>
+    Enumerates the elements of a collection and executes each
+element of the collection in parallel.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Pick
+   </td>
+   <td>
+    Provides event-based control flow modeling.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    PickBranch
+   </td>
+   <td>
+    A potential path of execution within a parent Pick activity.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Sequence
+   </td>
+   <td>
+    Executes a set of child activities sequentially.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Switch&lt;T&gt;
+   </td>
+   <td>
+    Selects one choice from a number of activities to execute,
+based on the value of a given expression of the type
+specified in this object’s type parameter.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    While
+   </td>
+   <td>
+    Executes a contained workflow element while a condition
+evaluates to true.
+   </td>
+  </tr>
+ </table>
+<h2>Flowchart Activities</h2>
+<p>Next are the flowchart activities, which are actually quite important given that the Flowchart activity will
+very often be the first item you place on your WF designer. The concept of a flow chart workflow is new
+with .NET 4.0. It allows you to build a workflow using the well known flow chart model, where the
+execution of the workflow is based on numerous branching paths, each of which is based on the truth or
+falsity of some internal condition. Table 26-2 documents each member of this activity set.</p>
+<p><b>Table 26-2.</b> The flowchart activities of WF 4.0</p>
+<table class="gridtable">
+   <tr>
+   <th>
+    <p>Activities</p>
+   </th>
+   <th>
+    <p>Meaning in Life</p>
+   </th>
+  </tr>
+  <tr>
+   <td>
+    <p>Flowchart</p>
+   </td>
+   <td>
+    <p>Models workflows using the familiar flowchart paradigm.
+This is often the very first activity you will place on a new
+designer.</p>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <p>FlowDecision</p>
+   </td>
+   <td>
+    <p>A node that provides the ability to model a conditional
+node with two possible outcomes.</p>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <p>FlowSwitch&lt;T&gt;</p>
+   </td>
+   <td>
+    <p>A node that allows modeling a switch construct, with one
+expression and one outcome for each match.</p>
+   </td>
+  </tr>
+</table>
+<h2>Messaging Activities</h2>
+<p>A workflow can easily invoke members of an external XML web service or WCF service, as well as be
+notified by an external service using messaging activities. Because these activities are very closely related
+to WCF development, they have been packaged up in a dedicated .NET assembly,
+System.ServiceModel.Activities.dll. Within this library, you will find an identically named namespace
+defining the core activities seen in Table 26-3.</p>
+<p><b>Table 26-3.</b> The messaging activities of WF 4.0</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Activities
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    CorrelationScope
+   </td>
+   <td>
+    Used to manage child message activities.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    InitializeCorrelation  
+ </td>
+ <td>
+  Initializes correlation without sending or receiving a
+message.
+ </td>
+  </tr>
+  <tr>
+   <td>
+    Receive  
+ </td>
+ <td>
+  Receives a message from a WCF service.
+ </td>
+  </tr>
+  <tr>
+   <td>
+    Send  
+ </td>
+ <td>
+  Sends a message to a WCF service.
+ </td>
+  </tr>
+  <tr>
+   <td>
+    SendAndReceiveReply  
+ </td>
+ <td>
+  Sends a message to a WCF service and captures the return
+value.
+ </td>
+  </tr>
+  <tr>
+   <td>
+    TransactedReceiveScope  
+ </td>
+ <td>
+  An activity that enables you to flow a transaction into a
+workflow or dispatcher-created server side transactions.
+ </td>
+  </tr>
+</table>
+<p>The most common messaging activities are Send and Receive, which allow you to communicate with
+external XML web services or WCF services.</p>
+<h2>The Runtime and Primitives Activities</h2>
+<p>The next two categories in the toolbox, Runtime and Primitives, allow you to build a workflow which
+makes calls to the workflow runtime (in the case of Persist and TerminateWorkflow) and performs
+common operations such as push text to an output stream or invoke a method on a .NET object.
+Consider Table 26-4.</p>
+<p><b>Table 26-4.</b> The runtime and primitive activities of WF 4.0</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Activities
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Persist
+   </td>
+   <td>
+    Requests that a workflow instance persist its state into a
+database using the WF persistence service.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    TerminateWorkflow
+   </td>
+   <td>
+    Terminates the running workflow instance, raises the
+WorkflowApplication.Completed event in the host, and
+reports error information. Once the workflow is terminated,
+it cannot be resumed.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Assign
+   </td>
+   <td>
+    Allows you to set properties on an activity using the
+assignment values you defined via the workflow designer.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Delay
+   </td>
+   <td>
+    Forces a workflow to stop for a fixed amount of time.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    InvokeMethod
+   </td>
+   <td>
+    Calls a method of a specified object or type.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    WriteLine
+   </td>
+   <td>
+    Writes a specified string to a specified TextWriter derived
+type. By default, this will be the standard output stream
+(a.k.a. the console); however, you can configure other
+streams , such as a FileStream.
+   </td>
+  </tr>
+</table>
+<p>InvokeMethod is maybe the most interesting and useful activity of this set because it allows you to
+call methods of .NET classes in a declarative manner. You can also configure InvokeMethod to hold onto
+any return value send from the method you call. TerminateWorkflow can also be helpful when you need
+to account for a point of no return. If the workflow instance hits this activity, it will raise the Competed
+event which can be caught in the host, just like you did in the first example.</p>
+<h2>The Transaction Activities</h2>
+<p>When you are building a workflow, you might need to ensure that a group of activities work in an atomic
+manner, meaning they must all succeed or all fail as a collective group. Even if the activities in question
+are not directly working with a relational database, the core activities seen in Table 26-5 allow you to add
+a transactional scope into a workflow.</p>
+<p><b>Table 26-5.</b> The transaction activities of WF 4.0</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Activities
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    CancellationScope
+   </td>
+   <td>
+    Associates cancellation logic within a main path of
+execution.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    CompensableActivity
+   </td>
+   <td>
+    An activity that supports compensation of its child
+activities.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    TransactionScope
+   </td>
+   <td>
+    An activity that demarcates a transaction boundary.
+   </td>
+  </tr>
+</table>
+<h2>The Collection and Error Handling Activities</h2>
+<p>The final two categories to consider in this introductory chapter allow you to declaratively manipulate
+generic collections and respond to runtime exceptions. The collection activities are great when you need
+to manipulate objects which represent business data (such as purchase orders, medical information
+objects, or order tracking) on the fly in XAML. Error activities, on the other hand, allow you to essentially
+author try/catch/throw logic within a workflow. Table 26-6 documents this final set of WF 4.0 activities.</p>
+<p><b>Table 26-6.</b> The collection and error handling activities of WF 4.0</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Activities
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    AddToCollection&lt;T&gt;
+   </td>
+   <td>
+    Adds an item to a specified collection.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ClearCollection&lt;T&gt;
+   </td>
+   <td>
+    Clears a specified collection of all items.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ExistsInCollection&lt;T&gt;
+   </td>
+   <td>
+    Indicates whether a given item is present in a given
+collection.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    RemoveFromCollection&lt;T&gt;
+   </td>
+   <td>
+    Removes an item from a specified collection.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Rethrow
+   </td>
+   <td>
+    Throws a previously thrown exception from within a Catch
+activity.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Throw
+   </td>
+   <td>
+    Throws an exception.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    TryCatch
+   </td>
+   <td>
+    Contains workflow elements to be executed by the
+workflow runtime within an exception handling block.
+   </td>
+  </tr>
+</table>
+<p>OK! Now that we have seen many of the default activities at a high level, we can start to build some
+more interesting workflows that make use of them. Along the way, you will learn about the two key
+activities that typically function as the root of your workflow, Flowchart and Sequence.</p>
+    </body>
+    </html>
+ 
+      
+   

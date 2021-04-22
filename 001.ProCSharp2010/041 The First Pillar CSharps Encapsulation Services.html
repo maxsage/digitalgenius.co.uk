@@ -1,0 +1,585 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+    <h1>The First Pillar: C#'s Encapsulation Services</h1>
+    <p>The concept of encapsulation revolves around the notion that an object's internal data should not be
+    directly accessible from an object instance. Rather, if the caller wants to alter the state of an object, the
+    user does so indirectly using accessor (i.e., "getter") and mutator (i.e., "setter") methods. In C#,
+    encapsulation is enforced at the syntactic level using the public, private, internal, and protected
+    keywords. To illustrate the need for encapsulation services, assume you have created the following class
+    definition:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// A class with a single public field.</span>
+<span class="kwrd">class</span> Book
+{
+    <span class="kwrd">public</span> <span class="kwrd">int</span> numberOfPages;
+}</pre>
+    <p>The problem with public data is that the data itself has no ability to "understand" whether the
+    current value to which they are assigned is valid with regard to the current business rules of the system.
+    As you know, the upper range of a C# int is quite large (2,147,483,647). Therefore, the compiler allows
+    the following assignment:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Humm. That is one heck of a mini-novel!</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Book miniNovel = <span class="kwrd">new</span> Book();
+    miniNovel.numberOfPages = 30000000;
+}</pre>
+    <p>Although you have not overflowed the boundaries of an int data type, it should be clear that a mininovel
+    with a page count of 30,000,000 pages is a bit unreasonable. As you can see, public fields do not
+    provide a way to trap logical upper (or lower) limits. If your current system has a business rule that states
+    a book must be between 1 and 1,000 pages, you are at a loss to enforce this programmatically. Because of
+    this, public fields typically have no place in a production-level class definition.</p>
+    <p><b>Note</b> To be more specific, members of a class that represent an object's state should not be marked as public.
+    As you will see later in this chapter, public constants and public read-only fields are a-okay.</p>
+    <p>Encapsulation provides a way to preserve the integrity of an object's state data. Rather than defining
+    public fields (which can easily foster data corruption), you should get in the habit of defining private
+    data, which is indirectly manipulated using one of two main techniques:</p>
+    <ul>
+        <li>Define a pair of accessor (get) and mutator (set) methods.</li>
+        <li>Define a .NET property.</li>
+    </ul>
+    <p>Whichever technique you choose, the point is that a well-encapsulated class should protect its data
+    and hide the details of how it operates from the prying eyes of the outside world. This is often termed
+    black box programming. The beauty of this approach is that an object is free to change how a given
+    method is implemented under the hood. It does this without breaking any existing code making use of it,
+    provided that the parameters and return values of the method remain constant.</p>
+    <h2>Encapsulation Using Traditional Accessors and Mutators</h2>
+    <p>Over the remaining pages in this chapter, you will be building a fairly complete class that models a
+    general employee. To get the ball rolling, create a new Console Application named EmployeeApp and
+    insert a new class file (named Employee.cs) using the Project ? Add class menu item. Update the
+    Employee class with the following fields, methods, and constructors:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Employee
+{
+    <span class="rem">// Field data.</span>
+    <span class="kwrd">private</span> <span class="kwrd">string</span> empName;
+    <span class="kwrd">private</span> <span class="kwrd">int</span> empID;
+    <span class="kwrd">private</span> <span class="kwrd">float</span> currPay;
+
+    <span class="rem">// Constructors.</span>
+    <span class="kwrd">public</span> Employee() {}
+    <span class="kwrd">public</span> Employee(<span class="kwrd">string</span> name, <span class="kwrd">int</span> id, <span class="kwrd">float</span> pay)
+    {
+        empName = name;
+        empID = id;
+        currPay = pay;
+    }
+
+    <span class="rem">// Methods.</span>
+    <span class="kwrd">public</span> <span class="kwrd">void</span> GiveBonus(<span class="kwrd">float</span> amount)
+    {
+        currPay += amount;
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> DisplayStats()
+    {
+        Console.WriteLine(<span class="str">"Name: {0}"</span>, empName);
+        Console.WriteLine(<span class="str">"ID: {0}"</span>, empID);
+        Console.WriteLine(<span class="str">"Pay: {0}"</span>, currPay);
+    }
+}</pre>
+    <p>Notice that the fields of the Employee class are currently defined using the private keyword. Given
+    this, the empName, empID, and currPay fields are not directly accessible from an object variable:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    <span class="rem">// Error! Cannot directly access private members</span>
+    <span class="rem">// from an object!</span>
+    Employee emp = <span class="kwrd">new</span> Employee();
+    emp.empName = <span class="str">"Marv"</span>;
+}</pre>
+    <p>If you want the outside world to interact with a worker's full name, tradition dictates defining an
+    accessor (get method) and a mutator (set method). The role of a 'get' method is to return to the caller the
+    current value of the underlying state data. A 'set' method allows the caller to change the current value of
+    the underlying state data, so long as the defined business rules are met.</p>
+    <p>To illustrate, let's encapsulate the empName field. To do so, add the following public methods to the
+    Employee class. Notice that the SetName() method performs a test on the incoming data, to ensure the
+    string is 15 characters or less. If it is not, an error prints to the console and returns without making a
+    change to the empName field:</p>
+    <p><b>Note</b> If this were a production level class, you would also make to check the character length for an employee's
+    name within your constructor logic. Ignore this detail for the time being, you will clean up this code in just a bit
+    when you examine .NET property syntax.</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Employee
+{
+    <span class="rem">// Field data.</span>
+    <span class="kwrd">private</span> <span class="kwrd">string</span> empName;
+    ...
+    <span class="rem">// Accessor (get method)</span>
+    <span class="kwrd">public</span> <span class="kwrd">string</span> GetName()
+    {
+        <span class="kwrd">return</span> empName;
+    }
+
+    <span class="rem">// Mutator (set method)</span>
+    <span class="kwrd">public</span> <span class="kwrd">void</span> SetName(<span class="kwrd">string</span> name)
+    {
+        <span class="rem">// Do a check on incoming value</span>
+        <span class="rem">// before making assignment.</span>
+        <span class="kwrd">if</span> (name.Length &gt; 15)
+            Console.WriteLine(<span class="str">"Error! Name must be less than 16 characters!"</span>);
+        <span class="kwrd">else</span>
+            empName = name;
+    }
+}</pre>
+    <p>This technique requires two uniquely named methods to operate on a single data point. To test your
+    new methods, update your Main() method as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Encapsulation *****\n"</span>);
+    Employee emp = <span class="kwrd">new</span> Employee(<span class="str">"Marvin"</span>, 456, 30000);
+    emp.GiveBonus(1000);
+    emp.DisplayStats();
+
+    <span class="rem">// Use the get/set methods to interact with the object's name.</span>
+    emp.SetName(<span class="str">"Marv"</span>);
+    Console.WriteLine(<span class="str">"Employee is named: {0}"</span>, emp.GetName());
+    Console.ReadLine();
+}</pre>
+    <p>Because of the code in your SetName() method, if you attempted to specify more than 15 characters
+    (see below), you would find the hard-coded error message print to the console:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Encapsulation *****\n"</span>);
+...
+    <span class="rem">// Longer than 15 characters! Error will print to console.</span>
+    Employee emp2 = <span class="kwrd">new</span> Employee();
+    emp2.SetName(<span class="str">"Xena the warrior princess"</span>);
+
+    Console.ReadLine();
+}</pre>
+    <p>So far so good. You have encapsulated the private empName field using two methods named
+    GetName() and SetName(). If you were to further encapsulate the data in the Employee class, you would
+    need to add various additional methods (GetID(), SetID(), GetCurrentPay(), SetCurrentPay() for
+    example). Each of the mutator methods could have within it various lines of code to check for additional
+    business rules. While this could certainly be done, the C# language has a useful alternative notation to
+    encapsulate class data.</p>
+    <h2>Encapsulation Using .NET Properties</h2>
+    <p>Although you can encapsulate a piece of field data using traditional get and set methods, .NET languages
+    prefer to enforce data encapsulation state data using properties. First of all, understand that properties
+    are just a simplification for "real" accessor and mutator methods. Therefore, as a class designer, you are
+    still able to perform any internal logic necessary before making the value assignment (e.g., uppercase the
+    value, scrub the value for illegal characters, check the bounds of a numerical value, and so on).
+    Here is the updated Employee class, now enforcing encapsulation of each field using property syntax
+    rather than traditional get and set methods:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Employee
+{
+    <span class="rem">// Field data.</span>
+    <span class="kwrd">private</span> <span class="kwrd">string</span> empName;
+    <span class="kwrd">private</span> <span class="kwrd">int</span> empID;
+    <span class="kwrd">private</span> <span class="kwrd">float</span> currPay;
+
+    <span class="rem">// Properties!</span>
+    <span class="kwrd">public</span> <span class="kwrd">string</span> Name
+    {
+        <span class="kwrd">get</span> { <span class="kwrd">return</span> empName; }
+        <span class="kwrd">set</span>
+        {
+            <span class="kwrd">if</span> (value.Length &gt; 15)
+                Console.WriteLine(<span class="str">"Error! Name must be less than 16 characters!"</span>);
+            <span class="kwrd">else</span>
+                empName = value;
+        }
+    }
+
+    <span class="rem">// We could add additional business rules to the sets of these properties,</span>
+    <span class="rem">// however there is no need to do so for this example.</span>
+    <span class="kwrd">public</span> <span class="kwrd">int</span> ID
+    {
+        <span class="kwrd">get</span> { <span class="kwrd">return</span> empID; }
+        <span class="kwrd">set</span> { empID = value; }
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">float</span> Pay
+    {
+        <span class="kwrd">get</span> { <span class="kwrd">return</span> currPay; }
+        <span class="kwrd">set</span> { currPay = value; }
+    }
+...
+}</pre>
+    <p>A C# property is composed by defining a get scope (accessor) and set scope (mutator) directly within
+    the property itself. Notice that the property specifies the type of data it is encapsulating by what appears
+    to be a return value. Also take note that, unlike a method, properties do not make use of parentheses (not
+    even empty parentheses) when being defined. Consider the commentary on your current ID property:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// The 'int' represents the type of data this property encapsulates.</span>
+<span class="rem">// The data type must be identical to the related field (empID).</span>
+<span class="kwrd">public</span> <span class="kwrd">int</span> ID <span class="rem">// Note lack of parentheses.</span>
+{
+    <span class="kwrd">get</span> { <span class="kwrd">return</span> empID; }
+    <span class="kwrd">set</span> { empID = value; }
+}</pre>
+    <p>Within a 'set' scope of a property, you use a token named value, which is used to represent the
+    incoming value used to assign the property by the caller. This token is not a true C# keyword, but is what
+    is known as a contextual keyword. When the token value is within the set scope of the property, it always
+    represents the value being assigned by the caller, and it will always be the same underlying data type as
+    the property itself. Thus, notice how the Name property can still test the range of the string as so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">string</span> Name
+{
+    <span class="kwrd">get</span> { <span class="kwrd">return</span> empName; }
+    <span class="kwrd">set</span>
+    {
+        <span class="rem">// Here, value is really a string.</span>
+        <span class="kwrd">if</span> (value.Length &gt; 15)
+            Console.WriteLine(<span class="str">"Error! Name must be less than 16 characters!"</span>);
+        <span class="kwrd">else</span>
+            empName = value;
+    }
+}</pre>
+    <p>Once you have these properties in place, it appears to the caller that it is getting and setting a public
+    point of data; however, the correct get and set block is called behind the scenes to preserve encapsulation:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Encapsulation *****\n"</span>);
+    Employee emp = <span class="kwrd">new</span> Employee(<span class="str">"Marvin"</span>, 456, 30000);
+    emp.GiveBonus(1000);
+    emp.DisplayStats();
+
+    <span class="rem">// Set and get the Name property.</span>
+    emp.Name = <span class="str">"Marv"</span>;
+    Console.WriteLine(<span class="str">"Employee is named: {0}"</span>, emp.Name);
+    Console.ReadLine();
+}</pre>
+    <p>Properties (as opposed to accessors and mutators) also make your types easier to manipulate, in
+    that properties are able to respond to the intrinsic operators of C#. To illustrate, assume that the
+    Employee class type has an internal private member variable representing the age of the employee. Here
+    is the relevant update (notice the use of constructor chaining):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Employee
+{
+...
+    <span class="rem">// New field and property.</span>
+    <span class="kwrd">private</span> <span class="kwrd">int</span> empAge;
+    <span class="kwrd">public</span> <span class="kwrd">int</span> Age
+    {
+        <span class="kwrd">get</span> { <span class="kwrd">return</span> empAge; }
+        <span class="kwrd">set</span> { empAge = value; }
+    }
+
+    <span class="rem">// Updated constructors</span>
+    <span class="kwrd">public</span> Employee() {}
+    <span class="kwrd">public</span> Employee(<span class="kwrd">string</span> name, <span class="kwrd">int</span> id, <span class="kwrd">float</span> pay)
+        :<span class="kwrd">this</span>(name, 0, id, pay){}
+    <span class="kwrd">public</span> Employee(<span class="kwrd">string</span> name, <span class="kwrd">int</span> age, <span class="kwrd">int</span> id, <span class="kwrd">float</span> pay)
+    {
+        empName = name;
+        empID = id;
+        empAge = age;
+        currPay = pay;
+    }
+
+    <span class="rem">// Updated DisplayStats() method now accounts for age.</span>
+    <span class="kwrd">public</span> <span class="kwrd">void</span> DisplayStats()
+    {
+        Console.WriteLine(<span class="str">"Name: {0}"</span>, empName);
+        Console.WriteLine(<span class="str">"ID: {0}"</span>, empID);
+        Console.WriteLine(<span class="str">"Age: {0}"</span>, empAge);
+        Console.WriteLine(<span class="str">"Pay: {0}"</span>, currPay);
+    }
+}</pre>
+    <p>Now assume you have created an Employee object named joe. On his birthday, you wish to
+    increment the age by one. Using traditional accessor and mutator methods, you would need to write
+    code such as the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Employee joe = <span class="kwrd">new</span> Employee();
+joe.SetAge(joe.GetAge() + 1);
+</pre>
+    <p>However, if you encapsulate empAge using a property named Age, you are able to simply write</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+Employee joe = <span class="kwrd">new</span> Employee();
+joe.Age++;</pre>
+    <h2>Using Properties within a Class Definition</h2>
+    <p>Properties, specifically the 'set' portion of a property, are common places to package up the business rules
+    of your class. Currently, the Employee class has a Name property which ensures the name is no more than
+    15 characters. The remaining properties (ID, Pay and Age) could also be updated with any relevant logic.</p>
+    <p>While this is well and good, also consider what a class constructor typically does internally. It will
+    take the incoming parameters, check for valid data, and then make assignments to the internal private
+    fields. Currently your master constructor does not test the incoming string data for a valid range, so you
+    could update this member as so:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> Employee(<span class="kwrd">string</span> name, <span class="kwrd">int</span> age, <span class="kwrd">int</span> id, <span class="kwrd">float</span> pay)
+{
+    <span class="rem">// Humm, this seems like a problem...</span>
+    <span class="kwrd">if</span> (name.Length &gt; 15)
+        Console.WriteLine(<span class="str">"Error! Name must be less than 16 characters!"</span>);
+    <span class="kwrd">else</span>
+        empName = name;
+    
+    empID = id;
+    empAge = age;
+    currPay = pay;
+}</pre>
+    <p>I am sure you can see the problem with this approach. The Name property and your master
+    constructor are performing the same error checking! If you were also making checks on the other data
+    points, you would have a good deal of duplicate code. To streamline your code, and isolate all of your
+    error checking to a central location, you will do well if you always use properties within your class
+    whenever you need to get or set the values. Consider the following updated constructor:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> Employee(<span class="kwrd">string</span> name, <span class="kwrd">int</span> age, <span class="kwrd">int</span> id, <span class="kwrd">float</span> pay)
+{
+    <span class="rem">// Better! Use properties when setting class data.</span>
+    <span class="rem">// This reduces the amount of duplicate error checks.</span>
+    Name = name;
+    Age = age;
+    ID = id;
+    Pay = pay;
+}</pre>
+    <p>Beyond updating constructors to use properties when assigning values, it is good practice to use
+    properties throughout a class implementation, to ensure your business rules are always enforced. In
+    many cases, the only time when you directly make reference to the underlying private piece of data is
+    within the property itself. With this in mind, here is your updated Employee cEmployee class:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">class</span> Employee
+{
+    <span class="rem">// Field data.</span>
+    <span class="kwrd">private</span> <span class="kwrd">string</span> empName;
+    <span class="kwrd">private</span> <span class="kwrd">int</span> empID;
+    <span class="kwrd">private</span> <span class="kwrd">float</span> currPay;
+    <span class="kwrd">private</span> <span class="kwrd">int</span> empAge;
+
+    <span class="rem">// Constructors.</span>
+    <span class="kwrd">public</span> Employee() { }
+    <span class="kwrd">public</span> Employee(<span class="kwrd">string</span> name, <span class="kwrd">int</span> id, <span class="kwrd">float</span> pay)
+        :<span class="kwrd">this</span>(name, 0, id, pay){}
+    <span class="kwrd">public</span> Employee(<span class="kwrd">string</span> name, <span class="kwrd">int</span> age, <span class="kwrd">int</span> id, <span class="kwrd">float</span> pay)
+    {
+        Name = name;
+        Age = age;
+        ID = id;
+        Pay = pay;
+    }
+
+    <span class="rem">// Methods.</span>
+    <span class="kwrd">public</span> <span class="kwrd">void</span> GiveBonus(<span class="kwrd">float</span> amount)
+    { Pay += amount; }
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> DisplayStats()
+    {
+        Console.WriteLine(<span class="str">"Name: {0}"</span>, Name);
+        Console.WriteLine(<span class="str">"ID: {0}"</span>, ID);
+        Console.WriteLine(<span class="str">"Age: {0}"</span>, Age);
+        Console.WriteLine(<span class="str">"Pay: {0}"</span>, Pay);
+    }
+    <span class="rem">// Properties as before...</span>
+    ...
+}</pre>
+    <h2>Internal Representation of Properties</h2>
+    <p>Many programmers who use traditional accessor and mutator methods, often name these methods
+    using get_ and set_ prefixes (e.g., get_Name() and set_Name()). This naming convention itself is not
+    problematic as far as C# is concerned. However, it is important to understand that under the hood, a
+    property is represented in CIL code using this same naming convention.</p>
+    <p>For example, if you open up the EmployeeApp.exe assembly using ildasm.exe, you see that each
+    property is mapped to hidden get_XXX()/set_XXX() methods called internally by the CLR (see Figure 5-6).</p>
+	<img src="../Images/Figure05_06.png" alt="Figure 5-6" />
+    <p><b>Figure 5-6.</b> A property is represented by get/set methods internally</p>
+    <p>Assume the Employee type now has a private member variable named empSSN to represent an
+    individual's Social Security number, which is manipulated by a property named SocialSecurityNumber
+    (and also assume you have updated your type's custom constructor and DisplayStats() method to
+    account for this new piece of field data).</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Add support for a new field representing the employee's SSN.</span>
+<span class="kwrd">class</span> Employee
+{
+...
+    <span class="kwrd">private</span> <span class="kwrd">string</span> empSSN;
+    <span class="kwrd">public</span> <span class="kwrd">string</span> SocialSecurityNumber
+    {
+        <span class="kwrd">get</span> { <span class="kwrd">return</span> empSSN; }
+        <span class="kwrd">set</span> { empSSN = value; }
+    }
+
+    <span class="rem">// Constructors</span>
+    <span class="kwrd">public</span> Employee() { }
+    <span class="kwrd">public</span> Employee(<span class="kwrd">string</span> name, <span class="kwrd">int</span> id, <span class="kwrd">float</span> pay)
+        :<span class="kwrd">this</span>(name, 0, id, pay, <span class="str">""</span>){}
+    <span class="kwrd">public</span> Employee(<span class="kwrd">string</span> name, <span class="kwrd">int</span> age, <span class="kwrd">int</span> id, <span class="kwrd">float</span> pay, <span class="kwrd">string</span> ssn)
+    {
+        Name = name;
+        Age = age;
+        ID = id;
+        Pay = pay;
+        SocialSecurityNumber = ssn;
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> DisplayStats()
+    {
+        Console.WriteLine(<span class="str">"Name: {0}"</span>, Name);
+        Console.WriteLine(<span class="str">"ID: {0}"</span>, ID);
+        Console.WriteLine(<span class="str">"Age: {0}"</span>, Age);
+        Console.WriteLine(<span class="str">"Pay: {0}"</span>, Pay);
+        Console.WriteLine(<span class="str">"SSN: {0}"</span>, SocialSecurityNumber);
+    }
+    ...
+}</pre>
+    <p>If you were to also define two methods named get_SocialSecurityNumber() and
+    set_SocialSecurityNumber() in the same class, you would be issued compile-time errors:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Remember, a property really maps to a get_/set_ pair!</span>
+<span class="kwrd">class</span> Employee
+{
+...
+    <span class="kwrd">public</span> <span class="kwrd">string</span> get_SocialSecurityNumber()
+    {
+        <span class="kwrd">return</span> empSSN;
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">void</span> set_SocialSecurityNumber(<span class="kwrd">string</span> ssn)
+    {
+        empSSN = ssn;
+    }
+}</pre>
+    <p><b>Note</b> The .NET base class libraries always favor type properties over traditional accessor and mutator methods
+    when encapsulating field data. Therefore, if you wish to build custom classes that integrate well with the .NET
+    platform, avoid defining traditional get and set methods.</p>
+    <h2>Controlling Visibility Levels of Property Get/Set Statements</h2>
+    <p>Unless you say otherwise, the visibility of get and set logic is solely controlled by the access modifier of
+    the property declaration:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// The get and set logic is both public,</span>
+<span class="rem">// given the declaration of the property.</span>
+<span class="kwrd">public</span> <span class="kwrd">string</span> SocialSecurityNumber
+{
+    <span class="kwrd">get</span> { <span class="kwrd">return</span> empSSN; }
+    <span class="kwrd">set</span> { empSSN = value; }
+}</pre>
+    <p>In some cases, it would be useful to specify unique accessibility levels for get and set logic. To do so,
+    simply prefix an accessibility keyword to the appropriate get or set keyword (the unqualified scope takes
+    the visibility of the property's declaration):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Object users can only get the value, however</span>
+<span class="rem">// the Employee class and derived types can set the value.</span>
+<span class="kwrd">public</span> <span class="kwrd">string</span> SocialSecurityNumber
+{
+    <span class="kwrd">get</span> { <span class="kwrd">return</span> empSSN; }
+    <span class="kwrd">protected</span> <span class="kwrd">set</span> { empSSN = value; }
+}</pre>
+    <p>In this case, the set logic of SocialSecurityNumber can only be called by the current class and derived
+    classes and therefore cannot be called from an object instance. Again, the protected keyword will be
+    formally detailed in the next chapter when we examine inheritance and polymorphism.</p>
+    <h2>Read-Only and Write-Only Properties</h2>
+    <p>When encapsulating data, you may wish to configure a read-only property. To do so, simply omit the set
+    block. Likewise, if you wish to have a write-only property, omit the get block. While there is no need to do
+    so for the current example, here is how the SocialSecurityNumber property could be retrofitted as readonly:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">string</span> SocialSecurityNumber
+{
+    <span class="kwrd">get</span> { <span class="kwrd">return</span> empSSN; }
+}</pre>
+    <p>Given this adjustment, the only manner in which an employee's US Social Security number can be
+    set is through a constructor argument. Therefore, it would now be a compiler error to attempt to set an
+    employee's SSN value within your master constructor:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> Employee(<span class="kwrd">string</span> name, <span class="kwrd">int</span> age, <span class="kwrd">int</span> id, <span class="kwrd">float</span> pay, <span class="kwrd">string</span> ssn)
+{
+    Name = name;
+    Age = age;
+    ID = id;
+    Pay = pay;
+    <span class="rem">// OOPS! This is no longer possible if the property is read</span>
+    <span class="rem">// only.</span>
+    SocialSecurityNumber = ssn;
+}</pre>
+    <p>If you did make this property read only, your only choice would be to use the underlying ssn
+    member variable within your constructor logic.</p>
+    <h2>Static Properties</h2>
+    <p>C# also supports static properties. Recall from earlier in this chapter that static members are accessed at
+    the class level, not from an instance (object) of that class. For example, assume that the Employee type
+    defines a static point of data to represent the name of the organization employing these workers. You
+    may encapsulate a static property as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Static properties must operate on static data!</span>
+<span class="kwrd">class</span> Employee
+{
+    ...
+    <span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">string</span> companyName;
+    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">string</span> Company
+    {
+        <span class="kwrd">get</span> { <span class="kwrd">return</span> companyName; }
+        <span class="kwrd">set</span> { companyName = value; }
+    }
+    ...
+}</pre>
+    <p>Static properties are manipulated in the same manner as static methods, as shown here:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Interact with the static property.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with Encapsulation *****\n"</span>);
+
+    <span class="rem">// Set company.</span>
+    Employee.Company = <span class="str">"My Company"</span>;
+    Console.WriteLine(<span class="str">"These folks work at {0}."</span>, Employee.Company);
+
+    Employee emp = <span class="kwrd">new</span> Employee(<span class="str">"Marvin"</span>, 24, 456, 30000, <span class="str">"111-11-1111"</span>);
+    emp.GiveBonus(1000);
+    emp.DisplayStats();
+
+    Console.ReadLine();
+}</pre>
+    <p>Finally, recall that classes can support static constructors. Thus, if you wanted to ensure that the
+    name of the static companyName field was always assigned to "My Company," you would write the
+    following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Static constructors are used to initialize static data.</span>
+<span class="kwrd">public</span> <span class="kwrd">class</span> Employee
+{
+    <span class="kwrd">private</span> Static companyName As <span class="kwrd">string</span>
+...
+    <span class="kwrd">static</span> Employee()
+    {
+        companyName = <span class="str">"My Company"</span>;
+    }
+}</pre>
+    <p>Using this approach, there is no need to explicitly call the Company property to set the initial value:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// Automatically set to "My Company" via static constructor.</span>
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"These folks work at {0}"</span>, Employee.Company);
+}</pre>
+    <p>To wrap up the story thus far, recall that C# prefers properties to encapsulate data. These syntactic
+    entities are used for the same purpose as traditional accessor (get)/mutator (set) methods. The benefit of
+    properties is that the users of your objects are able to manipulate the internal data point using a single
+    named item.</p>
+    <p><b>Source Code</b> The EmployeeApp project can be found under the Chapter 5 subdirectory.</p>
+    </body>
+</html>

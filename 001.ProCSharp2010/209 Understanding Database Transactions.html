@@ -1,0 +1,234 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Understanding Database Transactions</h1>
+<p>Let’s wrap up this examination of the connected layer of ADO.NET by taking a look at the concept of a
+database transaction. Simply put, a transaction is a set of database operations that must either all work
+or all fail as a collective unit. As you might imagine, transactions are quite important to ensure that table
+data is safe, valid, and consistent.</p>
+<p>Transactions are important when a database operation involves interacting with multiple tables or
+multiple stored procedures (or a combination of database atoms). The classic transaction example
+involves the process of transferring monetary funds between two bank accounts. For example, if you
+were to transfer $500.00 from your savings account into your checking account, the following steps
+should occur in a transactional manner:</p>
+<ul>
+ <li>The bank should remove $500.00 from your savings account.</li>
+  <li>The bank should add $500.00 to your checking account.</li>
+</ul>
+<p>It would be an extremely bad thing if the money were removed from the savings account, but not
+transferred to the checking account (due to some error on the bank’s part) because then you would be
+out $500.00! However, if these steps are wrapped up into a database transaction, the DBMS ensures that
+all related steps occur as a single unit. If any part of the transaction fails, the entire operation is rolled
+back to the original state. On the other hand, if all steps succeed, the transaction is committed.</p>
+<p><b>Note</b> You might be familiar with the acronym ACID from looking at transactional literature. This represents the
+four key properties of a prim-and-proper transaction: Atomic (all or nothing); Consistent (data remains stable
+throughout the transaction); Isolated (transactions do not step on each other’s feet); and Durable (transactions are
+saved and logged).</p>
+<p>It turns out that the .NET platform supports transactions in a variety of ways. This chapter will look
+at the transaction object of your ADO.NET data provider (SqlTransaction, in the case of
+System.Data.SqlClient). The .NET base class libraries also provide transactional support within
+numerous APIs, including the following:</p>
+<ul>
+ <li>System.EnterpriseServices: This namespace (located in the
+System.EnterpriseServices.dll assembly) provides types that allow you to
+integrate with the COM+ runtime layer, including its support for distributed
+transactions.</li>
+ <li>System.Transactions: This namespace (located in the System.Transactions.dll
+assembly) contains classes that allow you to write your own transactional
+applications and resource managers for a variety of services (e.g., MSMQ,
+ADO.NET, and COM+).</li>
+ <li>Windows Communication Foundation: The WCF API provides services to facilitate
+transactions with various distributed binding classes.</li>
+ <li>Windows Workflow Foundations: The WF API provides transactional support for
+workflow activities.</li>
+</ul>
+<p>In addition to the baked-in transactional support found within the .NET base class libraries, it is also
+possible to use the SQL language of your database management system. For example, you could author
+a stored procedure that uses the BEGIN TRANSACTION, ROLLBACK, and COMMIT statements.</p>
+<h2>Key Members of an ADO.NET Transaction Object</h2>
+<p>While transactional-aware types exist throughout the base class libraries, you will focus on transaction
+objects found within an ADO.NET data provider, all of which derive from DBTransaction and implement
+the IDbTransaction interface. Recall from the beginning of this chapter that -IDbTransaction defines a
+handful of members:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IDbTransaction : IDisposable
+{
+    IDbConnection Connection { <span class="kwrd">get</span>; }
+    IsolationLevel IsolationLevel { <span class="kwrd">get</span>; }
+
+    <span class="kwrd">void</span> Commit();
+    <span class="kwrd">void</span> Rollback();
+}</pre>
+<p>Notice the Connection property, which returns a reference to the connection object that initiated the
+current transaction (as you’ll see, you obtain a transaction object from a given connection object). You
+call the Commit() method when each of your database operations have succeeded. Doing this causes
+each of the pending changes to be persisted in the data store. Conversely, you can call the Rollback()
+method in the event of a runtime exception, which informs the DMBS to disregard any pending changes,
+leaving the original data intact.</p>
+<p><b>Note</b> The IsolationLevel property of a transaction object allows you to specify how aggressively a
+transaction should be guarded against the activities of other parallel transactions. By default, transactions are
+isolated completely until committed. Consult the .NET Framework 4.0 SDK documentation for full details regarding
+the values of the IsolationLevel enumeration.</p>
+<p>Beyond the members defined by the IDbTransaction interface, the SqlTransaction type defines an
+additional member named Save(), which allows you to define save points. This concept allows you to
+roll back a failed transaction up until a named point, rather than rolling back the entire transaction.
+Essentially, when you call Save() using a SqlTransaction object, you can specify a friendly string
+moniker. When you call Rollback(), you can specify this same moniker as an argument to perform an
+effective partial rollback. Calling Rollback() with no arguments causes all of the pending changes to be
+rolled back.</p>
+<h2>Adding a CreditRisks Table to the AutoLot Database</h2>
+<p>Now let’s look at how you use ADO.NET transactions. Begin by using the Server Explorer of Visual Studio
+2010 to add a new table named CreditRisks to the AutoLot database, which has the same exact columns
+as the Customers table you created earlier in this chapter: CustID, which is the primary key; FirstName;
+and LastName. As its name suggests, CreditRisks is where you banish the undesirable customers who fail
+a credit check. Assuming you have added this new table to your database diagram, you should now see
+the AutoLot implementation shown in Figure 21-14.</p>
+<img src="../Images/Figure21_14.png" alt="Figure 21-14" />
+    <p><b>Figure 21-14</b> The interconnected Orders, Inventory, and Customers tables</p>
+<p>Like the earlier savings-to-checking money transfer example, this example, where you move a risky
+customer from the Customers table into the CreditRisks table, should occur under the watchful eye of a
+transactional scope (after all, you will want to remember the ID and names of those who are not
+creditworthy). Specifically, you need to ensure that either you successfully delete the current credit risks
+from the Customers table and add them to the CreditRisks table, or you need to ensure that neither of
+these database operations occurs.</p>
+<p><b>Note</b> In a production environment, you would not need to build a whole new database table to capture high risk
+customers; instead, you could add a Boolean column named IsCreditRisk to the existing Customers table.
+However, this new table lets you play with a simple transaction.</p>
+<h2>Adding a Transaction Method to InventoryDAL</h2>
+<p>Now let’s look at how you work with ADO.NET transactions programmatically. Begin by opening the
+AutoLotDAL Code Library project you created earlier and add a new public method named
+ProcessCreditRisk() to the InventoryDAL class to deal with perceived a credit risks (note that this
+example avoids using a parameterized query to keep the implementation simple; however, you’d want
+use such a query for a production-level method):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">// A new member of the InventoryDAL class.</span>
+<span class="kwrd">public</span> <span class="kwrd">void</span> ProcessCreditRisk(<span class="kwrd">bool</span> throwEx, <span class="kwrd">int</span> custID)
+{
+    <span class="rem">// First, look up current name based on customer ID.</span>
+    <span class="kwrd">string</span> fName = <span class="kwrd">string</span>.Empty;
+    <span class="kwrd">string</span> lName = <span class="kwrd">string</span>.Empty;
+    SqlCommand cmdSelect = <span class="kwrd">new</span> SqlCommand(
+        <span class="kwrd">string</span>.Format(<span class="str">"Select * from Customers where CustID = {0}"</span>, custID), sqlCn);
+    <span class="kwrd">using</span> (SqlDataReader dr = cmdSelect.ExecuteReader())
+    {
+        <span class="kwrd">if</span>(dr.HasRows)
+        {
+            dr.Read();
+            fName = (<span class="kwrd">string</span>)dr[<span class="str">"FirstName"</span>];
+            lName = (<span class="kwrd">string</span>)dr[<span class="str">"LastName"</span>];
+        }
+        <span class="kwrd">else</span>
+            <span class="kwrd">return</span>;
+    }
+
+    <span class="rem">// Create command objects that represent each step of the operation.</span>
+    SqlCommand cmdRemove = <span class="kwrd">new</span> SqlCommand(
+        <span class="kwrd">string</span>.Format(<span class="str">"Delete from Customers where CustID = {0}"</span>, custID), sqlCn);
+
+    SqlCommand cmdInsert = <span class="kwrd">new</span> SqlCommand(<span class="kwrd">string</span>.Format(<span class="str">"Insert Into CreditRisks"</span> +
+        <span class="str">"(CustID, FirstName, LastName) Values"</span> +
+        <span class="str">"({0}, '{1}', '{2}')"</span>, custID, fName, lName), sqlCn);
+
+    <span class="rem">// You will get this from the connection object.</span>
+    SqlTransaction tx = <span class="kwrd">null</span>;
+    <span class="kwrd">try</span>
+    {
+        tx = sqlCn.BeginTransaction();
+
+        <span class="rem">// Enlist the commands into this transaction.</span>
+        cmdInsert.Transaction = tx;
+        cmdRemove.Transaction = tx;
+
+        <span class="rem">// Execute the commands.</span>
+        cmdInsert.ExecuteNonQuery();
+        cmdRemove.ExecuteNonQuery();
+
+        <span class="rem">// Simulate error.</span>
+        <span class="kwrd">if</span> (throwEx)
+        {
+            <span class="kwrd">throw</span> <span class="kwrd">new</span> Exception(<span class="str">"Sorry! Database error! Tx failed..."</span>);
+        }
+
+        <span class="rem">// Commit it!</span>
+        tx.Commit();
+    }
+    <span class="kwrd">catch</span> (Exception ex)
+    {
+        Console.WriteLine(ex.Message);
+        <span class="rem">// Any error will roll back transaction.</span>
+        tx.Rollback();
+    }
+}</pre>
+<p>Here, you use an incoming bool parameter to represent whether you will throw an arbitrary
+exception when you attempt to process the offending customer. This allows you to simulate an
+unforeseen circumstance that will cause the database transaction to fail. Obviously, you do this here
+only for illustrative purposes; a true database transaction method would not want to allow the caller to
+force the logic to fail on a whim!</p>
+<p>Note that you use two SqlCommand objects to represent each step in the transaction you will kick off.
+Once you obtain the customer’s first and last name based on the incoming custID parameter, you can
+obtain a valid SqlTransaction object from the connection object using BeginTransaction(). Next, and
+most importantly, you must enlist each command object by assigning the Transaction property to the
+transaction object you have just obtained. If you fail to do so, the Insert/Delete logic will not be under a
+transactional context.</p>
+<p>After you call ExecuteNonQuery() on each command, you throw an exception if (and only if) the
+value of the bool parameter is true. In this case, all pending database operations are rolled back. If you
+do not throw an exception, both steps will be committed to the database tables once you call Commit().
+Now compile your modified AutoLotDAL project to ensure you do not have any typos.</p>
+<h2>Testing Your Database Transaction</h2>
+<p>You could update your previous AutoLotCUIClient application with a new option to invoke the
+ProcessCreditRisk() method; instead, however, you will create a new Console Application named
+AdoNetTransaction to accomplish this. Set a reference to your AutoLotDAL.dll assembly and import the
+AutoLotConnectedLayer namespace.</p>
+<p>Next, open your Customers table for data entry by right-clicking the table icon from the Server
+Explorer and selecting Show Table Data. Now add a new customer who will be the victim of a low credit
+score:</p>
+<ul>
+ <li>CustID: 333</li>
+ <li>FirstName: Homer</li>
+ <li>LastName: Simpson</li>
+</ul>
+<p>Finally, update your Main() method as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Simple Transaction Example *****\n"</span>);
+
+    <span class="rem">// A simple way to allow the tx to succeed or not.</span>
+    <span class="kwrd">bool</span> throwEx = <span class="kwrd">true</span>;
+    <span class="kwrd">string</span> userAnswer = <span class="kwrd">string</span>.Empty;
+
+    Console.Write(<span class="str">"Do you want to throw an exception (Y or N): "</span>);
+    userAnswer = Console.ReadLine();
+    <span class="kwrd">if</span> (userAnswer.ToLower() == <span class="str">"n"</span>)
+    {
+        throwEx = <span class="kwrd">false</span>;
+    }
+
+    InventoryDAL dal = <span class="kwrd">new</span> InventoryDAL();
+    dal.OpenConnection(<span class="str">@"Data Source=(local)\SQLEXPRESS;Integrated Security=SSPI;"</span> +
+        <span class="str">"Initial Catalog=AutoLot"</span>);
+
+    <span class="rem">// Process customer 333.</span>
+    dal.ProcessCreditRisk(throwEx, 333);
+
+    Console.WriteLine(<span class="str">"Check CreditRisk table for results"</span>);
+    Console.ReadLine();
+}</pre>
+<p>If you were to run your program and elect to throw an exception, you would find that Homer is not
+removed from the Customers table because the entire transaction has been rolled back. However, if you
+did not throw an exception, you would find that Customer ID 333 is no longer in the Customers table and
+has been placed in the CreditRisks table instead.</p>
+   <p><b>Source Code</b> You can find the AdoNetTransaction project under the Chapter 21 subdirectory.</p>   
+    </body>
+    </html>
+      
+   

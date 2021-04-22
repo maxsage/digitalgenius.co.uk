@@ -1,0 +1,406 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Controlling Content Layout Using Panels</h1>
+<p>A WPF application invariably contains a good number of UI elements (e.g., user input controls, graphical
+content, menu systems, and status bars) that need to be well organized within various windows. Once you
+place the UI elements, you need to make sure they behave as intended when the end user resizes the window
+or possibly a portion of the window (as in the case of a splitter window). To ensure your WPF controls
+retain their position within the hosting window, you can take advantage of a good number of panel types.</p>
+<p>When you declare a control directly inside a window that doesn’t use panels, the control is
+positioned dead-center in the container. Consider the following simple window declaration, which
+contains a single Button control. Regardless of how you resize the window, the UI widget is always
+equidistant from all four sides of the client area:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">&lt;!-- This button is in the center of the window at all times--&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Window</span> <span class="attr">x:Class</span><span class="kwrd">="MyWPFApp.MainWindow"</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">Title</span><span class="kwrd">="Fun with Panels!"</span> <span class="attr">Height</span><span class="kwrd">="285"</span> <span class="attr">Width</span><span class="kwrd">="325"</span><span class="kwrd">&gt;</span>
+    
+    <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnOK"</span> <span class="attr">Height</span> = <span class="kwrd">"100"</span>
+        <span class="attr">Width</span><span class="kwrd">="80"</span> <span class="attr">Content</span><span class="kwrd">="OK"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+    <p>You might also recall that if you attempt to place multiple elements directly within the scope of a
+&lt;Window&gt;, you will receive markup and compile-time errors. The reason for these errors is that a window (or
+any descendant of ContentControl for that matter) can assign only a single object to its Content property:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="rem">&lt;!-- Error! Content property is implicitly set more than once!--&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Window</span> <span class="attr">x:Class</span><span class="kwrd">="MyWPFApp.MainWindow"</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">Title</span><span class="kwrd">="Fun with Panels!"</span> <span class="attr">Height</span><span class="kwrd">="285"</span> <span class="attr">Width</span><span class="kwrd">="325"</span><span class="kwrd">&gt;</span>
+
+    <span class="rem">&lt;!-- Error! Two direct child elements of the &lt;Window&gt;! --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblInstructions"</span> <span class="attr">Width</span><span class="kwrd">="328"</span> <span class="attr">Height</span><span class="kwrd">="27"</span>
+        <span class="attr">FontSize</span><span class="kwrd">="15"</span> <span class="attr">Content</span><span class="kwrd">="Enter Information"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnOK"</span> <span class="attr">Height</span> = <span class="kwrd">"100"</span> <span class="attr">Width</span><span class="kwrd">="80"</span> <span class="attr">Content</span><span class="kwrd">="OK"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+    <p>Obviously a window that can only contain a single control is of little use. When a window needs to
+contain multiple elements, those elements must be arranged within any number of panels. The panel
+will contain all of the UI elements that represent the window, after which the panel itself is used as the
+single object assigned to the Content property.</p>
+<p>The System.Windows.Controls namespace provides numerous panels, each of which controls how
+sub-elements are maintained. You can use panels to establish how the controls behave if the end user
+resizes the window, if the controls remain exactly where they were placed at design time, if the controls
+reflow horizontally from left-to-right or vertically from top-to-bottom, and so forth.</p>
+<p>You can also intermix panel controls within other panels (e.g., a DockPanel that contains a
+StackPanel of other items) to provide a great deal of flexibility and control. Table 28-2 documents the
+role of some commonly used WPF panel controls.</p>
+<p><b>Table 28-2.</b> Core WPF Panel Controls</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    <p>Panel Control</p>
+   </th>
+   <th>
+    <p>Meaning in Life</p>
+   </th>
+  </tr>
+  <tr>
+   <td>
+    <p>Canvas</p>
+   </td>
+   <td>
+    <p>Provides a classic mode of content placement. Items stay exactly where you
+put them at design time.</p>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <p>DockPanel</p>
+   </td>
+   <td>
+    <p>Locks content to a specified side of the panel (Top, Bottom, Left, or Right).</p>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <p>Grid</p>
+   </td>
+   <td>
+    <p>Arranges content within a series of cells, maintained within a tabular grid.</p>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <p>StackPanel</p>
+   </td>
+   <td>
+    <p>Stacks content in a vertical or horizontal manner, as dictated by the
+Orientation property.</p>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    <p>WrapPanel</p>
+   </td>
+   <td>
+    <p>Positions content from left-to-right, breaking the content to the next line at the
+edge of the containing box. Subsequent ordering happens sequentially from
+top-to-bottom or from right-to-left, depending on the value of the Orientation
+property.</p>
+   </td>
+  </tr>
+</table>
+<p>In the next few sections, you will learn how to use these commonly used panel types by copying
+some predefined XAML data into the MyXamlPad.exe application you created in Chapter 27 (you could
+also load this data into kaxaml.exe, if you wish). You can find all these loose XAML files contained inside
+the PanelMarkup subfolder of your Chapter 28 code download folder (Figure 28-4).</p>
+<img src="../Images/Figure28_04.png" alt="Figure 28-4" />
+<p><b>Figure 28-4</b> You will be loading the supplied XAML data into your MyXamlPad.exe appliction to test
+various layouts</p>
+<h2>Positioning Content Within Canvas Panels</h2>
+<p>You will probably feel most at home with the Canvas panel because it allows for absolute positioning of
+UI content. If the end user resizes the window to an area that is smaller than the layout maintained by
+the Canvas panel, the internal content will not be visible until the container is stretched to a size equal to
+or larger than the Canvas area.</p>
+<p>To add content to a Canvas, you begin by defining the required controls within the scope of the
+opening &lt;Canvas&gt; and closing &lt;/Canvas&gt; tags. Next, specify the upper-left corner for each control; this is
+where the rendering should begin using the Canvas.Top and Canvas.Left properties. You can specify the
+bottom-right area indirectly in each control by setting its Height and Width properties, or directly by
+using the Canvas.Right and Canvas.Bottom properties.</p>
+<p>To see Canvas in action, open the provided SimpleCanvas.xaml file using a text editor and copy the
+content into MyXamlPad.exe (or kaxaml.exe). You should see the following Canvas definition:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Window</span>
+    <span class="attr">xmlns</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml/presentation"</span>
+    <span class="attr">xmlns:x</span><span class="kwrd">="http://schemas.microsoft.com/winfx/2006/xaml"</span>
+    <span class="attr">Title</span><span class="kwrd">="Fun with Panels!"</span> <span class="attr">Height</span><span class="kwrd">="285"</span> <span class="attr">Width</span><span class="kwrd">="325"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Canvas</span> <span class="attr">Background</span><span class="kwrd">="LightSteelBlue"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnOK"</span> <span class="attr">Canvas</span>.<span class="attr">Left</span><span class="kwrd">="212"</span> <span class="attr">Canvas</span>.<span class="attr">Top</span><span class="kwrd">="203"</span>
+            <span class="attr">Width</span><span class="kwrd">="80"</span> <span class="attr">Content</span><span class="kwrd">="OK"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblInstructions"</span> <span class="attr">Canvas</span>.<span class="attr">Left</span><span class="kwrd">="17"</span> <span class="attr">Canvas</span>.<span class="attr">Top</span><span class="kwrd">="14"</span>
+            <span class="attr">Width</span><span class="kwrd">="328"</span> <span class="attr">Height</span><span class="kwrd">="27"</span> <span class="attr">FontSize</span><span class="kwrd">="15"</span>
+            <span class="attr">Content</span><span class="kwrd">="Enter Car Information"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblMake"</span> <span class="attr">Canvas</span>.<span class="attr">Left</span><span class="kwrd">="17"</span> <span class="attr">Canvas</span>.<span class="attr">Top</span><span class="kwrd">="60"</span>
+            <span class="attr">Content</span><span class="kwrd">="Make"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtMake"</span> <span class="attr">Canvas</span>.<span class="attr">Left</span><span class="kwrd">="94"</span> <span class="attr">Canvas</span>.<span class="attr">Top</span><span class="kwrd">="60"</span>
+            <span class="attr">Width</span><span class="kwrd">="193"</span> <span class="attr">Height</span><span class="kwrd">="25"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblColor"</span> <span class="attr">Canvas</span>.<span class="attr">Left</span><span class="kwrd">="17"</span> <span class="attr">Canvas</span>.<span class="attr">Top</span><span class="kwrd">="109"</span>
+            <span class="attr">Content</span><span class="kwrd">="Color"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtColor"</span> <span class="attr">Canvas</span>.<span class="attr">Left</span><span class="kwrd">="94"</span> <span class="attr">Canvas</span>.<span class="attr">Top</span><span class="kwrd">="107"</span>
+            <span class="attr">Width</span><span class="kwrd">="193"</span> <span class="attr">Height</span><span class="kwrd">="25"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblPetName"</span> <span class="attr">Canvas</span>.<span class="attr">Left</span><span class="kwrd">="17"</span> <span class="attr">Canvas</span>.<span class="attr">Top</span><span class="kwrd">="155"</span>
+            <span class="attr">Content</span><span class="kwrd">="Pet Name"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtPetName"</span> <span class="attr">Canvas</span>.<span class="attr">Left</span><span class="kwrd">="94"</span> <span class="attr">Canvas</span>.<span class="attr">Top</span><span class="kwrd">="153"</span>
+            <span class="attr">Width</span><span class="kwrd">="193"</span> <span class="attr">Height</span><span class="kwrd">="25"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Canvas</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Window</span><span class="kwrd">&gt;</span></pre>
+    <p>Clicking your View Xaml button causes the following window display on the screen (Figure 28-5).</p>
+<img src="../Images/Figure28_05.png" alt="Figure 28-5" />
+<p><b>Figure 28-5</b> The Canvas layout manager allows for absolute positioning of content</p>
+<p>Note that the order you declare content within a Canvas is not used to calculate placement; instead,
+placement is based on the control’s size and the Canvas.Top, Canvas.Bottom, Canvas.Left, and
+Canvas.Right properties.</p>
+<p><b>Note</b> If sub-elements within a Canvas do not define a specific location using attached property syntax (e.g.
+Canvas.Left and Canvas.Top), they automatically attach to the extreme upper-left corner of Canvas.</p>
+<p>Using the Canvas type might seem like the preferred way to arrange content (because it feels so
+familiar), but this approach does suffer from some limitations. First, items within a Canvas do not
+dynamically resize themselves when applying styles or templates (e.g., their font sizes are unaffected).
+Second, the Canvas will not attempt to keep elements visible when the end user resizes the window to a
+smaller surface.</p>
+<p>Perhaps the best use of the Canvas type is for positioning graphical content. For example, if you were
+building a custom image using XAML, you certainly would want the lines, shapes, and text to remain in
+the same location, rather than see them dynamically repositioned as the user resizes the window! You’ll
+revisit Canvas in the next chapter when you examine WPF’s graphical rendering services.</p>
+<h2>Positioning Content Within WrapPanel Panels</h2>
+<p>A WrapPanel allows you to define content that will flow across the panel as the window is resized. When
+positioning elements in a WrapPanel, you do not specify top, bottom, left, and right docking values as you
+typically do with Canvas. However, each sub-element is free to define a Height and Width value (among
+other property values) to control its overall size in the container.</p>
+<p>Because content within a WrapPanel does not dock to a given side of the panel, the order in which
+you declare the elements is important (content is rendered from the first element to the last). If you were
+to load the XAML data found within the SimpleWrapPanel.xaml file, you would find it contains the
+following markup (enclosed within a &lt;Window&gt; definition):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">WrapPanel</span> <span class="attr">Background</span><span class="kwrd">="LightSteelBlue"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblInstruction"</span> <span class="attr">Width</span><span class="kwrd">="328"</span>
+        <span class="attr">Height</span><span class="kwrd">="27"</span> <span class="attr">FontSize</span><span class="kwrd">="15"</span> <span class="attr">Content</span><span class="kwrd">="Enter Car Information"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblMake"</span> <span class="attr">Content</span><span class="kwrd">="Make"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtMake"</span> <span class="attr">Width</span><span class="kwrd">="193"</span> <span class="attr">Height</span><span class="kwrd">="25"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblColor"</span> <span class="attr">Content</span><span class="kwrd">="Color"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtColor"</span> <span class="attr">Width</span><span class="kwrd">="193"</span> <span class="attr">Height</span><span class="kwrd">="25"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblPetName"</span> <span class="attr">Content</span><span class="kwrd">="Pet Name"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtPetName"</span> <span class="attr">Width</span><span class="kwrd">="193"</span> <span class="attr">Height</span><span class="kwrd">="25"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnOK"</span> <span class="attr">Width</span><span class="kwrd">="80"</span> <span class="attr">Content</span><span class="kwrd">="OK"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">WrapPanel</span><span class="kwrd">&gt;</span></pre>
+    <p>When you load this markup, the content looks out of sorts as you resize the width because it flows
+from left-to-right across the window (see Figure 28-6).</p>
+<img src="../Images/Figure28_06.png" alt="Figure 28-6" />
+<p><b>Figure 28-6</b> Content in a WrapPanel behaves much like a traditional HTML page</p>
+<p>By default, content within a WrapPanel flows from left-to-right. However, if you change the value of
+the Orientation property to Vertical, you can have content wrap in a top-to-bottom manner:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">WrapPanel</span> <span class="attr">Orientation</span> <span class="kwrd">="Vertical"</span><span class="kwrd">&gt;</span></pre>
+    <p>You can declare a WrapPanel (as well as some other panel types) by specifying ItemWidth and
+ItemHeight values, which control the default size of each item. If a sub-element does provide its own
+Height and/or Width value, it will be positioned relative to the size established by the panel. Consider the
+following markup:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">WrapPanel</span> <span class="attr">ItemWidth</span> <span class="kwrd">="200"</span> <span class="attr">ItemHeight</span> <span class="kwrd">="30"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblInstruction"</span>
+        <span class="attr">FontSize</span><span class="kwrd">="15"</span> <span class="attr">Content</span><span class="kwrd">="Enter Car Information"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblMake"</span> <span class="attr">Content</span><span class="kwrd">="Make"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtMake"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblColor"</span> <span class="attr">Content</span><span class="kwrd">="Color"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtColor"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblPetName"</span> <span class="attr">Content</span><span class="kwrd">="Pet Name"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtPetName"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnOK"</span> <span class="attr">Width</span> <span class="kwrd">="80"</span> <span class="attr">Content</span><span class="kwrd">="OK"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">WrapPanel</span><span class="kwrd">&gt;</span></pre>
+    <p>When you see this code rendered, you find the output shown in Figure 28-7 (notice the size and
+position of the Button control, which has specified a unique Width value).</p>
+<img src="../Images/Figure28_07.png" alt="Figure 28-7" />
+<p><b>Figure 28-7</b> A WrapPanel can establish the width and height of a given item</p>
+<p>As you might agree after looking at Figure 28-7, a WrapPanel is not typically the best choice for
+arranging content directly in a window because its elements can become scrambled as the user resizes
+the window. In most cases, a WrapPanel will be a sub-element to another panel type, allowing a small
+area of the window to wrap its content when resized (e.g., a Toolbar control).</p>
+<h2>Positioning Content Within StackPanel Panels</h2>
+<p>Like a WrapPanel, a StackPanel control arranges content into a single line that can be oriented
+horizontally or vertically (the default), based on the value assigned to the Orientation property. The
+difference, however, is that the StackPanel will not attempt to wrap the content as the user resizes the
+window. Rather, the items in the StackPanel will simply stretch (based on their orientation) to
+accommodate the size of the StackPanel itself. For example, the SimpleStackPanel.xaml file contains
+markup that results in the output shown in Figure 28-8:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">StackPanel</span> <span class="attr">Background</span><span class="kwrd">="LightSteelBlue"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblInstruction"</span>
+        <span class="attr">FontSize</span><span class="kwrd">="15"</span> <span class="attr">Content</span><span class="kwrd">="Enter Car Information"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblMake"</span> <span class="attr">Content</span><span class="kwrd">="Make"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">Name</span><span class="kwrd">="txtMake"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblColor"</span> <span class="attr">Content</span><span class="kwrd">="Color"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtColor"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblPetName"</span> <span class="attr">Content</span><span class="kwrd">="Pet Name"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtPetName"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnOK"</span> <span class="attr">Width</span> <span class="kwrd">="80"</span> <span class="attr">Content</span><span class="kwrd">="OK"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span></pre>
+<img src="../Images/Figure28_08.png" alt="Figure 28-8" />
+<p><b>Figure 28-8</b> Vertical stacking of content</p>
+<p>If you assign the Orientation property to Horizontal as follows, the rendered output will match that
+shown in Figure 28-9:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">StackPanel</span> <span class="attr">Orientation</span> <span class="kwrd">="Horizontal"</span><span class="kwrd">&gt;</span></pre>
+    <img src="../Images/Figure28_09.png" alt="Figure 28-9" />
+<p><b>Figure 28-9</b> Horizontal stacking of content</p>
+<p>Again, as is the case with the WrapPanel, you will seldom want to use a StackPanel to arrange content
+directly within a window. Instead, you’ll be better off using StackPanel as a subpanel to a master panel.</p>
+<h2>Positioning Content Within Grid Panels</h2>
+<p>Of all the panels provided with the WPF APIs, Grid is far and away the most flexible. Like an HTML table,
+the Grid can be carved up into a set of cells, each one of which provides content. When defining a Grid,
+you perform three steps:</p>
+<ol>
+ <li>Define and configure each column.</li>
+ <li>Define and configure each row.</li>
+ <li>Assign content to each cell of the grid using attached property syntax.</li>
+</ol>
+<p><b>Note</b> If you do not define any rows or columns, the &lt;Grid&gt; defaults to a single cell that fills the entire surface
+of the window. Furthermore, if you do not assign a cell value for a sub-element within a &lt;Grid&gt;, it automatically
+attaches to column 0, row 0.</p>
+<p>You achieve the first two steps (defining the columns and rows) by using the
+&lt;Grid.ColumnDefinitions&gt; and &lt;Grid.RowDefinitions&gt; elements, which contain a collection of
+&lt;ColumnDefinition&gt; and &lt;RowDefinition&gt; elements, respectively. Each cell within a grid is indeed a true
+.NET object, so you can configure the look–and-feel and behavior of each cell as you see fit.</p>
+<p>Here is a &lt;Grid&gt; definition (that you can find in the SimpleGrid.xaml file) that arranges your UI
+content as shown in Figure 28-10:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Grid</span> <span class="attr">ShowGridLines</span> <span class="kwrd">="True"</span> <span class="attr">Background</span> <span class="kwrd">="AliceBlue"</span><span class="kwrd">&gt;</span>
+    <span class="rem">&lt;!-- Define the rows/columns --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Grid.ColumnDefinitions</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">ColumnDefinition</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">ColumnDefinition</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Grid.ColumnDefinitions</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Grid.RowDefinitions</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">RowDefinition</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">RowDefinition</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Grid.RowDefinitions</span><span class="kwrd">&gt;</span>
+    <span class="rem">&lt;!-- Now add the elements to the grid's cells--&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblInstruction"</span> <span class="attr">Grid</span>.<span class="attr">Column</span> <span class="kwrd">="0"</span> <span class="attr">Grid</span>.<span class="attr">Row</span> <span class="kwrd">="0"</span>
+        <span class="attr">FontSize</span><span class="kwrd">="15"</span> <span class="attr">Content</span><span class="kwrd">="Enter Car Information"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnOK"</span> <span class="attr">Height</span> <span class="kwrd">="30"</span> <span class="attr">Grid</span>.<span class="attr">Column</span> <span class="kwrd">="0"</span>
+        <span class="attr">Grid</span>.<span class="attr">Row</span> <span class="kwrd">="0"</span> <span class="attr">Content</span><span class="kwrd">="OK"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblMake"</span> <span class="attr">Grid</span>.<span class="attr">Column</span> <span class="kwrd">="1"</span>
+        <span class="attr">Grid</span>.<span class="attr">Row</span> <span class="kwrd">="0"</span> <span class="attr">Content</span><span class="kwrd">="Make"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtMake"</span> <span class="attr">Grid</span>.<span class="attr">Column</span> <span class="kwrd">="1"</span>
+        <span class="attr">Grid</span>.<span class="attr">Row</span> <span class="kwrd">="0"</span> <span class="attr">Width</span><span class="kwrd">="193"</span> <span class="attr">Height</span><span class="kwrd">="25"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblColor"</span> <span class="attr">Grid</span>.<span class="attr">Column</span> <span class="kwrd">="0"</span>
+        <span class="attr">Grid</span>.<span class="attr">Row</span> <span class="kwrd">="1"</span> <span class="attr">Content</span><span class="kwrd">="Color"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtColor"</span> <span class="attr">Width</span><span class="kwrd">="193"</span> <span class="attr">Height</span><span class="kwrd">="25"</span>
+        <span class="attr">Grid</span>.<span class="attr">Column</span> <span class="kwrd">="0"</span> <span class="attr">Grid</span>.<span class="attr">Row</span> <span class="kwrd">="1"</span> <span class="kwrd">/&gt;</span>
+    
+    <span class="rem">&lt;!-- Just to keep things interesting, add some color to the pet name cell --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Rectangle</span> <span class="attr">Fill</span> <span class="kwrd">="LightGreen"</span> <span class="attr">Grid</span>.<span class="attr">Column</span> <span class="kwrd">="1"</span> <span class="attr">Grid</span>.<span class="attr">Row</span> <span class="kwrd">="1"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblPetName"</span> <span class="attr">Grid</span>.<span class="attr">Column</span> <span class="kwrd">="1"</span> <span class="attr">Grid</span>.<span class="attr">Row</span> <span class="kwrd">="1"</span> <span class="attr">Content</span><span class="kwrd">="Pet Name"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">TextBox</span> <span class="attr">x:Name</span><span class="kwrd">="txtPetName"</span> <span class="attr">Grid</span>.<span class="attr">Column</span> <span class="kwrd">="1"</span> <span class="attr">Grid</span>.<span class="attr">Row</span> <span class="kwrd">="1"</span>
+        <span class="attr">Width</span><span class="kwrd">="193"</span> <span class="attr">Height</span><span class="kwrd">="25"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Grid</span><span class="kwrd">&gt;</span></pre>
+    <p>Notice that each element (including a light green Rectangle element thrown in for good measure)
+connects itself to a cell in the grid using the Grid.Row and Grid.Column attached properties. By default,
+the ordering of cells in a grid begins at the upper left, which you specify using Grid.Column="0"
+Grid.Row="0". Given that your grid defines a total of four cells, you can identify the bottom-right cell
+using Grid.Column="1" Grid.Row="1".</p>
+<img src="../Images/Figure28_10.png" alt="Figure 28-10" />
+<p><b>Figure 28-10</b> The Grid panel in action</p>
+<h2>Grids with GridSplitter Types</h2>
+<p>Grid objects can also support splitters. As you might know, splitters allow the end user to resize rows or
+columns of a grid type. As this is done, the content within each resizable cell will reshape itself based on
+how the items have been contained. Adding splitters to a Grid is easy to do; you simply define the
+&lt;GridSplitter&gt; control, using attached property syntax to establish which row or column it affects.</p>
+<p>Be aware that you must assign a Width or Height value (depending on vertical or horizontal splitting)
+for the splitter to be visible on the screen. Consider the following simple Grid type with a splitter on the
+first column (Grid.Column = "0"). The contents of the provided GridWithSplitter.xaml file look like this:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Grid</span> <span class="attr">Background</span> <span class="kwrd">="AliceBlue"</span><span class="kwrd">&gt;</span>
+    <span class="rem">&lt;!-- Define columns --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Grid.ColumnDefinitions</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">ColumnDefinition</span> <span class="attr">Width</span> <span class="kwrd">="Auto"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">ColumnDefinition</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Grid.ColumnDefinitions</span><span class="kwrd">&gt;</span>
+
+    <span class="rem">&lt;!-- Add this label to cell 0 --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblLeft"</span> <span class="attr">Background</span> <span class="kwrd">="GreenYellow"</span>
+        <span class="attr">Grid</span>.<span class="attr">Column</span><span class="kwrd">="0"</span> <span class="attr">Content</span> <span class="kwrd">="Left!"</span><span class="kwrd">/&gt;</span>
+
+    <span class="rem">&lt;!-- Define the splitter --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">GridSplitter</span> <span class="attr">Grid</span>.<span class="attr">Column</span> <span class="kwrd">="0"</span> <span class="attr">Width</span> <span class="kwrd">="5"</span><span class="kwrd">/&gt;</span>
+
+    <span class="rem">&lt;!-- Add this label to cell 1 --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblRight"</span> <span class="attr">Grid</span>.<span class="attr">Column</span> <span class="kwrd">="1"</span> <span class="attr">Content</span> <span class="kwrd">="Right!"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Grid</span><span class="kwrd">&gt;</span></pre>
+    <p>First and foremost, notice that the column that will support the splitter has a Width property of Auto.
+Next, notice that the &lt;GridSplitter&gt; uses attached property syntax to establish which column it is
+working with. If you were to view this output, you would find a five-pixel splitter that allows you to resize
+each Label. Note that the content fills up the entire cell because you have not specified Height or Width
+properties for either Label (see Figure 28-11).</p>
+<img src="../Images/Figure28_11.png" alt="Figure 28-11" />
+<p><b>Figure 28-11</b> Grid types containing splitters</p>
+<h2>Positioning Content Within DockPanel Panels</h2>
+<p>DockPanel is typically used as a master panel that contains any number of additional panels for grouping
+related content. DockPanels use attached property syntax (as seen with the Canvas or Grid types) to
+control where each item docks itself within the DockPanel.</p>
+<p>The SimpleDockPanel.xaml file defines a simple DockPanel definition that results in the output shown
+in Figure 28-12:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">DockPanel</span> <span class="attr">LastChildFill</span> <span class="kwrd">="True"</span><span class="kwrd">&gt;</span>
+    <span class="rem">&lt;!-- Dock items to the panel --&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblInstruction"</span> <span class="attr">DockPanel</span>.<span class="attr">Dock</span> <span class="kwrd">="Top"</span>
+        <span class="attr">FontSize</span><span class="kwrd">="15"</span> <span class="attr">Content</span><span class="kwrd">="Enter Car Information"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblMake"</span> <span class="attr">DockPanel</span>.<span class="attr">Dock</span> <span class="kwrd">="Left"</span> <span class="attr">Content</span><span class="kwrd">="Make"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblColor"</span> <span class="attr">DockPanel</span>.<span class="attr">Dock</span> <span class="kwrd">="Right"</span> <span class="attr">Content</span><span class="kwrd">="Color"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">x:Name</span><span class="kwrd">="lblPetName"</span> <span class="attr">DockPanel</span>.<span class="attr">Dock</span> <span class="kwrd">="Bottom"</span> <span class="attr">Content</span><span class="kwrd">="Pet Name"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnOK"</span> <span class="attr">Content</span><span class="kwrd">="OK"</span><span class="kwrd">/&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">DockPanel</span><span class="kwrd">&gt;</span></pre>
+<img src="../Images/Figure28_12.png" alt="Figure 28-12" />
+<p><b>Figure 28-12</b> A simple DockPanel</p>
+<p><b>Note</b> If you add multiple elements to the same side of a DockPanel, they will stack along the specified edge in
+the order that they are declared.</p>
+<p>The benefit of using DockPanel types is that, as the user resizes the window, each element remains
+connected to the specified side of the panel (through DockPanel.Dock). Also notice that the opening
+&lt;DockPanel&gt; tag sets the LastChildFill attribute to true. Given that the Button control has not specified
+any DockPanel.Dock value, it will therefore be stretched within the remaining space.</p>
+<h2>Enabling Scrolling for Panel Types</h2>
+<p>It is worth pointing out the WPF supplies a ScrollViewer class, which provides automatic scrolling
+behaviors for data within panel objects. The ScrollViewer.xaml file defines the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">ScrollViewer</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">Content</span> <span class="kwrd">="First"</span> <span class="attr">Background</span> = <span class="kwrd">"Green"</span> <span class="attr">Height</span> <span class="kwrd">="40"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">Content</span> <span class="kwrd">="Second"</span> <span class="attr">Background</span> = <span class="kwrd">"Red"</span> <span class="attr">Height</span> <span class="kwrd">="40"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">Content</span> <span class="kwrd">="Third"</span> <span class="attr">Background</span> = <span class="kwrd">"Pink"</span> <span class="attr">Height</span> <span class="kwrd">="40"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">Content</span> <span class="kwrd">="Fourth"</span> <span class="attr">Background</span> = <span class="kwrd">"Yellow"</span> <span class="attr">Height</span> <span class="kwrd">="40"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">Content</span> <span class="kwrd">="Fifth"</span> <span class="attr">Background</span> = <span class="kwrd">"Blue"</span> <span class="attr">Height</span> <span class="kwrd">="40"</span><span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">ScrollViewer</span><span class="kwrd">&gt;</span></pre>
+    <p>You can see the result of the previous XAML definition in Figure 28-13.</p>
+<img src="../Images/Figure28_13.png" alt="Figure 28-13" />
+<p><b>Figure 28-13</b> Working with the ScrollViewer type</p>
+<p>As you would expect, each panel provides numerous members that allow you to fine-tune content
+placement. On a related note, many WPF controls support two properties of interest (Padding and
+Margin) that allow the control itself to inform the panel how it wishes to be treated. Specifically, the
+Padding property controls how much extra space should surround the interior control, while Margin
+controls the extra space around the exterior of a control.</p>
+<p>This wraps up this chapter’s look at the major panel types of WPF, as well as the various ways they
+position their content. Next, you will see an example that uses nested panels to create a layout system for
+a main window.</p>
+   </body></html>
+      
+   

@@ -1,0 +1,139 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Defining Type Members in CIL</h1>
+<p>As you are already aware, .NET types may support various members. Enumerations have some set of
+name/value pairs. Structures and classes may have constructors, fields, methods, properties, static
+members, and so on. Over the course of this book’s first 16 chapters, you have already seen partial CIL
+definitions for the items previously mentioned, but nevertheless, here is a quick recap of how various
+members map to CIL primitives.</p>
+<h2>Defining Field Data in CIL</h2>
+<p>Enumerations, structures, and classes can all support field data. In each case, the .field directive will be
+used. For example, let’s breathe some life into the skeleton MyEnum enumeration and define three
+name/value pairs (note the values are specified within parentheses):</p>
+<pre class="csharpcode">
+.class public sealed enum MyEnum
+{
+    .field public static literal valuetype
+        MyNamespace.MyEnum A = int32(0)
+    .field public static literal valuetype
+        MyNamespace.MyEnum B = int32(1)
+    .field public static literal valuetype
+        MyNamespace.MyEnum C = int32(2)
+}</pre>
+<p>Fields that reside within the scope of a .NET System.Enum-derived type are qualified using the static
+and literal attributes. As you would guess, these attributes set up the field data to be a fixed value
+accessible from the type itself (e.g., MyEnum.A).</p>
+<p><b>Note</b> The values assigned to an enum value may also be in hexadecimal with an 0x prefix.</p>
+<p>Of course, when you wish to define a point of field data within a class or structure, you are not
+limited to a point of public static literal data. For example, you could update MyBaseClass to support two
+points of private, instance-level field data, set to default values:</p>
+<pre class="csharpcode">
+.class public MyBaseClass
+{
+    .field private string stringField = "hello!"
+    .field private int32 intField = int32(42)
+}
+</pre>
+<p>As in C#, class field data will automatically be initialized to an appropriate default value. If you wish
+to allow the object user to supply custom values at the time of creation for each of these points of private
+field data, you (of course) need to create custom constructors.</p>
+<h2>Defining Type Constructors in CIL</h2>
+<p>The CTS supports both instance-level and class-level (static) constructors. In terms of CIL, instance-level
+constructors are represented using the .ctor token, while a static-level constructor is expressed via
+.cctor (class constructor). Both of these CIL tokens must be qualified using the rtspecialname (return
+type special name) and specialname attributes. Simply put, these attributes are used to identify a specific
+CIL token that can be treated in unique ways by a given .NET language. For example, in C#, constructors
+do not define a return type; however, in terms of CIL, the return value of a constructor is indeed void:</p>
+<pre class="csharpcode">
+.class public MyBaseClass
+{
+    .field private string stringField
+    .field private int32 intField
+
+    .method public hidebysig specialname rtspecialname
+        instance void .ctor(string s, int32 i) cil managed
+    {
+        // TODO: Add implementation code...
+    }
+}
+</pre>
+<p>Note that the .ctor directive has been qualified with the instance attribute (as it is not a static
+constructor). The cil managed attributes denote that the scope of this method contains CIL code, rather
+than unmanaged code, which may be used during platform invocation requests.</p>
+<h2>Defining Properties in CIL</h2>
+<p>Properties and methods also have specific CIL representations. By way of an example, if MyBaseClass
+were updated to support a public property named TheString, you would author the following CIL (note
+again the use of the specialname attribute):</p>
+<pre class="csharpcode">
+.class public MyBaseClass
+{
+...
+    .method public hidebysig specialname
+        instance string get_TheString() cil managed
+    {
+        // TODO: Add implementation code...
+    }
+
+    .method public hidebysig specialname
+        instance void set_TheString(string 'value') cil managed
+    {
+        // TODO: Add implementation code...
+    }   
+
+    .property instance string TheString()
+    {
+        .get instance string
+            MyNamespace.MyBaseClass::get_TheString()
+        .set instance void
+            MyNamespace.MyBaseClass::set_TheString(string)
+    }
+}</pre>
+<p>Recall that in terms of CIL, a property maps to a pair of methods that take get_ and set_ prefixes.
+The .property directive makes use of the related .get and .set directives to map property syntax to the
+correct “specially named” methods.</p>
+<p><b>Note</b> Notice that the incoming parameter to the set method of a property is placed in single-tick quotation
+marks, which represents the name of the token to use on the right-hand side of the assignment operator within
+the method scope.</p>
+<h2>Defining Member Parameters</h2>
+<p>In a nutshell, specifying arguments in CIL is (more or less) identical to doing so in C#. For example, each
+argument is defined by specifying its data type followed by the parameter name. Furthermore, like C#,
+CIL provides a way to define input, output, and pass-by-reference parameters. As well, CIL allows you to
+define a parameter array argument (aka the C# params keyword) as well as optional parameters (which
+are not supported in C# but are used in VB).</p>
+<p>To illustrate the process of defining parameters in raw CIL, assume you wish to build a method that
+takes an int32 (by value), an int32 (by reference), a [mscorlib]System.Collection.ArrayList, and a
+single output parameter (of type int32). In terms of C#, this method would look something like the
+following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">void</span> MyMethod(<span class="kwrd">int</span> inputInt,
+    <span class="kwrd">ref</span> <span class="kwrd">int</span> refInt, ArrayList ar, <span class="kwrd">out</span> <span class="kwrd">int</span> outputInt)
+{
+    outputInt = 0; <span class="rem">// Just to satisfy the C# compiler...</span>
+}</pre>
+<p>If you were to map this method into CIL terms, you would find that C# reference parameters are
+marked with an ampersand (&amp;) suffixed to the parameter’s underlying data type (int32&amp;).</p>
+<p>Output parameters also make use of the &amp; suffix, but they are further qualified using the CIL [out]
+token. Also notice that if the parameter is a reference type (in this case, the
+[mscorlib]System.Collections.ArrayList type), the class token is prefixed to the data type (not to be
+confused with the .class directive!):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+.method <span class="kwrd">public</span> hidebysig <span class="kwrd">static</span> <span class="kwrd">void</span> MyMethod(int32 inputInt,
+    int32&amp; refInt,
+    <span class="kwrd">class</span> [mscorlib]System.Collections.ArrayList ar,
+    [<span class="kwrd">out</span>] int32&amp; outputInt) cil managed
+{
+    ...
+}</pre>
+</body>
+    </html>     
+      
+   

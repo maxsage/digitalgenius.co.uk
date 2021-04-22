@@ -1,0 +1,73 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>The Asynchronous Nature of Delegates</h1>
+<p>If you are new to the topic of multithreading, you may wonder what exactly an asynchronous method
+invocation is all about. As you are no doubt fully aware, some programming operations take time.
+Although the previous Add() was purely illustrative in nature, imagine that you built a single-threaded
+application that is invoking a method on a remote object, performing a long-running database query,
+downloading a large document, or writing 500 lines of text to an external file. While performing these
+operations, the application will appear to hang for some amount of time. Until the task at hand has been
+processed, all other aspects of this program (such as menu activation, toolbar clicking, or console
+output) are unresponsive.</p>
+<p>The question therefore is, how can you tell a delegate to invoke a method on a separate thread of
+execution to simulate numerous tasks performing “at the same time”? The good news is that every .NET
+delegate type is automatically equipped with this capability. The even better news is that you are not
+required to directly dive into the details of the System.Threading namespace to do so (although these
+entities can quite naturally work hand in hand).</p>
+<h2>The BeginInvoke() and EndInvoke() Methods</h2>
+<p>When the C# compiler processes the delegate keyword, the dynamically generated class defines two
+methods named BeginInvoke() and EndInvoke(). Given the definition of the BinaryOp delegate, these
+methods are prototyped as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">sealed</span> <span class="kwrd">class</span> BinaryOp : System.MulticastDelegate
+{
+...
+    <span class="rem">// Used to invoke a method asynchronously.</span>
+    <span class="kwrd">public</span> IAsyncResult BeginInvoke(<span class="kwrd">int</span> x, <span class="kwrd">int</span> y,
+        AsyncCallback cb, <span class="kwrd">object</span> state);
+
+    <span class="rem">// Used to fetch the return value</span>
+    <span class="rem">// of the invoked method.</span>
+    <span class="kwrd">public</span> <span class="kwrd">int</span> EndInvoke(IAsyncResult result);
+}</pre>
+<p>The first stack of parameters passed into BeginInvoke() will be based on the format of the C#
+delegate (two integers in the case of BinaryOp). The final two arguments will always be
+System.AsyncCallback and System.Object. You’ll examine the role of these parameters shortly; for the
+time being, though, I’ll supply null for each. Also note that the return value of EndInvoke() is an integer,
+based on the return type of BinaryOp, while the parameter of this method is of type IAsyncResult.</p>
+<h2>The System.IAsyncResult Interface</h2>
+<p>The BeginInvoke() method always returns an object implementing the IAsyncResult interface, while
+EndInvoke() requires an IAsyncResult-compatible type as its sole parameter. The IAsyncResultcompatible
+object returned from BeginInvoke() is basically a coupling mechanism that allows the
+calling thread to obtain the result of the asynchronous method invocation at a later time via
+EndInvoke(). The IAsyncResult interface (defined in the System namespace) is defined as follows:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">public</span> <span class="kwrd">interface</span> IAsyncResult
+{
+    <span class="kwrd">object</span> AsyncState { <span class="kwrd">get</span>; }
+    WaitHandle AsyncWaitHandle { <span class="kwrd">get</span>; }
+    <span class="kwrd">bool</span> CompletedSynchronously { <span class="kwrd">get</span>; }
+    <span class="kwrd">bool</span> IsCompleted { <span class="kwrd">get</span>; }
+}</pre>
+<p>In the simplest case, you are able to avoid directly invoking these members. All you have to do is
+cache the IAsyncResult-compatible object returned by BeginInvoke() and pass it to EndInvoke() when
+you are ready to obtain the result of the method invocation. As you will see, you are able to invoke the
+members of an IAsyncResult-compatible object when you wish to become “more involved” with the
+process of fetching the method’s return value.</p>
+<p><b>Note</b> If you asynchronously invoke a method that provides a void return value, you can simply “fire and
+forget.” In such cases, you will never need to cache the IAsyncResult compatible object or call EndInvoke()
+in the first place (as there is no return value to retrieve).</p>
+    </body>
+    </html>
+     
+      
+   

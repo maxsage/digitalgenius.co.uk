@@ -1,0 +1,224 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>A Survey of the Core WPF Controls</h1>
+    <p>Unless you are new to the concept of building graphical user interfaces (which is fine), the general role of
+the WPF controls should not raise too many issues. Regardless of which GUI toolkit you might have used
+in the past (e.g., MFC, Java AWT/Swing, Windows Forms, VB 6.0, Mac OS X [Cocoa], or GTK+/GTK#), the
+core WPF controls listed in Table 28-1 are likely to look familiar.</p>
+<p><b>Table 28-1.</b> The Core WPF Controls</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    WPF Control Category
+   </th>
+   <th>
+    Example Members
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Core user input controls
+   </td>
+   <td>
+    Button, RadioButton, ComboBox,
+CheckBox, Calendar, DatePicker,
+Expander, DataGrid, ListBox,
+ListView, Slider, ToggleButton,
+TreeView, ContextMenu, ScrollBar,
+Slider, TabControl, TextBlock,
+TextBox, RepeatButton,
+RichTextBox, Label
+   </td>
+   <td>
+    WPF provides an entire family of
+controls you can use to build the
+crux of a user interface.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Window and control
+adornments
+   </td>
+   <td>
+    Menu, ToolBar, StatusBar, ToolTip,
+ProgressBar
+   </td>
+   <td>
+    You use these UI elements to
+decorate the frame of a Window object
+with input devices (such as the Menu)
+and user informational elements
+(e.g., StatusBar and ToolTip).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Media controls
+   </td>
+   <td>
+    Image, MediaElement,
+SoundPlayerAction
+   </td>
+   <td>
+    These controls provide support for
+audio/video playback and image
+display.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Layout controls
+   </td>
+   <td>
+    Border, Canvas, DockPanel, Grid,
+GridView, GridSplitter,
+GroupBox, Panel, TabControl,
+StackPanel, Viewbox, WrapPanel
+   </td>
+   <td>
+    WPF provides numerous controls
+that allow you to group and
+organize other controls for the
+purpose of layout management.
+   </td>
+  </tr>
+</table>
+<p>A majority of these standard WPF controls have been packaged up in the System.Windows.Controls
+namespace of the PresentationFramework.dll assembly. When you build a WPF application using Visual
+Studio 2010, you will find most of these common controls contained in the Toolbox, provided you have a
+WPF designer open as the active window (see Figure 28-1).</p>
+<img src="../Images/Figure28_01.png" alt="Figure 28-1" />
+<p><b>Figure 28-1</b> The Visual Studio 2010 Toolbox exposes the intrinsic WPF controls</p>
+<p>Much as you can with a Windows Forms application, you can drag these controls onto the WPF
+window designer and configure them using the Properties window (which you learned about in the
+previous chapter). While Visual Studio 2010 will generate a good amount of the XAML on your behalf, it
+is not uncommon to edit the markup yourself manually. Let’s review the basics.</p>
+<h2>Working with WPF Controls Using Visual Studio 2010</h2>
+<p>You might recall from Chapter 27 that when you place a WPF control onto the Visual Studio 2010
+designer, you want to set the x:Name property through the Properties window because this allows you to
+access the object in your related C# code file. You might also recall that you can use the Events tab of the
+Properties window to generate event handlers for a selected control. Thus, you could use Visual Studio
+to generate the following markup for a simple Button control:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Xame</span><span class="kwrd">="btnMyButton"</span> <span class="attr">Content</span><span class="kwrd">="Click Me!"</span> <span class="attr">Height</span><span class="kwrd">="23"</span> <span class="attr">Width</span><span class="kwrd">="140"</span>
+    <span class="attr">Click</span><span class="kwrd">="btnMyButton_Click"</span> <span class="kwrd">/&gt;</span></pre>
+     <p>Here, you set the Content property of the Button to a simple string. However, thanks to the WPF
+control content model, you could fashion a Button that contains the following complex content:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnMyButton"</span> <span class="attr">Height</span><span class="kwrd">="121"</span> <span class="attr">Width</span><span class="kwrd">="156"</span> <span class="attr">Click</span><span class="kwrd">="btnShowDlg_Click"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Button.Content</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">StackPanel</span> <span class="attr">Height</span><span class="kwrd">="95"</span> <span class="attr">Width</span><span class="kwrd">="128"</span> <span class="attr">Orientation</span><span class="kwrd">="Vertical"</span><span class="kwrd">&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Ellipse</span> <span class="attr">Fill</span><span class="kwrd">="Red"</span> <span class="attr">Width</span><span class="kwrd">="52"</span> <span class="attr">Height</span><span class="kwrd">="45"</span> <span class="attr">Margin</span><span class="kwrd">="5"</span><span class="kwrd">/&gt;</span>
+            <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">Width</span><span class="kwrd">="59"</span> <span class="attr">FontSize</span><span class="kwrd">="20"</span> <span class="attr">Content</span><span class="kwrd">="Click!"</span> <span class="attr">Height</span><span class="kwrd">="36"</span> <span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Button.Content</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Button</span><span class="kwrd">&gt;</span></pre>
+    <p>You might also recall that the immediate child element of a ContentControl-derived class is the
+implied content; therefore, you do not need to define a &lt;Button.Context&gt; scope explicitly when
+specifying complex content. You could simply author the following:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;</span><span class="html">Button</span> <span class="attr">x:Name</span><span class="kwrd">="btnMyButton"</span> <span class="attr">Height</span><span class="kwrd">="121"</span> <span class="attr">Width</span><span class="kwrd">="156"</span> <span class="attr">Click</span><span class="kwrd">="btnShowDlg_Click"</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">StackPanel</span> <span class="attr">Height</span><span class="kwrd">="95"</span> <span class="attr">Width</span><span class="kwrd">="128"</span> <span class="attr">Orientation</span><span class="kwrd">="Vertical"</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Ellipse</span> <span class="attr">Fill</span><span class="kwrd">="Red"</span> <span class="attr">Width</span><span class="kwrd">="52"</span> <span class="attr">Height</span><span class="kwrd">="45"</span> <span class="attr">Margin</span><span class="kwrd">="5"</span><span class="kwrd">/&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Label</span> <span class="attr">Width</span><span class="kwrd">="59"</span> <span class="attr">FontSize</span><span class="kwrd">="20"</span> <span class="attr">Content</span><span class="kwrd">="Click!"</span> <span class="attr">Height</span><span class="kwrd">="36"</span> <span class="kwrd">/&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">StackPanel</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Button</span><span class="kwrd">&gt;</span></pre>
+    <p>In either case, you set the button’s Content property to a &lt;StackPanel&gt; of related items. You can
+author this sort of complex content using the Visual Studio 2010 designer, as well. Once you define the
+layout manager, you can select it on the design to serve as a drop target for the internal controls. At this
+point, you can edit each using the Properties window.</p>
+<p>You should also be aware that the Document Outline window of Visual Studio 2010 (which you can
+open using the View &gt; Other Windows menu) is useful when designing a WPF control that has complex
+content. Notice in Figure 28-2 how the logical tree of XAML is displayed for the Window you are building.
+If you click any of these nodes, you can get a preview of the selected item.</p>
+<img src="../Images/Figure28_02.png" alt="Figure 28-2" />
+<p><b>Figure 28-2</b> The Visual Studio 2010 Document Outline window can help you navigate complex content</p>
+<p>In any case, once you define the initial markup, you are free to open the related C# code file to add
+your implementation logic:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">private</span> <span class="kwrd">void</span> btnShowDlg_Click(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+{
+    MessageBox.Show(<span class="str">"You clicked the button!"</span>);
+}</pre>
+<p>The first part of this chapter uses Visual Studio 2010 to build the UIs of the example projects. The
+chapter will point out additional features as necessary, but make sure you take some time to explore the
+options of the Properties window and designer functionality. Later in this chapter, you will use
+Expression Blend to build your UIs. As you will see, Blend has many integrated tools that generate a
+majority of the required XAML automatically.</p>
+<h2>The WPF Ink Controls</h2>
+<p>In addition to the common WPF controls listed in Table 28-1, WPF defines additional controls for
+working with the digital Ink API. This aspect of WPF development is useful during tablet PC development
+because it lets you capture input from the stylus. However, this is not to say a standard desktop
+application cannot leverage the Ink API because the same controls can capture input using the mouse.</p>
+<p>The System.Windows.Ink namespace of PresentationCore.dll contains various Ink API support
+types (e.g., Stroke and StrokeCollection); however, a majority of the Ink API controls (e.g., InkCanvas and
+InkPresenter) are packaged up with the common WPF controls under the System.Windows.Controls
+namespace in the PresentationFramework.dll assembly. You’ll work with the Ink API later in this chapter.</p>
+<h2>The WPF Document Controls</h2>
+<p>WPF also provides controls for advanced document processing, allowing you to build applications that
+incorporate Adobe PDF-style functionality. Using the types within the System.Windows.Documents
+namespace (also in the PresentationFramework.dll assembly), you can create print-ready documents
+that support zooming, searching, user annotations (sticky notes), and other rich text services.</p>
+<p>Under the covers, however, the document controls do not use Adobe PDF APIs; rather, they use the
+XML Paper Specification (XPS) API. To the end user, there will really appear to be no difference because
+PDF documents and XPS documents have an almost identical look-and-feel. In fact, you can find many
+free utilities that allow you to convert between the two file formats on the fly. You’ll work with some
+aspects of the document controls in an upcoming example.</p>
+<h2>WPF Common Dialog Boxes</h2>
+<p>WPF also provides you with a few common dialog boxes such as OpenFileDialog and SaveFileDialog.
+These dialog boxes are defined within the Microsoft.Win32 namespace of the
+PresentationFramework.dll assembly. Working with either of these dialog boxes is a matter of
+creating an object and invoking the ShowDialog() method:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">using</span> Microsoft.Win32;
+<span class="kwrd">namespace</span> WpfControls
+{
+    <span class="kwrd">public</span> <span class="kwrd">partial</span> <span class="kwrd">class</span> MainWindow : Window
+    {
+        <span class="kwrd">public</span> MainWindow()
+        {
+            InitializeComponent();
+        }
+    
+        <span class="kwrd">private</span> <span class="kwrd">void</span> btnShowDlg_Click(<span class="kwrd">object</span> sender, RoutedEventArgs e)
+        {
+            <span class="rem">// Show a file save dialog.</span>
+            SaveFileDialog saveDlg = <span class="kwrd">new</span> SaveFileDialog();
+            saveDlg.ShowDialog();
+        }
+    }
+}</pre>
+<p>As you would hope, these classes support various members that allow you to establish file filters and
+directory paths, and gain access to user-selected files. You will put these file dialogs to use in later
+examples; you will also learn how to build custom dialog boxes to gather user input.</p>
+<h2>The Details Are in the Documentation</h2>
+<p>Despite what you might be thinking, the intent of this chapter is not to walk through each and every
+member of each and every WPF control. Rather, you will receive an overview of the various controls with
+an emphasis on the underlying programming model and key services common to most WPF controls.
+You will also learn how to build UIs with Expression Blend and Visual Studio 2010.</p>
+<p>To round out your understanding of the particular functionality of a given control, be sure to
+consult the .NET Framework 4.0 SDK documentation—specifically, the Control Library section of the
+help system, which you can find under Windows Presentation Foundation &gt; Controls (see Figure 28-3).</p>
+<img src="../Images/Figure28_03.png" alt="Figure 28-3" />
+<p><b>Figure 28-3</b> The full details of each WPF control are just a keypress away (F1)</p>
+<p>Here you will find full details of each control, various code samples (in XAML, as well as C#), and
+information regarding a control’s inheritance chain, implemented interfaces, and applied attributes.</p>
+   
+      </body></html>
+   

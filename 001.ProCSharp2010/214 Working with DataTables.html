@@ -1,0 +1,351 @@
+﻿<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../csharp.css" />
+    <link rel="stylesheet" type="text/css" href="../master.css" />
+</head>
+<body>
+<h1>Working with DataTables</h1>
+<p>The DataTable type defines many members, many of which are identical in name and functionality to
+those of the DataSet. Table 22-7 describes some core members of the DataTable type beyond Rows and
+Columns.</p>
+<p><b>Table 22-7.</b> Key Members of the DataTable Type</p>
+<table class="gridtable">
+  <tr>
+   <th>
+    Member
+   </th>
+   <th>
+    Meaning in Life
+   </th>
+  </tr>
+  <tr>
+   <td>
+    CaseSensitive
+   </td>
+   <td>
+    Indicates whether string comparisons within the table are case sensitive. The
+default value is false.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ChildRelations
+   </td>
+   <td>
+    Returns the collection of child relations for this DataTable (if any).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Constraints
+   </td>
+   <td>
+    Gets the collection of constraints maintained by the table.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Copy()
+   </td>
+   <td>
+    A method that copies the schema and data of a given DataTable into a new
+instance.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DataSet
+   </td>
+   <td>
+    Gets the DataSet that contains this table (if any).
+   </td>
+  </tr>
+  <tr>
+   <td>
+    DefaultView
+   </td>
+   <td>
+    Gets a customized view of the table that might include a filtered view or a cursor
+position.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    ParentRelations
+   </td>
+   <td>
+    Gets the collection of parent relations for this DataTable.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    PrimaryKey
+   </td>
+   <td>
+    Gets or sets an array of columns that function as primary keys for the data table.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    RemotingFormat
+   </td>
+   <td>
+    Allows you to define how the DataSet should serialize its content (binary or
+XML) for the .NET remoting layer.
+   </td>
+  </tr>
+  <tr>
+   <td>
+    TableName
+   </td>
+   <td>
+    Gets or sets the name of the table. This same property might also be specified as
+a constructor parameter.
+   </td>
+  </tr>
+</table>
+<p>To continue with the current example, you can set the PrimaryKey property of the DataTable to the
+carIDColumn DataColumn object. Be aware that the PrimaryKey property is assigned a collection of
+DataColumn objects to account for a multicolumned key. In this case, however, you need to specify only
+the CarID column (being the first ordinal position in the table):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> FillDataSet(DataSet ds)
+{
+...
+    <span class="rem">// Mark the primary key of this table.</span>
+    inventoryTable.PrimaryKey = <span class="kwrd">new</span> DataColumn[] { inventoryTable.Columns[0] };
+}</pre>
+<h2>Inserting DataTables into DataSets</h2>
+<p>At this point, your DataTable object is complete. The final step is to insert the DataTable into the
+carsInventoryDS DataSet object using the Tables collection:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> FillDataSet(DataSet ds)
+{
+...
+    <span class="rem">// Finally, add our table to the DataSet.</span>
+    ds.Tables.Add(inventoryTable);
+}</pre>
+<p>Now update your Main() method to call FillDataSet(), passing in your local DataSet object as an
+argument. Next, pass the same object into a new (yet to be written) helper method named
+PrintDataSet():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> Main(<span class="kwrd">string</span>[] args)
+{
+    Console.WriteLine(<span class="str">"***** Fun with DataSets *****\n"</span>);
+...
+    FillDataSet(carsInventoryDS);
+    PrintDataSet(carsInventoryDS);
+    Console.ReadLine();
+}</pre>
+<h2>Obtaining Data in a DataSet</h2>
+<p>The PrintDataSet() method simply iterates over the DataSet metadata (using the ExtendedProperties
+collection) and each DataTable in the DataSet, printing out the column names and row values using the
+type indexers:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> PrintDataSet(DataSet ds)
+{
+    <span class="rem">// Print out the DataSet name and any extended properties.</span>
+    Console.WriteLine(<span class="str">"DataSet is named: {0}"</span>, ds.DataSetName);
+    <span class="kwrd">foreach</span> (System.Collections.DictionaryEntry de <span class="kwrd">in</span> ds.ExtendedProperties)
+    {
+        Console.WriteLine(<span class="str">"Key = {0}, Value = {1}"</span>, de.Key, de.Value);
+    }
+    Console.WriteLine();
+    
+    <span class="rem">// Print out each table.</span>
+    <span class="kwrd">foreach</span> (DataTable dt <span class="kwrd">in</span> ds.Tables)
+    {
+        Console.WriteLine(<span class="str">"=&gt; {0} Table:"</span>, dt.TableName);
+    
+        <span class="rem">// Print out the column names.</span>
+        <span class="kwrd">for</span> (<span class="kwrd">int</span> curCol = 0; curCol &lt; dt.Columns.Count; curCol++)
+        {
+            Console.Write(dt.Columns[curCol].ColumnName + <span class="str">"\t"</span>);
+        }
+        Console.WriteLine(<span class="str">"\n----------------------------------"</span>);
+    
+        <span class="rem">// Print the DataTable.</span>
+        <span class="kwrd">for</span> (<span class="kwrd">int</span> curRow = 0; curRow &lt; dt.Rows.Count; curRow++)
+        {
+            <span class="kwrd">for</span> (<span class="kwrd">int</span> curCol = 0; curCol &lt; dt.Columns.Count; curCol++)
+            {
+                Console.Write(dt.Rows[curRow][curCol].ToString() + <span class="str">"\t"</span>);
+            }
+            Console.WriteLine();
+        }
+    }
+}</pre>
+<p>If you run your program now, you’ll see the following output (your time stamp and GUID value will
+differ of course):</p>
+<pre class="csharpcode">
+***** Fun with DataSets *****
+
+DataSet is named: Car Inventory
+Key = TimeStamp, Value = 1/22/2010 6:41:09 AM
+Key = DataSetID, Value = 11c533ed-d1aa-4c82-96d4-b0f88893ab21
+Key = Company, Value = Mikko's Hot Tub Super Store
+
+=&gt; Inventory Table:
+CarID     Make     Color     PetName
+----------------------------------
+0     BMW     Black     Hamlet
+1     Saab     Red     Sea Breeze</pre>
+<h2>Processing DataTable Data Using DataTableReader Objects</h2>
+<p>Given your work in the previous chapter, you should notice that the manner in which you process data
+using the connected layer (e.g., data reader objects) and the disconnected layer (e.g., DataSet objects) is
+quite different. Working with a data reader typically involves establishing a while loop, calling the Read()
+method, and using an indexer to pluck out the name/value pairs. On the other hand, DataSet processing
+typically involves a series of iteration constructs to drill into the data within the tables, rows, and
+columns (remember that DataReader requires an open database connection so that it can read the data
+from the actual database).</p>
+<p>DataTables support a method named CreateDataReader(). This method allows you to obtain the
+data within a DataTable using a data reader–like navigation scheme (the data reader will now read data
+from the in-memory DataTable, not from the actual database, so there’s no database connection
+involved here). The major benefit of this approach is that you now use a single model to process data,
+regardless of which layer of ADO.NET you use to obtain it. Assume you have authored a new method in
+your Program class named PrintTable():</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> PrintTable(DataTable dt)
+{
+    <span class="rem">// Get the DataTableReader type.</span>
+    DataTableReader dtReader = dt.CreateDataReader();
+
+    <span class="rem">// The DataTableReader works just like the DataReader.</span>
+    while (dtReader.Read())
+    {
+        <span class="kwrd">for</span> (<span class="kwrd">int</span> i = 0; i &lt; dtReader.FieldCount; i++)
+        {
+            Console.Write(<span class="str">"{0}\t"</span>, dtReader.GetValue(i).ToString().Trim());
+        }
+        Console.WriteLine();
+    }
+    dtReader.Close();
+}</pre>
+<p>Notice that the DataTableReader works identically to the data reader object of your data provider. A
+DataTableReader can be an ideal choice when you wish to pump out the data within a DataTable quickly,
+without needing to traverse the internal row and column collections. Now assume you have updated the
+previous PrintDataSet() method to invoke PrintTable(), rather than drilling into the Rows and Columns
+collections:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> PrintDataSet(DataSet ds)
+{
+    <span class="rem">// Print out the DataSet name, plus any extended properties.</span>
+    Console.WriteLine(<span class="str">"DataSet is named: {0}"</span>, ds.DataSetName);
+    <span class="kwrd">foreach</span> (System.Collections.DictionaryEntry de <span class="kwrd">in</span> ds.ExtendedProperties)
+    {
+        Console.WriteLine(<span class="str">"Key = {0}, Value = {1}"</span>, de.Key, de.Value);
+    }
+    Console.WriteLine();
+
+    <span class="kwrd">foreach</span> (DataTable dt <span class="kwrd">in</span> ds.Tables)
+    {
+        Console.WriteLine(<span class="str">"=&gt; {0} Table:"</span>, dt.TableName);
+    
+        <span class="rem">// Print out the column names.</span>
+        <span class="kwrd">for</span> (<span class="kwrd">int</span> curCol = 0; curCol &lt; dt.Columns.Count; curCol++)
+        {
+            Console.Write(dt.Columns[curCol].ColumnName.Trim() + <span class="str">"\t"</span>);
+        }
+        Console.WriteLine(<span class="str">"\n----------------------------------"</span>);
+
+        <span class="rem">// Call our new helper method.</span>
+        PrintTable(dt);
+    }
+}</pre>
+<p>When you run the application, the output is identical to that shown previously. The only difference
+is how you access the DataTable’s contents internally.</p>
+<h2>Serializing DataTable/DataSet Objects As XML</h2>
+<p>DataSets and DataTables both support the WriteXml() and ReadXml() methods. WriteXml() allows you to
+persist an object’s content to a local file (as well as into any System.IO.Stream-derived type) as an XML
+document. ReadXml() allows you to hydrate the state of a DataSet (or DataTable) from a given XML
+document. In addition, DataSets and DataTables both support WriteXmlSchema() and ReadXmlSchema()
+for saving or loading an *.xsd file.</p>
+<p>To test this out for yourself, update your Main() method to call the following helper function (notice
+that you pass a DataSet as the sole parameter):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> SaveAndLoadAsXml(DataSet carsInventoryDS)
+{
+    <span class="rem">// Save this DataSet as XML.</span>
+    carsInventoryDS.WriteXml(<span class="str">"carsDataSet.xml"</span>);
+    carsInventoryDS.WriteXmlSchema(<span class="str">"carsDataSet.xsd"</span>);
+
+    <span class="rem">// Clear out DataSet.</span>
+    carsInventoryDS.Clear();
+
+    <span class="rem">// Load DataSet from XML file.</span>
+    carsInventoryDS.ReadXml(<span class="str">"carsDataSet.xml"</span>);
+}</pre>
+<p>If you open the carsDataSet.xml file (which you will find under the \bin\Debug folder of your
+project), you will find that each column in the table has been encoded as an XML element:</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">&lt;?</span><span class="html">xml</span> <span class="attr">version</span><span class="kwrd">="1.0"</span> <span class="attr">standalone</span><span class="kwrd">="yes"</span>?<span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;</span><span class="html">Car_x0020_Inventory</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Inventory</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">CarID</span><span class="kwrd">&gt;</span>0<span class="kwrd">&lt;/</span><span class="html">CarID</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Make</span><span class="kwrd">&gt;</span>BMW<span class="kwrd">&lt;/</span><span class="html">Make</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Color</span><span class="kwrd">&gt;</span>Black<span class="kwrd">&lt;/</span><span class="html">Color</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">PetName</span><span class="kwrd">&gt;</span>Hamlet<span class="kwrd">&lt;/</span><span class="html">PetName</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Inventory</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;</span><span class="html">Inventory</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">CarID</span><span class="kwrd">&gt;</span>1<span class="kwrd">&lt;/</span><span class="html">CarID</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Make</span><span class="kwrd">&gt;</span>Saab<span class="kwrd">&lt;/</span><span class="html">Make</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">Color</span><span class="kwrd">&gt;</span>Red<span class="kwrd">&lt;/</span><span class="html">Color</span><span class="kwrd">&gt;</span>
+        <span class="kwrd">&lt;</span><span class="html">PetName</span><span class="kwrd">&gt;</span>Sea Breeze<span class="kwrd">&lt;/</span><span class="html">PetName</span><span class="kwrd">&gt;</span>
+    <span class="kwrd">&lt;/</span><span class="html">Inventory</span><span class="kwrd">&gt;</span>
+<span class="kwrd">&lt;/</span><span class="html">Car_x0020_Inventory</span><span class="kwrd">&gt;</span></pre>
+<p>If you were to double click on the generated *.xsd file (also found under your \bin\Debug folder)
+within Visual Studio, you will open the IDE’s XML schema editor (Figure 22-3).</p>
+<img src="../Images/Figure22_03.png" alt="Figure 22-3" />
+<p><b>Figure 22-3</b> The XSD editor of Visual Studio 2010</p>
+<p><b>Note</b> Chapter 24 will introduce you to the LINQ to XML API, which is the preferred manner for manipulating XML
+data in the .NET platform.</p>
+<h2>Serializing DataTable/DataSet Objects in a Binary Format</h2>
+<p>It is also possible to persist the contents of a DataSet (or an individual DataTable) as a compact binary
+format. This can be especially helpful when a DataSet object needs to be passed across a machine
+boundary (in the case of a distributed application); one drawback of XML data representation is that its
+descriptive nature can result in a good deal of overhead.</p>
+<p>To persist DataTables or DataSets in a binary format, set the RemotingFormat property to
+SerializationFormat.Binary. At this point, you can use the BinaryFormatter type (see Chapter 20) as
+expected. Consider the following final method of the SimpleDataSet project (don’t forget to import the
+System.IO and System.Runtime.Serialization.Formatters.Binary namespaces):</p>
+<!-- code formatted by http://manoli.net/csharpformat/ -->
+<pre class="csharpcode">
+<span class="kwrd">static</span> <span class="kwrd">void</span> SaveAndLoadAsBinary(DataSet carsInventoryDS)
+{
+    <span class="rem">// Set binary serialization flag.</span>
+    carsInventoryDS.RemotingFormat = SerializationFormat.Binary;
+
+    <span class="rem">// Save this DataSet as binary.</span>
+    FileStream fs = <span class="kwrd">new</span> FileStream(<span class="str">"BinaryCars.bin"</span>, FileMode.Create);
+
+    BinaryFormatter bFormat = <span class="kwrd">new</span> BinaryFormatter();
+    bFormat.Serialize(fs, carsInventoryDS);
+    fs.Close();
+
+    <span class="rem">// Clear out DataSet.</span>
+    carsInventoryDS.Clear();
+    
+    <span class="rem">// Load DataSet from binary file.</span>
+    fs = <span class="kwrd">new</span> FileStream(<span class="str">"BinaryCars.bin"</span>, FileMode.Open);
+    DataSet data = (DataSet)bFormat.Deserialize(fs);
+}</pre>
+<p>If you call this method from Main(), you can find the *.bin file in your bin\Debug folder. Figure 22-4
+shows the contents of the BinaryCars.bin file.</p>
+<img src="../Images/Figure22_04.png" alt="Figure 22-4" />
+<p><b>Figure 22-4</b> A DataSet saved to a binary format</p>
+      <p><b>Source Code</b> You can find the SimpleDataSet application under the Chapter 22 subdirectory.</p>
+    </body>
+    </html>
+      
+   
